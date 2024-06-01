@@ -1,0 +1,47 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: nightly
+
+    - name: Add wasm32-unknown-unknown
+      run: rustup target add wasm32-unknown-unknown
+      
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Install cargo-leptos
+      run: cargo binstall cargo-leptos --no-confirm
+
+    - name: Install Trunk
+      uses: jetli/trunk-action@v0.5.0
+      with:
+        version: "latest"
+
+    - name: Print Trunk Version
+      run: trunk --version
+
+    - name: Trunk Build
+      run: cd leptris_frontend && trunk build
+
+    - name: Cargo Check
+      run: cd leptris_frontend && cargo check
+
