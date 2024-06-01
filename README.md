@@ -1,1 +1,1 @@
-![](./docs/Screenshot 2024-06-01 200351.png)
+![](./docs/Screenshot.png)
