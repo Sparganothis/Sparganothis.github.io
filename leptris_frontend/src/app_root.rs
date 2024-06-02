@@ -1,10 +1,10 @@
+use crate::{game_board::GameBoard, tet::{Tet, TetAction}};
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use leptos_router::*;
-use crate::game_board::GameBoard;
 
 #[component]
-pub fn AppRoot () -> impl IntoView {
+pub fn AppRoot() -> impl IntoView {
     let _style = stylist::style!(
         nav {
             position: absolute;
@@ -59,14 +59,14 @@ pub fn AppRoot () -> impl IntoView {
             height: 5vmin;
             line-height: 5vmin;
         }
-    ).expect("bad css");
-    use leptos_hotkeys::{provide_hotkeys_context, HotkeysContext, scopes};
+    )
+    .expect("bad css");
+    use leptos_hotkeys::{provide_hotkeys_context, scopes, HotkeysContext};
 
     provide_meta_context();
 
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
-
 
     view! {
         <div class=_style.get_class_name().to_string()>
@@ -96,7 +96,7 @@ pub fn AppRoot () -> impl IntoView {
                             }
                         }> </Route>
 
-                        
+
                         <Route path="/vs_net" view=|| {
                             view!{
                                 <p>penis</p>
@@ -116,38 +116,87 @@ pub fn AppRoot () -> impl IntoView {
 use leptos_hotkeys::use_hotkeys;
 #[component]
 pub fn SomeComponent() -> impl IntoView {
-    let (count, set_count) = create_signal(0);
+    let (get_act, set_act) = create_signal(TetAction::Nothing);
 
     // creating a global scope for the W key
-    use_hotkeys!(("keyw") => move |_| {
-        logging::log!("w has been pressed");
-        set_count.update(|c| *c += 1);
+    use_hotkeys!(("arrowup,keyx") => move |_| {
+        logging::log!("up has been pressed");
+        set_act.update(|c| *c=TetAction::RotateRight);
     });
 
     // this is also a global scope for the F key!
-    use_hotkeys!(("keyf", "*") => move |_| {
-        logging::log!("f has been pressed");
-        set_count.update(|c| *c -= 1);
+    use_hotkeys!(("arrowdown", "*") => move |_| {
+        logging::log!("down has been pressed");
+        set_act.update(|c| *c = TetAction::SoftDrop);
     });
 
-    view! { <p>Num Respects: {count}</p> }
-}
+    // this is also a global scope for the F key!
+    use_hotkeys!(("Space", "*") => move |_| {
+        logging::log!("space has been pressed");
+        set_act.update(|c| *c = TetAction::HardDrop);
+    });
 
+    // this is also a global scope for the F key!
+    use_hotkeys!(("KeyC", "*") => move |_| {
+        logging::log!("C has been pressed");
+        set_act.update(|c| *c = TetAction::Hold);
+    });
+
+    // this is also a global scope for the F key!
+    use_hotkeys!(("KeyZ", "*") => move |_| {
+        logging::log!("Z has been pressed");
+        set_act.update(|c| *c = TetAction::RotateLeft);
+    });
+
+    // this is also a global scope for the F key!
+    use_hotkeys!(("ArrowLeft", "*") => move |_| {
+        logging::log!("Left has been pressed");
+        set_act.update(|c| *c = TetAction::MoveLeft);
+    });
+
+    // this is also a global scope for the F key!
+    use_hotkeys!(("ArrowRight", "*") => move |_| {
+        logging::log!("Right has been pressed");
+        set_act.update(|c| *c = TetAction::MoveRight);
+    });
+
+    // // this is also a global scope for the F key! NUUUUUUUUUUUU MERGE BAG PL
+    // use_hotkeys!(("ControlLeft", "*") => move |_| {
+    //     logging::log!("ctrl has been pressed");
+    //     set_count.update(|c| *c = "ctrl");
+    // });
+
+    // // this is also a global scope for the F key! NUUUUUUUUUUUU MERGE BAG PL
+    // use_hotkeys!(("ShiftLeft", "*") => move |_| {
+    //     logging::log!("shift has been pressed");
+    //     set_count.update(|c| *c = "shift");
+    // });
+
+    // // this is also a global scope for the F key! NICI ASTA NU MERGE BAG PL
+    // use_hotkeys!(("ControlRight", "*") => move |_| {
+    //     logging::log!("ctrl r has been pressed");
+    //     set_count.update(|c| *c = "ctrlR");
+    // });
+
+    view! { <p>Num Respects: {move || format!("{:?}", get_act())}</p> }
+}
 
 #[component]
 pub fn MainMenu() -> impl IntoView {
-    let menu_entries = || {vec![
-        ("/", "home"),
-        ("/vs_cpu", "1v1 cpu"),
-        ("/vs_net", "1v1 online"),
-        ("/account", "account"),
-        ("/settings", "settings"),
-        ("/about", "about"),
-        ("/credits", "credits"),
-    ]};
-    view!{
+    let menu_entries = || {
+        vec![
+            ("/", "home"),
+            ("/vs_cpu", "1v1 cpu"),
+            ("/vs_net", "1v1 online"),
+            ("/account", "account"),
+            ("/settings", "settings"),
+            ("/about", "about"),
+            ("/credits", "credits"),
+        ]
+    };
+    view! {
         <ul class="menu_root">
-            <For 
+            <For
                 each=menu_entries
                 key= |k| k.0
                 children= |k| view!  {

@@ -1,13 +1,11 @@
-
-
-use leptos::*;
 use crate::tet::{self, CellValue};
+use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
 const SIDE_BOARD_WIDTH: usize = 5;
 
 #[component]
-pub fn BoardTable<const R: usize, const C: usize>(board: tet::BoardMatrix<R,C>) -> impl IntoView {
+pub fn BoardTable<const R: usize, const C: usize>(board: tet::BoardMatrix<R, C>) -> impl IntoView {
     let values = move || {
         let mut v: Vec<_> = board.rows().into_iter().enumerate().collect();
         v.reverse();
@@ -30,12 +28,10 @@ pub fn BoardTable<const R: usize, const C: usize>(board: tet::BoardMatrix<R,C>) 
 
 #[component]
 pub fn BoardRow(row_vals: Vec<CellValue>, row_idx: usize) -> impl IntoView {
-    let iter = move || {
-        row_vals.clone().into_iter().enumerate()
-    };
+    let iter = move || row_vals.clone().into_iter().enumerate();
     let overflow = row_idx >= BOARD_HEIGHT;
 
-    view!{
+    view! {
         <tr>
             // <td>  {{row_idx}} </td>
             <For
@@ -60,9 +56,9 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
         tet::CellValue::Empty => "empty".to_string(),
         tet::CellValue::Garbage => "garbage".to_string(),
     };
-    let overflow_txt = if overflow {"overflow_cell"} else {"cell"};
+    let overflow_txt = if overflow { "overflow_cell" } else { "cell" };
     let _cell_cls = format!("{_cell_cls} {overflow_txt}");
-    view!{
+    view! {
         <div class=_cell_cls>
             // {{format!("{cell:?}")}}
         </div>
@@ -71,9 +67,8 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
 
 #[component]
 pub fn GameBoard() -> impl IntoView {
-
     let bottom_free_percent = 15.0;
-    let cell_width_vmin = (100. - 2.*bottom_free_percent) / BOARD_HEIGHT as f64;
+    let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
 
     let default_style = stylist::style!(
         table {
@@ -175,12 +170,12 @@ pub fn GameBoard() -> impl IntoView {
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
-    let main_board: tet::BoardMatrix =  tet::BoardMatrix::empty();
+    let main_board: tet::BoardMatrix = tet::BoardMatrix::empty();
     let mut next_board = tet::BoardMatrix::<21, SIDE_BOARD_WIDTH>::empty();
     let hold_board = tet::BoardMatrix::<4, SIDE_BOARD_WIDTH>::empty();
     next_board.debug_spawn_nextpcs();
 
-    view! { 
+    view! {
         // class={{_style.get_class_name()}},
 
         <div class={{_style_name}}>
