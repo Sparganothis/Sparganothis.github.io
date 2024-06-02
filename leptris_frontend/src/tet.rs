@@ -100,3 +100,4 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         self.v.iter().map(|r| r.into_iter().cloned().collect()).collect()
     }
 }
+

@@ -13,6 +13,8 @@ console_error_panic_hook = "0.1.7"
 stylist = {version="0.13.0", features=["parser"]}
 thiserror = "1.0.61"
 anyhow = "1.0.86"
+leptos_hotkeys =" 0.2.1"
+
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.0"

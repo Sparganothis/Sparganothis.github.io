@@ -613,6 +613,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "leptos_hotkeys"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9d0c36031f25c49baa0bed5f220af44587e17842a031c98379c3d43e9f699b9"
+dependencies = [
+ "leptos",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "leptos_macro"
 version = "0.6.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -725,6 +736,7 @@ dependencies = [
  "console_error_panic_hook",
  "console_log",
  "leptos",
+ "leptos_hotkeys",
  "leptos_meta",
  "leptos_router",
  "log",

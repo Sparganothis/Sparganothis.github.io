@@ -1,4 +1,5 @@
 use leptos::*;
+use leptos_meta::provide_meta_context;
 use leptos_router::*;
 use crate::game_board::GameBoard;
 
@@ -59,13 +60,21 @@ pub fn AppRoot () -> impl IntoView {
             line-height: 5vmin;
         }
     ).expect("bad css");
+    use leptos_hotkeys::{provide_hotkeys_context, HotkeysContext, scopes};
+
+    provide_meta_context();
+
+    let main_ref = create_node_ref::<html::Main>();
+    let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
+
+
     view! {
         <div class=_style.get_class_name().to_string()>
             <Router>
                 <nav>
                     <MainMenu />
                 </nav>
-                <main>
+                <main  _ref=main_ref>
                     // all our routes will appear inside <main>
                     <Routes>
                         <Route path="" view=|| {
@@ -86,11 +95,42 @@ pub fn AppRoot () -> impl IntoView {
                                 </div>
                             }
                         }> </Route>
+
+                        
+                        <Route path="/vs_net" view=|| {
+                            view!{
+                                <p>penis</p>
+                                <SomeComponent/>
+                            }
+                        }> </Route>
+
+
+
                     </Routes>
                 </main>
             </Router>
         </div>
     }
+}
+
+use leptos_hotkeys::use_hotkeys;
+#[component]
+pub fn SomeComponent() -> impl IntoView {
+    let (count, set_count) = create_signal(0);
+
+    // creating a global scope for the W key
+    use_hotkeys!(("keyw") => move |_| {
+        logging::log!("w has been pressed");
+        set_count.update(|c| *c += 1);
+    });
+
+    // this is also a global scope for the F key!
+    use_hotkeys!(("keyf", "*") => move |_| {
+        logging::log!("f has been pressed");
+        set_count.update(|c| *c -= 1);
+    });
+
+    view! { <p>Num Respects: {count}</p> }
 }
 
 
