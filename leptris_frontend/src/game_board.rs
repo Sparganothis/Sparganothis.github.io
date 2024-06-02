@@ -161,13 +161,22 @@ pub fn GameBoard() -> impl IntoView {
             border-color: 1px transparent;
             background-color: transparent;
         }
+        .tet.S.cell {            background-color: lightgreen;     }
+        .tet.T.cell {            background-color: magenta;     }
+        .tet.I.cell {            background-color: lightblue;     }
+        .tet.J.cell {            background-color: darkblue;     }
+        .tet.L.cell {            background-color: orange;     }
+        .tet.O.cell {            background-color: yellow;     }
+        .tet.Z.cell {            background-color: red;     }
+        
+
     ).expect("bad css");
 
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
     let main_board: tet::BoardMatrix =  tet::BoardMatrix::empty();
-    let mut next_board = tet::BoardMatrix::<14, SIDE_BOARD_WIDTH>::empty();
+    let mut next_board = tet::BoardMatrix::<21, SIDE_BOARD_WIDTH>::empty();
     let hold_board = tet::BoardMatrix::<4, SIDE_BOARD_WIDTH>::empty();
     next_board.debug_spawn_nextpcs();
 
