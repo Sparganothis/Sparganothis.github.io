@@ -1,0 +1,72 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "mondeja",
+      "name": "Álvaro Mondéjar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23049315?v=4",
+      "profile": "https://github.com/mondeja",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JustBobinAround",
+      "name": "Robert Junkins",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67753581?v=4",
+      "profile": "https://github.com/JustBobinAround",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "LeoniePhiline",
+      "name": "LeoniePhiline",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22329650?v=4",
+      "profile": "https://github.com/LeoniePhiline",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "szabgab",
+      "name": "Gábor Szabó",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48833?v=4",
+      "profile": "https://szabgab.com/",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "phillipbaird",
+      "name": "Phillip Baird",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4003333?v=4",
+      "profile": "https://github.com/phillipbaird",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "zakstucke",
+      "name": "zakstucke",
+      "avatar_url": "https://avatars.githubusercontent.com/u/44890343?v=4",
+      "profile": "https://github.com/zakstucke",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "leptos-hotkeys",
+  "projectOwner": "gaucho-labs"
+}

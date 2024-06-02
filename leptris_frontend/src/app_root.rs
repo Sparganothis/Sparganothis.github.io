@@ -118,65 +118,40 @@ use leptos_hotkeys::use_hotkeys;
 pub fn SomeComponent() -> impl IntoView {
     let (get_act, set_act) = create_signal(TetAction::Nothing);
 
-    // creating a global scope for the W key
-    use_hotkeys!(("arrowup,keyx") => move |_| {
+    use_hotkeys!(("arrowup,keyx,ControlLeft,ControlRight") => move |_| {
         logging::log!("up has been pressed");
         set_act.update(|c| *c=TetAction::RotateRight);
     });
 
-    // this is also a global scope for the F key!
-    use_hotkeys!(("arrowdown", "*") => move |_| {
+    use_hotkeys!(("arrowdown") => move |_| {
         logging::log!("down has been pressed");
         set_act.update(|c| *c = TetAction::SoftDrop);
     });
 
-    // this is also a global scope for the F key!
-    use_hotkeys!(("Space", "*") => move |_| {
+    use_hotkeys!(("Space") => move |_| {
         logging::log!("space has been pressed");
         set_act.update(|c| *c = TetAction::HardDrop);
     });
 
-    // this is also a global scope for the F key!
-    use_hotkeys!(("KeyC", "*") => move |_| {
+    use_hotkeys!(("KeyC,ShiftLeft,ShiftRight") => move |_| {
         logging::log!("C has been pressed");
         set_act.update(|c| *c = TetAction::Hold);
     });
 
-    // this is also a global scope for the F key!
-    use_hotkeys!(("KeyZ", "*") => move |_| {
+    use_hotkeys!(("KeyZ") => move |_| {
         logging::log!("Z has been pressed");
         set_act.update(|c| *c = TetAction::RotateLeft);
     });
 
-    // this is also a global scope for the F key!
-    use_hotkeys!(("ArrowLeft", "*") => move |_| {
+    use_hotkeys!(("ArrowLeft") => move |_| {
         logging::log!("Left has been pressed");
         set_act.update(|c| *c = TetAction::MoveLeft);
     });
 
-    // this is also a global scope for the F key!
-    use_hotkeys!(("ArrowRight", "*") => move |_| {
+    use_hotkeys!(("ArrowRight") => move |_| {
         logging::log!("Right has been pressed");
         set_act.update(|c| *c = TetAction::MoveRight);
     });
-
-    // // this is also a global scope for the F key! NUUUUUUUUUUUU MERGE BAG PL
-    // use_hotkeys!(("ControlLeft", "*") => move |_| {
-    //     logging::log!("ctrl has been pressed");
-    //     set_count.update(|c| *c = "ctrl");
-    // });
-
-    // // this is also a global scope for the F key! NUUUUUUUUUUUU MERGE BAG PL
-    // use_hotkeys!(("ShiftLeft", "*") => move |_| {
-    //     logging::log!("shift has been pressed");
-    //     set_count.update(|c| *c = "shift");
-    // });
-
-    // // this is also a global scope for the F key! NICI ASTA NU MERGE BAG PL
-    // use_hotkeys!(("ControlRight", "*") => move |_| {
-    //     logging::log!("ctrl r has been pressed");
-    //     set_count.update(|c| *c = "ctrlR");
-    // });
 
     view! { <p>Num Respects: {move || format!("{:?}", get_act())}</p> }
 }

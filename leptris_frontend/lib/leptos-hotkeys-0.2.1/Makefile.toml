@@ -1,0 +1,60 @@
+[config]
+default_to_workspace = false
+
+[tasks.lint]
+description = "Check format of files and run linters"
+run_task = { name = ["lint-rs"] }
+
+[tasks.lint-rs]
+description = "Lint Rust code"
+run_task = { name = ["clippy", "cargo-check", "format-check"] }
+
+[tasks.clippy]
+description = "Run clippy"
+clear = true
+install_crate = "cargo-hack"
+command = "cargo"
+# TODO: Remove ["-A", "clippy::empty-docs"] when the next issue is resolved:
+# https://github.com/leptos-rs/leptos/issues/2406
+args = [
+  "hack",
+  "clippy",
+  "--all",
+  "--each-feature",
+  "--no-dev-deps",
+  "--",
+  "-A",
+  "clippy::empty-docs",
+  "-D",
+  "clippy::print_stdout"
+]
+
+[tasks.cargo-check]
+description = "Run cargo-check"
+clear = true
+install_crate = "cargo-hack"
+command = "cargo"
+args = [
+  "hack",
+  "check",
+  "--all",
+  "--each-feature",
+  "--no-dev-deps",
+]
+
+[tasks.format-check]
+description = "Check Rust code formatting with rustfmt"
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--all", "--check"]
+
+[tasks.format]
+clear = true
+description = "Format files"
+run_task = { name = ["format-rs"] }
+
+[tasks.format-rs]
+description = "Format Rust code with rustfmt"
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--all"]
