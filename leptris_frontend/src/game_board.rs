@@ -1,11 +1,12 @@
-use crate::tet::{self, CellValue};
+use crate::tet::{self, CellValue, Tet};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
-const SIDE_BOARD_WIDTH: usize = 5;
-
+const SIDE_BOARD_WIDTH: usize = 4;
+///componenta
 #[component]
 pub fn BoardTable<const R: usize, const C: usize>(board: tet::BoardMatrix<R, C>) -> impl IntoView {
+    //
     let values = move || {
         let mut v: Vec<_> = board.rows().into_iter().enumerate().collect();
         v.reverse();
@@ -170,11 +171,11 @@ pub fn GameBoard() -> impl IntoView {
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
-    let main_board: tet::BoardMatrix = tet::BoardMatrix::empty();
+    let mut main_board: tet::BoardMatrix = tet::BoardMatrix::empty();
     let mut next_board = tet::BoardMatrix::<21, SIDE_BOARD_WIDTH>::empty();
-    let hold_board = tet::BoardMatrix::<4, SIDE_BOARD_WIDTH>::empty();
+    let hold_board = tet::BoardMatrix::<3, SIDE_BOARD_WIDTH>::empty();
     next_board.debug_spawn_nextpcs();
-
+    main_board.spawn_piece(Tet::I, (3,3));
     view! {
         // class={{_style.get_class_name()}},
 

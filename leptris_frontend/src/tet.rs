@@ -65,7 +65,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             v: [[CellValue::Empty; C]; R],
         }
     }
-    fn spawn_piece(&mut self, piece: Tet, (y, x): (i8, i8)) -> anyhow::Result<()> {
+    pub fn spawn_piece(&mut self, piece: Tet, (y, x): (i8, i8)) -> anyhow::Result<()> {
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             anyhow::bail!(
                 "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})"
@@ -94,11 +94,12 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         Ok(())
     }
     pub fn debug_spawn_nextpcs(&mut self) {
-        let col: i8 = 1;
-        let mut row: i8 = 1;
+        let col: i8 = 0;
+        let mut row: i8 = R as i8-3;
         for piece in Tet::all() {
-            let r = self.spawn_piece(piece, (row, col));
-            row += 1 + piece.shape().len() as i8;
+            let r = self.
+            spawn_piece(piece, (row, col));
+            row -= 3;
             if (r.is_err()) {
                 log::info!("{r:?}");
             }
