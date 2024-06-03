@@ -66,9 +66,9 @@ pub fn AppRoot() -> impl IntoView {
 
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
-use crate::game_1p::Game1P;
-use crate::game_2p::Game2P;
-use crate::game_cpu::GameCPU;
+    use crate::game_1p::Game1P;
+    use crate::game_2p::Game2P;
+    use crate::game_cpu::GameCPU;
     view! {
         <div class=_style.get_class_name().to_string()>
             <Router>
@@ -93,8 +93,6 @@ use crate::game_cpu::GameCPU;
         </div>
     }
 }
-
-
 
 #[component]
 pub fn MainMenu() -> impl IntoView {

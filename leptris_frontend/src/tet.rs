@@ -137,6 +137,7 @@ pub struct GameState {
     pub main_board: BoardMatrix,
     pub next_board: BoardMatrixNext,
     pub hold_board: BoardMatrixHold,
+    pub last_action: TetAction,
 }
 impl GameState {
     pub fn empty() -> Self {
@@ -144,6 +145,13 @@ impl GameState {
             main_board: BoardMatrix::empty(),
             next_board: BoardMatrixNext::empty(),
             hold_board: BoardMatrixHold::empty(),
+            last_action: TetAction::Nothing,
         }
+    }
+
+    pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {
+        let mut new = self.clone();
+        new.last_action = action;
+        Ok(new)
     }
 }

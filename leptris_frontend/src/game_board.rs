@@ -4,9 +4,13 @@ use leptos::*;
 const BOARD_HEIGHT: usize = 20;
 ///componenta
 #[component]
-pub fn BoardTable<const R: usize, const C: usize>(board: tet::BoardMatrix<R, C>) -> impl IntoView {
+pub fn BoardTable<const R: usize, const C: usize>(
+    board: Signal<tet::BoardMatrix<R, C>>,
+) -> impl IntoView {
     //
+    log::info!("redraw BoardTable R={} C={}", R, C);
     let values = move || {
+        let board = board();
         let mut v: Vec<_> = board.rows().into_iter().enumerate().collect();
         v.reverse();
         v
@@ -66,7 +70,7 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
 }
 
 #[component]
-pub fn GameBoard(game_state:ReadSignal<tet::GameState>) -> impl IntoView {
+pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl IntoView {
     let bottom_free_percent = 15.0;
     let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
 
@@ -87,7 +91,6 @@ pub fn GameBoard(game_state:ReadSignal<tet::GameState>) -> impl IntoView {
             position: absolute;
             // border: 0.2vmin solid black;
             // padding: 0.2vmin; margin: 0.2vmin;
-            
         }
         .side_board_title {
             height: ${cell_width_vmin}vmin;
@@ -135,7 +138,6 @@ pub fn GameBoard(game_state:ReadSignal<tet::GameState>) -> impl IntoView {
             max-height: ${cell_width_vmin}vmin;
             max-width: ${cell_width_vmin}vmin;
         }
-            
         tr {border-collapse: collapse;padding: 0px; margin: 0 px;}
 
         .cell, .overflow_cell {
@@ -163,41 +165,64 @@ pub fn GameBoard(game_state:ReadSignal<tet::GameState>) -> impl IntoView {
         .tet.L.cell {            background-color: orange;     }
         .tet.O.cell {            background-color: yellow;     }
         .tet.Z.cell {            background-color: red;     }
-        
 
     ).expect("bad css");
 
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
+    let hold_board = create_memo(move |_| game_state().hold_board).into_signal();
+    let hold_board = create_memo(move |_| {
+        view! {<BoardTable board=hold_board />}
+    });
+
+    let next_board =
+        create_memo(move |_| game_state.with(|game_state| game_state.next_board)).into_signal();
+    let next_board = create_memo(move |_| {
+        view! {<BoardTable board=next_board />}
+    });
+
+    let main_board = create_memo(move |_| game_state().main_board).into_signal();
+    let main_board = create_memo(move |_| {
+        view! {<BoardTable board=main_board />}
+    });
+
+    let last_action = create_memo(move |_| game_state().last_action).into_signal();
+
+    let gameboard_view = move || {
+        view! {
+            <div class="main_container">
+            <div class="side_board_left">
+                <h3 class="side_board_title">HOLD</h3>
+                {hold_board}
+            </div>
+            <div class="score_window_left">
+            <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+            </div>
+
+            <div class="main_board">
+                {main_board}
+            </div>
+            <div class="label_bottom">
+            <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+            </div>
+
+            <div class="side_board_right">
+                <h3 class="side_board_title">NEXT</h3>
+                {next_board}
+            </div>
+            <div class="score_window_right">
+            <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+            </div>
+        </div>
+        }
+    };
+
     view! {
         // class={{_style.get_class_name()}},
 
         <div class={{_style_name}}>
-            <div class="main_container">
-                <div class="side_board_left">
-                    <h3 class="side_board_title">HOLD</h3>
-                    <BoardTable board=game_state.get().hold_board/>
-                </div>
-                <div class="score_window_left">
-                    <h3 class="side_board_title">todo</h3>
-                </div>
-
-                <div class="main_board">
-                    <BoardTable board=game_state.get().main_board/>
-                </div>
-                <div class="label_bottom">
-                    <h3 class="side_board_title">todo</h3>
-                </div>
-
-                <div class="side_board_right">
-                    <h3 class="side_board_title">NEXT</h3>
-                    <BoardTable board=game_state.get().next_board/>
-                </div>
-                <div class="score_window_right">
-                    <h3 class="side_board_title">todo</h3>
-                </div>
-            </div>
+            {move || gameboard_view()}
         </div>
     }
 }
