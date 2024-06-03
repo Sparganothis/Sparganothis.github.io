@@ -66,7 +66,7 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
 }
 
 #[component]
-pub fn GameBoard() -> impl IntoView {
+pub fn GameBoard(game_state:ReadSignal<tet::GameState>) -> impl IntoView {
     let bottom_free_percent = 15.0;
     let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
 
@@ -170,9 +170,6 @@ pub fn GameBoard() -> impl IntoView {
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
-    let mut game_state = tet::GameState::empty();
-    game_state.next_board.debug_spawn_nextpcs();
-    game_state.main_board.spawn_piece(Tet::random(), (3, 3));
     view! {
         // class={{_style.get_class_name()}},
 
@@ -180,14 +177,14 @@ pub fn GameBoard() -> impl IntoView {
             <div class="main_container">
                 <div class="side_board_left">
                     <h3 class="side_board_title">HOLD</h3>
-                    <BoardTable board=game_state.hold_board/>
+                    <BoardTable board=game_state.get().hold_board/>
                 </div>
                 <div class="score_window_left">
                     <h3 class="side_board_title">todo</h3>
                 </div>
 
                 <div class="main_board">
-                    <BoardTable board=game_state.main_board/>
+                    <BoardTable board=game_state.get().main_board/>
                 </div>
                 <div class="label_bottom">
                     <h3 class="side_board_title">todo</h3>
@@ -195,7 +192,7 @@ pub fn GameBoard() -> impl IntoView {
 
                 <div class="side_board_right">
                     <h3 class="side_board_title">NEXT</h3>
-                    <BoardTable board=game_state.next_board/>
+                    <BoardTable board=game_state.get().next_board/>
                 </div>
                 <div class="score_window_right">
                     <h3 class="side_board_title">todo</h3>

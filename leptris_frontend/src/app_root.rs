@@ -70,7 +70,9 @@ pub fn AppRoot() -> impl IntoView {
 
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
-
+use crate::game_1p::Game1P;
+use crate::game_2p::Game2P;
+use crate::game_cpu::GameCPU;
     view! {
         <div class=_style.get_class_name().to_string()>
             <Router>
@@ -80,32 +82,12 @@ pub fn AppRoot() -> impl IntoView {
                 <main  _ref=main_ref>
                     // all our routes will appear inside <main>
                     <Routes>
-                        <Route path="" view=|| {
-                            view!{
-                                <div class="main_left">
-                                    <GameBoard/>
-                                </div>
-                            }
-                        }> </Route>
+                        <Route path="" view=Game1P> </Route>
 
-                        <Route path="/vs_cpu" view=|| {
-                            view!{
-                                <div class="main_left">
-                                    <GameBoard/>
-                                </div>
-                                <div class="main_right">
-                                    <GameBoard/>
-                                </div>
-                            }
-                        }> </Route>
+                        <Route path="/vs_cpu" view=GameCPU></Route>
 
 
-                        <Route path="/vs_net" view=|| {
-                            view!{
-                                <p>todo</p>
-                                <SomeComponent/>
-                            }
-                        }> </Route>
+                        <Route path="/vs_net" view=Game2P> </Route>
 
 
 
@@ -116,48 +98,7 @@ pub fn AppRoot() -> impl IntoView {
     }
 }
 
-use leptos_hotkeys::use_hotkeys;
-#[component]
-pub fn SomeComponent() -> impl IntoView {
-    let (get_act, set_act) = create_signal(TetAction::Nothing);
 
-    use_hotkeys!(("arrowup,keyx,ControlLeft,ControlRight") => move |_| {
-        logging::log!("up has been pressed");
-        set_act.update(|c| *c=TetAction::RotateRight);
-    });
-
-    use_hotkeys!(("arrowdown") => move |_| {
-        logging::log!("down has been pressed");
-        set_act.update(|c| *c = TetAction::SoftDrop);
-    });
-
-    use_hotkeys!(("Space") => move |_| {
-        logging::log!("space has been pressed");
-        set_act.update(|c| *c = TetAction::HardDrop);
-    });
-
-    use_hotkeys!(("KeyC,ShiftLeft,ShiftRight") => move |_| {
-        logging::log!("C has been pressed");
-        set_act.update(|c| *c = TetAction::Hold);
-    });
-
-    use_hotkeys!(("KeyZ") => move |_| {
-        logging::log!("Z has been pressed");
-        set_act.update(|c| *c = TetAction::RotateLeft);
-    });
-
-    use_hotkeys!(("ArrowLeft") => move |_| {
-        logging::log!("Left has been pressed");
-        set_act.update(|c| *c = TetAction::MoveLeft);
-    });
-
-    use_hotkeys!(("ArrowRight") => move |_| {
-        logging::log!("Right has been pressed");
-        set_act.update(|c| *c = TetAction::MoveRight);
-    });
-
-    view! { <p>Num Respects: {move || format!("{:?}", get_act())}</p> }
-}
 
 #[component]
 pub fn MainMenu() -> impl IntoView {

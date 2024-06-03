@@ -132,6 +132,7 @@ pub enum TetAction {
 pub const SIDE_BOARD_WIDTH: usize = 4;
 type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<21, SIDE_BOARD_WIDTH>;
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct GameState {
     pub main_board: BoardMatrix,
     pub next_board: BoardMatrixNext,
