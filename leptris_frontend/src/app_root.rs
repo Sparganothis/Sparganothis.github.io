@@ -99,7 +99,7 @@ pub fn AppRoot() -> impl IntoView {
 
                         <Route path="/vs_net" view=|| {
                             view!{
-                                <p>penis</p>
+                                <p>todo</p>
                                 <SomeComponent/>
                             }
                         }> </Route>

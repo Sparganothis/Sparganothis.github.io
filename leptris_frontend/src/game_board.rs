@@ -186,14 +186,14 @@ pub fn GameBoard() -> impl IntoView {
                     <BoardTable board=hold_board/>
                 </div>
                 <div class="score_window_left">
-                    <h3 class="side_board_title">PENIS</h3>
+                    <h3 class="side_board_title">todo</h3>
                 </div>
 
                 <div class="main_board">
                     <BoardTable board=main_board/>
                 </div>
                 <div class="label_bottom">
-                    <h3 class="side_board_title">PENIS</h3>
+                    <h3 class="side_board_title">todo</h3>
                 </div>
 
                 <div class="side_board_right">
@@ -201,7 +201,7 @@ pub fn GameBoard() -> impl IntoView {
                     <BoardTable board=next_board/>
                 </div>
                 <div class="score_window_right">
-                    <h3 class="side_board_title">PENIS</h3>
+                    <h3 class="side_board_title">todo</h3>
                 </div>
             </div>
         </div>
