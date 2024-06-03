@@ -175,7 +175,7 @@ pub fn GameBoard() -> impl IntoView {
     let mut next_board = tet::BoardMatrix::<21, SIDE_BOARD_WIDTH>::empty();
     let hold_board = tet::BoardMatrix::<3, SIDE_BOARD_WIDTH>::empty();
     next_board.debug_spawn_nextpcs();
-    main_board.spawn_piece(Tet::I, (3,3));
+    main_board.spawn_piece(Tet::random(), (3,3));
     view! {
         // class={{_style.get_class_name()}},
 

@@ -33,7 +33,13 @@ impl Tet {
             &Self::O => vec![vec![true, true], vec![true, true]],
         }
     }
-
+    pub fn random() -> Self{
+        use rand::thread_rng;
+        use rand::seq::SliceRandom;
+        let choices = Self::all();
+        let mut rng = thread_rng();
+       *choices.choose(&mut rng).unwrap()
+    }
     pub fn all() -> Vec<Self> {
         vec![
             Self::I,
