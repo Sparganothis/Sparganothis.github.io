@@ -3,16 +3,18 @@ use leptos::*;
 #[component]
 pub fn Game1P() -> impl IntoView {
     let (get_state, _set_state) = create_signal(GameState::empty());
+
+    let on_action = move |_action| _set_state.update( |state| {
+        let r = state.try_action(_action);
+        if let Ok(new_state) = r {
+            *state = new_state;
+        } else {
+            log::warn!("user action {:?} failed: {:?}", _action, r.unwrap_err());
+        }
+    } ) ;
     view! {
         <div class="main_left">
-            <crate::hotkey_reader::HotkeyReader on_action=move |_action| _set_state.update( |state| {
-                let r = state.try_action(_action);
-                if let Ok(new_state) = r {
-                    *state =new_state;
-                } else {
-                    log::warn!("user action {:?} failed: {:?}", _action, r.unwrap_err());
-                }
-            } ) />
+            <crate::hotkey_reader::HotkeyReader on_action=on_action/>
             <GameBoard game_state=get_state/>
         </div>
     }

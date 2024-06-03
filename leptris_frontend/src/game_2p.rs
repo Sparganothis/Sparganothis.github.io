@@ -1,5 +1,8 @@
 use crate::{game_board::GameBoard, tet::GameState};
 use leptos::*;
+
+use super::game_1p::Game1P;
+
 #[component]
 pub fn Game2P() -> impl IntoView {
     let (state, _set_state) = create_signal(GameState::empty());
