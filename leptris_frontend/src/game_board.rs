@@ -1,8 +1,7 @@
-use crate::tet::{self, CellValue, Tet};
+use crate::tet::{self, CellValue, Tet, SIDE_BOARD_WIDTH};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
-const SIDE_BOARD_WIDTH: usize = 4;
 ///componenta
 #[component]
 pub fn BoardTable<const R: usize, const C: usize>(board: tet::BoardMatrix<R, C>) -> impl IntoView {
@@ -171,11 +170,9 @@ pub fn GameBoard() -> impl IntoView {
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
-    let mut main_board: tet::BoardMatrix = tet::BoardMatrix::empty();
-    let mut next_board = tet::BoardMatrix::<21, SIDE_BOARD_WIDTH>::empty();
-    let hold_board = tet::BoardMatrix::<3, SIDE_BOARD_WIDTH>::empty();
-    next_board.debug_spawn_nextpcs();
-    main_board.spawn_piece(Tet::random(), (3,3));
+    let mut game_state = tet::GameState::empty();
+    game_state.next_board.debug_spawn_nextpcs();
+    game_state.main_board.spawn_piece(Tet::random(), (3, 3));
     view! {
         // class={{_style.get_class_name()}},
 
@@ -183,14 +180,14 @@ pub fn GameBoard() -> impl IntoView {
             <div class="main_container">
                 <div class="side_board_left">
                     <h3 class="side_board_title">HOLD</h3>
-                    <BoardTable board=hold_board/>
+                    <BoardTable board=game_state.hold_board/>
                 </div>
                 <div class="score_window_left">
                     <h3 class="side_board_title">todo</h3>
                 </div>
 
                 <div class="main_board">
-                    <BoardTable board=main_board/>
+                    <BoardTable board=game_state.main_board/>
                 </div>
                 <div class="label_bottom">
                     <h3 class="side_board_title">todo</h3>
@@ -198,7 +195,7 @@ pub fn GameBoard() -> impl IntoView {
 
                 <div class="side_board_right">
                     <h3 class="side_board_title">NEXT</h3>
-                    <BoardTable board=next_board/>
+                    <BoardTable board=game_state.next_board/>
                 </div>
                 <div class="score_window_right">
                     <h3 class="side_board_title">todo</h3>

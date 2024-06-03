@@ -33,12 +33,12 @@ impl Tet {
             &Self::O => vec![vec![true, true], vec![true, true]],
         }
     }
-    pub fn random() -> Self{
-        use rand::thread_rng;
+    pub fn random() -> Self {
         use rand::seq::SliceRandom;
+        use rand::thread_rng;
         let choices = Self::all();
         let mut rng = thread_rng();
-       *choices.choose(&mut rng).unwrap()
+        *choices.choose(&mut rng).unwrap()
     }
     pub fn all() -> Vec<Self> {
         vec![
@@ -101,10 +101,9 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     }
     pub fn debug_spawn_nextpcs(&mut self) {
         let col: i8 = 0;
-        let mut row: i8 = R as i8-3;
+        let mut row: i8 = R as i8 - 3;
         for piece in Tet::all() {
-            let r = self.
-            spawn_piece(piece, (row, col));
+            let r = self.spawn_piece(piece, (row, col));
             row -= 3;
             if (r.is_err()) {
                 log::info!("{r:?}");
@@ -127,5 +126,23 @@ pub enum TetAction {
     Hold,
     RotateLeft,
     RotateRight,
-    Nothing
+    Nothing,
+}
+
+pub const SIDE_BOARD_WIDTH: usize = 4;
+type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
+type BoardMatrixNext = BoardMatrix<21, SIDE_BOARD_WIDTH>;
+pub struct GameState {
+    pub main_board: BoardMatrix,
+    pub next_board: BoardMatrixNext,
+    pub hold_board: BoardMatrixHold,
+}
+impl GameState {
+    pub fn empty() -> Self {
+        Self {
+            main_board: BoardMatrix::empty(),
+            next_board: BoardMatrixNext::empty(),
+            hold_board: BoardMatrixHold::empty(),
+        }
+    }
 }
