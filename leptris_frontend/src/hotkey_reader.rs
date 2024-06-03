@@ -1,6 +1,6 @@
 use leptos_hotkeys::use_hotkeys;
 use leptos::*;
-use crate::tet::{self, CellValue, Tet, SIDE_BOARD_WIDTH, TetAction};
+use crate::tet::TetAction;
 #[component]
 pub fn HotkeyReader() -> impl IntoView {
     let (get_act, set_act) = create_signal(TetAction::Nothing);

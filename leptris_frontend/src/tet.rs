@@ -105,7 +105,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         for piece in Tet::all() {
             let r = self.spawn_piece(piece, (row, col));
             row -= 3;
-            if (r.is_err()) {
+            if r.is_err() {
                 log::info!("{r:?}");
             }
         }

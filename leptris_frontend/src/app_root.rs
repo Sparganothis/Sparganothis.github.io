@@ -1,7 +1,3 @@
-use crate::{
-    game_board::GameBoard,
-    tet::{Tet, TetAction},
-};
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use leptos_router::*;

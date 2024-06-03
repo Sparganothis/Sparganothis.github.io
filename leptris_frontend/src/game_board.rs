@@ -1,4 +1,4 @@
-use crate::tet::{self, CellValue, Tet, SIDE_BOARD_WIDTH};
+use crate::tet::{self, CellValue, SIDE_BOARD_WIDTH};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
