@@ -179,7 +179,8 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
     };
 
     let next_board =
-        create_memo(move |_| game_state.with(|game_state| game_state.get_next_board())).into_signal();
+        create_memo(move |_| game_state.with(|game_state| game_state.get_next_board()))
+            .into_signal();
     let next_board = move || {
         view! {<BoardTable board=next_board />}
     };
