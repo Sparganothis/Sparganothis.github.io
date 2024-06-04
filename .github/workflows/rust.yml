@@ -65,7 +65,7 @@ jobs:
       run: cd leptris_frontend && cargo check
 
     - name: Trunk Build Prod
-      run: cd leptris_frontend && trunk build --release --public-url "${GITHUB_REPOSITORY#*/}"
+      run: cd leptris_frontend && trunk build --release --public-url "/Sparganothis"
 
 
     - name: Setup Pages
@@ -75,10 +75,10 @@ jobs:
         # token:
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v4
       with:
         path: "./leptris_frontend/dist"
 
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v3
+      uses: actions/deploy-pages@v4
