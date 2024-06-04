@@ -15,6 +15,7 @@ thiserror = "1.0.61"
 anyhow = "1.0.86"
 leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
 rand  = "0.8.5" 
+leptos-use = "0.10.10"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.0"

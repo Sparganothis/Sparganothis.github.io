@@ -1,7 +1,8 @@
 pub mod app_root;
-pub mod game_1p;
-pub mod game_2p;
+pub mod page_1p;
+pub mod page_2p;
+pub mod page_replay;
 pub mod game_board;
-pub mod game_cpu;
+pub mod page_vs_cpu;
 pub mod hotkey_reader;
 pub mod tet;

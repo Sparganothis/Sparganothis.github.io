@@ -1,4 +1,4 @@
-use crate::tet::{self, CellValue, SIDE_BOARD_WIDTH};
+use crate::tet::{self, CellValue, GameState, SIDE_BOARD_WIDTH};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
@@ -113,12 +113,12 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
             left: ${cell_width_vmin * (SIDE_BOARD_WIDTH as f64 + 11.4)}vmin;
             top: ${bottom_free_percent * 0.83}vmin;
         }
-        .score_window_right {
-            left: ${cell_width_vmin * (SIDE_BOARD_WIDTH as f64 + 11.4)}vmin;
-            top: ${bottom_free_percent * 0.83 +cell_width_vmin * (12. + SIDE_BOARD_WIDTH as f64)}vmin;
-            width: ${cell_width_vmin * (0.01 + SIDE_BOARD_WIDTH as f64)}vmin;
-            height:  ${cell_width_vmin * (-0.5 + SIDE_BOARD_WIDTH as f64)}vmin;
-        }
+        // .score_window_right {
+        //     left: ${cell_width_vmin * (SIDE_BOARD_WIDTH as f64 + 11.4)}vmin;
+        //     top: ${bottom_free_percent * 0.83 +cell_width_vmin * (12. + SIDE_BOARD_WIDTH as f64)}vmin;
+        //     width: ${cell_width_vmin * (0.01 + SIDE_BOARD_WIDTH as f64)}vmin;
+        //     height:  ${cell_width_vmin * (-0.5 + SIDE_BOARD_WIDTH as f64)}vmin;
+        // }
         .label_bottom {
             left: ${cell_width_vmin*0.25}vmin;
             top: ${bottom_free_percent * 0.83 +cell_width_vmin * 22.}vmin;
@@ -211,9 +211,9 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
                 <h3 class="side_board_title">NEXT</h3>
                 {next_board}
             </div>
-            <div class="score_window_right">
-            <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-            </div>
+            // <div class="score_window_right">
+            // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+            // </div>
         </div>
         }
     };
@@ -224,5 +224,36 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
         <div class={{_style_name}}>
             {move || gameboard_view()}
         </div>
+    }
+}
+
+
+#[component]
+pub fn PlayerGameBoard() -> impl IntoView {
+    let (get_state, _set_state) = create_signal(tet::GameState::empty());
+
+    let on_action = move |_action| _set_state.update( |state| {
+        let _ = GameState::apply_action_if_works(_action, state);
+    } ) ;
+    view! {
+        <crate::hotkey_reader::HotkeyReader on_action=on_action/>
+        <GameBoard game_state=get_state/>
+    }
+}
+
+#[component]
+pub fn OpponentGameBoard() -> impl IntoView {
+    let (get_state, _set_state) = create_signal(tet::GameState::empty());
+    let leptos_use::utils::Pausable { pause: _, resume: _, is_active: _ } = leptos_use::use_interval_fn(
+        move || {
+            _set_state.update(move |state| {
+                let random_action = crate::tet::TetAction::random();
+                let _ = GameState::apply_action_if_works(random_action, state);
+            })
+        },
+        1000,
+    );
+    view! {
+        <GameBoard game_state=get_state/>
     }
 }

@@ -129,6 +129,25 @@ pub enum TetAction {
     Nothing,
 }
 
+impl TetAction {
+    pub fn random() -> Self {
+        use rand::seq::SliceRandom;
+        use rand::thread_rng;
+        let choices = vec![
+            Self::HardDrop,
+            Self::SoftDrop,
+            Self::MoveLeft,
+            Self::MoveRight,
+            Self::Hold,
+            Self::RotateLeft,
+            Self::RotateRight,
+            // Nothing is not action
+        ];
+        let mut rng = thread_rng();
+        *choices.choose(&mut rng).unwrap()
+    }
+}
+
 pub const SIDE_BOARD_WIDTH: usize = 4;
 type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<19, SIDE_BOARD_WIDTH>;
@@ -153,5 +172,17 @@ impl GameState {
         let mut new = self.clone();
         new.last_action = action;
         Ok(new)
+    }
+
+    pub fn apply_action_if_works(action: TetAction, target: &mut Self) -> anyhow::Result<()> {
+        let r = target.try_action(action);
+        if let Ok(new_state) = r {
+            *target = new_state;
+            Ok(())
+        } else {
+            let e = r.unwrap_err();
+            log::warn!("user action {:?} failed: {:?}", action, e);
+            Err(e)
+        }
     }
 }
