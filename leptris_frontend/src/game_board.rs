@@ -190,37 +190,51 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
         view! {<BoardTable board=main_board />}
     };
 
+    let gameover = create_memo(move |_| {
+        view!{
+            <Show
+                when=move || game_state().game_over
+                fallback={|| view!{}}
+            >
+                <h3 style="color:red"> GAME OVER </h3> 
+            </Show>
+        }
+    });
+
     let debug_info = create_memo(move |_| game_state().get_debug_info()).into_signal();
 
     let gameboard_view = move || {
         view! {
             <div class="main_container">
-            <div class="side_board_left">
-                <h3 class="side_board_title">HOLD</h3>
-                {hold_board}
-            </div>
-            // <div class="score_window_left">
-            //     <code class="side_board_code">
-            //         {debug_info.get()}
-            //     </code>
-            // </div>
+                <div class="gameover">
+                    {gameover}
+                </div>
+                <div class="side_board_left">
+                    <h3 class="side_board_title">HOLD</h3>
+                    {hold_board}
+                </div>
+                // <div class="score_window_left">
+                //     <code class="side_board_code">
+                //         {debug_info.get()}
+                //     </code>
+                // </div>
 
-            <div class="main_board">
-                {main_board}
-            </div>
-            <div class="label_bottom">
-                <code class="side_board_code">
-                    {debug_info.get()}
-                </code>
-            </div>
+                <div class="main_board">
+                    {main_board}
+                </div>
+                <div class="label_bottom">
+                    <code class="side_board_code">
+                        {debug_info.get()}
+                    </code>
+                </div>
 
-            <div class="side_board_right">
-                <h3 class="side_board_title">NEXT</h3>
-                {next_board}
-            </div>
-            // <div class="score_window_right">
-            // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-            // </div>
+                <div class="side_board_right">
+                    <h3 class="side_board_title">NEXT</h3>
+                    {next_board}
+                </div>
+                // <div class="score_window_right">
+                // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+                // </div>
         </div>
         }
     };
@@ -232,17 +246,39 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
             {move || gameboard_view()}
         </div>
     }
+
 }
+
+
+use crate::tet::TetAction;
 
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
     let (get_state, _set_state) = create_signal(tet::GameState::empty());
 
+
+    let leptos_use::utils::Pausable {
+        pause: _timer_pause,
+        resume: _timer_resume,
+        is_active: _,
+    } = leptos_use::use_interval_fn(
+        move || {
+            _set_state.update(move |state| {
+                let _ = GameState::apply_action_if_works(TetAction::SoftDrop, state);
+            })
+        },
+        1000,
+    );
+
     let on_action = move |_action| {
+        // timer_pause();
+        // timer_resume();
+
         _set_state.update(|state| {
             let _ = GameState::apply_action_if_works(_action, state);
         })
     };
+
     view! {
         <crate::hotkey_reader::HotkeyReader on_action=on_action/>
         <GameBoard game_state=get_state/>

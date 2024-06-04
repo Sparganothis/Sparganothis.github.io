@@ -4,7 +4,7 @@ use leptos::*;
 pub fn GameCPU() -> impl IntoView {
     view! {
 
-        <div class="main_left">
+    <div class="main_left">
         <PlayerGameBoard/>
     </div>
     <div class="main_right">
