@@ -273,10 +273,10 @@ pub fn PlayerGameBoard() -> impl IntoView {
     };
 
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
-        reset_timer();
-
         _set_state.update(|state| {
-            let _ = GameState::apply_action_if_works(_action, state);
+            if GameState::apply_action_if_works(_action, state).is_ok() {
+                reset_timer();
+            }
         })
     });
 

@@ -405,21 +405,15 @@ impl GameState {
 
         match action {
             TetAction::HardDrop => {
-                if let Err(err) = new.try_harddrop() {
-                    log::warn!("hard drop ailed: {:?}", err);
-                }
+                new.try_harddrop()?;
             }
             TetAction::SoftDrop => {
-                if let Err(err) = new.try_softdrop() {
-                    log::warn!("hold failed: {:?}", err);
-                }
+                 new.try_softdrop()?;
             }
             TetAction::MoveLeft => {}
             TetAction::MoveRight => {}
             TetAction::Hold => {
-                if let Err(err) = new.try_hold() {
-                    log::warn!("hold failed: {:?}", err);
-                }
+                new.try_hold()?;
             }
             TetAction::RotateLeft => {}
             TetAction::RotateRight => {}
