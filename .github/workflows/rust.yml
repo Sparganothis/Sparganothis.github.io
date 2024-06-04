@@ -58,8 +58,8 @@ jobs:
     - name: Print Trunk Version
       run: trunk --version
 
-    - name: Trunk Build
-      run: cd leptris_frontend && trunk build
+    # - name: Trunk Build
+    #   run: cd leptris_frontend && trunk build
 
     - name: Cargo Check
       run: cd leptris_frontend && cargo check
@@ -67,24 +67,18 @@ jobs:
     - name: Trunk Build Prod
       run: cd leptris_frontend && trunk build --release --public-url "${GITHUB_REPOSITORY#*/}"
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: "./leptris_frontend/dist"
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
     - name: Setup Pages
       uses: actions/configure-pages@v4
       with:
         enablement: true
         # token:
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: "./leptris_frontend/dist"
+
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+      uses: actions/deploy-pages@v3
