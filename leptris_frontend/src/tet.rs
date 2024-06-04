@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Tet {
     I,
@@ -99,11 +101,14 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
         Ok(())
     }
-    pub fn debug_spawn_nextpcs(&mut self) {
+    pub fn spawn_nextpcs(&mut self, next_pcs :&VecDeque<Tet>) {
         let col: i8 = 0;
-        let mut row: i8 = R as i8 - 3;
-        for piece in Tet::all() {
-            let r = self.spawn_piece(piece, (row, col));
+        let mut row: i8 = R as i8 - 2;
+        for (i, piece ) in next_pcs.iter().enumerate() {
+            if i >= 5 {
+                break;
+            }
+            let r = self.spawn_piece(*piece, (row, col));
             row -= 3;
             if r.is_err() {
                 log::info!("{r:?}");
@@ -150,22 +155,78 @@ impl TetAction {
 
 pub const SIDE_BOARD_WIDTH: usize = 4;
 type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
-type BoardMatrixNext = BoardMatrix<19, SIDE_BOARD_WIDTH>;
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GameState {
     pub main_board: BoardMatrix,
-    pub next_board: BoardMatrixNext,
+    // pub next_board: BoardMatrixNext,
     pub hold_board: BoardMatrixHold,
     pub last_action: TetAction,
+    pub next_pcs: VecDeque<Tet>,
+    pub current_pcs: Option<CurrentPcsInfo>,
+
+    pub game_over: bool,
 }
+
+
+const SPAWN_POS: (i8, i8) = (18, 4);
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct CurrentPcsInfo {
+    pos: (i8, i8),
+    tet: Tet,
+}
+
 impl GameState {
+    fn put_next_piece(&mut self) {
+        if self.current_pcs.is_some() {
+            log::warn!("cannont put next pcs because we already have one");
+            return;
+        } 
+
+        if self.game_over {
+            log::warn!("game over but you called put_next_cs");
+            return;
+        }
+        
+        let next_tet = self.next_pcs.pop_front().unwrap();
+        let new_next = Tet::random();
+        self.next_pcs.push_back(new_next);
+
+        self.current_pcs = Some(CurrentPcsInfo {
+            pos: SPAWN_POS,
+            tet: next_tet,
+        });
+
+        if let Err(_) = self.main_board.spawn_piece(next_tet, SPAWN_POS) {
+            self.game_over = true;
+        }
+    }
     pub fn empty() -> Self {
-        Self {
+        let mut next_pcs = Tet::all();
+        use rand::thread_rng;
+        let mut rng = thread_rng();
+        use rand::prelude::SliceRandom;
+
+        next_pcs.shuffle(&mut rng);
+
+        let mut new_state = Self {
             main_board: BoardMatrix::empty(),
-            next_board: BoardMatrixNext::empty(),
+            // next_board: BoardMatrixNext::empty(),
             hold_board: BoardMatrixHold::empty(),
             last_action: TetAction::Nothing,
-        }
+            next_pcs: next_pcs.into(),
+            current_pcs: None,
+            game_over: false,
+        };
+        new_state.put_next_piece();
+        new_state
+    }
+
+    pub fn get_next_board(&self) -> BoardMatrixNext {
+        let mut b = BoardMatrixNext::empty();
+        b.spawn_nextpcs(&self.next_pcs);
+        b
     }
 
     pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {

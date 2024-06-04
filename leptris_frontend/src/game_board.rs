@@ -161,7 +161,7 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
         .tet.S.cell {            background-color: lightgreen;     }
         .tet.T.cell {            background-color: magenta;     }
         .tet.I.cell {            background-color: lightblue;     }
-        .tet.J.cell {            background-color: darkblue;     }
+        .tet.J.cell {            background-color: #48bef7;     }
         .tet.L.cell {            background-color: orange;     }
         .tet.O.cell {            background-color: yellow;     }
         .tet.Z.cell {            background-color: red;     }
@@ -177,7 +177,7 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
     });
 
     let next_board =
-        create_memo(move |_| game_state.with(|game_state| game_state.next_board)).into_signal();
+        create_memo(move |_| game_state.with(|game_state| game_state.get_next_board())).into_signal();
     let next_board = create_memo(move |_| {
         view! {<BoardTable board=next_board />}
     });
