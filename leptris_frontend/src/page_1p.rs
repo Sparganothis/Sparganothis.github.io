@@ -1,4 +1,4 @@
-use crate::{game_board::PlayerGameBoard, tet::GameState};
+use crate::game_board::PlayerGameBoard;
 use leptos::*;
 #[component]
 pub fn Game1P() -> impl IntoView {
