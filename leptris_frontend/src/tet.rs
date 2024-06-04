@@ -219,7 +219,7 @@ pub struct GameState {
     pub game_over: bool,
 }
 
-const SPAWN_POS: (i8, i8) = (18, 4);
+const SPAWN_POS: (i8, i8) = (19, 4);
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct HoldPcsInfo {
@@ -391,6 +391,10 @@ impl GameState {
     }
 
     pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {
+        if self.game_over {
+            log::warn!("gamem over cannot try_action");
+            anyhow::bail!("game over");
+        }
         let mut new = self.clone();
         new.last_action = action;
 
