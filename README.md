@@ -11,7 +11,6 @@
 - rotate tests fromm mwiki
   - finesse https://harddrop.com/wiki/0G_60_Hz_SRS_Movement_Finesse
   - SRS https://tetris.fandom.com/wiki/SRS
-- reset timer when player make action (rust error)
 
 ### feature = singleplayer
 
