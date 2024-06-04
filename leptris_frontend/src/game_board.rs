@@ -99,6 +99,8 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
             line-height: ${cell_width_vmin}vmin;
             font-size: ${cell_width_vmin}vmin;
         }
+        .side_board_code {
+        }
         .side_board_left {
             left: ${cell_width_vmin/4.0}vmin;
             top: ${bottom_free_percent * 0.83}vmin;
@@ -171,23 +173,23 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
     let _style_name = default_style.get_class_name().to_owned();
 
-    let hold_board = create_memo(move |_| game_state().hold_board).into_signal();
-    let hold_board = create_memo(move |_| {
+    let hold_board = create_memo(move |_| game_state().get_hold_board()).into_signal();
+    let hold_board = move || {
         view! {<BoardTable board=hold_board />}
-    });
+    };
 
     let next_board =
         create_memo(move |_| game_state.with(|game_state| game_state.get_next_board())).into_signal();
-    let next_board = create_memo(move |_| {
+    let next_board = move || {
         view! {<BoardTable board=next_board />}
-    });
+    };
 
     let main_board = create_memo(move |_| game_state().main_board).into_signal();
-    let main_board = create_memo(move |_| {
+    let main_board = move || {
         view! {<BoardTable board=main_board />}
-    });
+    };
 
-    let last_action = create_memo(move |_| game_state().last_action).into_signal();
+    let debug_info = create_memo(move |_| game_state().get_debug_info()).into_signal();
 
     let gameboard_view = move || {
         view! {
@@ -196,15 +198,19 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
                 <h3 class="side_board_title">HOLD</h3>
                 {hold_board}
             </div>
-            <div class="score_window_left">
-            <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-            </div>
+            // <div class="score_window_left">
+            //     <code class="side_board_code">
+            //         {debug_info.get()}
+            //     </code>
+            // </div>
 
             <div class="main_board">
                 {main_board}
             </div>
             <div class="label_bottom">
-            <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+                <code class="side_board_code">
+                    {debug_info.get()}
+                </code>
             </div>
 
             <div class="side_board_right">

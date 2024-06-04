@@ -101,6 +101,30 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
         Ok(())
     }
+
+    pub fn delete_piece(&mut self, piece: Tet, (y, x): (i8, i8)) -> anyhow::Result<()>
+    {
+        if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
+            anyhow::bail!(
+                "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})"
+            );
+        }
+        let (x, y) = (x as usize, y as usize);
+        let shape = piece.shape();
+        for (j, row) in shape.iter().enumerate() {
+            for (i, cell) in row.iter().enumerate() {
+                let (cx, cy) = (x + i, y + j);
+                if cx >= C || cy >= R {
+                    anyhow::bail!("computed position out of game bounds (got (x={cx} y={cy}), max (x={C} y={R})")
+                }
+                if *cell {
+                    self.v[cy][cx]   = CellValue::Empty;
+                }
+            }
+        }
+        Ok(())
+
+    }
     pub fn spawn_nextpcs(&mut self, next_pcs :&VecDeque<Tet>) {
         let col: i8 = 0;
         let mut row: i8 = R as i8 - 2;
@@ -160,16 +184,23 @@ type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 pub struct GameState {
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
-    pub hold_board: BoardMatrixHold,
+    // pub hold_board: BoardMatrixHold,
     pub last_action: TetAction,
     pub next_pcs: VecDeque<Tet>,
     pub current_pcs: Option<CurrentPcsInfo>,
 
+    pub hold_pcps: Option<HoldPcsInfo>,
     pub game_over: bool,
 }
 
 
 const SPAWN_POS: (i8, i8) = (18, 4);
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct HoldPcsInfo {
+    can_use: bool,
+    tet: Tet,
+}
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct CurrentPcsInfo {
@@ -178,6 +209,11 @@ pub struct CurrentPcsInfo {
 }
 
 impl GameState {
+    pub fn get_debug_info(&self) -> String {
+        format!(
+            "last_acction: {:?}  \n\n next_pcs: {:?}  current_pcs: {:?} \n\n, hold_psc: {:?}",self.last_action, self.next_pcs, self.current_pcs, self.hold_pcps
+        )
+    }
     fn put_next_piece(&mut self) {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
@@ -213,11 +249,12 @@ impl GameState {
         let mut new_state = Self {
             main_board: BoardMatrix::empty(),
             // next_board: BoardMatrixNext::empty(),
-            hold_board: BoardMatrixHold::empty(),
+            // hold_board: BoardMatrixHold::empty(),
             last_action: TetAction::Nothing,
             next_pcs: next_pcs.into(),
             current_pcs: None,
             game_over: false,
+            hold_pcps: None,
         };
         new_state.put_next_piece();
         new_state
@@ -229,9 +266,62 @@ impl GameState {
         b
     }
 
+    
+    pub fn get_hold_board(&self) -> BoardMatrixHold {
+        let mut b = BoardMatrixHold::empty();
+        if let Some(HoldPcsInfo{can_use: _, tet}) = self.hold_pcps {
+            log::info!("try  to hold fuck");
+            if let Err(e) = b.spawn_piece(tet, (1,0)) {
+                log::warn!("hold board cannot spawn piece WTF: {:?}", e);
+            }
+        }
+        b
+    }
+
+    pub fn try_hold(&mut self) -> anyhow::Result<()> {
+        if self.current_pcs.is_none() {
+            anyhow::bail!("no cucrrent pcs for hold");
+        }
+        let current_pcs = self.current_pcs.clone().unwrap();
+        if let Some(old_hold) = self.hold_pcps.clone() {
+            if !old_hold.can_use {
+                anyhow::bail!("can_use=false for hold");
+            }
+
+        } else {
+            self.hold_pcps = Some(HoldPcsInfo {
+                tet: current_pcs.tet,
+                can_use: false,
+            });
+
+            if let Err(e)  = self.main_board.delete_piece(current_pcs.tet, current_pcs.pos) {
+                log::warn!("ccannot delete picei from main board plz: {:?}",e)
+            }
+            self.current_pcs = None;
+            self.put_next_piece();
+        }
+
+        Ok(())
+    }
+
     pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {
         let mut new = self.clone();
         new.last_action = action;
+
+        match action {
+            TetAction::HardDrop => {},
+            TetAction::SoftDrop => {},
+            TetAction::MoveLeft => {},
+            TetAction::MoveRight => {},
+            TetAction::Hold => {
+                if let Err(err) = new.try_hold() {
+                    log::warn!("hold failed: {:?}", err);
+                }
+            },
+            TetAction::RotateLeft => {},
+            TetAction::RotateRight => {},
+            TetAction::Nothing => {},
+        }
         Ok(new)
     }
 
