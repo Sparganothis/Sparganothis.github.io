@@ -267,14 +267,18 @@ pub fn PlayerGameBoard() -> impl IntoView {
         1000,
     );
 
-    let on_action = move |_action| {
-        // timer_pause();
-        // timer_resume();
+    let reset_timer = move || {
+        _timer_pause();
+        _timer_resume();
+    };
+
+    let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
+        reset_timer();
 
         _set_state.update(|state| {
             let _ = GameState::apply_action_if_works(_action, state);
         })
-    };
+    });
 
     view! {
         <crate::hotkey_reader::HotkeyReader on_action=on_action/>
