@@ -417,6 +417,28 @@ impl GameState {
         Ok(())
     }
 
+    pub fn try_moveright(&mut self) -> anyhow::Result<()> {
+        if self.current_pcs.is_none() {
+            anyhow::bail!("no cucrrent pcs for move right");
+        }
+
+        let current_pcs = self.current_pcs.clone().unwrap();
+
+        if let Err(e) = self
+            .main_board
+            .delete_piece(current_pcs.tet, current_pcs.pos)
+        {
+            log::warn!("ccannot delete picei from main board plz: {:?}", e)
+        }
+
+        let mut new_current_pcs = current_pcs.clone();
+        new_current_pcs.pos.1 += 1;
+
+        self .main_board .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+        self.current_pcs=Some(new_current_pcs);
+        Ok(())
+    }
+
 
     pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {
         if self.game_over {
@@ -436,7 +458,9 @@ impl GameState {
             TetAction::MoveLeft => {
                 new.try_moveleft()?;
             }
-            TetAction::MoveRight => {}
+            TetAction::MoveRight => {
+                new.try_moveright()?;
+            }
             TetAction::Hold => {
                 new.try_hold()?;
             }
