@@ -68,8 +68,8 @@ pub fn AppRoot() -> impl IntoView {
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
     use crate::page_1p::Game1P;
     use crate::page_2p::Game2P;
-    use crate::page_vs_cpu::GameCPU;
     use crate::page_replay::GameReplay;
+    use crate::page_vs_cpu::GameCPU;
     view! {
         <div class=_style.get_class_name().to_string()>
             <Router>

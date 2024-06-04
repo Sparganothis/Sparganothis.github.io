@@ -3,7 +3,7 @@ use leptos::*;
 
 #[component]
 pub fn Game2P() -> impl IntoView {
-    view!{
+    view! {
         <div class="main_left">
             <PlayerGameBoard />
         </div>

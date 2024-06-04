@@ -227,14 +227,15 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
     }
 }
 
-
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
     let (get_state, _set_state) = create_signal(tet::GameState::empty());
 
-    let on_action = move |_action| _set_state.update( |state| {
-        let _ = GameState::apply_action_if_works(_action, state);
-    } ) ;
+    let on_action = move |_action| {
+        _set_state.update(|state| {
+            let _ = GameState::apply_action_if_works(_action, state);
+        })
+    };
     view! {
         <crate::hotkey_reader::HotkeyReader on_action=on_action/>
         <GameBoard game_state=get_state/>
@@ -244,7 +245,11 @@ pub fn PlayerGameBoard() -> impl IntoView {
 #[component]
 pub fn OpponentGameBoard() -> impl IntoView {
     let (get_state, _set_state) = create_signal(tet::GameState::empty());
-    let leptos_use::utils::Pausable { pause: _, resume: _, is_active: _ } = leptos_use::use_interval_fn(
+    let leptos_use::utils::Pausable {
+        pause: _,
+        resume: _,
+        is_active: _,
+    } = leptos_use::use_interval_fn(
         move || {
             _set_state.update(move |state| {
                 let random_action = crate::tet::TetAction::random();
