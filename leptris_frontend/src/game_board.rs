@@ -70,7 +70,7 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
 }
 
 #[component]
-pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl IntoView {
+pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>, on_reset_game: Callback<()>) -> impl IntoView {
     let bottom_free_percent = 15.0;
     let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
 
@@ -196,7 +196,7 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
                 when=move || game_state().game_over
                 fallback={|| view!{}}
             >
-                <h3 style="color:red"> GAME OVER </h3>
+                <h3 style="color:red" on:click=move |_| on_reset_game(())> GAME OVER </h3>
             </Show>
         }
     });
@@ -280,9 +280,15 @@ pub fn PlayerGameBoard() -> impl IntoView {
         })
     });
 
+    let on_reset: Callback<()> = Callback::<()>::new(move |_| {
+        if get_state().game_over {
+            _set_state.set(GameState::empty());
+        }
+    });
+
     view! {
         <crate::hotkey_reader::HotkeyReader on_action=on_action/>
-        <GameBoard game_state=get_state/>
+        <GameBoard game_state=get_state on_reset_game=on_reset/>
     }
 }
 
@@ -302,7 +308,14 @@ pub fn OpponentGameBoard() -> impl IntoView {
         },
         1000,
     );
+    
+    let on_reset: Callback<()> = Callback::<()>::new(move |_| {
+        if get_state().game_over {
+            _set_state.set(GameState::empty());
+        }
+    });
+
     view! {
-        <GameBoard game_state=get_state/>
+        <GameBoard game_state=get_state on_reset_game=on_reset/>
     }
 }
