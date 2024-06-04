@@ -98,8 +98,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                 }
                 if *cell {
                     match self.v[cy][cx] {
-                        CellValue::Empty => {
-                        }
+                        CellValue::Empty => {}
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
                         }
@@ -367,7 +366,7 @@ impl GameState {
         if self.current_pcs.is_none() {
             anyhow::bail!("no cucrrent pcs for hold");
         }
-        
+
         let current_pcs = self.current_pcs.clone().unwrap();
 
         if let Err(e) = self
@@ -380,10 +379,16 @@ impl GameState {
         let mut new_current_pcs = current_pcs.clone();
         new_current_pcs.pos.0 -= 1;
 
-        if self.main_board.spawn_piece(new_current_pcs.tet, new_current_pcs.pos).is_ok() {
+        if self
+            .main_board
+            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)
+            .is_ok()
+        {
             self.current_pcs = Some(new_current_pcs);
         } else {
-            self.main_board.spawn_piece(current_pcs.tet, current_pcs.pos).unwrap();
+            self.main_board
+                .spawn_piece(current_pcs.tet, current_pcs.pos)
+                .unwrap();
             self.current_pcs = None;
             self.put_next_piece();
         }
@@ -408,7 +413,8 @@ impl GameState {
                 if let Err(err) = new.try_softdrop() {
                     log::warn!("hold failed: {:?}", err);
                 }
-            }         TetAction::MoveLeft => {}
+            }
+            TetAction::MoveLeft => {}
             TetAction::MoveRight => {}
             TetAction::Hold => {
                 if let Err(err) = new.try_hold() {

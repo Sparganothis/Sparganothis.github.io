@@ -191,12 +191,12 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
     };
 
     let gameover = create_memo(move |_| {
-        view!{
+        view! {
             <Show
                 when=move || game_state().game_over
                 fallback={|| view!{}}
             >
-                <h3 style="color:red"> GAME OVER </h3> 
+                <h3 style="color:red"> GAME OVER </h3>
             </Show>
         }
     });
@@ -246,16 +246,13 @@ pub fn GameBoard(#[prop(into)] game_state: ReadSignal<tet::GameState>) -> impl I
             {move || gameboard_view()}
         </div>
     }
-
 }
-
 
 use crate::tet::TetAction;
 
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
     let (get_state, _set_state) = create_signal(tet::GameState::empty());
-
 
     let leptos_use::utils::Pausable {
         pause: _timer_pause,
