@@ -53,6 +53,15 @@ impl Tet {
             Self::O,
         ]
     }
+
+    pub fn all_shuffled() -> Vec<Self> {
+        let mut v = Self::all();
+        use rand::thread_rng;
+        let mut rng = thread_rng();
+        use rand::prelude::SliceRandom;
+        v.shuffle(&mut rng);
+        v
+    }
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -243,9 +252,13 @@ impl GameState {
             return;
         }
 
+        if self.next_pcs.len() < 7 {
+            let new_pcs2 = Tet::all_shuffled();
+            for n in new_pcs2 {
+                self.next_pcs.push_back(n);
+            }
+        }
         let next_tet = self.next_pcs.pop_front().unwrap();
-        let new_next = Tet::random();
-        self.next_pcs.push_back(new_next);
 
         self.current_pcs = Some(CurrentPcsInfo {
             pos: SPAWN_POS,
@@ -332,6 +345,10 @@ impl GameState {
             self.next_pcs.push_front(old_hold.tet);
         }
         self.put_next_piece();
+        self.hold_pcps = Some(HoldPcsInfo {
+            tet: current_pcs.tet,
+            can_use: false,
+        });
 
         Ok(())
     }
