@@ -412,19 +412,8 @@ impl GameState {
         let mut new_current_pcs = current_pcs.clone();
         new_current_pcs.pos.1 -= 1;
 
-        if self
-            .main_board
-            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)
-            .is_ok()
-        {
-            self.current_pcs = Some(new_current_pcs);
-        } else {
-            self.main_board
-                .spawn_piece(current_pcs.tet, current_pcs.pos)
-                .unwrap();
-            self.current_pcs = None;
-            self.put_next_piece();
-        }
+        self .main_board .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+        self.current_pcs=Some(new_current_pcs);
         Ok(())
     }
 
