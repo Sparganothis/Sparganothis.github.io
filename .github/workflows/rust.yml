@@ -80,11 +80,11 @@ jobs:
     needs: build
 
     steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          enablement: true
-          # token:
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      with:
+        enablement: true
+        # token:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
