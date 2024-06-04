@@ -204,6 +204,7 @@ pub struct GameState {
     pub last_action: TetAction,
     pub next_pcs: VecDeque<Tet>,
     pub current_pcs: Option<CurrentPcsInfo>,
+    pub current_id: u32,
 
     pub hold_pcps: Option<HoldPcsInfo>,
     pub game_over: bool,
@@ -221,6 +222,7 @@ pub struct HoldPcsInfo {
 pub struct CurrentPcsInfo {
     pos: (i8, i8),
     tet: Tet,
+    id: u32,
 }
 
 impl GameState {
@@ -248,10 +250,16 @@ impl GameState {
         self.current_pcs = Some(CurrentPcsInfo {
             pos: SPAWN_POS,
             tet: next_tet,
+            id: self.current_id,
         });
+        self.current_id += 1;
 
         if let Err(_) = self.main_board.spawn_piece(next_tet, SPAWN_POS) {
             self.game_over = true;
+        } else {
+            if let Some(ref mut h) = self.hold_pcps {
+                h.can_use = true;
+            }
         }
     }
     pub fn empty() -> Self {
@@ -271,6 +279,7 @@ impl GameState {
             current_pcs: None,
             game_over: false,
             hold_pcps: None,
+            current_id: 0,
         };
         new_state.put_next_piece();
         new_state
@@ -298,27 +307,42 @@ impl GameState {
             anyhow::bail!("no cucrrent pcs for hold");
         }
         let current_pcs = self.current_pcs.clone().unwrap();
-        if let Some(old_hold) = self.hold_pcps.clone() {
+
+        let old_hold = self.hold_pcps.clone();
+        if let Some(ref old_hold) = old_hold {
             if !old_hold.can_use {
                 anyhow::bail!("can_use=false for hold");
             }
-            // TODO:
-        } else {
-            self.hold_pcps = Some(HoldPcsInfo {
-                tet: current_pcs.tet,
-                can_use: false,
-            });
-
-            if let Err(e) = self
-                .main_board
-                .delete_piece(current_pcs.tet, current_pcs.pos)
-            {
-                log::warn!("ccannot delete picei from main board plz: {:?}", e)
-            }
-            self.current_pcs = None;
-            self.put_next_piece();
         }
 
+        self.hold_pcps = Some(HoldPcsInfo {
+            tet: current_pcs.tet,
+            can_use: false,
+        });
+
+        if let Err(e) = self
+            .main_board
+            .delete_piece(current_pcs.tet, current_pcs.pos)
+        {
+            log::warn!("ccannot delete picei from main board plz: {:?}", e)
+        }
+        self.current_pcs = None;
+
+        if let Some(ref old_hold) = old_hold {
+            self.next_pcs.push_front(old_hold.tet);
+        }
+        self.put_next_piece();
+
+        Ok(())
+    }
+
+    pub fn try_harddrop(&mut self) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.clone().unwrap();
+
+        let mut r = self.try_softdrop();
+        while r.is_ok() && current_pcs.id == self.current_pcs.clone().unwrap().id {
+            r = self.try_softdrop();
+        }
         Ok(())
     }
 
@@ -354,7 +378,11 @@ impl GameState {
         new.last_action = action;
 
         match action {
-            TetAction::HardDrop => {}
+            TetAction::HardDrop => {
+                if let Err(err) = new.try_harddrop() {
+                    log::warn!("hard drop ailed: {:?}", err);
+                }
+            }
             TetAction::SoftDrop => {
                 if let Err(err) = new.try_softdrop() {
                     log::warn!("hold failed: {:?}", err);
