@@ -293,6 +293,35 @@ impl GameState {
             self.last_action, self.next_pcs, self.current_pcs, self.hold_pcps
         )
     }
+
+    fn clear_line(&mut self){
+        while let Some(line) = self.can_clear_line()  {
+            for i in line..38 {
+                for j in 0..10{
+                    self.main_board.v[i as usize][j]=self.main_board.v[i as usize+1][j];
+                }
+            }
+        }
+
+    }
+
+    fn can_clear_line(&self)-> Option<i8>{
+        for i in 0..22{
+            let row = self.main_board.v[i];
+            let is_full = row.iter().map(|cell| match cell {
+                CellValue::Piece(_) => {true}
+                CellValue::Garbage => {true}
+                CellValue::Empty => {false}
+            }).reduce(|a, b| a & b);
+            if let Some(is_full) = is_full {
+                if is_full {
+                    return Some(i as i8);
+                }
+            }
+        }
+        
+        None
+    }
     fn put_next_piece(&mut self) {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
@@ -303,9 +332,10 @@ impl GameState {
             log::warn!("game over but you called put_next_cs");
             return;
         }
-
+        
+        self.clear_line();
         if self.next_pcs.len() < 7 {
-            let new_pcs2 = Tet::all_shuffled();
+            let new_pcs2: Vec<Tet> = Tet::all_shuffled();
             for n in new_pcs2 {
                 self.next_pcs.push_back(n);
             }
