@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum RotDirection {
     Left,
@@ -7,7 +6,10 @@ pub enum RotDirection {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum RotState {
-    R0, R1, R2, R3
+    R0,
+    R1,
+    R2,
+    R3,
 }
 
 impl RotState {
@@ -28,14 +30,13 @@ impl RotState {
 pub type Shape = Vec<Vec<bool>>;
 pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {
     let mut new_shape = vec![];
-    log::info!("shape={:?}  rot={:?}",shape,rot);
+    log::info!("shape={:?}  rot={:?}", shape, rot);
 
-    
-    let R=shape.len();
-    let C=  shape[0].len();
+    let R = shape.len();
+    let C = shape[0].len();
     match rot {
         RotDirection::Right => {
-            for j  in (0..C).rev() {
+            for j in (0..C).rev() {
                 let mut new_row: Vec<bool> = vec![];
                 for i in 0..R {
                     new_row.push(shape[i][j]);
@@ -44,7 +45,7 @@ pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {
             }
         }
         RotDirection::Left => {
-            for j  in 0..C {
+            for j in 0..C {
                 let mut new_row: Vec<bool> = vec![];
                 for i in (0..R).rev() {
                     new_row.push(shape[i][j]);
@@ -54,10 +55,8 @@ pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {
         }
     }
 
-
     new_shape
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -95,4 +94,5 @@ mod tests {
         let result = rotate_shape(crate::tet::Tet::J.orig_shape(), RotDirection::Right);
         let expected = vec![vec![true, true], vec![false, true], vec![false, true]];
         assert_eq!(result, expected);
-    }}
+    }
+}
