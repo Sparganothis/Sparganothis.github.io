@@ -1,5 +1,5 @@
+use crate::rot::Shape;
 use std::collections::VecDeque;
-
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Tet {
     I,
@@ -24,7 +24,7 @@ impl Tet {
         }
     }
 
-    pub fn shape(&self) -> Vec<Vec<bool>> {
+    pub fn shape(&self) -> Shape {
         match self {
             &Self::I => vec![vec![true, true, true, true]],
             &Self::L => vec![vec![true, true, true], vec![false, false, true]],
@@ -412,8 +412,9 @@ impl GameState {
         let mut new_current_pcs = current_pcs.clone();
         new_current_pcs.pos.1 -= 1;
 
-        self .main_board .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
-        self.current_pcs=Some(new_current_pcs);
+        self.main_board
+            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+        self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
 
@@ -434,11 +435,57 @@ impl GameState {
         let mut new_current_pcs = current_pcs.clone();
         new_current_pcs.pos.1 += 1;
 
-        self .main_board .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
-        self.current_pcs=Some(new_current_pcs);
+        self.main_board
+            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+        self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
 
+    pub fn try_rotateleft(&mut self) -> anyhow::Result<()> {
+        if self.current_pcs.is_none() {
+            anyhow::bail!("no cucrrent pcs for move left");
+        }
+
+        let current_pcs = self.current_pcs.clone().unwrap();
+
+        if let Err(e) = self
+            .main_board
+            .delete_piece(current_pcs.tet, current_pcs.pos)
+        {
+            log::warn!("ccannot delete picei from main board plz: {:?}", e)
+        }
+
+        let mut new_current_pcs = current_pcs.clone();
+        new_current_pcs.pos.1 -= 1;
+
+        self.main_board
+            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+        self.current_pcs = Some(new_current_pcs);
+        Ok(())
+    }
+
+    pub fn try_rotateright(&mut self) -> anyhow::Result<()> {
+        if self.current_pcs.is_none() {
+            anyhow::bail!("no cucrrent pcs for move right");
+        }
+
+        let current_pcs = self.current_pcs.clone().unwrap();
+
+        if let Err(e) = self
+            .main_board
+            .delete_piece(current_pcs.tet, current_pcs.pos)
+        {
+            log::warn!("ccannot delete picei from main board plz: {:?}", e)
+        }
+
+        let mut new_current_pcs = current_pcs.clone();
+        new_current_pcs.pos.1 += 1;
+
+        self.main_board
+            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+        self.current_pcs = Some(new_current_pcs);
+        Ok(())
+    }
 
     pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {
         if self.game_over {
@@ -453,7 +500,7 @@ impl GameState {
                 new.try_harddrop()?;
             }
             TetAction::SoftDrop => {
-                 new.try_softdrop()?;
+                new.try_softdrop()?;
             }
             TetAction::MoveLeft => {
                 new.try_moveleft()?;
@@ -464,8 +511,12 @@ impl GameState {
             TetAction::Hold => {
                 new.try_hold()?;
             }
-            TetAction::RotateLeft => {}
-            TetAction::RotateRight => {}
+            TetAction::RotateLeft => {
+                new.try_rotateleft()?;
+            }
+            TetAction::RotateRight => {
+                new.try_rotateright()?;
+            }
             TetAction::Nothing => {}
         }
         Ok(new)
