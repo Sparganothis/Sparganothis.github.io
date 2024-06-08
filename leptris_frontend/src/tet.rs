@@ -1,4 +1,4 @@
-use crate::rot::Shape;
+use crate::rot::{RotDirection, RotState, Shape};
 use std::collections::VecDeque;
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Tet {
@@ -12,6 +12,13 @@ pub enum Tet {
 }
 
 impl Tet {
+    pub fn spawn_pos(&self)  ->  (i8, i8) {
+        const O_SPAWN_POS: (i8, i8) = (SPAWN_POS.0, SPAWN_POS.1 + 1);
+        match self {
+            &Self::O =>  O_SPAWN_POS,
+            _ => SPAWN_POS
+        }
+    }
     pub fn name(&self) -> &str {
         match self {
             &Self::I => "I",
@@ -24,7 +31,33 @@ impl Tet {
         }
     }
 
-    pub fn shape(&self) -> Shape {
+    pub fn shape(&self, rot_state: crate::rot::RotState) -> Shape {
+        let mut sh = self.orig_shape();
+        match  rot_state {
+            crate::rot::RotState::R0 => {
+                ;
+            }
+            
+            crate::rot::RotState::R1 => {
+                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+            }
+                
+            crate::rot::RotState::R2 => {
+                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+                
+                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+            }
+                
+            crate::rot::RotState::R3 => {
+                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+            }
+        }
+        sh
+    }
+    
+    pub fn orig_shape(&self) -> Shape {
         match self {
             &Self::I => vec![vec![true, true, true, true]],
             &Self::L => vec![vec![true, true, true], vec![false, false, true]],
@@ -82,14 +115,21 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             v: [[CellValue::Empty; C]; R],
         }
     }
-    pub fn spawn_piece(&mut self, piece: Tet, (y, x): (i8, i8)) -> anyhow::Result<()> {
+    pub fn spawn_piece(&mut self, info: &CurrentPcsInfo) -> anyhow::Result<()> {
+        let CurrentPcsInfo  {
+            pos: (y, x),
+            tet: piece,
+            rs: rot_state,
+            id: _
+        } = *info;
+
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             anyhow::bail!(
                 "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})"
             );
         }
         let (x, y) = (x as usize, y as usize);
-        let shape = piece.shape();
+        let shape = piece.shape(rot_state);
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
                 let (cx, cy) = (x + i, y + j);
@@ -128,14 +168,22 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         Ok(())
     }
 
-    pub fn delete_piece(&mut self, piece: Tet, (y, x): (i8, i8)) -> anyhow::Result<()> {
+    pub fn delete_piece(&mut self, info: &CurrentPcsInfo) -> anyhow::Result<()> {
+        
+        let CurrentPcsInfo  {
+            pos: (y, x),
+            tet: piece,
+            rs: rot_state,
+            id: _
+        } = *info;
+
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             anyhow::bail!(
                 "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})"
             );
         }
         let (x, y) = (x as usize, y as usize);
-        let shape = piece.shape();
+        let shape = piece.shape(rot_state);
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
                 let (cx, cy) = (x + i, y + j);
@@ -156,7 +204,10 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             if i >= 5 {
                 break;
             }
-            let r = self.spawn_piece(*piece, (row, col));
+            let info = CurrentPcsInfo {
+                id: 0, pos: (row, col), tet: *piece, rs: RotState::R0
+            };
+            let r = self.spawn_piece(&info);
             row -= 3;
             if r.is_err() {
                 log::info!("{r:?}");
@@ -218,7 +269,7 @@ pub struct GameState {
     pub game_over: bool,
 }
 
-const SPAWN_POS: (i8, i8) = (19, 4);
+const SPAWN_POS: (i8, i8) = (19, 3);
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct HoldPcsInfo {
@@ -226,12 +277,14 @@ pub struct HoldPcsInfo {
     tet: Tet,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct CurrentPcsInfo {
     pos: (i8, i8),
     tet: Tet,
+    rs: RotState,
     id: u32,
 }
+
 
 impl GameState {
     pub fn get_debug_info(&self) -> String {
@@ -260,13 +313,14 @@ impl GameState {
         let next_tet = self.next_pcs.pop_front().unwrap();
 
         self.current_pcs = Some(CurrentPcsInfo {
-            pos: SPAWN_POS,
+            pos: next_tet.spawn_pos(),
             tet: next_tet,
             id: self.current_id,
+            rs: RotState::R0,
         });
         self.current_id += 1;
 
-        if let Err(_) = self.main_board.spawn_piece(next_tet, SPAWN_POS) {
+        if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             self.game_over = true;
         } else {
             if let Some(ref mut h) = self.hold_pcps {
@@ -307,7 +361,10 @@ impl GameState {
         let mut b = BoardMatrixHold::empty();
         if let Some(HoldPcsInfo { can_use: _, tet }) = self.hold_pcps {
             log::info!("try  to hold fuck");
-            if let Err(e) = b.spawn_piece(tet, (1, 0)) {
+            let info = CurrentPcsInfo {
+                tet, pos: (1, 0), rs: RotState::R0, id: 0,
+            };
+            if let Err(e) = b.spawn_piece(&info) {
                 log::warn!("hold board cannot spawn piece WTF: {:?}", e);
             }
         }
@@ -334,7 +391,7 @@ impl GameState {
 
         if let Err(e) = self
             .main_board
-            .delete_piece(current_pcs.tet, current_pcs.pos)
+            .delete_piece(&current_pcs)
         {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
@@ -371,7 +428,7 @@ impl GameState {
 
         if let Err(e) = self
             .main_board
-            .delete_piece(current_pcs.tet, current_pcs.pos)
+            .delete_piece(&current_pcs)
         {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
@@ -381,13 +438,13 @@ impl GameState {
 
         if self
             .main_board
-            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)
+            .spawn_piece(&new_current_pcs)
             .is_ok()
         {
             self.current_pcs = Some(new_current_pcs);
         } else {
             self.main_board
-                .spawn_piece(current_pcs.tet, current_pcs.pos)
+                .spawn_piece(&current_pcs)
                 .unwrap();
             self.current_pcs = None;
             self.put_next_piece();
@@ -404,7 +461,7 @@ impl GameState {
 
         if let Err(e) = self
             .main_board
-            .delete_piece(current_pcs.tet, current_pcs.pos)
+            .delete_piece(&current_pcs)
         {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
@@ -413,7 +470,7 @@ impl GameState {
         new_current_pcs.pos.1 -= 1;
 
         self.main_board
-            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+            .spawn_piece(&new_current_pcs)?;
         self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
@@ -427,7 +484,7 @@ impl GameState {
 
         if let Err(e) = self
             .main_board
-            .delete_piece(current_pcs.tet, current_pcs.pos)
+            .delete_piece(&current_pcs)
         {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
@@ -436,7 +493,7 @@ impl GameState {
         new_current_pcs.pos.1 += 1;
 
         self.main_board
-            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+            .spawn_piece(&new_current_pcs)?;
         self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
@@ -450,16 +507,16 @@ impl GameState {
 
         if let Err(e) = self
             .main_board
-            .delete_piece(current_pcs.tet, current_pcs.pos)
+            .delete_piece(&current_pcs)
         {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
         let mut new_current_pcs = current_pcs.clone();
-        new_current_pcs.pos.1 -= 1;
+        new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Left);
 
         self.main_board
-            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+            .spawn_piece(&new_current_pcs)?;
         self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
@@ -473,16 +530,16 @@ impl GameState {
 
         if let Err(e) = self
             .main_board
-            .delete_piece(current_pcs.tet, current_pcs.pos)
+            .delete_piece(&current_pcs)
         {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
         let mut new_current_pcs = current_pcs.clone();
-        new_current_pcs.pos.1 += 1;
+        new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Right);
 
         self.main_board
-            .spawn_piece(new_current_pcs.tet, new_current_pcs.pos)?;
+            .spawn_piece(&new_current_pcs)?;
         self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
