@@ -1,0 +1,15 @@
+{
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "explorer.confirmDelete": false,
+    "editor.wordWrapColumn": 101,
+    "editor.wordWrap": "bounded",
+    "editor.wrappingIndent": "deepIndent",
+    "extensions.autoCheckUpdates": false,
+    "update.mode": "manual",
+    "update.showReleaseNotes": false,
+    "rust-analyzer.cargo.features": [
+        "ssr","csr"
+    ]
+}

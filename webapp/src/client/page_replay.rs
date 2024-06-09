@@ -1,4 +1,4 @@
-use crate::game_board::OpponentGameBoard;
+use super::game_board::OpponentGameBoard;
 use leptos::*;
 #[component]
 pub fn GameReplay() -> impl IntoView {

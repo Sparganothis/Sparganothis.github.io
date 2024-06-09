@@ -1,4 +1,4 @@
-use crate::rot::{RotDirection, RotState, Shape};
+use super::rot::{RotDirection, RotState, Shape};
 use std::collections::VecDeque;
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Tet {
@@ -31,25 +31,25 @@ impl Tet {
         }
     }
 
-    pub fn shape(&self, rot_state: crate::rot::RotState) -> Shape {
+    pub fn shape(&self, rot_state: super::rot::RotState) -> Shape {
         let mut sh = self.orig_shape();
         match rot_state {
-            crate::rot::RotState::R0 => {}
+            super::rot::RotState::R0 => {}
 
-            crate::rot::RotState::R1 => {
-                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+            super::rot::RotState::R1 => {
+                sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
             }
 
-            crate::rot::RotState::R2 => {
-                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+            super::rot::RotState::R2 => {
+                sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
 
-                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+                sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
             }
 
-            crate::rot::RotState::R3 => {
-                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
-                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
-                sh = crate::rot::rotate_shape(sh, crate::rot::RotDirection::Right);
+            super::rot::RotState::R3 => {
+                sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
+                sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
+                sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
             }
         }
         sh
@@ -391,7 +391,6 @@ impl GameState {
     pub fn get_hold_board(&self) -> BoardMatrixHold {
         let mut b = BoardMatrixHold::empty();
         if let Some(HoldPcsInfo { can_use: _, tet }) = self.hold_pcps {
-            log::info!("try  to hold fuck");
             let info = CurrentPcsInfo {
                 tet,
                 pos: (1, 0),

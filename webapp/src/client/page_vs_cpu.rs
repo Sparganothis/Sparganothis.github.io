@@ -1,4 +1,4 @@
-use crate::game_board::{OpponentGameBoard, PlayerGameBoard};
+use super::game_board::{OpponentGameBoard, PlayerGameBoard};
 use leptos::*;
 #[component]
 pub fn GameCPU() -> impl IntoView {

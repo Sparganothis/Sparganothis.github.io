@@ -1,2 +1,2 @@
-cd leptris_frontend
-~/.cargo/bin/trunk.exe serve
+cd webapp
+~/.cargo/bin/cargo-leptos.exe watch

@@ -1,4 +1,4 @@
-use crate::tet::{self, CellValue, GameState, SIDE_BOARD_WIDTH};
+use crate::game::tet::{self, CellValue, GameState, SIDE_BOARD_WIDTH};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
@@ -251,7 +251,7 @@ pub fn GameBoard(
     }
 }
 
-use crate::tet::TetAction;
+use crate::game::tet::TetAction;
 
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
@@ -290,7 +290,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
     });
 
     view! {
-        <crate::hotkey_reader::HotkeyReader on_action=on_action/>
+        <super::hotkey_reader::HotkeyReader on_action=on_action/>
         <GameBoard game_state=get_state on_reset_game=on_reset/>
     }
 }
@@ -305,7 +305,7 @@ pub fn OpponentGameBoard() -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             _set_state.update(move |state| {
-                let random_action = crate::tet::TetAction::random();
+                let random_action = crate::game::tet::TetAction::random();
                 let _ = GameState::apply_action_if_works(random_action, state);
             })
         },

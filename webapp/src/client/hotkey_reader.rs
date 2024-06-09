@@ -1,4 +1,4 @@
-use crate::tet::TetAction;
+use crate::game::tet::TetAction;
 use leptos::*;
 use leptos_hotkeys::use_hotkeys;
 #[component]

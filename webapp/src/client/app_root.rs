@@ -1,6 +1,7 @@
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use leptos_router::*;
+use crate::error_template::ErrorTemplate;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -66,27 +67,31 @@ pub fn AppRoot() -> impl IntoView {
 
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
-    use crate::page_1p::Game1P;
-    use crate::page_2p::Game2P;
-    use crate::page_replay::GameReplay;
-    use crate::page_vs_cpu::GameCPU;
+    use super::page_1p::Game1P;
+    use super::page_2p::Game2P;
+    use super::page_replay::GameReplay;
+    use super::page_vs_cpu::GameCPU;
     view! {
         <div class=_style.get_class_name().to_string()>
-            <Router>
-                <nav>
-                    <MainMenu />
-                </nav>
-                <main  _ref=main_ref>
-                    // all our routes will appear inside <main>
-                    <Routes>
-                        <Route path="" view=Game1P> </Route>
-                        <Route path="/vs_cpu" view=GameCPU></Route>
-                        <Route path="/vs_net" view=Game2P> </Route>
-                        <Route path="/replay" view=GameReplay> </Route>
+        // <Transition fallback=move || view! {<p>"Loading..."</p> }>
+        // <ErrorBoundary fallback=|errors| view!{<ErrorTemplate errors=errors/>}>
+                    <Router>
+                    <nav>
+                        <MainMenu />
+                    </nav>
+                    <main  _ref=main_ref>
+                        // all our routes will appear inside <main>
+                        <Routes>
+                            <Route path="" view=Game1P> </Route>
+                            <Route path="/vs_cpu" view=GameCPU></Route>
+                            <Route path="/vs_net" view=Game2P> </Route>
+                            <Route path="/replay" view=GameReplay> </Route>
+                        </Routes>
+                    </main>
+                </Router>
 
-                    </Routes>
-                </main>
-            </Router>
+        // </ErrorBoundary>
+        // </Transition>
         </div>
     }
 }
@@ -105,6 +110,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/credits", "credits"),
         ]
     };
+    let git_version = create_resource(|| (), |_| async move {crate::server::debug::git_version().await});
     view! {
         <ul class="menu_root">
             <For
@@ -119,5 +125,6 @@ pub fn MainMenu() -> impl IntoView {
                 }
             />
         </ul>
+        <p> Git Version: {{git_version}} </p>
     }
 }
