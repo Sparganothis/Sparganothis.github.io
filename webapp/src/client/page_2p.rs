@@ -5,10 +5,10 @@ use leptos::*;
 pub fn Game2P() -> impl IntoView {
     view! {
         <div class="main_left">
-            <PlayerGameBoard />
+            <PlayerGameBoard/>
         </div>
         <div class="main_right">
-            <PlayerGameBoard />
+            <PlayerGameBoard/>
         </div>
     }
 }

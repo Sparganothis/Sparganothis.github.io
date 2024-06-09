@@ -73,22 +73,22 @@ pub fn AppRoot() -> impl IntoView {
     use super::page_vs_cpu::GameCPU;
     view! {
         <div class=_style.get_class_name().to_string()>
-        // <Transition fallback=move || view! {<p>"Loading..."</p> }>
-        // <ErrorBoundary fallback=|errors| view!{<ErrorTemplate errors=errors/>}>
-                    <Router>
-                    <nav>
-                        <MainMenu />
-                    </nav>
-                    <main  _ref=main_ref>
-                        // all our routes will appear inside <main>
-                        <Routes>
-                            <Route path="" view=Game1P> </Route>
-                            <Route path="/vs_cpu" view=GameCPU></Route>
-                            <Route path="/vs_net" view=Game2P> </Route>
-                            <Route path="/replay" view=GameReplay> </Route>
-                        </Routes>
-                    </main>
-                </Router>
+            // <Transition fallback=move || view! {<p>"Loading..."</p> }>
+            // <ErrorBoundary fallback=|errors| view!{<ErrorTemplate errors=errors/>}>
+            <Router>
+                <nav>
+                    <MainMenu/>
+                </nav>
+                <main _ref=main_ref>
+                    // all our routes will appear inside <main>
+                    <Routes>
+                        <Route path="" view=Game1P/>
+                        <Route path="/vs_cpu" view=GameCPU/>
+                        <Route path="/vs_net" view=Game2P/>
+                        <Route path="/replay" view=GameReplay/>
+                    </Routes>
+                </main>
+            </Router>
 
         // </ErrorBoundary>
         // </Transition>
@@ -115,16 +115,17 @@ pub fn MainMenu() -> impl IntoView {
         <ul class="menu_root">
             <For
                 each=menu_entries
-                key= |k| k.0
-                children= |k| view!  {
-                    <A href=k.0>
-                    <h3 class="menu_item">
-                    {k.1}
-                    </h3>
-                    </A>
+                key=|k| k.0
+                children=|k| {
+                    view! {
+                        <A href=k.0>
+                            <h3 class="menu_item">{k.1}</h3>
+                        </A>
+                    }
                 }
             />
+
         </ul>
-        <p> Git Version: {{git_version}} </p>
+        <p>Git Version: {{ git_version }}</p>
     }
 }

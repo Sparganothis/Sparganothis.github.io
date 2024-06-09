@@ -59,13 +59,13 @@ jobs:
       run: trunk --version
 
     # - name: Trunk Build
-    #   run: cd leptris_frontend && trunk build
+    #   run: cd webapp && trunk build
 
     - name: Cargo Check
-      run: cd leptris_frontend && cargo check
+      run: cd webapp && cargo check
 
     - name: Trunk Build Prod
-      run: cd leptris_frontend && trunk build --release --public-url "/Sparganothis"
+      run: cd webapp && trunk build --release --public-url "/Sparganothis"
 
 
     - name: Setup Pages

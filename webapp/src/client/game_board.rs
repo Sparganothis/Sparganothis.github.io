@@ -16,15 +16,14 @@ pub fn BoardTable<const R: usize, const C: usize>(
         v
     };
     view! {
-        <table cellpadding="0" cellspacing="0"  border="0">
+        <table cellpadding="0" cellspacing="0" border="0">
             <tbody>
                 <For
                     each=values
-                    key=|r| {r.0}
-                    children=|r| view!{
-                        <BoardRow row_vals=r.1 row_idx={r.0} />
-                    }
+                    key=|r| { r.0 }
+                    children=|r| view! { <BoardRow row_vals=r.1 row_idx=r.0/> }
                 />
+
             </tbody>
         </table>
     }
@@ -41,14 +40,15 @@ pub fn BoardRow(row_vals: Vec<CellValue>, row_idx: usize) -> impl IntoView {
             <For
                 each=iter
                 key=|c| c.0
-                children = move |c| {
+                children=move |c| {
                     view! {
                         <td>
-                            <BoardCell cell=c.1 overflow=overflow />
+                            <BoardCell cell=c.1 overflow=overflow/>
                         </td>
                     }
                 }
             />
+
         </tr>
     }
 }
@@ -63,8 +63,7 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
     let overflow_txt = if overflow { "overflow_cell" } else { "cell" };
     let _cell_cls = format!("{_cell_cls} {overflow_txt}");
     view! {
-        <div class=_cell_cls>
-            // {{format!("{cell:?}")}}
+        <div class=_cell_cls>// {{format!("{cell:?}")}}
         </div>
     }
 }
@@ -178,28 +177,27 @@ pub fn GameBoard(
 
     let hold_board = create_memo(move |_| game_state().get_hold_board()).into_signal();
     let hold_board = move || {
-        view! {<BoardTable board=hold_board />}
+        view! { <BoardTable board=hold_board/> }
     };
 
     let next_board =
         create_memo(move |_| game_state.with(|game_state| game_state.get_next_board()))
             .into_signal();
     let next_board = move || {
-        view! {<BoardTable board=next_board />}
+        view! { <BoardTable board=next_board/> }
     };
 
     let main_board = create_memo(move |_| game_state().main_board).into_signal();
     let main_board = move || {
-        view! {<BoardTable board=main_board />}
+        view! { <BoardTable board=main_board/> }
     };
 
     let gameover = create_memo(move |_| {
         view! {
-            <Show
-                when=move || game_state().game_over
-                fallback={|| view!{}}
-            >
-                <h3 style="color:red" on:click=move |_| on_reset_game(())> GAME OVER </h3>
+            <Show when=move || game_state().game_over fallback=|| view! {}>
+                <h3 style="color:red" on:click=move |_| on_reset_game(())>
+                    GAME OVER
+                </h3>
             </Show>
         }
     });
@@ -209,46 +207,34 @@ pub fn GameBoard(
     let gameboard_view = move || {
         view! {
             <div class="main_container">
-                <div class="gameover">
-                    {gameover}
-                </div>
+                <div class="gameover">{gameover}</div>
                 <div class="side_board_left">
                     <h3 class="side_board_title">HOLD</h3>
                     {hold_board}
                 </div>
                 // <div class="score_window_left">
-                //     <code class="side_board_code">
-                //         {debug_info.get()}
-                //     </code>
+                // <code class="side_board_code">
+                // {debug_info.get()}
+                // </code>
                 // </div>
 
-                <div class="main_board">
-                    {main_board}
-                </div>
+                <div class="main_board">{main_board}</div>
                 <div class="label_bottom">
-                    <code class="side_board_code">
-                        {debug_info.get()}
-                    </code>
+                    <code class="side_board_code">{debug_info.get()}</code>
                 </div>
 
                 <div class="side_board_right">
                     <h3 class="side_board_title">NEXT</h3>
                     {next_board}
                 </div>
-                // <div class="score_window_right">
-                // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-                // </div>
-        </div>
+            // <div class="score_window_right">
+            // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+            // </div>
+            </div>
         }
     };
 
-    view! {
-        // class={{_style.get_class_name()}},
-
-        <div class={{_style_name}}>
-            {move || gameboard_view()}
-        </div>
-    }
+    view! { <div class={ _style_name }>{move || gameboard_view()}</div> }
 }
 
 use crate::game::tet::TetAction;
@@ -290,7 +276,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
     });
 
     view! {
-        <super::hotkey_reader::HotkeyReader on_action=on_action/>
+        <super::hotkey_reader::HotkeyReader on_action=on_action></super::hotkey_reader::HotkeyReader>
         <GameBoard game_state=get_state on_reset_game=on_reset/>
     }
 }
@@ -318,7 +304,5 @@ pub fn OpponentGameBoard() -> impl IntoView {
         }
     });
 
-    view! {
-        <GameBoard game_state=get_state on_reset_game=on_reset/>
-    }
+    view! { <GameBoard game_state=get_state on_reset_game=on_reset/> }
 }
