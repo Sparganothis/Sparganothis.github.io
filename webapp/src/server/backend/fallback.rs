@@ -9,10 +9,7 @@ use leptos_integration_utils::html_parts_separated;
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
 
-pub async fn file_or_index_handler(
-    uri: Uri,
-    State(options): State<LeptosOptions>,
-) -> AxumResponse {
+pub async fn file_or_index_handler(uri: Uri, State(options): State<LeptosOptions>) -> AxumResponse {
     let root = options.site_root.clone();
     let res = get_static_file(uri.clone(), &root).await.unwrap();
 
@@ -25,10 +22,7 @@ pub async fn file_or_index_handler(
     }
 }
 
-async fn get_static_file(
-    uri: Uri,
-    root: &str,
-) -> Result<Response<Body>, (StatusCode, String)> {
+async fn get_static_file(uri: Uri, root: &str) -> Result<Response<Body>, (StatusCode, String)> {
     let req = Request::builder()
         .uri(uri.clone())
         .body(Body::empty())

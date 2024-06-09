@@ -13,9 +13,7 @@ impl WebAppError {
     pub fn status_code(&self) -> StatusCode {
         match self {
             WebAppError::NotFound => StatusCode::NOT_FOUND,
-            WebAppError::InternalServerError => {
-                StatusCode::INTERNAL_SERVER_ERROR
-            }
+            WebAppError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }

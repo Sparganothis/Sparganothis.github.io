@@ -1,7 +1,7 @@
 use leptos::*;
 use leptos_meta::provide_meta_context;
 use leptos_router::*;
-use crate::error_template::ErrorTemplate;
+// use crate::error_template::ErrorTemplate;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -110,7 +110,27 @@ pub fn MainMenu() -> impl IntoView {
             ("/credits", "credits"),
         ]
     };
-    let git_version = create_resource(|| (), |_| async move {crate::server::debug::git_version().await});
+    let git_version = create_resource(
+        || (),
+        |_| async move { crate::server::api::server_info::git_version().await },
+    );
+
+    let guest_id = create_resource(
+        || (),
+        |_| async move { crate::server::api::user::who_am_i().await },
+    );
+
+    let user_profile = create_resource(
+        move || guest_id.get(),
+        |g| async move {
+            if let Some(Ok(guest_info)) = g {
+                crate::server::api::user::get_profile(guest_info.user_id).await
+            } else {
+                Err(ServerFnError::new("cannot get user profile"))
+            }
+        },
+    );
+
     view! {
         <ul class="menu_root">
             <For
@@ -126,6 +146,8 @@ pub fn MainMenu() -> impl IntoView {
             />
 
         </ul>
-        <p>Git Version: {{ git_version }}</p>
+        <p>{{ git_version }}</p>
+        <p>{{ move || format!("{:?}", guest_id.get()) }}</p>
+        <p>{{ move || format!("{:?}", user_profile.get()) }}</p>
     }
 }

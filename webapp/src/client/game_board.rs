@@ -63,8 +63,8 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
     let overflow_txt = if overflow { "overflow_cell" } else { "cell" };
     let _cell_cls = format!("{_cell_cls} {overflow_txt}");
     view! {
-        <div class=_cell_cls>// {{format!("{cell:?}")}}
-        </div>
+        // {{format!("{cell:?}")}}
+        <div class=_cell_cls></div>
     }
 }
 
@@ -234,7 +234,7 @@ pub fn GameBoard(
         }
     };
 
-    view! { <div class={ _style_name }>{move || gameboard_view()}</div> }
+    view! { <div class=_style_name>{move || gameboard_view()}</div> }
 }
 
 use crate::game::tet::TetAction;

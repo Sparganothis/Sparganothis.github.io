@@ -35,6 +35,15 @@ leptos-use = "0.10.10"
 anyhow = "1.0.86"
 leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
 rand  = "0.8.5" 
+tower-sessions-sled-store = { path = "../lib/tower-sessions-sled-store-master", optional = true }
+tower-sessions =  { version = "0.12.2", optional = true }
+axum-login =  { version = "0.15.2", optional = true }
+sled = {version="0.34.7", optional = true }
+typed-sled = {version="0.2", optional = true }
+async-trait = "0.1.80"
+time = {version="0.3", features=["serde"]}
+uuid = { version = "1.8.0", features = ["v4", "serde"] }
+random_word = { version = "0.4.3", features = ["de"], optional = true}
 
 [features]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
@@ -49,6 +58,14 @@ ssr = [
 	"leptos_router/ssr",
 	"dep:leptos_axum",
 	"dep:leptos_integration_utils",
+	"leptos-use/ssr",
+
+	"dep:tower-sessions",
+	"dep:tower-sessions-sled-store",
+	"dep:axum-login",
+	"dep:sled",
+	"dep:typed-sled",
+	"dep:random_word"
 ]
 
 [package.metadata.cargo-all-features]
