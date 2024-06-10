@@ -59,6 +59,12 @@ pub fn AppRoot() -> impl IntoView {
             height: 5vmin;
             line-height: 5vmin;
         }
+        .profile_view_container {
+            color: black;
+            margin: 10px;
+            border: 8px dashed black;
+            padding: 15px;
+        }
     )
     .expect("bad css");
     use leptos_hotkeys::{provide_hotkeys_context, scopes, HotkeysContext};
@@ -67,10 +73,12 @@ pub fn AppRoot() -> impl IntoView {
 
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
-    use super::page_1p::Game1P;
-    use super::page_2p::Game2P;
-    use super::page_replay::GameReplay;
-    use super::page_vs_cpu::GameCPU;
+    use super::page_1p::Game1PPage;
+    use super::page_2p::Game2PPage;
+    use super::page_replay::GameReplayPage;
+    use super::page_user_profile::{MyAccountPage, UserProfilePage};
+    use super::page_vs_cpu::GameCPUPage;
+
     view! {
         <div class=_style.get_class_name().to_string()>
             // <Transition fallback=move || view! {<p>"Loading..."</p> }>
@@ -82,10 +90,13 @@ pub fn AppRoot() -> impl IntoView {
                 <main _ref=main_ref>
                     // all our routes will appear inside <main>
                     <Routes>
-                        <Route path="" view=Game1P/>
-                        <Route path="/vs_cpu" view=GameCPU/>
-                        <Route path="/vs_net" view=Game2P/>
-                        <Route path="/replay" view=GameReplay/>
+                        <Route path="" view=Game1PPage/>
+                        <Route path="/vs_cpu" view=GameCPUPage/>
+                        <Route path="/vs_net" view=Game2PPage/>
+                        <Route path="/replay" view=GameReplayPage/>
+                        <Route path="/account" view=MyAccountPage/>
+                        <Route path="/user/:user_id" view=UserProfilePage/>
+                        <Route path="/*any" view=|| view! { <h1>"Not Found"</h1> }/>
                     </Routes>
                 </main>
             </Router>
@@ -115,22 +126,6 @@ pub fn MainMenu() -> impl IntoView {
         |_| async move { crate::server::api::server_info::git_version().await },
     );
 
-    let guest_id = create_resource(
-        || (),
-        |_| async move { crate::server::api::user::who_am_i().await },
-    );
-
-    let user_profile = create_resource(
-        move || guest_id.get(),
-        |g| async move {
-            if let Some(Ok(guest_info)) = g {
-                crate::server::api::user::get_profile(guest_info.user_id).await
-            } else {
-                Err(ServerFnError::new("cannot get user profile"))
-            }
-        },
-    );
-
     view! {
         <ul class="menu_root">
             <For
@@ -147,7 +142,5 @@ pub fn MainMenu() -> impl IntoView {
 
         </ul>
         <p>{{ git_version }}</p>
-        <p>{{ move || format!("{:?}", guest_id.get()) }}</p>
-        <p>{{ move || format!("{:?}", user_profile.get()) }}</p>
     }
 }

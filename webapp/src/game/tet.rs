@@ -42,7 +42,6 @@ impl Tet {
 
             super::rot::RotState::R2 => {
                 sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
-
                 sh = super::rot::rotate_shape(sh, super::rot::RotDirection::Right);
             }
 

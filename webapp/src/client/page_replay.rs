@@ -1,7 +1,8 @@
 use super::game_board::OpponentGameBoard;
 use leptos::*;
+
 #[component]
-pub fn GameReplay() -> impl IntoView {
+pub fn GameReplayPage() -> impl IntoView {
     view! {
         <div class="main_left">
             <OpponentGameBoard/>

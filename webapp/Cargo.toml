@@ -7,43 +7,48 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-console_log = "1.0"
-console_error_panic_hook = "0.1"
 futures = "0.3"
-leptos = { version = "0.6", features=["nightly"]}
-leptos_meta = {version = "0.6", features=["nightly"]}
-leptos_router = {version="0.6", features=["csr", "nightly"]}
-leptos_axum = {  version = "0.6", optional = true }
-leptos_integration_utils = { version = "0.6", optional = true }
 log = "0.4"
 simple_logger = "4.0"
 serde = { version = "1", features = ["derive"] }
+
+thiserror = "1.0"
+stylist = {version="0.13.0", features=["parser"]}
+anyhow = "1.0.86"
+rand  = "0.8.5" 
+async-trait = "0.1.80"
+time = {version="0.3", features=["serde"]}
+uuid = { version = "1.8.0", features = ["v4", "serde"] }
+http = { version = "1.0" }
+
+# leptos client + server
+leptos = { version = "0.6", features=["nightly"]}
+leptos_meta = {version = "0.6", features=["nightly"]}
+leptos_router = {version="0.6", features=["csr", "nightly"]}
+leptos-struct-table = {version="0.10.2", features=["uuid", "time"]}
+leptos-use = "0.10.10"
+leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
+wasm-bindgen = "0.2"
+console_log = "1.0"
+console_error_panic_hook = "0.1"
+
+# server only
 axum = { version = "0.7", optional = true }
 tower = { version = "0.4", optional = true }
+leptos_axum = {  version = "0.6", optional = true }
+leptos_integration_utils = { version = "0.6", optional = true }
 tower-http = { version = "0.5", features = ["fs"], optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
-http = { version = "1.0" }
-# sqlx = { version = "0.7", features = [
-# 	"runtime-tokio-rustls",
-# 	"sqlite",
-# ], optional = true }
-thiserror = "1.0"
-wasm-bindgen = "0.2"
-stylist = {version="0.13.0", features=["parser"]}
-
-leptos-use = "0.10.10"
-anyhow = "1.0.86"
-leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
-rand  = "0.8.5" 
 tower-sessions-sled-store = { path = "../lib/tower-sessions-sled-store-master", optional = true }
 tower-sessions =  { version = "0.12.2", optional = true }
 axum-login =  { version = "0.15.2", optional = true }
 sled = {version="0.34.7", optional = true }
 typed-sled = {version="0.2", optional = true }
-async-trait = "0.1.80"
-time = {version="0.3", features=["serde"]}
-uuid = { version = "1.8.0", features = ["v4", "serde"] }
 random_word = { version = "0.4.3", features = ["de"], optional = true}
+# sqlx = { version = "0.7", features = [
+# 	"runtime-tokio-rustls",
+# 	"sqlite",
+# ], optional = true }
 
 [features]
 csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
@@ -52,20 +57,19 @@ ssr = [
 	"dep:tower",
 	"dep:tower-http",
 	"dep:tokio",
-	# "dep:sqlx",
 	"leptos/ssr",
 	"leptos_meta/ssr",
 	"leptos_router/ssr",
 	"dep:leptos_axum",
 	"dep:leptos_integration_utils",
 	"leptos-use/ssr",
-
 	"dep:tower-sessions",
 	"dep:tower-sessions-sled-store",
 	"dep:axum-login",
 	"dep:sled",
 	"dep:typed-sled",
 	"dep:random_word"
+	# "dep:sqlx",
 ]
 
 [package.metadata.cargo-all-features]

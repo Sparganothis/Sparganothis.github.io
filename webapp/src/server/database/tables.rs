@@ -16,7 +16,7 @@ pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
     Ok(USER_PROFILE_DB
         .get(uuid)
         .context("operation failed")?
-        .context("not found")?)
+        .context("user profile not found")?)
 }
 
 pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {

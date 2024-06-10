@@ -1,7 +1,8 @@
 use super::game_board::PlayerGameBoard;
 use leptos::*;
+
 #[component]
-pub fn Game1P() -> impl IntoView {
+pub fn Game1PPage() -> impl IntoView {
     view! {
         <div class="main_left">
             <PlayerGameBoard/>
