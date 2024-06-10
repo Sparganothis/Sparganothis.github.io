@@ -62,10 +62,7 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
     };
     let overflow_txt = if overflow { "overflow_cell" } else { "cell" };
     let _cell_cls = format!("{_cell_cls} {overflow_txt}");
-    view! {
-        // {{format!("{cell:?}")}}
-        <div class=_cell_cls></div>
-    }
+    view! { <div class=_cell_cls></div> }
 }
 
 #[component]
@@ -237,11 +234,12 @@ pub fn GameBoard(
     view! { <div class=_style_name>{move || gameboard_view()}</div> }
 }
 
+use crate::game::tet::GameSeed;
 use crate::game::tet::TetAction;
 
 #[component]
-pub fn PlayerGameBoard() -> impl IntoView {
-    let (get_state, _set_state) = create_signal(tet::GameState::empty());
+pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
+    let (get_state, _set_state) = create_signal(tet::GameState::empty(seed));
 
     let leptos_use::utils::Pausable {
         pause: _timer_pause,
@@ -271,7 +269,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
         if get_state().game_over {
-            _set_state.set(GameState::empty());
+            _set_state.set(GameState::empty(seed));
         }
     });
 
@@ -282,8 +280,8 @@ pub fn PlayerGameBoard() -> impl IntoView {
 }
 
 #[component]
-pub fn OpponentGameBoard() -> impl IntoView {
-    let (get_state, _set_state) = create_signal(tet::GameState::empty());
+pub fn OpponentGameBoard(seed: GameSeed) -> impl IntoView {
+    let (get_state, _set_state) = create_signal(tet::GameState::empty(seed));
     let leptos_use::utils::Pausable {
         pause: _,
         resume: _,
@@ -300,7 +298,7 @@ pub fn OpponentGameBoard() -> impl IntoView {
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
         if get_state().game_over {
-            _set_state.set(GameState::empty());
+            _set_state.set(GameState::empty(seed));
         }
     });
 

@@ -266,6 +266,37 @@ pub struct GameState {
 
     pub hold_pcps: Option<HoldPcsInfo>,
     pub game_over: bool,
+
+    pub replay: GameReplay,
+    pub seed: GameSeed,
+}
+
+pub type GameSeed = u128;
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct GameReplay {
+    pub init_seed: GameSeed,
+    pub replay_slices: Vec<GameReplaySlice>,
+}
+
+impl GameReplay {
+    pub fn empty(seed: GameSeed) -> Self {
+        Self {
+            init_seed: seed,
+            replay_slices: vec![],
+        }
+    }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct GameReplaySlice {
+    idx: u32,
+    event: GameReplayEvent,
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub enum GameReplayEvent {
+    Action(TetAction, u32),
 }
 
 const SPAWN_POS: (i8, i8) = (19, 3);
@@ -294,7 +325,7 @@ impl GameState {
 
     fn clear_line(&mut self) {
         while let Some(line) = self.can_clear_line() {
-            for i in line..38 {
+            for i in line..39 {
                 for j in 0..10 {
                     self.main_board.v[i as usize][j] = self.main_board.v[i as usize + 1][j];
                 }
@@ -303,7 +334,7 @@ impl GameState {
     }
 
     fn can_clear_line(&self) -> Option<i8> {
-        for i in 0..22 {
+        for i in 0..40 {
             let row = self.main_board.v[i];
             let is_full = row
                 .iter()
@@ -358,7 +389,7 @@ impl GameState {
             }
         }
     }
-    pub fn empty() -> Self {
+    pub fn empty(seed: GameSeed) -> Self {
         let mut next_pcs = Tet::all();
         use rand::thread_rng;
         let mut rng = thread_rng();
@@ -376,6 +407,8 @@ impl GameState {
             game_over: false,
             hold_pcps: None,
             current_id: 0,
+            seed,
+            replay: GameReplay::empty(seed),
         };
         new_state.put_next_piece();
         new_state
