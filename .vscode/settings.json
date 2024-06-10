@@ -1,5 +1,6 @@
 {
     "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.shellIntegration.enabled": false,
     "files.autoSave": "afterDelay",
     "terminal.integrated.enableMultiLinePasteWarning": "never",
     "explorer.confirmDelete": false,
