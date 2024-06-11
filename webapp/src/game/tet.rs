@@ -294,6 +294,20 @@ pub enum GameReplaySegment {
     Update(GameReplaySlice)
 }
 
+impl  GameReplaySegment {
+    pub fn is_game_over(&self) -> bool {
+        match self {
+            Self::Update(slice) => {
+                match slice.event {
+                    GameReplayEvent::GameOver => true,
+                    _ => false,
+                }
+            },
+            _ => false
+        }
+    }
+}
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplaySlice {
     pub idx: u32,

@@ -8,7 +8,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
     board: Signal<tet::BoardMatrix<R, C>>,
 ) -> impl IntoView {
     //
-    log::info!("redraw BoardTable R={} C={}", R, C);
+    // log::info!("redraw BoardTable R={} C={}", R, C);
     let values = move || {
         let board = board();
         let mut v: Vec<_> = board.rows().into_iter().enumerate().collect();

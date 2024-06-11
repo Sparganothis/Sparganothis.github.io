@@ -1,49 +1,11 @@
 use leptos::*;
-use leptos_meta::*;
-use leptos_router::*;
-
-#[cfg(feature = "ssr")]
-pub mod ssr_imports {
-    pub use broadcaster::BroadcastChannel;
-    pub use once_cell::sync::OnceCell;
-    pub use std::sync::atomic::{AtomicI32, Ordering};
-
-    pub static COUNT: AtomicI32 = AtomicI32::new(0);
-
-    lazy_static::lazy_static! {
-        pub static ref COUNT_CHANNEL: BroadcastChannel<i32> = BroadcastChannel::new();
-    }
-
-    static LOG_INIT: OnceCell<()> = OnceCell::new();
-
-    pub fn init_logging() {
-        LOG_INIT.get_or_init(|| {
-            simple_logger::SimpleLogger::new().env().init().unwrap();
-        });
-    }
-}
-
-#[server]
-pub async fn adjust_server_count(delta: i32, msg: String) -> Result<i32, ServerFnError> {
-    use ssr_imports::*;
-
-    let new = COUNT.load(Ordering::Relaxed) + delta;
-    COUNT.store(new, Ordering::Relaxed);
-    _ = COUNT_CHANNEL.send(&new).await;
-    println!("message = {:?}", msg);
-    Ok(new)
-}
-use leptos::*;
 
 use crate::client::game_board::GameBoard;
-use crate::game::tet::{GameReplay, GameReplaySegment, GameState};
+use crate::game::tet::{GameReplaySegment, GameState};
 
 
 #[component]
 pub fn SseDeom() -> impl IntoView {
-    // leptos_sse::provide_sse("/api/events").unwrap();
-    // Create sse signal
-    // let replay_state: ReadSignal<GameReplay> = create_sse_signal::<GameReplay>("game_replay");
 
     let replay_state = {
         use futures::StreamExt;
@@ -55,10 +17,14 @@ pub fn SseDeom() -> impl IntoView {
                 |value| match value {
                     Ok(value) => {
                         let json_string = value.1.data().as_string().unwrap();
-                        let val = serde_json::from_str(&json_string).unwrap();
+                        let val: GameReplaySegment = serde_json::from_str(&json_string).unwrap();
+                        if val.is_game_over() {
+                            log::info!("game over but we didnt lcose")
+                            // source.close();
+                        }
                         Some(val)
                     }
-                    Err(e) => None,
+                    Err(_e) => None,
                 },
             ));
 
@@ -68,7 +34,6 @@ pub fn SseDeom() -> impl IntoView {
 
     let memo_state = create_memo(move |old_state: Option<&GameState>| {
         let  segment = replay_state.get().unwrap_or(None);
-        log::info!("{:?}",  segment);
         match segment {
             Some(GameReplaySegment::Init(init)) => {
                 GameState::new(&init.init_seed, init.start_time)
