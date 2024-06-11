@@ -3169,6 +3169,7 @@ dependencies = [
  "rand_chacha",
  "random_word",
  "serde",
+ "serde_json",
  "simple_logger",
  "sled",
  "stylist",

@@ -45,7 +45,8 @@ pub async fn handle_sse_game_stream(
                     if state1.game_over {
                         state1 = GameState::new(&seed, get_timestamp_now());
                     }
-                    Event::default().json_data(state1.replay.clone()).unwrap()
+                    let str = serde_json::to_string(&state1.replay).unwrap();
+                    Event::default().data(str)
                 })
         .map(Ok)
         .throttle(Duration::from_secs(1));
