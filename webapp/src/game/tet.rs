@@ -719,15 +719,12 @@ mod tests {
 
             loop {
                 let action = TetAction::random();
-                // println!("\n TEST ACTION = {action:?}");
-                // println!("ACTIVE");
                 let res = active_game.try_action(action, get_timestamp_now());
                 if let Ok(new_active_game) = res {
                     active_game = new_active_game;
                 } else {
                     continue;
                 }
-                // println!("PASSIVE");
                 if let Err(e) = passive_game
                     .accept_replay_slice(&active_game.replay.replay_slices.last().unwrap())
                 {

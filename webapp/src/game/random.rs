@@ -61,7 +61,6 @@ pub fn accept_event(
             32, all_bytes_len
         ),
     };
-    // println!("\n===\nseed={seed:?}\nevent={event:?}\nts={event_ts:?}\nidx={event_idx:?}\nnew={new_seed:?}\n===\n");
 
     new_seed
 }

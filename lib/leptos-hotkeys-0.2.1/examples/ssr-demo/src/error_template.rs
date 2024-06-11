@@ -40,7 +40,7 @@ pub fn ErrorTemplate(
         .collect();
     #[allow(clippy::print_stdout)]
     {
-        println!("Errors: {errors:#?}");
+        log::warn!("ErrorTemplate Errors: {errors:#?}");
     }
 
     // Only the response code for the first error is actually sent from the server

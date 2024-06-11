@@ -15,7 +15,7 @@ use std::collections::VecDeque;
 pub async fn handle_sse_game_stream(
     TypedHeader(user_agent): TypedHeader<headers::UserAgent>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    println!("`{}` connected", user_agent.as_str());
+    log::info!("SSE: `{}` connected", user_agent.as_str());
 
     let mut maybe_state: Option<GameState> = None;
     let mut new_segments = VecDeque::<GameReplaySegment>::new();

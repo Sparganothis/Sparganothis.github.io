@@ -7,11 +7,24 @@ pub use axum::{
     routing::{get, post},
     Router,
 };
+use tower_http::{
+    services::ServeDir,
+    trace::{DefaultMakeSpan, TraceLayer},
+};
+use std::{net::SocketAddr, path::PathBuf};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 pub use leptos::*;
 pub use leptos_axum::{generate_route_list, LeptosRoutes};
 
 pub async fn server_main() {
-    simple_logger::init_with_level(log::Level::Debug).expect("couldn't initialize logging");
+    // simple_logger::init_with_level(log::Level::Debug).expect("couldn't initialize logging");
+    tracing_subscriber::registry()
+    .with(
+        tracing_subscriber::EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| "webapp=debug,tower_http=info".into()),
+    )
+    .with(tracing_subscriber::fmt::layer())
+    .init();
 
     // let _conn = db().await.expect("couldn't connect to DB");
 
@@ -28,8 +41,13 @@ pub async fn server_main() {
         // this should include a get() handler if you have any GetUrl-based server fns
         .route("/api/*fn_name", post(leptos_axum::handle_server_fns))
         .route("/api/events", get(super::demo_sse::handle_sse_game_stream))
+        
+        .route("/api/ws", get(crate::server::backend::websocket::ws_handler))
         .fallback(file_or_index_handler)
-        .with_state(leptos_options)
+        .with_state(leptos_options)        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(DefaultMakeSpan::default().include_headers(true)),
+        )
         .layer(super::session::make_session_layer());
 
     // run our app with hyper
@@ -38,7 +56,7 @@ pub async fn server_main() {
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("couldn't bind to address");
-    axum::serve(listener, app.into_make_service())
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>(),)
         .await
         .unwrap();
 }
