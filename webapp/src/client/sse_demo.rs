@@ -39,19 +39,20 @@ pub async fn adjust_server_count(
     println!("message = {:?}", msg);
     Ok(new)
 }
-use crate::server::api::Count;
 use leptos::*;
 use leptos_sse::create_sse_signal;
-use serde::{Deserialize, Serialize};
+
+use crate::game::tet::{GameReplay, GameState};
 
 #[component]
 pub fn SseDeom() -> impl IntoView {
     leptos_sse::provide_sse("/api/events").unwrap();
 
     // Create sse signal
-    let count = create_sse_signal::<Count>("counter");
+    let count = create_sse_signal::<GameReplay>("game_replay");
+    // let count = create_sse_signal::<GameState>("game_state");
 
     view! {
-        <h1>"Count: " {move || count.get().value.to_string()}</h1>
+        <pre> {move || format!("{:#?}", count.get())}</pre>
     }
 }

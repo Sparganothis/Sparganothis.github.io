@@ -27,7 +27,7 @@ pub async fn server_main() {
         // handler for the server fns
         // this should include a get() handler if you have any GetUrl-based server fns
         .route("/api/*fn_name", post(leptos_axum::handle_server_fns))
-        .route("/api/events", get(super::demo_sse::handle_sse))
+        .route("/api/events", get(super::demo_sse::handle_sse_game_stream))
         .fallback(file_or_index_handler)
         .with_state(leptos_options)
         .layer(super::session::make_session_layer());

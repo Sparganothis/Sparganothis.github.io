@@ -1,4 +1,5 @@
 use anyhow::Context;
+use serde::{Deserialize, Serialize};
 
 use super::rot::{RotDirection, RotState, Shape};
 
@@ -217,7 +218,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             .collect()
     }
 }
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TetAction {
     HardDrop,
     SoftDrop,
@@ -272,12 +273,13 @@ pub struct GameState {
 }
 
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct GameReplay {
     pub init_seed: GameSeed,
     pub start_time: i64,
     pub replay_slices: Vec<GameReplaySlice>,
 }
+
 
 impl GameReplay {
     pub fn empty(seed: &GameSeed, start_time: i64) -> Self {
@@ -289,7 +291,7 @@ impl GameReplay {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplaySlice {
     pub idx: u32,
     pub event: GameReplayEvent,
@@ -297,7 +299,7 @@ pub struct GameReplaySlice {
     pub new_seed: GameSeed,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameReplayEvent {
     Action(TetAction),
     GameOver,

@@ -1,25 +1,29 @@
 use {
-    axum::response::sse::{Event, KeepAlive, Sse},
-    futures::stream::Stream,
+    crate::game::{tet::{GameState, TetAction}, timestamp::get_timestamp_now}, axum::response::sse::{Event, KeepAlive, Sse}, futures::stream::Stream
 };
-use serde::{Serialize,Deserialize};
 
-use crate::server::api::Count;
-
-
-pub async fn handle_sse() -> Sse<impl Stream<Item = Result<Event, axum::BoxError>>> {
+pub async fn handle_sse_game_stream() -> Sse<impl Stream<Item = Result<Event, axum::BoxError>>> {
     use futures::stream;
     use leptos_sse::ServerSentEvents;
     use std::time::Duration;
     use tokio_stream::StreamExt as _;
 
-    let mut value = 0;
+    let seed = [0; 32];
+    let mut state1 = GameState::new(&seed, get_timestamp_now());
+
     let stream = ServerSentEvents::new(
-        "counter",
+        "game_replay",
         stream::repeat_with(move || {
-            let curr = value;
-            value += 1;
-            Ok(Count { value: curr })
+                
+                let action = TetAction::random();
+                let t2 = get_timestamp_now();
+                let _ = state1.apply_action_if_works(action, t2);
+               
+                if state1.game_over {
+                    state1 =  GameState::new(&seed, get_timestamp_now());
+                }
+                Ok(state1.replay.clone())
+   
         })
         .throttle(Duration::from_secs(1)),
     )
