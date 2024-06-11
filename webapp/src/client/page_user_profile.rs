@@ -20,7 +20,7 @@ pub fn MyAccountPage() -> impl IntoView {
     let user_link = move || {
         if let (Some(Ok(g_id)), Some(Ok(profile))) = (guest_id.get(), user_profile.get()) {
             view! {
-                <a href={ format!("/user/{}", g_id.user_id) }>
+                <a href=format!("/user/{}", g_id.user_id)>
                     <UserProfileView _user_id=g_id.user_id p=profile/>
                 </a>
             }

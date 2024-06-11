@@ -44,7 +44,7 @@ pub fn SseDeom() -> impl IntoView {
     // Create sse signal
     // let replay_state: ReadSignal<GameReplay> = create_sse_signal::<GameReplay>("game_replay");
 
-    let replay_state= {
+    let replay_state = {
         use futures::StreamExt;
 
         let mut source = gloo_net::eventsource::futures::EventSource::new("/api/events")
@@ -52,11 +52,11 @@ pub fn SseDeom() -> impl IntoView {
         let s: ReadSignal<Option<Option<GameReplay>>> =
             create_signal_from_stream(source.subscribe("message").unwrap().map(
                 |value| match value {
-                    Ok(value) =>{ 
+                    Ok(value) => {
                         let json_string = value.1.data().as_string().unwrap();
-                        let  val = serde_json::from_str(&json_string).unwrap();
+                        let val = serde_json::from_str(&json_string).unwrap();
                         Some(val)
-                    },
+                    }
                     Err(e) => None,
                 },
             ));
@@ -71,7 +71,7 @@ pub fn SseDeom() -> impl IntoView {
             let seed = [0; 32];
             return GameState::new(&seed, 0);
         }
-        let  new_replay = new_replay.unwrap();
+        let new_replay = new_replay.unwrap();
         match _c {
             None => {
                 let seed = [0; 32];
@@ -108,8 +108,5 @@ pub fn SseDeom() -> impl IntoView {
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     log::info!("sse demo");
-    view! {
-        // {move || format!("{:?}", replay_state_str())}
-       <GameBoard on_reset_game=on_reset game_state=memo_state></GameBoard>
-    }
+    view! { <GameBoard on_reset_game=on_reset game_state=memo_state/> }
 }

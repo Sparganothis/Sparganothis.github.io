@@ -205,10 +205,10 @@ pub fn GameBoard(
         view! {
             <div class="main_container">
                 <div class="gameover">{gameover}</div>
-                    <div class="side_board_left">
-                        <h3 class="side_board_title">HOLD</h3>
-                        {hold_board}
-                    </div>
+                <div class="side_board_left">
+                    <h3 class="side_board_title">HOLD</h3>
+                    {hold_board}
+                </div>
 
                 <div class="score_window_left">
                     <code class="side_board_code">
