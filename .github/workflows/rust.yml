@@ -50,17 +50,6 @@ jobs:
     - name: Install cargo-leptos
       run: cargo binstall cargo-leptos --no-confirm
 
-    # - name: Install Trunk
-    #   uses: jetli/trunk-action@v0.5.0
-    #   with:
-    #     version: "latest"
-
-    - name: Print Trunk Version
-      run: trunk --version
-
-    # - name: Trunk Build
-    #   run: cd webapp && trunk build
-
     - name: Cargo Check
       run: cd webapp && cargo check && cargo test
 
