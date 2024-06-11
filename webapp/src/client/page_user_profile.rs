@@ -59,11 +59,9 @@ pub fn UserProfilePage() -> impl IntoView {
     );
     let profile_view = move || {
         if let (Ok(user_id), Some(Ok(profile))) = (get_id(), profile()) {
-            view! { <UserProfileView p=profile _user_id=user_id/> }
-            .into_view()
+            view! { <UserProfileView p=profile _user_id=user_id/> }.into_view()
         } else {
-            view! { <p>profile not found!</p> }
-            .into_view()
+            view! { <p>profile not found!</p> }.into_view()
         }
     };
 

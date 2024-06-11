@@ -4,7 +4,7 @@ use super::game_board::{OpponentGameBoard, PlayerGameBoard};
 use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {
-    let seed: GameSeed = [0;32];
+    let seed: GameSeed = [0; 32];
 
     view! {
         <div class="main_left">

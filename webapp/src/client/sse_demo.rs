@@ -1,8 +1,6 @@
-
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-
 
 #[cfg(feature = "ssr")]
 pub mod ssr_imports {
@@ -25,12 +23,8 @@ pub mod ssr_imports {
     }
 }
 
-
 #[server]
-pub async fn adjust_server_count(
-    delta: i32,
-    msg: String,
-) -> Result<i32, ServerFnError> {
+pub async fn adjust_server_count(delta: i32, msg: String) -> Result<i32, ServerFnError> {
     use ssr_imports::*;
 
     let new = COUNT.load(Ordering::Relaxed) + delta;
@@ -42,6 +36,7 @@ pub async fn adjust_server_count(
 use leptos::*;
 use leptos_sse::create_sse_signal;
 
+use crate::client::game_board::GameBoard;
 use crate::game::tet::{GameReplay, GameState};
 
 #[component]
@@ -49,10 +44,47 @@ pub fn SseDeom() -> impl IntoView {
     leptos_sse::provide_sse("/api/events").unwrap();
 
     // Create sse signal
-    let count = create_sse_signal::<GameReplay>("game_replay");
+    let replay_state: ReadSignal<GameReplay> = create_sse_signal::<GameReplay>("game_replay");
+    let memo_state = create_memo(move |_c: Option<&GameState>| {
+        let new_replay = replay_state.get();
+        match _c {
+            None => {
+                let seed = [0; 32];
+                log::info!("memo none");
+                GameState::new(&seed, 0)
+            }
+            Some(state_val) => {
+                log::info!("memo Some");
+                let mut state_val = state_val.clone();
+                if( new_replay.replay_slices.len() == 0 || state_val.replay.replay_slices.len() == 0) && ( state_val.init_seed != new_replay.init_seed || state_val.start_time != new_replay.start_time )
+                {
+                    log::info!("memo new thing");
+                    state_val = GameState::new(&new_replay.init_seed, new_replay.start_time);
+                } else {
+                    log::info!("memo oold thing");
+                    while state_val.replay.replay_slices.len() < new_replay.replay_slices.len() {
+                        let idx = state_val.replay.replay_slices.len();
+                        let pipi = new_replay.replay_slices[idx].clone();
+                        if let Err(e) = state_val.accept_replay_slice(&pipi) {
+                            log::warn!("error in accept_replay_slice() : {:?}", e);
+                        }
+                    }
+                }
+                state_val
+            }
+        }
+    })
+    .into_signal();
+
     // let count = create_sse_signal::<GameState>("game_state");
 
+    let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
+    log::info!("sse demo");
     view! {
-        <pre> {move || format!("{:#?}", count.get())}</pre>
+        || move {
+             view! {
+                <GameBoard on_reset_game=on_reset game_state=memo_state></GameBoard>
+             }
+            }
     }
 }

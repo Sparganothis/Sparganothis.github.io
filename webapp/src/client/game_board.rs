@@ -67,7 +67,7 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
 
 #[component]
 pub fn GameBoard(
-    #[prop(into)] game_state: ReadSignal<tet::GameState>,
+    #[prop(into)] game_state: Signal<tet::GameState>,
     on_reset_game: Callback<()>,
 ) -> impl IntoView {
     let bottom_free_percent = 15.0;
@@ -263,7 +263,10 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
 
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
         _set_state.update(|state| {
-            if state.apply_action_if_works(_action, get_timestamp_now()).is_ok() {
+            if state
+                .apply_action_if_works(_action, get_timestamp_now())
+                .is_ok()
+            {
                 reset_timer();
             }
         })

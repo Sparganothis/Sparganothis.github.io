@@ -89,7 +89,6 @@ impl Tet {
             Self::O,
         ]
     }
-
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -272,14 +271,12 @@ pub struct GameState {
     pub start_time: i64,
 }
 
-
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct GameReplay {
     pub init_seed: GameSeed,
     pub start_time: i64,
     pub replay_slices: Vec<GameReplaySlice>,
 }
-
 
 impl GameReplay {
     pub fn empty(seed: &GameSeed, start_time: i64) -> Self {
@@ -331,20 +328,20 @@ impl GameState {
 
     fn clear_line(&mut self) {
         let mut score = 0;
-        let  mut lines = 0;
+        let mut lines = 0;
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
                     self.main_board.v[i as usize][j] = self.main_board.v[i as usize + 1][j];
                 }
             }
-            lines +=1;
+            lines += 1;
         }
-        score += match lines{
+        score += match lines {
             1 => 100,
             2 => 300,
             3 => 500,
-            _ => 0
+            _ => 0,
         };
 
         self.score += score;
@@ -377,7 +374,7 @@ impl GameState {
             idx,
             event: event.clone(),
             new_seed,
-            event_timestamp:event_time,
+            event_timestamp: event_time,
         };
         self.seed = new_slice.new_seed;
         self.replay.replay_slices.push(new_slice);
@@ -403,7 +400,7 @@ impl GameState {
             log::warn!("game over but you called put_next_cs");
             anyhow::bail!("game already over");
         }
-        
+
         self.clear_line();
         let next_tet = self.next_pcs.pop_front().unwrap();
 
@@ -430,12 +427,12 @@ impl GameState {
         match slice.event {
             GameReplayEvent::Action(action) => {
                 *self = self.try_action(action, slice.event_timestamp)?;
-            },
+            }
             GameReplayEvent::GameOver => {
-                if ! self.game_over {
+                if !self.game_over {
                     anyhow::bail!("game over but not in the simulation!");
                 }
-            },
+            }
         }
         Ok(())
     }
@@ -644,7 +641,11 @@ impl GameState {
         Ok(new)
     }
 
-    pub fn apply_action_if_works(&mut self, action: TetAction, event_time: i64) -> anyhow::Result<()> {
+    pub fn apply_action_if_works(
+        &mut self,
+        action: TetAction,
+        event_time: i64,
+    ) -> anyhow::Result<()> {
         let r = self.try_action(action, event_time);
         if let Ok(new_state) = r {
             *self = new_state;
@@ -657,22 +658,19 @@ impl GameState {
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::timestamp::get_timestamp_now;
+    use super::*;
     use pretty_assertions::assert_eq;
 
     #[test]
     fn active_game_is_deterministic() {
         for i in 0..255 {
-
             let seed = [i; 32];
             let mut state1 = GameState::new(&seed, get_timestamp_now());
-            let mut  state2 = GameState::new(&seed, state1.start_time);
-            
+            let mut state2 = GameState::new(&seed, state1.start_time);
+
             loop {
                 let action = TetAction::random();
                 let t2 = get_timestamp_now();
@@ -710,7 +708,9 @@ mod tests {
                     continue;
                 }
                 // println!("PASSIVE");
-                if let Err(e) = passive_game.accept_replay_slice(&active_game.replay.replay_slices.last().unwrap()) {
+                if let Err(e) = passive_game
+                    .accept_replay_slice(&active_game.replay.replay_slices.last().unwrap())
+                {
                     panic!("{:?}", e);
                 }
 
@@ -719,8 +719,6 @@ mod tests {
                     break;
                 }
             }
-
         }
     }
-
 }

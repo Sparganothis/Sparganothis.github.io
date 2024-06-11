@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RotDirection {
@@ -32,7 +32,6 @@ impl RotState {
 pub type Shape = Vec<Vec<bool>>;
 pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {
     let mut new_shape = vec![];
-    log::info!("shape={:?}  rot={:?}", shape, rot);
 
     #[allow(non_snake_case)]
     let R = shape.len();
