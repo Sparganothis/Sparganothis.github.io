@@ -212,7 +212,7 @@ pub fn GameBoard(
 
                 <div class="score_window_left">
                     <code class="side_board_code">
-                        {move || { format!("{:?}", game_state().seed) }}
+                        {move || { format!("{:?}", game_state().score) }}
                     </code>
                 </div>
 

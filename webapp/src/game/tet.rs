@@ -253,6 +253,7 @@ type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GameState {
+    pub score: i64,
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
@@ -327,13 +328,24 @@ impl GameState {
     }
 
     fn clear_line(&mut self) {
+        let mut score = 0;
+        let  mut lines = 0;
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
                     self.main_board.v[i as usize][j] = self.main_board.v[i as usize + 1][j];
                 }
             }
+            lines +=1;
         }
+        score += match lines{
+            1 => 100,
+            2 => 300,
+            3 => 500,
+            _ => 0
+        };
+
+        self.score += score;
     }
 
     fn can_clear_line(&self) -> Option<i8> {
@@ -428,6 +440,7 @@ impl GameState {
 
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
+            score: 0,
             main_board: BoardMatrix::empty(),
             // next_board: BoardMatrixNext::empty(),
             // hold_board: BoardMatrixHold::empty(),
