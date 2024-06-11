@@ -36,7 +36,8 @@ broadcaster = "1"
 lazy_static = "1"
 once_cell = "1.18"
 gloo-net = { git = "https://github.com/rustwasm/gloo" }
-leptos_sse = {version = "0.4.0"}
+# leptos_sse = {version = "0.4.0"}
+axum-extra = { version="0.9.3", features = ["typed-header"] }
 
 # server only
 axum = { version = "0.7", optional = true }
@@ -66,8 +67,8 @@ ssr = [
 	"dep:tower-http",
 	"dep:tokio",
 	"leptos/ssr",
-	"leptos_sse/ssr",
-	"leptos_sse/axum",
+	# "leptos_sse/ssr",
+	# "leptos_sse/axum",
 	"leptos_meta/ssr",
 	"leptos_router/ssr",
 	"dep:leptos_axum",

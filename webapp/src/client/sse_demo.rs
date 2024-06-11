@@ -34,7 +34,6 @@ pub async fn adjust_server_count(delta: i32, msg: String) -> Result<i32, ServerF
     Ok(new)
 }
 use leptos::*;
-use leptos_sse::create_sse_signal;
 
 use crate::client::game_board::GameBoard;
 use crate::game::tet::{GameReplay, GameState};
