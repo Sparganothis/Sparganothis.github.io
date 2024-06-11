@@ -32,6 +32,11 @@ leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
 wasm-bindgen = "0.2"
 console_log = "1.0"
 console_error_panic_hook = "0.1"
+broadcaster = "1"
+lazy_static = "1"
+once_cell = "1.18"
+gloo-net = { git = "https://github.com/rustwasm/gloo" }
+leptos_sse = {version = "0.4.0"}
 
 # server only
 axum = { version = "0.7", optional = true }
@@ -47,6 +52,7 @@ sled = {version="0.34.7", optional = true }
 typed-sled = {version="0.2", optional = true }
 random_word = { version = "0.4.3", features = ["de"], optional = true}
 rand_chacha = "0.3.1"
+tokio-stream = { version = "0.1.14", optional = true }
 # sqlx = { version = "0.7", features = [
 # 	"runtime-tokio-rustls",
 # 	"sqlite",
@@ -60,6 +66,8 @@ ssr = [
 	"dep:tower-http",
 	"dep:tokio",
 	"leptos/ssr",
+	"leptos_sse/ssr",
+	"leptos_sse/axum",
 	"leptos_meta/ssr",
 	"leptos_router/ssr",
 	"dep:leptos_axum",
@@ -71,6 +79,7 @@ ssr = [
 	"dep:sled",
 	"dep:typed-sled",
 	"dep:random_word",
+	"dep:tokio-stream",
 	# "dep:sqlx",
 ]
 

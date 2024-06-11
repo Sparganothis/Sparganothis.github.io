@@ -78,6 +78,7 @@ pub fn AppRoot() -> impl IntoView {
     use super::page_replay::GameReplayPage;
     use super::page_user_profile::{MyAccountPage, UserProfilePage};
     use super::page_vs_cpu::GameCPUPage;
+    use super::sse_demo::SseDeom;
 
     view! {
         <div class=_style.get_class_name().to_string()>
@@ -95,6 +96,7 @@ pub fn AppRoot() -> impl IntoView {
                         <Route path="/vs_net" view=Game2PPage/>
                         <Route path="/replay" view=GameReplayPage/>
                         <Route path="/account" view=MyAccountPage/>
+                        <Route path="/sse_demo" view=SseDeom/>
                         <Route path="/user/:user_id" view=UserProfilePage/>
                         <Route path="/*any" view=|| view! { <h1>"Not Found"</h1> }/>
                     </Routes>
@@ -119,6 +121,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/settings", "settings"),
             ("/about", "about"),
             ("/credits", "credits"),
+            ("/sse_demo", "sse_demo"),
         ]
     };
     let git_version = create_resource(
