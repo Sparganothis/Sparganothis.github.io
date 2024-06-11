@@ -50,10 +50,10 @@ jobs:
     - name: Install cargo-leptos
       run: cargo binstall cargo-leptos --no-confirm
 
-    - name: Install Trunk
-      uses: jetli/trunk-action@v0.5.0
-      with:
-        version: "latest"
+    # - name: Install Trunk
+    #   uses: jetli/trunk-action@v0.5.0
+    #   with:
+    #     version: "latest"
 
     - name: Print Trunk Version
       run: trunk --version
@@ -62,11 +62,10 @@ jobs:
     #   run: cd webapp && trunk build
 
     - name: Cargo Check
-      run: cd webapp && cargo check
+      run: cd webapp && cargo check && cargo test
 
     - name: Trunk Build Prod
-      run: cd webapp && trunk build --release --public-url "/Sparganothis"
-
+      run: cd webapp && cargo-leptos build --release --public-url "/Sparganothis"
 
     - name: Setup Pages
       uses: actions/configure-pages@v4

@@ -11,13 +11,14 @@ futures = "0.3"
 log = "0.4"
 simple_logger = "4.0"
 serde = { version = "1", features = ["derive"] }
+chrono = {version="0.4.38", features=["serde"] }
+time = {version="0.3", features=["serde"]}
 
 thiserror = "1.0"
 stylist = {version="0.13.0", features=["parser"]}
 anyhow = "1.0.86"
 rand  = "0.8.5" 
 async-trait = "0.1.80"
-time = {version="0.3", features=["serde"]}
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
 http = { version = "1.0" }
 
@@ -45,6 +46,7 @@ axum-login =  { version = "0.15.2", optional = true }
 sled = {version="0.34.7", optional = true }
 typed-sled = {version="0.2", optional = true }
 random_word = { version = "0.4.3", features = ["de"], optional = true}
+rand_chacha = "0.3.1"
 # sqlx = { version = "0.7", features = [
 # 	"runtime-tokio-rustls",
 # 	"sqlite",
@@ -68,9 +70,12 @@ ssr = [
 	"dep:axum-login",
 	"dep:sled",
 	"dep:typed-sled",
-	"dep:random_word"
+	"dep:random_word",
 	# "dep:sqlx",
 ]
+
+[dev-dependencies]
+pretty_assertions = "1.4.0"
 
 [package.metadata.cargo-all-features]
 denylist = ["axum", "tower", "tower-http", "tokio", "sqlx", "leptos_axum"]

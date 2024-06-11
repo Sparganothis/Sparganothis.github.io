@@ -1,4 +1,9 @@
+use anyhow::Context;
+
 use super::rot::{RotDirection, RotState, Shape};
+
+use super::random::*;
+
 use std::collections::VecDeque;
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Tet {
@@ -84,14 +89,6 @@ impl Tet {
         ]
     }
 
-    pub fn all_shuffled() -> Vec<Self> {
-        let mut v = Self::all();
-        use rand::thread_rng;
-        let mut rng = thread_rng();
-        use rand::prelude::SliceRandom;
-        v.shuffle(&mut rng);
-        v
-    }
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -269,20 +266,23 @@ pub struct GameState {
 
     pub replay: GameReplay,
     pub seed: GameSeed,
+    pub init_seed: GameSeed,
+    pub start_time: i64,
 }
 
-pub type GameSeed = u128;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GameReplay {
     pub init_seed: GameSeed,
+    pub start_time: i64,
     pub replay_slices: Vec<GameReplaySlice>,
 }
 
 impl GameReplay {
-    pub fn empty(seed: GameSeed) -> Self {
+    pub fn empty(seed: &GameSeed, start_time: i64) -> Self {
         Self {
-            init_seed: seed,
+            init_seed: seed.clone(),
+            start_time,
             replay_slices: vec![],
         }
     }
@@ -290,13 +290,16 @@ impl GameReplay {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GameReplaySlice {
-    idx: u32,
-    event: GameReplayEvent,
+    pub idx: u32,
+    pub event: GameReplayEvent,
+    pub event_timestamp: i64,
+    pub new_seed: GameSeed,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum GameReplayEvent {
-    Action(TetAction, u32),
+    Action(TetAction),
+    GameOver,
 }
 
 const SPAWN_POS: (i8, i8) = (19, 3);
@@ -353,24 +356,41 @@ impl GameState {
 
         None
     }
-    fn put_next_piece(&mut self) {
+    fn put_replay_event(&mut self, event: &GameReplayEvent, event_time: i64) {
+        let idx = self.replay.replay_slices.len() as u32;
+        let new_seed = accept_event(&self.seed, event, event_time, idx);
+        let new_slice = GameReplaySlice {
+            idx,
+            event: event.clone(),
+            new_seed,
+            event_timestamp:event_time,
+        };
+        self.seed = new_slice.new_seed;
+        self.replay.replay_slices.push(new_slice);
+    }
+
+    fn refill_nextpcs(&mut self, event_time: i64) {
+        while self.next_pcs.len() < 6 {
+            log::info!("next refill");
+            let (new_pcs2, new_seed) = shuffle_tets(&self.seed, event_time);
+            for n in new_pcs2 {
+                self.next_pcs.push_back(n);
+            }
+            self.seed = new_seed;
+        }
+    }
+    fn put_next_piece(&mut self, event_time: i64) -> anyhow::Result<()> {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
-            return;
+            anyhow::bail!("already have next pcs");
         }
 
         if self.game_over {
             log::warn!("game over but you called put_next_cs");
-            return;
+            anyhow::bail!("game already over");
         }
-
+        
         self.clear_line();
-        if self.next_pcs.len() < 7 {
-            let new_pcs2: Vec<Tet> = Tet::all_shuffled();
-            for n in new_pcs2 {
-                self.next_pcs.push_back(n);
-            }
-        }
         let next_tet = self.next_pcs.pop_front().unwrap();
 
         self.current_pcs = Some(CurrentPcsInfo {
@@ -383,34 +403,47 @@ impl GameState {
 
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             self.game_over = true;
+            self.put_replay_event(&GameReplayEvent::GameOver, event_time);
         } else {
             if let Some(ref mut h) = self.hold_pcps {
                 h.can_use = true;
             }
         }
+        Ok(())
     }
-    pub fn empty(seed: GameSeed) -> Self {
-        let mut next_pcs = Tet::all();
-        use rand::thread_rng;
-        let mut rng = thread_rng();
-        use rand::prelude::SliceRandom;
 
-        next_pcs.shuffle(&mut rng);
+    pub fn accept_replay_slice(&mut self, slice: &GameReplaySlice) -> anyhow::Result<()> {
+        match slice.event {
+            GameReplayEvent::Action(action) => {
+                *self = self.try_action(action, slice.event_timestamp)?;
+            },
+            GameReplayEvent::GameOver => {
+                if ! self.game_over {
+                    anyhow::bail!("game over but not in the simulation!");
+                }
+            },
+        }
+        Ok(())
+    }
 
+    pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
             main_board: BoardMatrix::empty(),
             // next_board: BoardMatrixNext::empty(),
             // hold_board: BoardMatrixHold::empty(),
             last_action: TetAction::Nothing,
-            next_pcs: next_pcs.into(),
+            next_pcs: VecDeque::new(),
             current_pcs: None,
             game_over: false,
             hold_pcps: None,
             current_id: 0,
-            seed,
-            replay: GameReplay::empty(seed),
+            seed: seed.clone(),
+            init_seed: seed.clone(),
+            replay: GameReplay::empty(seed, start_time),
+            start_time,
         };
-        new_state.put_next_piece();
+        new_state.refill_nextpcs(start_time);
+        let _ = new_state.put_next_piece(start_time);
         new_state
     }
 
@@ -436,11 +469,8 @@ impl GameState {
         b
     }
 
-    pub fn try_hold(&mut self) -> anyhow::Result<()> {
-        if self.current_pcs.is_none() {
-            anyhow::bail!("no cucrrent pcs for hold");
-        }
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_hold(&mut self, event_time: i64) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
         let old_hold = self.hold_pcps.clone();
         if let Some(ref old_hold) = old_hold {
@@ -462,7 +492,7 @@ impl GameState {
         if let Some(ref old_hold) = old_hold {
             self.next_pcs.push_front(old_hold.tet);
         }
-        self.put_next_piece();
+        self.put_next_piece(event_time)?;
         self.hold_pcps = Some(HoldPcsInfo {
             tet: current_pcs.tet,
             can_use: false,
@@ -471,22 +501,18 @@ impl GameState {
         Ok(())
     }
 
-    pub fn try_harddrop(&mut self) -> anyhow::Result<()> {
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_harddrop(&mut self, event_time: i64) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
-        let mut r = self.try_softdrop();
+        let mut r = self.try_softdrop(event_time);
         while r.is_ok() && current_pcs.id == self.current_pcs.clone().unwrap().id {
-            r = self.try_softdrop();
+            r = self.try_softdrop(event_time);
         }
         Ok(())
     }
 
-    pub fn try_softdrop(&mut self) -> anyhow::Result<()> {
-        if self.current_pcs.is_none() {
-            anyhow::bail!("no cucrrent pcs for hold");
-        }
-
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_softdrop(&mut self, event_time: i64) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
@@ -500,17 +526,13 @@ impl GameState {
         } else {
             self.main_board.spawn_piece(&current_pcs).unwrap();
             self.current_pcs = None;
-            self.put_next_piece();
+            self.put_next_piece(event_time)?;
         }
         Ok(())
     }
 
-    pub fn try_moveleft(&mut self) -> anyhow::Result<()> {
-        if self.current_pcs.is_none() {
-            anyhow::bail!("no cucrrent pcs for move left");
-        }
-
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_moveleft(&mut self) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
@@ -524,12 +546,8 @@ impl GameState {
         Ok(())
     }
 
-    pub fn try_moveright(&mut self) -> anyhow::Result<()> {
-        if self.current_pcs.is_none() {
-            anyhow::bail!("no cucrrent pcs for move right");
-        }
-
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_moveright(&mut self) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
@@ -543,12 +561,8 @@ impl GameState {
         Ok(())
     }
 
-    pub fn try_rotateleft(&mut self) -> anyhow::Result<()> {
-        if self.current_pcs.is_none() {
-            anyhow::bail!("no cucrrent pcs for move left");
-        }
-
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_rotateleft(&mut self) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
@@ -562,12 +576,8 @@ impl GameState {
         Ok(())
     }
 
-    pub fn try_rotateright(&mut self) -> anyhow::Result<()> {
-        if self.current_pcs.is_none() {
-            anyhow::bail!("no cucrrent pcs for move right");
-        }
-
-        let current_pcs = self.current_pcs.clone().unwrap();
+    fn try_rotateright(&mut self) -> anyhow::Result<()> {
+        let current_pcs = self.current_pcs.context("no current pcs")?;
 
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
@@ -581,20 +591,21 @@ impl GameState {
         Ok(())
     }
 
-    pub fn try_action(&self, action: TetAction) -> anyhow::Result<Self> {
+    fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
         if self.game_over {
             log::warn!("gamem over cannot try_action");
             anyhow::bail!("game over");
         }
         let mut new = self.clone();
         new.last_action = action;
+        new.refill_nextpcs(event_time);
 
         match action {
             TetAction::HardDrop => {
-                new.try_harddrop()?;
+                new.try_harddrop(event_time)?;
             }
             TetAction::SoftDrop => {
-                new.try_softdrop()?;
+                new.try_softdrop(event_time)?;
             }
             TetAction::MoveLeft => {
                 new.try_moveleft()?;
@@ -603,7 +614,7 @@ impl GameState {
                 new.try_moveright()?;
             }
             TetAction::Hold => {
-                new.try_hold()?;
+                new.try_hold(event_time)?;
             }
             TetAction::RotateLeft => {
                 new.try_rotateleft()?;
@@ -613,13 +624,15 @@ impl GameState {
             }
             TetAction::Nothing => {}
         }
+        let ev = GameReplayEvent::Action(action);
+        new.put_replay_event(&ev, event_time);
         Ok(new)
     }
 
-    pub fn apply_action_if_works(action: TetAction, target: &mut Self) -> anyhow::Result<()> {
-        let r = target.try_action(action);
+    pub fn apply_action_if_works(&mut self, action: TetAction, event_time: i64) -> anyhow::Result<()> {
+        let r = self.try_action(action, event_time);
         if let Ok(new_state) = r {
-            *target = new_state;
+            *self = new_state;
             Ok(())
         } else {
             let e = r.unwrap_err();
@@ -627,4 +640,72 @@ impl GameState {
             Err(e)
         }
     }
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::timestamp::get_timestamp_now;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn active_game_is_deterministic() {
+        for i in 0..255 {
+
+            let seed = [i; 32];
+            let mut state1 = GameState::new(&seed, get_timestamp_now());
+            let mut  state2 = GameState::new(&seed, state1.start_time);
+            
+            loop {
+                let action = TetAction::random();
+                let t2 = get_timestamp_now();
+                let res1 = state1.try_action(action, t2).map_err(|_| "bad");
+                let res2 = state2.try_action(action, t2).map_err(|_| "bad");
+                assert_eq!(res1, res2);
+                if res1.is_ok() {
+                    state1 = res1.unwrap();
+                    state2 = res2.unwrap();
+                }
+
+                if state1.game_over {
+                    break;
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn passive_game_tracks_active_one() {
+        for i in 0..255 {
+            let seed = [i; 32];
+
+            let mut active_game = GameState::new(&seed, get_timestamp_now());
+            let mut passive_game = GameState::new(&seed, active_game.start_time);
+
+            loop {
+                let action = TetAction::random();
+                // println!("\n TEST ACTION = {action:?}");
+                // println!("ACTIVE");
+                let res = active_game.try_action(action, get_timestamp_now());
+                if let Ok(new_active_game) = res {
+                    active_game = new_active_game;
+                } else {
+                    continue;
+                }
+                // println!("PASSIVE");
+                if let Err(e) = passive_game.accept_replay_slice(&active_game.replay.replay_slices.last().unwrap()) {
+                    panic!("{:?}", e);
+                }
+
+                assert_eq!(active_game, passive_game);
+                if active_game.game_over {
+                    break;
+                }
+            }
+
+        }
+    }
+
 }

@@ -205,15 +205,16 @@ pub fn GameBoard(
         view! {
             <div class="main_container">
                 <div class="gameover">{gameover}</div>
-                <div class="side_board_left">
-                    <h3 class="side_board_title">HOLD</h3>
-                    {hold_board}
+                    <div class="side_board_left">
+                        <h3 class="side_board_title">HOLD</h3>
+                        {hold_board}
+                    </div>
+
+                <div class="score_window_left">
+                    <code class="side_board_code">
+                        {move || { format!("{:?}", game_state().seed) }}
+                    </code>
                 </div>
-                // <div class="score_window_left">
-                // <code class="side_board_code">
-                // {debug_info.get()}
-                // </code>
-                // </div>
 
                 <div class="main_board">{main_board}</div>
                 <div class="label_bottom">
@@ -234,12 +235,13 @@ pub fn GameBoard(
     view! { <div class=_style_name>{move || gameboard_view()}</div> }
 }
 
-use crate::game::tet::GameSeed;
+use crate::game::random::GameSeed;
 use crate::game::tet::TetAction;
+use crate::game::timestamp::get_timestamp_now;
 
 #[component]
 pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
-    let (get_state, _set_state) = create_signal(tet::GameState::empty(seed));
+    let (get_state, _set_state) = create_signal(tet::GameState::new(&seed, get_timestamp_now()));
 
     let leptos_use::utils::Pausable {
         pause: _timer_pause,
@@ -248,7 +250,7 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             _set_state.update(move |state| {
-                let _ = GameState::apply_action_if_works(TetAction::SoftDrop, state);
+                let _ = state.apply_action_if_works(TetAction::SoftDrop, get_timestamp_now());
             })
         },
         1000,
@@ -261,7 +263,7 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
 
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
         _set_state.update(|state| {
-            if GameState::apply_action_if_works(_action, state).is_ok() {
+            if state.apply_action_if_works(_action, get_timestamp_now()).is_ok() {
                 reset_timer();
             }
         })
@@ -269,7 +271,7 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
         if get_state().game_over {
-            _set_state.set(GameState::empty(seed));
+            _set_state.set(GameState::new(&seed, get_timestamp_now()));
         }
     });
 
@@ -281,7 +283,7 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
 
 #[component]
 pub fn OpponentGameBoard(seed: GameSeed) -> impl IntoView {
-    let (get_state, _set_state) = create_signal(tet::GameState::empty(seed));
+    let (get_state, _set_state) = create_signal(tet::GameState::new(&seed, get_timestamp_now()));
     let leptos_use::utils::Pausable {
         pause: _,
         resume: _,
@@ -290,7 +292,7 @@ pub fn OpponentGameBoard(seed: GameSeed) -> impl IntoView {
         move || {
             _set_state.update(move |state| {
                 let random_action = crate::game::tet::TetAction::random();
-                let _ = GameState::apply_action_if_works(random_action, state);
+                let _ = state.apply_action_if_works(random_action, get_timestamp_now());
             })
         },
         1000,
@@ -298,7 +300,7 @@ pub fn OpponentGameBoard(seed: GameSeed) -> impl IntoView {
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
         if get_state().game_over {
-            _set_state.set(GameState::empty(seed));
+            _set_state.set(GameState::new(&seed, get_timestamp_now()));
         }
     });
 
