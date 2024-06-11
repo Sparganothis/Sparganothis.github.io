@@ -271,7 +271,7 @@ pub struct GameState {
     pub start_time: i64,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplay {
     pub init_seed: GameSeed,
     pub start_time: i64,
@@ -286,6 +286,12 @@ impl GameReplay {
             replay_slices: vec![],
         }
     }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GameReplaySegment {
+    Init(GameReplay),
+    Update(GameReplaySlice)
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]

@@ -36,7 +36,8 @@ pub async fn adjust_server_count(delta: i32, msg: String) -> Result<i32, ServerF
 use leptos::*;
 
 use crate::client::game_board::GameBoard;
-use crate::game::tet::{GameReplay, GameState};
+use crate::game::tet::{GameReplay, GameReplaySegment, GameState};
+
 
 #[component]
 pub fn SseDeom() -> impl IntoView {
@@ -49,7 +50,7 @@ pub fn SseDeom() -> impl IntoView {
 
         let mut source = gloo_net::eventsource::futures::EventSource::new("/api/events")
             .expect("couldn't connect to SSE stream");
-        let s: ReadSignal<Option<Option<GameReplay>>> =
+        let s: ReadSignal<Option<Option<GameReplaySegment>>> =
             create_signal_from_stream(source.subscribe("message").unwrap().map(
                 |value| match value {
                     Ok(value) => {
@@ -65,40 +66,23 @@ pub fn SseDeom() -> impl IntoView {
         s
     };
 
-    let memo_state = create_memo(move |_c: Option<&GameState>| {
-        let new_replay = replay_state.get().unwrap_or(None);
-        if new_replay.is_none() {
-            let seed = [0; 32];
-            return GameState::new(&seed, 0);
-        }
-        let new_replay = new_replay.unwrap();
-        match _c {
-            None => {
-                let seed = [0; 32];
-                log::info!("memo none");
-                GameState::new(&seed, 0)
-            }
-            Some(state_val) => {
-                log::info!("memo Some");
-                let mut state_val = state_val.clone();
-                if (new_replay.replay_slices.len() == 0
-                    || state_val.replay.replay_slices.len() == 0)
-                    && (state_val.init_seed != new_replay.init_seed
-                        || state_val.start_time != new_replay.start_time)
-                {
-                    log::info!("memo new thing");
-                    state_val = GameState::new(&new_replay.init_seed, new_replay.start_time);
-                } else {
-                    log::info!("memo oold thing");
-                    while state_val.replay.replay_slices.len() < new_replay.replay_slices.len() {
-                        let idx = state_val.replay.replay_slices.len();
-                        let pipi = new_replay.replay_slices[idx].clone();
-                        if let Err(e) = state_val.accept_replay_slice(&pipi) {
-                            log::warn!("error in accept_replay_slice() : {:?}", e);
-                        }
-                    }
+    let memo_state = create_memo(move |old_state: Option<&GameState>| {
+        let  segment = replay_state.get().unwrap_or(None);
+        log::info!("{:?}",  segment);
+        match segment {
+            Some(GameReplaySegment::Init(init)) => {
+                GameState::new(&init.init_seed, init.start_time)
+            },            
+            Some(GameReplaySegment::Update(slice)) => {
+                let mut state_val  = old_state.unwrap().clone();
+                if let Err(e) = state_val.accept_replay_slice(&slice) {
+                    log::warn!("error in accept_replay_slice() : {:?}", e);
                 }
                 state_val
+            },
+            None => {
+                let seed = [0; 32];
+                GameState::new(&seed, 0)
             }
         }
     })
