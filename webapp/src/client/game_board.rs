@@ -27,7 +27,7 @@ impl BoardMatrixSignals {
                 t2.update(move |xxx| {
                     if !xxx.eq(&t1) {
                         *xxx = *t1;
-                        log::info!("rewrite signal {:?}", *t1);
+                        // log::info!("rewrite signal {:?}", *t1);
                     }
                 });
 
