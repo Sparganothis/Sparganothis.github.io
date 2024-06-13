@@ -397,7 +397,7 @@ impl GameState {
             event_timestamp: event_time,
         };
         self.seed = new_slice.new_seed;
-        log::info!("put  replay event {new_slice:?}");
+        // log::info!("put  replay event {new_slice:?}");
         self.replay.replay_slices.push(new_slice);
     }
 

@@ -11,7 +11,7 @@ pub struct BoardMatrixSignals {
 
 impl BoardMatrixSignals {
     pub fn new(val: Vec<(usize, Vec<CellValue>)>) -> Self {
-        log::info!("NEW SIGGNALS ALL OVER AGAIN !!!!!1!!!!");
+        log::info!("NEW SIGGNALS ALL OVER AGAIN {} !!!!!1!!!!", val.len());
         Self {
             value: val
                 .iter()
@@ -20,8 +20,8 @@ impl BoardMatrixSignals {
         }
     }
 
-    pub fn update_value(&mut self, val: Vec<(usize, Vec<CellValue>)>) {
-        for (r1, r2) in val.iter().zip(self.value.iter()) {
+    pub fn update_value(_self: &Vec<(usize, Vec<RwSignal<CellValue>>)>, val: Vec<(usize, Vec<CellValue>)>) {
+        for (r1, r2) in val.iter().zip(_self.iter()) {
             for (t1, t2) in r1.1.iter().zip(r2.1.iter()) {
                 t2.update(move |xxx| {
                     if !xxx.eq(&t1) {
@@ -43,13 +43,24 @@ pub fn BoardTable<const R: usize, const C: usize>(
     //
     // log::info!("redraw BoardTable R={} C={}", R, C);
 
-    let board_val = {
+    let (data, _set_data) = create_signal(BoardMatrixSignals::new( {
         let mut v_new: Vec<_> = board().rows().into_iter().enumerate().collect();
         v_new.reverse();
         v_new
-    };
-    let signals = BoardMatrixSignals::new(board_val);
+    }).value);
 
+    let do_update = move || {
+        let board = {
+            let mut v_new: Vec<_> = board().rows().into_iter().enumerate().collect();
+            v_new.reverse();
+            v_new
+        };
+        data.with(|data| {
+            BoardMatrixSignals::update_value(data, board);
+        });
+        
+        data()
+    };
 
 
     // let signals = create_memo(
@@ -77,7 +88,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
         <table cellpadding="0" cellspacing="0" border="0">
             <tbody>
                 <For
-                    each=move || {signals.value.clone()}
+                    each=do_update
                     key=|r| { r.0 }
                     children=|r| view! { <BoardRow row_vals=r.1 row_idx=r.0/> }
                 />
@@ -161,7 +172,7 @@ pub fn GameBoard(
             </Show>
         };
 
-    let debug_info = create_memo(move |_| game_state().get_debug_info()).into_signal();
+    let debug_info = move || game_state().get_debug_info();
 
     let gameboard_view =  view! {
             <div class="main_container">
@@ -179,7 +190,7 @@ pub fn GameBoard(
 
                 <div class="main_board">{main_board}</div>
                 <div class="label_bottom">
-                    <code class="side_board_code">{debug_info.get()}</code>
+                    <code class="side_board_code">{debug_info}</code>
                 </div>
 
                 <div class="side_board_right">
@@ -210,7 +221,10 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             _set_state.update(move |state| {
-                let _ = state.apply_action_if_works(TetAction::SoftDrop, get_timestamp_now());
+
+                if ! state.game_over {
+                    let _ = state.apply_action_if_works(TetAction::SoftDrop, get_timestamp_now());
+                }
             })
         },
         1000,
