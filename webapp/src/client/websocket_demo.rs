@@ -40,10 +40,18 @@ view! {
     <div>
         <p>"status: " {status}</p>
 
-        <button on:click=send_message disabled=move || !connected()>"Send"</button>
-        <button on:click=send_byte_message disabled=move || !connected()>"Send bytes"</button>
-        <button on:click=open_connection disabled=connected>"Open"</button>
-        <button on:click=close_connection disabled=move || !connected()>"Close"</button>
+        <button on:click=send_message disabled=move || !connected()>
+            "Send"
+        </button>
+        <button on:click=send_byte_message disabled=move || !connected()>
+            "Send bytes"
+        </button>
+        <button on:click=open_connection disabled=connected>
+            "Open"
+        </button>
+        <button on:click=close_connection disabled=move || !connected()>
+            "Close"
+        </button>
 
         <p>"Receive message: " {move || format!("{:?}", message.get())}</p>
         <p>"Receive byte message: " {move || format!("{:?}", message_bytes.get())}</p>

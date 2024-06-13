@@ -178,43 +178,43 @@ pub fn GameBoard(
     let main_board = view! { <BoardTable board=main_board/> };
 
     let gameover = view! {
-            <Show when=move || game_state().game_over fallback=|| view! {}>
-                <h3 style="color:red" on:click=move |_| on_reset_game(())>
-                    GAME OVER
-                </h3>
-            </Show>
-        };
+        <Show when=move || game_state().game_over fallback=|| view! {}>
+            <h3 style="color:red" on:click=move |_| on_reset_game(())>
+                GAME OVER
+            </h3>
+        </Show>
+    };
 
     let debug_info = move || game_state().get_debug_info();
 
     let gameboard_view =  view! {
-            <div class="main_container">
-                <div class="gameover">{gameover}</div>
-                <div class="side_board_left">
-                    <h3 class="side_board_title">HOLD</h3>
-                    {hold_board}
-                </div>
-
-                <div class="score_window_left">
-                    <code class="side_board_code">
-                        {move || { format!("{:?}", game_state().score) }}
-                    </code>
-                </div>
-
-                <div class="main_board">{main_board}</div>
-                <div class="label_bottom">
-                    <code class="side_board_code">{debug_info}</code>
-                </div>
-
-                <div class="side_board_right">
-                    <h3 class="side_board_title">NEXT</h3>
-                    {next_board}
-                </div>
-            // <div class="score_window_right">
-            // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-            // </div>
+        <div class="main_container">
+            <div class="gameover">{gameover}</div>
+            <div class="side_board_left">
+                <h3 class="side_board_title">HOLD</h3>
+                {hold_board}
             </div>
-        };
+
+            <div class="score_window_left">
+                <code class="side_board_code">
+                    {move || { format!("{:?}", game_state().score) }}
+                </code>
+            </div>
+
+            <div class="main_board">{main_board}</div>
+            <div class="label_bottom">
+                <code class="side_board_code">{debug_info}</code>
+            </div>
+
+            <div class="side_board_right">
+                <h3 class="side_board_title">NEXT</h3>
+                {next_board}
+            </div>
+        // <div class="score_window_right">
+        // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+        // </div>
+        </div>
+    };
 
     view! { <div class=_style_name>{gameboard_view}</div> }
 }
