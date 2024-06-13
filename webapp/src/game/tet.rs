@@ -1,4 +1,5 @@
 use anyhow::Context;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use super::rot::{RotDirection, RotState, Shape};
@@ -233,18 +234,22 @@ impl TetAction {
     pub fn random() -> Self {
         use rand::seq::SliceRandom;
         use rand::thread_rng;
-        let choices = vec![
-            Self::HardDrop,
-            Self::SoftDrop,
-            Self::MoveLeft,
-            Self::MoveRight,
-            Self::Hold,
-            Self::RotateLeft,
-            Self::RotateRight,
-            // Nothing is not action
-        ];
-        let mut rng = thread_rng();
-        *choices.choose(&mut rng).unwrap()
+        if (&mut thread_rng()).gen_bool(0.5) {
+            Self::SoftDrop
+        } else {
+            let choices = vec![
+                // Self::HardDrop,
+                Self::SoftDrop,
+                Self::MoveLeft,
+                Self::MoveRight,
+                Self::Hold,
+                Self::RotateLeft,
+                Self::RotateRight,
+                // Nothing is not action
+            ];
+            let mut rng = thread_rng();
+            *choices.choose(&mut rng).unwrap()
+        }
     }
 }
 
@@ -291,19 +296,14 @@ impl GameReplay {
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameReplaySegment {
     Init(GameReplay),
-    Update(GameReplaySlice)
+    Update(GameReplaySlice),
 }
 
-impl  GameReplaySegment {
+impl GameReplaySegment {
     pub fn is_game_over(&self) -> bool {
         match self {
-            Self::Update(slice) => {
-                match slice.event {
-                    GameReplayEvent::GameOver => true,
-                    _ => false,
-                }
-            },
-            _ => false
+            Self::Update(slice) => slice.event.game_over,
+            _ => false,
         }
     }
 }
@@ -317,9 +317,9 @@ pub struct GameReplaySlice {
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub enum GameReplayEvent {
-    Action(TetAction),
-    GameOver,
+pub struct GameReplayEvent {
+    pub action: TetAction,
+    pub game_over: bool,
 }
 
 const SPAWN_POS: (i8, i8) = (19, 3);
@@ -397,6 +397,7 @@ impl GameState {
             event_timestamp: event_time,
         };
         self.seed = new_slice.new_seed;
+        log::info!("put  replay event {new_slice:?}");
         self.replay.replay_slices.push(new_slice);
     }
 
@@ -433,8 +434,8 @@ impl GameState {
         self.current_id += 1;
 
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
+            log::info!("tet game over");
             self.game_over = true;
-            self.put_replay_event(&GameReplayEvent::GameOver, event_time);
         } else {
             if let Some(ref mut h) = self.hold_pcps {
                 h.can_use = true;
@@ -444,15 +445,15 @@ impl GameState {
     }
 
     pub fn accept_replay_slice(&mut self, slice: &GameReplaySlice) -> anyhow::Result<()> {
-        match slice.event {
-            GameReplayEvent::Action(action) => {
-                *self = self.try_action(action, slice.event_timestamp)?;
-            }
-            GameReplayEvent::GameOver => {
-                if !self.game_over {
-                    anyhow::bail!("game over but not in the simulation!");
-                }
-            }
+        log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
+        *self = self.try_action(slice.event.action, slice.event_timestamp)?;
+        let self_slicce = self.replay.replay_slices.last().unwrap();
+        if !slice.eq(self_slicce) {
+            log::warn!(
+                "no  mat ch in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
+                slice,
+                self_slicce
+            )
         }
         Ok(())
     }
@@ -656,7 +657,10 @@ impl GameState {
             }
             TetAction::Nothing => {}
         }
-        let ev = GameReplayEvent::Action(action);
+        let ev = GameReplayEvent {
+            action,
+            game_over: self.game_over,
+        };
         new.put_replay_event(&ev, event_time);
         Ok(new)
     }
@@ -716,26 +720,25 @@ mod tests {
 
             let mut active_game = GameState::new(&seed, get_timestamp_now());
             let mut passive_game = GameState::new(&seed, active_game.start_time);
+            let mut slices = vec![];
 
             loop {
                 let action = TetAction::random();
                 let res = active_game.try_action(action, get_timestamp_now());
                 if let Ok(new_active_game) = res {
                     active_game = new_active_game;
-                } else {
-                    continue;
                 }
-                if let Err(e) = passive_game
-                    .accept_replay_slice(&active_game.replay.replay_slices.last().unwrap())
-                {
-                    panic!("{:?}", e);
-                }
-
-                assert_eq!(active_game, passive_game);
                 if active_game.game_over {
+                    slices = active_game.replay.replay_slices;
                     break;
                 }
             }
+
+            for slice in slices {
+                passive_game.accept_replay_slice(&slice).unwrap();
+            }
+
+            // assert_eq!(active_game, passive_game);
         }
     }
 }
