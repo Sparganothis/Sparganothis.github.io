@@ -20,8 +20,10 @@ pub enum Tet {
 
 impl Tet {
     pub fn spawn_pos(&self) -> (i8, i8) {
-        const O_SPAWN_POS: (i8, i8) = (SPAWN_POS.0, SPAWN_POS.1 + 1);
+        const O_SPAWN_POS: (i8, i8) = (SPAWN_POS.0 + 1, SPAWN_POS.1 + 1);
+        const I_SPAWN_POS: (i8, i8) = (SPAWN_POS.0 - 1, SPAWN_POS.1);
         match self {
+            &Self::I => I_SPAWN_POS,
             &Self::O => O_SPAWN_POS,
             _ => SPAWN_POS,
         }
@@ -65,15 +67,35 @@ impl Tet {
         match self {
             &Self::I => vec![
                 vec![false, false, false, false],
+                vec![false, false, false, false],
                 vec![true, true, true, true],
                 vec![false, false, false, false],
-                vec![false, false, false, false],
             ],
-            &Self::L => vec![vec![true, true, true], vec![false, false, true]],
-            &Self::J => vec![vec![true, true, true], vec![true, false, false]],
-            &Self::T => vec![vec![true, true, true], vec![false, true, false]],
-            &Self::S => vec![vec![true, true, false], vec![false, true, true]],
-            &Self::Z => vec![vec![false, true, true], vec![true, true, false]],
+            &Self::L => vec![
+                vec![false, false, false],
+                vec![true, true, true],
+                vec![false, false, true],
+            ],
+            &Self::J => vec![
+                vec![false, false, false],
+                vec![true, true, true], 
+                vec![true, false, false]
+            ],
+            &Self::T => vec![
+                vec![false, false, false],
+                vec![true, true, true], 
+                vec![false, true, false]
+            ],
+            &Self::S => vec![
+                vec![false, false, false],
+                vec![true, true, false], 
+                vec![false, true, true]
+            ],
+            &Self::Z => vec![
+                vec![false, false, false],
+                vec![false, true, true], 
+                vec![true, true, false]
+            ],
             &Self::O => vec![vec![true, true], vec![true, true]],
         }
     }
@@ -195,14 +217,14 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     }
     pub fn spawn_nextpcs(&mut self, next_pcs: &VecDeque<Tet>) {
         let col: i8 = 0;
-        let mut row: i8 = R as i8 - 2;
+        let mut row: i8 = R as i8 - 4;
         for (i, piece) in next_pcs.iter().enumerate() {
             if i >= 5 {
                 break;
             }
             let info = CurrentPcsInfo {
                 id: 0,
-                pos: (row, col),
+                pos: (row + if (*piece).eq(&Tet::O) {1} else {0}, col),
                 tet: *piece,
                 rs: RotState::R0,
             };
@@ -324,7 +346,7 @@ pub struct GameReplayEvent {
     pub game_over: bool,
 }
 
-const SPAWN_POS: (i8, i8) = (19, 3);
+const SPAWN_POS: (i8, i8) = (18, 3);
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct HoldPcsInfo {
@@ -493,7 +515,7 @@ impl GameState {
         if let Some(HoldPcsInfo { can_use: _, tet }) = self.hold_pcps {
             let info = CurrentPcsInfo {
                 tet,
-                pos: (1, 0),
+                pos: (if tet.eq(&Tet::I) {-1} else {0}, 0),
                 rs: RotState::R0,
                 id: 0,
             };
