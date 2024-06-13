@@ -63,7 +63,12 @@ impl Tet {
 
     pub fn orig_shape(&self) -> Shape {
         match self {
-            &Self::I => vec![vec![true, true, true, true]],
+            &Self::I => vec![
+                vec![false, false, false, false],
+                vec![true, true, true, true],
+                vec![false, false, false, false],
+                vec![false, false, false, false],
+            ],
             &Self::L => vec![vec![true, true, true], vec![false, false, true]],
             &Self::J => vec![vec![true, true, true], vec![true, false, false]],
             &Self::T => vec![vec![true, true, true], vec![false, true, false]],
