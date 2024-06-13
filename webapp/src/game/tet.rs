@@ -123,21 +123,22 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             id: _,
         } = *info;
 
-        if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
-            anyhow::bail!(
-                "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})"
-            );
-        }
-        let (x, y) = (x as usize, y as usize);
+        // if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
+        //     );
+        // }
+        // let (x, y) = (x as usize, y as usize);
         let shape = piece.shape(rot_state);
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
-                let (cx, cy) = (x + i, y + j);
-                if cx >= C || cy >= R {
-                    anyhow::bail!("computed position out of game bounds (got (x={cx} y={cy}), max (x={C} y={R})")
-                }
+
+                
                 if *cell {
-                    match self.v[cy][cx] {
+                    let (cx, cy) = (x + i as i8, y + j as i8);
+                    if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
+                             anyhow::bail!(
+                    "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
+                    }
+                    match self.v[cy as usize][cx as usize] {
                         CellValue::Empty => {}
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -149,14 +150,15 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
 
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
-                let (cx, cy) = (x + i, y + j);
-                if cx >= C || cy >= R {
-                    anyhow::bail!("computed position out of game bounds (got (x={cx} y={cy}), max (x={C} y={R})")
-                }
                 if *cell {
-                    match self.v[cy][cx] {
+                    let (cx, cy) = (x + i as i8, y + j as i8);
+                    if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
+                             anyhow::bail!(
+                    "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
+                    }
+                    match self.v[cy as usize][cx as usize] {
                         CellValue::Empty => {
-                            self.v[cy][cx] = CellValue::Piece(piece);
+                            self.v[cy as usize][cx as usize] = CellValue::Piece(piece);
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -176,21 +178,16 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             id: _,
         } = *info;
 
-        if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
-            anyhow::bail!(
-                "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})"
-            );
-        }
-        let (x, y) = (x as usize, y as usize);
         let shape = piece.shape(rot_state);
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
-                let (cx, cy) = (x + i, y + j);
-                if cx >= C || cy >= R {
-                    anyhow::bail!("computed position out of game bounds (got (x={cx} y={cy}), max (x={C} y={R})")
-                }
                 if *cell {
-                    self.v[cy][cx] = CellValue::Empty;
+                    let (cx, cy) = (x + i as i8, y + j as i8);
+                    if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
+                             anyhow::bail!(
+                    "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
+                    }
+                    self.v[cy as usize][cx as usize] = CellValue::Empty;
                 }
             }
         }
