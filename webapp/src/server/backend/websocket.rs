@@ -136,7 +136,7 @@ async fn process_replay_spectate(game_id: uuid::Uuid, socket: &mut WebSocket) {
     use std::{convert::Infallible, time::Duration};
 
     use crate::game::tet::*;
-    use crate::game::timestamp::get_timestamp_now;
+    use crate::game::timestamp::get_timestamp_now_nano;
     use std::collections::VecDeque;
 
     let mut maybe_state: Option<GameState> = None;
@@ -148,7 +148,7 @@ async fn process_replay_spectate(game_id: uuid::Uuid, socket: &mut WebSocket) {
 
         if let Some(mut state) = (&maybe_state).clone() {
             let action = TetAction::random();
-            let t2 = get_timestamp_now();
+            let t2 = get_timestamp_now_nano();
             let _ = state.apply_action_if_works(action, t2);
             maybe_state = Some(state.clone());
 
@@ -163,7 +163,7 @@ async fn process_replay_spectate(game_id: uuid::Uuid, socket: &mut WebSocket) {
             new_segments.push(GameReplaySegment::Update(new_state));
         } else {
             let seed: [u8; 32] = [0; 32];
-            maybe_state = Some(GameState::new(&seed, get_timestamp_now()));
+            maybe_state = Some(GameState::new(&seed, get_timestamp_now_nano()));
             new_segments.push(GameReplaySegment::Init(
                 maybe_state.as_ref().unwrap().replay.clone(),
             ));

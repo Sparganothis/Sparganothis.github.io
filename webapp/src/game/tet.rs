@@ -684,7 +684,7 @@ impl GameState {
 
 #[cfg(test)]
 mod tests {
-    use super::super::timestamp::get_timestamp_now;
+    use super::super::timestamp::get_timestamp_now_nano;
     use super::*;
     use pretty_assertions::assert_eq;
 
@@ -692,12 +692,12 @@ mod tests {
     fn active_game_is_deterministic() {
         for i in 0..255 {
             let seed = [i; 32];
-            let mut state1 = GameState::new(&seed, get_timestamp_now());
+            let mut state1 = GameState::new(&seed, get_timestamp_now_nano());
             let mut state2 = GameState::new(&seed, state1.start_time);
 
             loop {
                 let action = TetAction::random();
-                let t2 = get_timestamp_now();
+                let t2 = get_timestamp_now_nano();
                 let res1 = state1.try_action(action, t2).map_err(|_| "bad");
                 let res2 = state2.try_action(action, t2).map_err(|_| "bad");
                 assert_eq!(res1, res2);
@@ -718,13 +718,13 @@ mod tests {
         for i in 0..255 {
             let seed = [i; 32];
 
-            let mut active_game = GameState::new(&seed, get_timestamp_now());
+            let mut active_game = GameState::new(&seed, get_timestamp_now_nano());
             let mut passive_game = GameState::new(&seed, active_game.start_time);
             let mut slices = vec![];
 
             loop {
                 let action = TetAction::random();
-                let res = active_game.try_action(action, get_timestamp_now());
+                let res = active_game.try_action(action, get_timestamp_now_nano());
                 if let Ok(new_active_game) = res {
                     active_game = new_active_game;
                 }

@@ -6,7 +6,7 @@ use std::{convert::Infallible, time::Duration};
 use tokio_stream::StreamExt as _;
 
 use crate::game::tet::*;
-use crate::game::timestamp::get_timestamp_now;
+use crate::game::timestamp::get_timestamp_now_nano;
 use std::collections::VecDeque;
 
 pub async fn handle_sse_game_stream(
@@ -24,7 +24,7 @@ pub async fn handle_sse_game_stream(
                 let old_slice_no = state.replay.replay_slices.len();
                 while state.replay.replay_slices.len() == old_slice_no {
                     let action = TetAction::random();
-                    let t2 = get_timestamp_now();
+                    let t2 = get_timestamp_now_nano();
                     let _ = state.apply_action_if_works(action, t2);
                 }
                 let new_slice_no = state.replay.replay_slices.len();
@@ -40,7 +40,7 @@ pub async fn handle_sse_game_stream(
                 )
             } else {
                 let seed: [u8; 32] = [0; 32];
-                maybe_state = Some(GameState::new(&seed, get_timestamp_now()));
+                maybe_state = Some(GameState::new(&seed, get_timestamp_now_nano()));
                 GameReplaySegment::Init(maybe_state.as_ref().unwrap().replay.clone())
             }
         }
