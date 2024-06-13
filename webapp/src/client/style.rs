@@ -21,13 +21,15 @@ impl GameBoardTetStyle {
         }
     }
 }
-use crate::game::tet::{self, CellValue, GameState, SIDE_BOARD_WIDTH};
+use crate::game::tet::SIDE_BOARD_WIDTH;
 pub fn default_style(
     tet_style: GameBoardTetStyle,
     bottom_free_percent: f64,
     cell_width_vmin: f64,
 ) -> stylist::Style {
-    stylist::style!(
+
+    #[allow(non_upper_case_globals)]
+    let st = stylist::style!(
     table {
         border-collapse: collapse;
     }
@@ -121,5 +123,6 @@ pub fn default_style(
     .tet.O.cell {            background-color: ${tet_style.o};     }
     .tet.Z.cell {            background-color: ${tet_style.z};     }
 
-).expect("bad css")
+).expect("bad css");
+st
 }

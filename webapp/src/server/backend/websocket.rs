@@ -15,30 +15,30 @@
 //! ```not_rust
 //! cargo run -p example-websockets --bin example-client
 //! ```
-use serde::Serialize;
+// use serde::Serialize;
 
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     response::IntoResponse,
-    routing::get,
-    Router,
+    // routing::get,
+    // Router,
 };
 use axum_extra::TypedHeader;
-use serde::Deserialize;
+// use serde::Deserialize;
 
 use std::borrow::Cow;
-use std::ops::ControlFlow;
-use std::{net::SocketAddr, path::PathBuf};
-use tower_http::services::ServeDir;
+// use std::ops::ControlFlow;
+use std::net::SocketAddr;
+// use tower_http::services::ServeDir;
 
 //allows to extract the IP of connecting user
 use axum::extract::connect_info::ConnectInfo;
 use axum::extract::ws::CloseFrame;
 use axum_extra::headers;
 //allows to split the websocket stream into separate TX and RX branches
-use futures::{sink::SinkExt, stream::StreamExt};
+// use futures::{sink::SinkExt, stream::StreamExt};
 
-use crate::server::api::user::{GuestInfo, UserProfile};
+// use crate::server::api::user::{GuestInfo, UserProfile};
 
 /// The handler for the HTTP request (this gets called when the HTTP GET lands at the start
 /// of websocket negotiation). After this completes, the actual switching from HTTP to
@@ -88,7 +88,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
                         return;
                     }
                 }
-                Message::Close(c) => {
+                Message::Close(_c) => {
                     return;
                 }
                 _ => {
@@ -130,14 +130,14 @@ async fn process_socket(socket: &mut WebSocket, socket_type: SocketType) {
     }
 }
 
-async fn process_replay_spectate(game_id: uuid::Uuid, socket: &mut WebSocket) {
-    use axum::response::sse::{Event, Sse};
-    use futures::stream::{self, Stream};
-    use std::{convert::Infallible, time::Duration};
+async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
+    // use axum::response::sse::{Event, Sse};
+    // use futures::stream::{self, Stream};
+    // use std::{convert::Infallible, time::Duration};
 
     use crate::game::tet::*;
     use crate::game::timestamp::get_timestamp_now_nano;
-    use std::collections::VecDeque;
+    // use std::collections::VecDeque;
 
     let mut maybe_state: Option<GameState> = None;
 
@@ -171,7 +171,7 @@ async fn process_replay_spectate(game_id: uuid::Uuid, socket: &mut WebSocket) {
 
         for segment in new_segments {
             let json = serde_json::to_string(&segment).expect("json never fail");
-            if let Err(e) = socket.send(Message::Text(json)).await {
+            if let Err(_e) = socket.send(Message::Text(json)).await {
                 log::warn!("ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN");
                 return;
             }
@@ -185,7 +185,7 @@ async fn process_replay_spectate(game_id: uuid::Uuid, socket: &mut WebSocket) {
             return;
         }
     }
-    log::info!("game finished srteaming success");
+    // log::info!("game finished srteaming success");
 }
 
 // /// helper to print contents of messages to stdout. Has special treatment for Close.

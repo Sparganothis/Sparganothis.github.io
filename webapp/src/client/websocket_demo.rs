@@ -15,46 +15,46 @@ pub fn WebsocketDemo() -> impl IntoView {
     } = leptos_use::use_websocket("/api/ws");
 
     log::info!("instanced");
-    
-let send_message = move |_| {
-    send("Hello, world!");
-};
 
-let send_byte_message = move |_| {
-    send_bytes(b"Hello, world!\r\n".to_vec());
-};
+    let send_message = move |_| {
+        send("Hello, world!");
+    };
 
-let status = move || ready_state.get().to_string();
+    let send_byte_message = move |_| {
+        send_bytes(b"Hello, world!\r\n".to_vec());
+    };
 
-let connected = move || ready_state.get() == leptos_use::core::ConnectionReadyState::Open;
+    let status = move || ready_state.get().to_string();
 
-let open_connection = move |_| {
-    open();
-};
+    let connected = move || ready_state.get() == leptos_use::core::ConnectionReadyState::Open;
 
-let close_connection = move |_| {
-    close();
-};
+    let open_connection = move |_| {
+        open();
+    };
 
-view! {
-    <div>
-        <p>"status: " {status}</p>
+    let close_connection = move |_| {
+        close();
+    };
 
-        <button on:click=send_message disabled=move || !connected()>
-            "Send"
-        </button>
-        <button on:click=send_byte_message disabled=move || !connected()>
-            "Send bytes"
-        </button>
-        <button on:click=open_connection disabled=connected>
-            "Open"
-        </button>
-        <button on:click=close_connection disabled=move || !connected()>
-            "Close"
-        </button>
+    view! {
+        <div>
+            <p>"status: " {status}</p>
 
-        <p>"Receive message: " {move || format!("{:?}", message.get())}</p>
-        <p>"Receive byte message: " {move || format!("{:?}", message_bytes.get())}</p>
-    </div>
-}
+            <button on:click=send_message disabled=move || !connected()>
+                "Send"
+            </button>
+            <button on:click=send_byte_message disabled=move || !connected()>
+                "Send bytes"
+            </button>
+            <button on:click=open_connection disabled=connected>
+                "Open"
+            </button>
+            <button on:click=close_connection disabled=move || !connected()>
+                "Close"
+            </button>
+
+            <p>"Receive message: " {move || format!("{:?}", message.get())}</p>
+            <p>"Receive byte message: " {move || format!("{:?}", message_bytes.get())}</p>
+        </div>
+    }
 }

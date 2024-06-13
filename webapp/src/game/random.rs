@@ -12,7 +12,7 @@ fn get_rng(seed: &GameSeed) -> ChaCha20Rng {
 
 pub fn shuffle_tets(seed: &GameSeed, event_time: i64) -> (Vec<Tet>, GameSeed) {
     let event_time = event_time.to_le_bytes();
-    let mut seed = seed.clone();
+    let mut seed = *seed;
     for i in 0..8 {
         seed[i] ^= event_time[i];
     }

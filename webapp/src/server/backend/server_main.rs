@@ -9,11 +9,8 @@ pub use axum::{
 };
 pub use leptos::*;
 pub use leptos_axum::{generate_route_list, LeptosRoutes};
-use std::{net::SocketAddr, path::PathBuf};
-use tower_http::{
-    services::ServeDir,
-    trace::{DefaultMakeSpan, TraceLayer},
-};
+use std::net::SocketAddr;
+use tower_http::trace::{DefaultMakeSpan, TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 pub async fn server_main() {

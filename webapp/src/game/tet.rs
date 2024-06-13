@@ -78,23 +78,23 @@ impl Tet {
             ],
             &Self::J => vec![
                 vec![false, false, false],
-                vec![true, true, true], 
-                vec![true, false, false]
+                vec![true, true, true],
+                vec![true, false, false],
             ],
             &Self::T => vec![
                 vec![false, false, false],
-                vec![true, true, true], 
-                vec![false, true, false]
+                vec![true, true, true],
+                vec![false, true, false],
             ],
             &Self::S => vec![
                 vec![false, false, false],
-                vec![true, true, false], 
-                vec![false, true, true]
+                vec![true, true, false],
+                vec![false, true, true],
             ],
             &Self::Z => vec![
                 vec![false, false, false],
-                vec![false, true, true], 
-                vec![true, true, false]
+                vec![false, true, true],
+                vec![true, true, false],
             ],
             &Self::O => vec![vec![true, true], vec![true, true]],
         }
@@ -152,12 +152,10 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         let shape = piece.shape(rot_state);
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
-
-                
                 if *cell {
                     let (cx, cy) = (x + i as i8, y + j as i8);
                     if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
-                             anyhow::bail!(
+                        anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
@@ -175,7 +173,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                 if *cell {
                     let (cx, cy) = (x + i as i8, y + j as i8);
                     if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
-                             anyhow::bail!(
+                        anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
@@ -206,7 +204,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                 if *cell {
                     let (cx, cy) = (x + i as i8, y + j as i8);
                     if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
-                             anyhow::bail!(
+                        anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     self.v[cy as usize][cx as usize] = CellValue::Empty;
@@ -224,7 +222,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             }
             let info = CurrentPcsInfo {
                 id: 0,
-                pos: (row + if (*piece).eq(&Tet::O) {1} else {0}, col),
+                pos: (row + if (*piece).eq(&Tet::O) { 1 } else { 0 }, col),
                 tet: *piece,
                 rs: RotState::R0,
             };
@@ -238,7 +236,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     pub fn rows(&self) -> Vec<Vec<CellValue>> {
         self.v
             .iter()
-            .map(|r| r.into_iter().cloned().collect())
+            .map(|r| r.iter().cloned().collect())
             .collect()
     }
 }
@@ -258,19 +256,15 @@ impl TetAction {
     pub fn random() -> Self {
         use rand::seq::SliceRandom;
         use rand::thread_rng;
-        if (&mut thread_rng()).gen_bool(0.5) {
+        if thread_rng().gen_bool(0.5) {
             Self::SoftDrop
         } else {
-            let choices = vec![
-                // Self::HardDrop,
-                Self::SoftDrop,
+            let choices = [Self::SoftDrop,
                 Self::MoveLeft,
                 Self::MoveRight,
                 Self::Hold,
                 Self::RotateLeft,
-                Self::RotateRight,
-                // Nothing is not action
-            ];
+                Self::RotateRight];
             let mut rng = thread_rng();
             *choices.choose(&mut rng).unwrap()
         }
@@ -310,7 +304,7 @@ pub struct GameReplay {
 impl GameReplay {
     pub fn empty(seed: &GameSeed, start_time: i64) -> Self {
         Self {
-            init_seed: seed.clone(),
+            init_seed: *seed,
             start_time,
             replay_slices: vec![],
         }
@@ -435,7 +429,7 @@ impl GameState {
             self.seed = new_seed;
         }
     }
-    fn put_next_piece(&mut self, event_time: i64) -> anyhow::Result<()> {
+    fn put_next_piece(&mut self, _event_time: i64) -> anyhow::Result<()> {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
             anyhow::bail!("already have next pcs");
@@ -460,10 +454,8 @@ impl GameState {
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             log::info!("tet game over");
             self.game_over = true;
-        } else {
-            if let Some(ref mut h) = self.hold_pcps {
-                h.can_use = true;
-            }
+        } else if let Some(ref mut h) = self.hold_pcps {
+            h.can_use = true;
         }
         Ok(())
     }
@@ -494,8 +486,8 @@ impl GameState {
             game_over: false,
             hold_pcps: None,
             current_id: 0,
-            seed: seed.clone(),
-            init_seed: seed.clone(),
+            seed: *seed,
+            init_seed: *seed,
             replay: GameReplay::empty(seed, start_time),
             start_time,
         };
@@ -515,7 +507,7 @@ impl GameState {
         if let Some(HoldPcsInfo { can_use: _, tet }) = self.hold_pcps {
             let info = CurrentPcsInfo {
                 tet,
-                pos: (if tet.eq(&Tet::I) {-1} else {0}, 0),
+                pos: (if tet.eq(&Tet::I) { -1 } else { 0 }, 0),
                 rs: RotState::R0,
                 id: 0,
             };
@@ -562,7 +554,7 @@ impl GameState {
         let current_pcs = self.current_pcs.context("no current pcs")?;
 
         let mut r = self.try_softdrop(event_time);
-        while r.is_ok() && current_pcs.id == self.current_pcs.clone().unwrap().id {
+        while r.is_ok() && current_pcs.id == self.current_pcs.unwrap().id {
             r = self.try_softdrop(event_time);
         }
         Ok(())
@@ -575,7 +567,7 @@ impl GameState {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs = current_pcs.clone();
+        let mut new_current_pcs = current_pcs;
         new_current_pcs.pos.0 -= 1;
 
         if self.main_board.spawn_piece(&new_current_pcs).is_ok() {
@@ -595,7 +587,7 @@ impl GameState {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs = current_pcs.clone();
+        let mut new_current_pcs = current_pcs;
         new_current_pcs.pos.1 -= 1;
 
         self.main_board.spawn_piece(&new_current_pcs)?;
@@ -610,7 +602,7 @@ impl GameState {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs = current_pcs.clone();
+        let mut new_current_pcs = current_pcs;
         new_current_pcs.pos.1 += 1;
 
         self.main_board.spawn_piece(&new_current_pcs)?;
@@ -625,7 +617,7 @@ impl GameState {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs = current_pcs.clone();
+        let mut new_current_pcs = current_pcs;
         new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Left);
 
         self.main_board.spawn_piece(&new_current_pcs)?;
@@ -640,7 +632,7 @@ impl GameState {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs = current_pcs.clone();
+        let mut new_current_pcs = current_pcs;
         new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Right);
 
         self.main_board.spawn_piece(&new_current_pcs)?;
@@ -744,7 +736,7 @@ mod tests {
 
             let mut active_game = GameState::new(&seed, get_timestamp_now_nano());
             let mut passive_game = GameState::new(&seed, active_game.start_time);
-            let mut slices = vec![];
+            let mut _slices = vec![];
 
             loop {
                 let action = TetAction::random();
@@ -753,12 +745,12 @@ mod tests {
                     active_game = new_active_game;
                 }
                 if active_game.game_over {
-                    slices = active_game.replay.replay_slices;
+                    _slices = active_game.replay.replay_slices;
                     break;
                 }
             }
 
-            for slice in slices {
+            for slice in _slices {
                 passive_game.accept_replay_slice(&slice).unwrap();
             }
 

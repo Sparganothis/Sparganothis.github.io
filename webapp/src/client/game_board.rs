@@ -1,6 +1,5 @@
-use crate::game::tet::{self, BoardMatrix, CellValue, GameState, SIDE_BOARD_WIDTH};
+use crate::game::tet::{self, CellValue, GameState};
 use leptos::*;
-use time::serde::timestamp;
 
 const BOARD_HEIGHT: usize = 20;
 ///componenta
@@ -21,7 +20,10 @@ impl BoardMatrixSignals {
         }
     }
 
-    pub fn update_value(_self: &Vec<(usize, Vec<RwSignal<CellValue>>)>, val: Vec<(usize, Vec<CellValue>)>) {
+    pub fn update_value(
+        _self: &Vec<(usize, Vec<RwSignal<CellValue>>)>,
+        val: Vec<(usize, Vec<CellValue>)>,
+    ) {
         for (r1, r2) in val.iter().zip(_self.iter()) {
             for (t1, t2) in r1.1.iter().zip(r2.1.iter()) {
                 t2.update(move |xxx| {
@@ -44,11 +46,14 @@ pub fn BoardTable<const R: usize, const C: usize>(
     //
     // log::info!("redraw BoardTable R={} C={}", R, C);
 
-    let (data, _set_data) = create_signal(BoardMatrixSignals::new( {
-        let mut v_new: Vec<_> = board().rows().into_iter().enumerate().collect();
-        v_new.reverse();
-        v_new
-    }).value);
+    let (data, _set_data) = create_signal(
+        BoardMatrixSignals::new({
+            let mut v_new: Vec<_> = board().rows().into_iter().enumerate().collect();
+            v_new.reverse();
+            v_new
+        })
+        .value,
+    );
 
     let do_update = move || {
         let board = {
@@ -59,25 +64,23 @@ pub fn BoardTable<const R: usize, const C: usize>(
         data.with(|data| {
             BoardMatrixSignals::update_value(data, board);
         });
-        
+
         data()
     };
-
 
     // let signals = create_memo(
     //     move |_old: Option<&BoardMatrixSignals>| {
     //         if let Some(old_board) = _old {
     //             let mut old_board = old_board.clone();
-    //             let board = 
+    //             let board =
     //             v_new.reverse();
     //             old_board.update_value(v_new);
-
 
     //             old_board
     //         } else {
     //             log::info!("create  new signals!!");
     //             let board = board();
-                
+
     //             let mut v_new: Vec<_> = board.rows().into_iter().enumerate().collect();
     //             v_new.reverse();
 
@@ -154,27 +157,18 @@ pub fn GameBoard(
         .get_class_name()
         .to_owned();
 
-    let hold_board =  create_read_slice(
-        game_state,
-        |state: &tet::GameState| state.get_hold_board(),
-    );
+    let hold_board = create_read_slice(game_state, |state: &tet::GameState| state.get_hold_board());
     //  = (move || game_state().get_hold_board()).into_signal();
-    let hold_board =     view! { <BoardTable board=hold_board/> }    ;
+    let hold_board = view! { <BoardTable board=hold_board/> };
 
-    let next_board =  create_read_slice(
-        game_state,
-        |state: &tet::GameState| state.get_next_board(),
-    );
+    let next_board = create_read_slice(game_state, |state: &tet::GameState| state.get_next_board());
     // let next_board =
-        // (move || game_state.with(|game_state| game_state.get_next_board()))
-            // .into_signal();
+    // (move || game_state.with(|game_state| game_state.get_next_board()))
+    // .into_signal();
     let next_board = view! { <BoardTable board=next_board/> };
 
-    let main_board = create_read_slice(
-        game_state,
-        |state: &tet::GameState| state.main_board,
-    );
-        // move || game_state().main_board).into_signal();
+    let main_board = create_read_slice(game_state, |state: &tet::GameState| state.main_board);
+    // move || game_state().main_board).into_signal();
     let main_board = view! { <BoardTable board=main_board/> };
 
     let gameover = view! {
@@ -187,7 +181,7 @@ pub fn GameBoard(
 
     let debug_info = move || game_state().get_debug_info();
 
-    let gameboard_view =  view! {
+    let gameboard_view = view! {
         <div class="main_container">
             <div class="gameover">{gameover}</div>
             <div class="side_board_left">
@@ -234,8 +228,9 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             state.update(move |state| {
-                    if ! state.game_over {
-                    let _ = state.apply_action_if_works(TetAction::SoftDrop, get_timestamp_now_nano());
+                if !state.game_over {
+                    let _ =
+                        state.apply_action_if_works(TetAction::SoftDrop, get_timestamp_now_nano());
                 }
             })
         },
@@ -247,22 +242,21 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
         _timer_resume();
     };
 
-    let (get_ts,set_ts)=create_signal(crate::game::timestamp::get_timestamp_now_ms());
+    let (get_ts, set_ts) = create_signal(crate::game::timestamp::get_timestamp_now_ms());
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
-        let timestamp1=crate::game::timestamp::get_timestamp_now_ms();
-        
-        if(timestamp1-get_ts())>10
-        {
+        let timestamp1 = crate::game::timestamp::get_timestamp_now_ms();
+
+        if (timestamp1 - get_ts()) > 10 {
             set_ts(timestamp1);
             state.update(|state| {
-            if state
-                .apply_action_if_works(_action, get_timestamp_now_nano())
-                .is_ok()
-            {
-                reset_timer();
-            }
-        })}
-        
+                if state
+                    .apply_action_if_works(_action, get_timestamp_now_nano())
+                    .is_ok()
+                {
+                    reset_timer();
+                }
+            })
+        }
     });
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
