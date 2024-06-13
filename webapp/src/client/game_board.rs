@@ -65,11 +65,13 @@ pub fn BoardCell(cell: tet::CellValue, overflow: bool) -> impl IntoView {
     view! { <div class=_cell_cls></div> }
 }
 
+use super::style::*;
 #[component]
 pub fn GameBoard(
     #[prop(into)] game_state: Signal<tet::GameState>,
     on_reset_game: Callback<()>,
 ) -> impl IntoView {
+    let tet_style= GameBoardTetStyle::new();
     let bottom_free_percent = 15.0;
     let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
 
@@ -159,13 +161,13 @@ pub fn GameBoard(
             border-color: 1px transparent;
             background-color: transparent;
         }
-        .tet.S.cell {            background-color: lightgreen;     }
-        .tet.T.cell {            background-color: magenta;     }
-        .tet.I.cell {            background-color: lightblue;     }
-        .tet.J.cell {            background-color: #48bef7;     }
-        .tet.L.cell {            background-color: orange;     }
-        .tet.O.cell {            background-color: yellow;     }
-        .tet.Z.cell {            background-color: red;     }
+        .tet.S.cell {            background-color: ${tet_style.s};     }
+        .tet.T.cell {            background-color: ${tet_style.t};    }
+        .tet.I.cell {            background-color: ${tet_style.i};     }
+        .tet.J.cell {            background-color: ${tet_style.j};     }
+        .tet.L.cell {            background-color: ${tet_style.l};     }
+        .tet.O.cell {            background-color: ${tet_style.o};     }
+        .tet.Z.cell {            background-color: ${tet_style.z};     }
 
     ).expect("bad css");
 

@@ -69,8 +69,9 @@ pub fn WebsocketDemo() -> impl IntoView {
         let segment = replay_state();
         match segment {
             Some(GameReplaySegment::Init(init)) => {
-                log::info!("gamereplayinit{:?}",init);
-                GameState::new(&init.init_seed, init.start_time)}
+                log::info!("gamereplayinit{:?}", init);
+                GameState::new(&init.init_seed, init.start_time)
+            }
             Some(GameReplaySegment::Update(slice)) => {
                 let mut state_val = old_state.unwrap().clone();
                 if let Err(e) = state_val.accept_replay_slice(&slice) {
