@@ -14,7 +14,7 @@ log = "0.4"
 simple_logger = "4.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-chrono = {version="0.4.38", features=["serde"] }
+chrono = {version="0.4.38", features=["serde", "wasmbind"] }
 time = {version="0.3", features=["serde"]}
 
 thiserror = "1.0"

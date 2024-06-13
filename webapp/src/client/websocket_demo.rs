@@ -93,14 +93,10 @@ pub fn WebsocketDemo() -> impl IntoView {
     log::info!("sse demo");
 
     view! {
+        <GameBoard on_reset_game=on_reset game_state=memo_state/>
 
-            <GameBoard on_reset_game=on_reset game_state=memo_state/>
+        <p>{move || format!("{}", is_spectate_started())}</p>
 
-
-            <p> {move|| format!("{}", is_spectate_started())} </p>
-
-                <p>"Receive message: " {move || format!("{:?}", message.get())}</p>
-
-
+        <p>"Receive message: " {move || format!("{:?}", message.get())}</p>
     }
 }
