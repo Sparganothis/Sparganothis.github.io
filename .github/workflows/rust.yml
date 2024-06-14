@@ -5,10 +5,10 @@ on:
     branches: [ "master", "bos" ]
   workflow_dispatch:
 
-permissions:
-  contents: write # for committing to gh-pages branch.
-  pages: write
-  id-token: write
+# permissions:
+#   contents: write # for committing to gh-pages branch.
+#   pages: write
+#   id-token: write
   
 concurrency:
   group: "pages"
@@ -19,9 +19,6 @@ env:
 
 jobs:
   build:
-    # environment:
-    #   name: github-pages
-    #   url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
 
@@ -51,22 +48,4 @@ jobs:
       run: cargo binstall cargo-leptos --no-confirm
 
     - name: Cargo Check
-      run: bash ./build.sh && bash ./test.sh
-
-    # - name: cargo-leptos build release
-    #   run: cd webapp && cargo-leptos build --release
-
-    # - name: Setup Pages
-    #   uses: actions/configure-pages@v4
-    #   with:
-    #     enablement: true
-    #     # token:
-
-    # - name: Upload artifact
-    #   uses: actions/upload-pages-artifact@v3
-    #   with:
-    #     path: "./webapp/target/site/pkg"
-
-    # - name: Deploy to GitHub Pages
-    #   id: deployment
-    #   uses: actions/deploy-pages@v4
+      run: time ( bash ./build.sh && bash ./test.sh )
