@@ -22,11 +22,11 @@ cargo build --package=webapp --lib --target=wasm32-unknown-unknown --no-default-
 
 
 
-echo
-echo "======================================"
-echo "===  BUILD  SERVER + CLIENT  ===="
-echo "======================================"
-(
-set -x
-cargo leptos build
-)
+# echo
+# echo "======================================"
+# echo "===  BUILD  SERVER + CLIENT  ===="
+# echo "======================================"
+# (
+# set -x
+# cargo leptos build
+# )

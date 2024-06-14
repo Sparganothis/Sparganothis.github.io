@@ -64,5 +64,8 @@ jobs:
       with:
         node-version: 20
 
-    - name: Cargo TEST ${{ matrix.os }} NOFAIL
-      run: time ( bash ./build.sh && bash ./test.sh ) || true
+    - name: SERVER TEST ${{ matrix.os }}
+      run: cargo test --no-default-features --features=ssr
+
+    - name: CLIENT TEST ${{ matrix.os }}
+      run: cargo test   --target-dir=target/front --no-default-features --features=csr --target=wasm32-unknown-unknown
