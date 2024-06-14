@@ -115,9 +115,6 @@ ssr = [
 # pretty_assertions = "1.4.0"
 wasm-bindgen-test  = "0.3"
 
-[[bin]]
-name = "web-server"
-path = "src/main.rs"
 
 [package.metadata.cargo-all-features]
 denylist = ["axum", "tower", "tower-http", "tokio", "sqlx", "leptos_axum"]
