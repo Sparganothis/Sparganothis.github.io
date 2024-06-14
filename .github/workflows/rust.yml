@@ -19,8 +19,13 @@ env:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
@@ -29,6 +34,8 @@ jobs:
       uses: dtolnay/rust-toolchain@master
       with:
         toolchain: stable
+        cache-all-crates: true
+        key: ${{ matrix.os }}
 
     - name: Add wasm32-unknown-unknown
       run: rustup target add wasm32-unknown-unknown
@@ -47,5 +54,5 @@ jobs:
     - name: Install cargo-leptos
       run: cargo binstall cargo-leptos --no-confirm
 
-    - name: Cargo Check
+    - name: Cargo TEST ${{ matrix.os }}
       run: time ( bash ./build.sh && bash ./test.sh )
