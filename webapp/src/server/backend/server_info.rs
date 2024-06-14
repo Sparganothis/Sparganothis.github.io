@@ -1,5 +1,5 @@
-use std::hash::{DefaultHasher, Hash, Hasher};
 use once_cell::sync::Lazy;
+use std::hash::{DefaultHasher, Hash, Hasher};
 
 const MAGIC_NUMBER: u64 = 666666;
 

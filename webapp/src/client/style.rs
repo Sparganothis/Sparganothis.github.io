@@ -27,7 +27,6 @@ pub fn default_style(
     bottom_free_percent: f64,
     cell_width_vmin: f64,
 ) -> stylist::Style {
-
     #[allow(non_upper_case_globals)]
     let st = stylist::style!(
     table {
@@ -124,5 +123,5 @@ pub fn default_style(
     .tet.Z.cell {            background-color: ${tet_style.z};     }
 
 ).expect("bad css");
-st
+    st
 }

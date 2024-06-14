@@ -234,10 +234,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
     }
     pub fn rows(&self) -> Vec<Vec<CellValue>> {
-        self.v
-            .iter()
-            .map(|r| r.iter().cloned().collect())
-            .collect()
+        self.v.iter().map(|r| r.iter().cloned().collect()).collect()
     }
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -259,12 +256,14 @@ impl TetAction {
         if thread_rng().gen_bool(0.5) {
             Self::SoftDrop
         } else {
-            let choices = [Self::SoftDrop,
+            let choices = [
+                Self::SoftDrop,
                 Self::MoveLeft,
                 Self::MoveRight,
                 Self::Hold,
                 Self::RotateLeft,
-                Self::RotateRight];
+                Self::RotateRight,
+            ];
             let mut rng = thread_rng();
             *choices.choose(&mut rng).unwrap()
         }

@@ -48,7 +48,12 @@ pub fn BoardTable<const R: usize, const C: usize>(
 
     let (data, _set_data) = create_signal(
         BoardMatrixSignals::new({
-            let mut v_new: Vec<_> = board.get_untracked().rows().into_iter().enumerate().collect();
+            let mut v_new: Vec<_> = board
+                .get_untracked()
+                .rows()
+                .into_iter()
+                .enumerate()
+                .collect();
             v_new.reverse();
             v_new
         })
@@ -174,7 +179,6 @@ pub fn GameBoard(
     let debug_info = move || game_state.get().get_debug_info();
 
     view! {
-
         <div class=_style_name>
 
             <div class="main_container">
@@ -192,7 +196,7 @@ pub fn GameBoard(
                 </div>
 
                 <div class="main_board">
-                    <BoardTable board=main_board/> 
+                    <BoardTable board=main_board/>
                 </div>
 
                 <div class="label_bottom">
@@ -209,7 +213,6 @@ pub fn GameBoard(
             </div>
         </div>
     }
-
 }
 
 use crate::game::random::GameSeed;
