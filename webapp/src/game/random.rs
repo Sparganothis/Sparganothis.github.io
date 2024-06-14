@@ -31,7 +31,7 @@ pub fn accept_event(
     event_ts: i64,
     event_idx: u32,
 ) -> GameSeed {
-    let event_hash = bincode::serialize(event).unwrap();  // 5 bytes
+    let event_hash = bincode::serialize(event).unwrap(); // 5 bytes
     assert!(event_hash.len() == 5);
     let ts = event_ts.to_le_bytes();
     let event_idx = event_idx.to_le_bytes();
@@ -60,7 +60,6 @@ pub fn accept_event(
     new_gen.gen()
 }
 
-
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -70,30 +69,32 @@ pub mod tests {
     #[test]
     #[wasm_bindgen_test]
     pub fn random_have_pinned_results() {
-        let encoded_str1 = bincode::serialize(&crate::game::tet::TetAction::SoftDrop).unwrap();        
+        let encoded_str1 = bincode::serialize(&crate::game::tet::TetAction::SoftDrop).unwrap();
         let encoded_str2 = bincode::serialize(&crate::game::tet::TetAction::MoveLeft).unwrap();
-        let expected_str1: Vec<u8> = vec![1,0,0,0];
-        let expected_str2: Vec<u8> = vec![2,0,0,0];
-        assert_eq!(encoded_str1,         expected_str1);
-        assert_eq!(encoded_str2,         expected_str2);
+        let expected_str1: Vec<u8> = vec![1, 0, 0, 0];
+        let expected_str2: Vec<u8> = vec![2, 0, 0, 0];
+        assert_eq!(encoded_str1, expected_str1);
+        assert_eq!(encoded_str2, expected_str2);
 
-
-        let evt1 = GameReplayEvent{
+        let evt1 = GameReplayEvent {
             action: crate::game::tet::TetAction::SoftDrop,
             game_over: false,
         };
 
-        let encoded_evt1 = bincode::serialize(&evt1).unwrap();   
-        let expected_str3: Vec<u8> = vec![1,0,0,0,0];   
-        assert_eq!(encoded_evt1, expected_str3);  
+        let encoded_evt1 = bincode::serialize(&evt1).unwrap();
+        let expected_str3: Vec<u8> = vec![1, 0, 0, 0, 0];
+        assert_eq!(encoded_evt1, expected_str3);
 
-        let seed = [0;32];
+        let seed = [0; 32];
         let event = GameReplayEvent {
             action: crate::game::tet::TetAction::MoveLeft,
             game_over: true,
         };
         let result = accept_event(&seed, &event, 0, 0);
-        let expected_result = [51, 52, 212, 146, 170, 34, 166, 63, 51, 161, 145, 215, 91, 5, 109, 45, 185, 19, 32, 55, 249, 73, 198, 204, 53, 200, 210, 77, 185, 40, 88, 62];
+        let expected_result = [
+            51, 52, 212, 146, 170, 34, 166, 63, 51, 161, 145, 215, 91, 5, 109, 45, 185, 19, 32, 55,
+            249, 73, 198, 204, 53, 200, 210, 77, 185, 40, 88, 62,
+        ];
         assert_eq!(result, expected_result);
     }
 }
