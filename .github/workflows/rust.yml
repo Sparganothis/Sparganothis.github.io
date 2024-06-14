@@ -65,7 +65,7 @@ jobs:
         node-version: 20
 
     - name: SERVER TEST ${{ matrix.os }}
-      run: cargo test --no-default-features --features=ssr
+      run: cargo test --no-default-features --features=ssr  --package=webapp 
 
     - name: CLIENT TEST ${{ matrix.os }}
-      run: cargo test   --target-dir=target/front --no-default-features --features=csr --target=wasm32-unknown-unknown
+      run: cargo test  --package=webapp   --target-dir=target/front --no-default-features --features=csr --target=wasm32-unknown-unknown
