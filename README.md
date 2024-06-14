@@ -1,12 +1,32 @@
 ![](./docs/Screenshot.png)
 
 
-# TODO
+# HOW TO COMPILE
+
+- install "rustup" and "nodejs"
+- install "vscode" including "rust-analyzer" plugin
+- install "git for windows" including "bash"
+- run commands in vscode bash terminal
 
 
-## fuynctionnalitate
-- move left right
-- rotate ez
+
+```
+rustup default stable
+rustup update stable
+rustup target add wasm32-unknown-unknown
+
+cargo install cargo-binstall
+cargo binstall wasm-bindgen-cli --no-confirm
+cargo binstall wasm-pack --no-confirm
+cargo binstall cargo-leptos --no-confirm
+cargo binstall leptosfmt --no-confirm
+
+bash test.sh
+bash run-server.sh
+```
+
+
+# todo
 - rotate SRS
 - rotate tests fromm mwiki
   - finesse https://harddrop.com/wiki/0G_60_Hz_SRS_Movement_Finesse
@@ -16,8 +36,6 @@
 
 - 40 line singleplayer + timer
 - leaderboard + server replay + world record
-
-
 - combo + TSPIN + Score
 
 ### 1V1 CPPU
