@@ -593,7 +593,7 @@ impl GameState {
         self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
-    
+
     fn try_moveright(&mut self) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
 
@@ -609,7 +609,7 @@ impl GameState {
         Ok(())
     }
 
-    fn try_rotate(&mut self, rot:RotDirection) -> anyhow::Result<()> {
+    fn try_rotate(&mut self, rot: RotDirection) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
@@ -625,7 +625,6 @@ impl GameState {
             new_current_pcs.pos.0 += y;
             new_current_pcs.pos.1 += x;
 
-            
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
                 self.current_pcs = Some(new_current_pcs);
                 return Ok(());
@@ -633,9 +632,7 @@ impl GameState {
         }
 
         anyhow::bail!("all ooffset are blocked")
-
     }
-
 
     fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
         if self.game_over {

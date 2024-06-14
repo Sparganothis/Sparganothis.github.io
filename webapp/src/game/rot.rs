@@ -1,38 +1,63 @@
-
 use serde::{Deserialize, Serialize};
 
 use super::tet::Tet;
 
-pub fn srs_offsets(before: RotState, after: RotState, tet: Tet)->  Vec<(i8,i8)>{
-
-
-    match tet{
-        Tet::I => {
-            match (before,after) {
-                (RotState::R0, RotState::R1) => {  vec![(0,0) ,	(-2, 0) 	,( 1, 0) ,	(-2,-1) ,	( 1, 2)]  },
-                (RotState::R1, RotState::R0) => {  vec![(0,0) ,	( 2, 0) 	,(-1, 0) ,	( 2, 1) ,	(-1,-2)]  },
-                (RotState::R1, RotState::R2) => {  vec![(0,0) ,	(-1, 0) 	,( 2, 0) ,	(-1, 2) ,	( 2,-1)]  },
-                (RotState::R2, RotState::R1) => {  vec![(0,0) ,	( 1, 0) 	,(-2, 0) ,	( 1,-2) ,	(-2, 1)]  },
-                (RotState::R2, RotState::R3) => {  vec![(0,0) ,	( 2, 0) 	,(-1, 0) ,	( 2, 1) ,	(-1,-2)]  },
-                (RotState::R3, RotState::R2) => {  vec![(0,0) ,	(-2, 0) 	,( 1, 0) ,	(-2,-1) ,	( 1, 2)]  },
-                (RotState::R3, RotState::R0) => {  vec![(0,0) ,	( 1, 0) 	,(-2, 0) ,	( 1,-2) ,	(-2, 1)]  },
-                (RotState::R0, RotState::R3) => {  vec![(0,0) ,	(-1, 0) 	,( 2, 0) ,	(-1, 2) ,	( 2,-1)]  },
-                _ => panic!("180 or 0 rot is bad")
-            }	
-        }
-        _ => {	
-            match (before,after) {
-                (RotState::R0, RotState::R1) => { vec![(0,0) ,	(-1, 0) ,	(-1, 1) 	,( 0,-2) ,	(-1,-2)] },
-                (RotState::R1, RotState::R0) => { vec![(0,0) ,	( 1, 0) ,	( 1,-1) ,	( 0, 2) ,	( 1, 2)] },
-                (RotState::R1, RotState::R2) => { vec![(0,0) ,	( 1, 0) ,	( 1,-1) ,	( 0, 2) ,	( 1, 2)] },
-                (RotState::R2, RotState::R1) => { vec![(0,0) ,	(-1, 0) ,	(-1, 1) ,	( 0,-2) ,	(-1,-2)] },
-                (RotState::R2, RotState::R3) => { vec![(0,0) ,	( 1, 0) ,	( 1, 1) ,	( 0,-2) ,	( 1,-2)] },
-                (RotState::R3, RotState::R2) => { vec![(0,0) ,	(-1, 0) ,	(-1,-1) ,	( 0, 2) ,	(-1, 2)] },
-                (RotState::R3, RotState::R0) => { vec![(0,0) ,	(-1, 0) ,	(-1,-1) ,	( 0, 2) ,	(-1, 2)] },
-                (RotState::R0, RotState::R3) => { vec![(0,0) ,	( 1, 0) ,	( 1, 1) 	,( 0,-2) ,	( 1,-2)] },
-                _ => panic!("180 or 0 rot is bad")
+pub fn srs_offsets(before: RotState, after: RotState, tet: Tet) -> Vec<(i8, i8)> {
+    match tet {
+        Tet::I => match (before, after) {
+            (RotState::R0, RotState::R1) => {
+                vec![(0, 0), (-2, 0), (1, 0), (-2, -1), (1, 2)]
             }
-        }
+            (RotState::R1, RotState::R0) => {
+                vec![(0, 0), (2, 0), (-1, 0), (2, 1), (-1, -2)]
+            }
+            (RotState::R1, RotState::R2) => {
+                vec![(0, 0), (-1, 0), (2, 0), (-1, 2), (2, -1)]
+            }
+            (RotState::R2, RotState::R1) => {
+                vec![(0, 0), (1, 0), (-2, 0), (1, -2), (-2, 1)]
+            }
+            (RotState::R2, RotState::R3) => {
+                vec![(0, 0), (2, 0), (-1, 0), (2, 1), (-1, -2)]
+            }
+            (RotState::R3, RotState::R2) => {
+                vec![(0, 0), (-2, 0), (1, 0), (-2, -1), (1, 2)]
+            }
+            (RotState::R3, RotState::R0) => {
+                vec![(0, 0), (1, 0), (-2, 0), (1, -2), (-2, 1)]
+            }
+            (RotState::R0, RotState::R3) => {
+                vec![(0, 0), (-1, 0), (2, 0), (-1, 2), (2, -1)]
+            }
+            _ => panic!("180 or 0 rot is bad"),
+        },
+        _ => match (before, after) {
+            (RotState::R0, RotState::R1) => {
+                vec![(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)]
+            }
+            (RotState::R1, RotState::R0) => {
+                vec![(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)]
+            }
+            (RotState::R1, RotState::R2) => {
+                vec![(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)]
+            }
+            (RotState::R2, RotState::R1) => {
+                vec![(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)]
+            }
+            (RotState::R2, RotState::R3) => {
+                vec![(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)]
+            }
+            (RotState::R3, RotState::R2) => {
+                vec![(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)]
+            }
+            (RotState::R3, RotState::R0) => {
+                vec![(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)]
+            }
+            (RotState::R0, RotState::R3) => {
+                vec![(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)]
+            }
+            _ => panic!("180 or 0 rot is bad"),
+        },
     }
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
