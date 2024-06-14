@@ -109,6 +109,9 @@ pub fn default_style(
     .cell.empty {
         background-color: black;
     }
+    .cell.ghost {
+        background-color: #555;
+    }
 
     .overflow_cell {
         border-color: 1px transparent;

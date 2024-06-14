@@ -138,6 +138,8 @@ pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool) -> impl IntoView {
             tet::CellValue::Piece(p) => format!("tet {}", p.name()),
             tet::CellValue::Empty => "empty".to_string(),
             tet::CellValue::Garbage => "garbage".to_string(),
+            tet::CellValue::Ghost => "ghost".to_string(),
+            
         };
         let overflow_txt = if overflow { "overflow_cell" } else { "cell" };
         let _cell_cls = format!("{_cell_cls} {overflow_txt}");

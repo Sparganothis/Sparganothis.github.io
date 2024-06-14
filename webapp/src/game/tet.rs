@@ -124,6 +124,7 @@ pub enum CellValue {
     Piece(Tet),
     Garbage,
     Empty,
+    Ghost,
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -132,6 +133,12 @@ pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
 }
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
+    pub fn get_num_rows(&self) -> usize {
+        R
+    }
+    pub fn get_num_cols(&self) -> usize {
+        C
+    }
     pub fn empty() -> Self {
         Self {
             v: [[CellValue::Empty; C]; R],
@@ -159,7 +166,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
-                        CellValue::Empty => {}
+                        CellValue::Empty|CellValue::Ghost => {}
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
                         }
@@ -177,8 +184,41 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
-                        CellValue::Empty => {
+                        CellValue::Empty |CellValue::Ghost=> {
                             self.v[cy as usize][cx as usize] = CellValue::Piece(piece);
+                        }
+                        CellValue::Garbage | CellValue::Piece(_) => {
+                            anyhow::bail!("cell position already taken");
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn spawn_ghost(&mut self, info: &CurrentPcsInfo) -> anyhow::Result<()> {
+        let CurrentPcsInfo {
+            pos: (y, x),
+            tet: piece,
+            rs: rot_state,
+            id: _,
+        } = *info;
+
+        let shape = piece.shape(rot_state);
+
+
+        for (j, row) in shape.iter().enumerate() {
+            for (i, cell) in row.iter().enumerate() {
+                if *cell {
+                    let (cx, cy) = (x + i as i8, y + j as i8);
+                    if cx < 0 || cy < 0 || cx >= (C as i8) || cy >= (R as i8) {
+                        anyhow::bail!(
+                    "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
+                    }
+                    match self.v[cy as usize][cx as usize] {
+                        CellValue::Empty |CellValue::Ghost=> {
+                            self.v[cy as usize][cx as usize] = CellValue::Ghost;
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -393,6 +433,7 @@ impl GameState {
                     CellValue::Piece(_) => true,
                     CellValue::Garbage => true,
                     CellValue::Empty => false,
+                    CellValue::Ghost => false,
                 })
                 .reduce(|a, b| a & b);
             if let Some(is_full) = is_full {
@@ -672,9 +713,53 @@ impl GameState {
             game_over: self.game_over,
         };
         new.put_replay_event(&ev, event_time);
+        new.clear_ghost();
+        if !new.game_over{
+            new.put_ghost();
+        }
         Ok(new)
     }
 
+    fn put_ghost(&mut self){
+        let mut ghost_board = self.main_board.clone();
+        let info = self.current_pcs.unwrap();
+        ghost_board.delete_piece(&info).expect("cannot delete pice in put_ghost");
+
+        let mut final_ghost_board = None;
+            
+        for y in (-3..info.pos.0).rev() {
+            let mut ghost_info = info.clone();
+            ghost_info.pos.0 = y;
+            if  ghost_board.spawn_piece(&ghost_info).is_err() {
+                ghost_info.pos.0 += 1;
+                final_ghost_board = Some(ghost_info);
+                break;
+            } else {
+                if ghost_board.delete_piece(&ghost_info).is_err() {
+                    log::warn!("cannot delete temporary ghost");
+                }
+            }
+        }
+
+        if let Some(ghost_info) = final_ghost_board {
+            if self.main_board.spawn_ghost(&ghost_info).is_err() {
+                log::debug!("cannot spawn ghost");
+            }
+        }
+    }
+
+    fn clear_ghost(&mut self){
+        for y in 0..self.main_board.get_num_rows() {
+            for x in 0..self.main_board.get_num_cols() {
+
+                let old_value = (&self.main_board.v)[y][x];
+                if old_value.eq(&CellValue::Ghost) {
+                    self.main_board.v[y ][ x ]  = CellValue::Empty;
+                }
+                
+            }
+        }
+    }
     pub fn apply_action_if_works(
         &mut self,
         action: TetAction,
