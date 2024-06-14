@@ -36,6 +36,9 @@ jobs:
         toolchain: stable
         cache-all-crates: true
         key: ${{ matrix.os }}
+        workspaces: |
+          .
+          webapp
 
     - name: Add wasm32-unknown-unknown
       run: rustup target add wasm32-unknown-unknown
@@ -53,6 +56,11 @@ jobs:
 
     - name: Install cargo-leptos
       run: cargo binstall cargo-leptos --no-confirm
+      
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
 
     - name: Cargo TEST ${{ matrix.os }}
       run: time ( bash ./build.sh && bash ./test.sh )
