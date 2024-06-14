@@ -53,20 +53,20 @@ jobs:
     - name: Cargo Check
       run: cd webapp && cargo check && cargo test && cargo test --target wasm32-unknown-unknown
 
-    - name: Trunk Build Prod
-      run: cd webapp && cargo-leptos build --release --public-url "/Sparganothis"
+    # - name: cargo-leptos build release
+    #   run: cd webapp && cargo-leptos build --release
 
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      with:
-        enablement: true
-        # token:
+    # - name: Setup Pages
+    #   uses: actions/configure-pages@v4
+    #   with:
+    #     enablement: true
+    #     # token:
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: "./webapp/target/site"
+    # - name: Upload artifact
+    #   uses: actions/upload-pages-artifact@v3
+    #   with:
+    #     path: "./webapp/target/site/pkg"
 
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+    # - name: Deploy to GitHub Pages
+    #   id: deployment
+    #   uses: actions/deploy-pages@v4
