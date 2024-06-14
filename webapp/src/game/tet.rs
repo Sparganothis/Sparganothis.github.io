@@ -234,10 +234,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
     }
     pub fn rows(&self) -> Vec<Vec<CellValue>> {
-        self.v
-            .iter()
-            .map(|r| r.iter().cloned().collect())
-            .collect()
+        self.v.iter().map(|r| r.iter().cloned().collect()).collect()
     }
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -259,12 +256,14 @@ impl TetAction {
         if thread_rng().gen_bool(0.5) {
             Self::SoftDrop
         } else {
-            let choices = [Self::SoftDrop,
+            let choices = [
+                Self::SoftDrop,
                 Self::MoveLeft,
                 Self::MoveRight,
                 Self::Hold,
                 Self::RotateLeft,
-                Self::RotateRight];
+                Self::RotateRight,
+            ];
             let mut rng = thread_rng();
             *choices.choose(&mut rng).unwrap()
         }
@@ -738,13 +737,41 @@ impl GameState {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::super::timestamp::get_timestamp_now_nano;
     use super::*;
-    use pretty_assertions::assert_eq;
+    // use pretty_assertions::assert_eq;
+    use wasm_bindgen_test::*;
 
     #[test]
-    fn active_game_is_deterministic() {
+    #[wasm_bindgen_test]
+    pub fn random_have_pinned_results() {
+        let seed = [0; 32];
+        let mut state = GameState::new(&seed, 0);
+
+        // let expected_seed = [0;32];
+        // assert_eq!(expected_seed, state.seed);
+
+        state.apply_action_if_works(TetAction::SoftDrop, 0).unwrap();
+
+        let expected_seed = [
+            184, 68, 55, 204, 137, 83, 38, 119, 235, 217, 151, 252, 189, 211, 31, 240, 177, 134,
+            34, 165, 4, 237, 12, 233, 188, 242, 29, 154, 187, 93, 148, 100,
+        ];
+        assert_eq!(expected_seed, state.seed);
+
+        state.apply_action_if_works(TetAction::HardDrop, 1).unwrap();
+
+        let expected_seed = [
+            63, 8, 223, 96, 71, 65, 34, 121, 209, 0, 184, 121, 139, 200, 63, 17, 128, 97, 128, 199,
+            15, 96, 110, 237, 142, 156, 165, 26, 138, 216, 176, 245,
+        ];
+        assert_eq!(expected_seed, state.seed);
+    }
+
+    #[test]
+    #[wasm_bindgen_test]
+    pub fn active_game_is_deterministic() {
         for i in 0..255 {
             let seed = [i; 32];
             let mut state1 = GameState::new(&seed, get_timestamp_now_nano());
@@ -769,6 +796,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn passive_game_tracks_active_one() {
         for i in 0..255 {
             let seed = [i; 32];

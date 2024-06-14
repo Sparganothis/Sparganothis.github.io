@@ -1,5 +1,4 @@
-#![feature(lazy_cell)]
-#![feature(concat_bytes)]
+#![deny(unused_crate_dependencies)]
 
 pub mod error_template;
 pub mod errors;

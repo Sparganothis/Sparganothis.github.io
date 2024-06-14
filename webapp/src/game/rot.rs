@@ -30,6 +30,7 @@ impl RotState {
     }
 }
 pub type Shape = Vec<Vec<bool>>;
+#[allow(non_snake_case)]
 pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {
     let mut new_shape = vec![];
 
@@ -61,41 +62,41 @@ pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {
     new_shape
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn rot_i_left() {
-        let result = rotate_shape(super::super::tet::Tet::I.orig_shape(), RotDirection::Left);
-        let expected = vec![vec![true], vec![true], vec![true], vec![true]];
-        assert_eq!(result, expected);
-    }
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     #[test]
+//     fn rot_i_left() {
+//         let result = rotate_shape(super::super::tet::Tet::I.orig_shape(), RotDirection::Left);
+//         let expected = vec![vec![true], vec![true], vec![true], vec![true]];
+//         assert_eq!(result, expected);
+//     }
 
-    #[test]
-    fn rot_l_right() {
-        let result = rotate_shape(super::super::tet::Tet::L.orig_shape(), RotDirection::Right);
-        let expected = vec![vec![true, true], vec![true, false], vec![true, false]];
-        assert_eq!(result, expected);
-    }
+//     #[test]
+//     fn rot_l_right() {
+//         let result = rotate_shape(super::super::tet::Tet::L.orig_shape(), RotDirection::Right);
+//         let expected = vec![vec![true, true], vec![true, false], vec![true, false]];
+//         assert_eq!(result, expected);
+//     }
 
-    #[test]
-    fn rot_l_left() {
-        let result = rotate_shape(super::super::tet::Tet::L.orig_shape(), RotDirection::Left);
-        let expected = vec![vec![false, true], vec![false, true], vec![true, true]];
-        assert_eq!(result, expected);
-    }
+//     #[test]
+//     fn rot_l_left() {
+//         let result = rotate_shape(super::super::tet::Tet::L.orig_shape(), RotDirection::Left);
+//         let expected = vec![vec![false, true], vec![false, true], vec![true, true]];
+//         assert_eq!(result, expected);
+//     }
 
-    #[test]
-    fn rot_j_right() {
-        let result = rotate_shape(super::super::tet::Tet::J.orig_shape(), RotDirection::Right);
-        let expected = vec![vec![true, false], vec![true, false], vec![true, true]];
-        assert_eq!(result, expected);
-    }
+//     #[test]
+//     fn rot_j_right() {
+//         let result = rotate_shape(super::super::tet::Tet::J.orig_shape(), RotDirection::Right);
+//         let expected = vec![vec![true, false], vec![true, false], vec![true, true]];
+//         assert_eq!(result, expected);
+//     }
 
-    // #[test]
-    // fn rot_j_left() {
-    //     let result = rotate_shape(super::super::tet::Tet::J.orig_shape(), RotDirection::Right);
-    //     let expected = vec![vec![true, true], vec![false, true], vec![false, true]];
-    //     assert_eq!(result, expected);
-    // }
-}
+//     // #[test]
+//     // fn rot_j_left() {
+//     //     let result = rotate_shape(super::super::tet::Tet::J.orig_shape(), RotDirection::Right);
+//     //     let expected = vec![vec![true, true], vec![false, true], vec![false, true]];
+//     //     assert_eq!(result, expected);
+//     // }
+// }

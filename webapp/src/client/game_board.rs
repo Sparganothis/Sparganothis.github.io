@@ -48,7 +48,12 @@ pub fn BoardTable<const R: usize, const C: usize>(
 
     let (data, _set_data) = create_signal(
         BoardMatrixSignals::new({
-            let mut v_new: Vec<_> = board().rows().into_iter().enumerate().collect();
+            let mut v_new: Vec<_> = board
+                .get_untracked()
+                .rows()
+                .into_iter()
+                .enumerate()
+                .collect();
             v_new.reverse();
             v_new
         })
@@ -57,7 +62,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
 
     let do_update = move || {
         let board = {
-            let mut v_new: Vec<_> = board().rows().into_iter().enumerate().collect();
+            let mut v_new: Vec<_> = board.get().rows().into_iter().enumerate().collect();
             v_new.reverse();
             v_new
         };
@@ -65,7 +70,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
             BoardMatrixSignals::update_value(data, board);
         });
 
-        data()
+        data.get()
     };
 
     // let signals = create_memo(
@@ -158,59 +163,56 @@ pub fn GameBoard(
         .to_owned();
 
     let hold_board = create_read_slice(game_state, |state: &tet::GameState| state.get_hold_board());
-    //  = (move || game_state().get_hold_board()).into_signal();
-    let hold_board = view! { <BoardTable board=hold_board/> };
 
     let next_board = create_read_slice(game_state, |state: &tet::GameState| state.get_next_board());
-    // let next_board =
-    // (move || game_state.with(|game_state| game_state.get_next_board()))
-    // .into_signal();
-    let next_board = view! { <BoardTable board=next_board/> };
 
     let main_board = create_read_slice(game_state, |state: &tet::GameState| state.main_board);
-    // move || game_state().main_board).into_signal();
-    let main_board = view! { <BoardTable board=main_board/> };
 
     let gameover = view! {
-        <Show when=move || game_state().game_over fallback=|| view! {}>
-            <h3 style="color:red" on:click=move |_| on_reset_game(())>
+        <Show when=move || game_state.get().game_over fallback=|| view! {}>
+            <h3 style="color:red" on:click=move |_| on_reset_game.call(())>
                 GAME OVER
             </h3>
         </Show>
     };
 
-    let debug_info = move || game_state().get_debug_info();
+    let debug_info = move || game_state.get().get_debug_info();
 
-    let gameboard_view = view! {
-        <div class="main_container">
-            <div class="gameover">{gameover}</div>
-            <div class="side_board_left">
-                <h3 class="side_board_title">HOLD</h3>
-                {hold_board}
-            </div>
+    view! {
+        <div class=_style_name>
 
-            <div class="score_window_left">
-                <code class="side_board_code">
-                    {move || { format!("{:?}", game_state().score) }}
-                </code>
-            </div>
+            <div class="main_container">
+                <div class="gameover">{gameover}</div>
+                <div class="side_board_left">
+                    <h3 class="side_board_title">HOLD</h3>
 
-            <div class="main_board">{main_board}</div>
-            <div class="label_bottom">
-                <code class="side_board_code">{debug_info}</code>
-            </div>
+                    <BoardTable board=hold_board/>
+                </div>
 
-            <div class="side_board_right">
-                <h3 class="side_board_title">NEXT</h3>
-                {next_board}
+                <div class="score_window_left">
+                    <code class="side_board_code">
+                        {move || { format!("{:?}", game_state.get().score) }}
+                    </code>
+                </div>
+
+                <div class="main_board">
+                    <BoardTable board=main_board/>
+                </div>
+
+                <div class="label_bottom">
+                    <code class="side_board_code">{debug_info}</code>
+                </div>
+
+                <div class="side_board_right">
+                    <h3 class="side_board_title">NEXT</h3>
+                    <BoardTable board=next_board/>
+                </div>
+            // <div class="score_window_right">
+            // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
+            // </div>
             </div>
-        // <div class="score_window_right">
-        // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-        // </div>
         </div>
-    };
-
-    view! { <div class=_style_name>{gameboard_view}</div> }
+    }
 }
 
 use crate::game::random::GameSeed;
@@ -246,8 +248,8 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
         let timestamp1 = crate::game::timestamp::get_timestamp_now_ms();
 
-        if (timestamp1 - get_ts()) > 10 {
-            set_ts(timestamp1);
+        if (timestamp1 - get_ts.get()) > 10 {
+            set_ts.set(timestamp1);
             state.update(|state| {
                 if state
                     .apply_action_if_works(_action, get_timestamp_now_nano())
@@ -260,7 +262,7 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     });
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
-        if state().game_over {
+        if state.get().game_over {
             state.set(GameState::new(&seed, get_timestamp_now_nano()));
         }
     });
@@ -289,7 +291,7 @@ pub fn OpponentGameBoard(seed: GameSeed) -> impl IntoView {
     );
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
-        if state().game_over {
+        if state.get().game_over {
             state.set(GameState::new(&seed, get_timestamp_now_nano()));
         }
     });

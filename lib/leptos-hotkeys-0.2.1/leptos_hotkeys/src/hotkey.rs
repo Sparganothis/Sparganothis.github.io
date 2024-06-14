@@ -49,7 +49,6 @@ impl FromStr for Hotkey {
                 // "controlright" => modifiers.ctrl = true,
                 // "ctrl" => modifiers.ctrl = true,
                 // "control" => modifiers.ctrl = true,
-
                 "alt" => modifiers.alt = true,
                 "altleft" => modifiers.alt = true,
                 "altright" => modifiers.alt = true,
@@ -66,7 +65,6 @@ impl FromStr for Hotkey {
                 // "shiftleft" => modifiers.shift = true,
                 // "shiftright" => modifiers.shift = true,
                 // "shift" => modifiers.shift = true,
-
                 key => keys.push(key.to_lowercase().to_string()),
             }
         }

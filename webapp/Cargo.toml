@@ -7,39 +7,44 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-# serde-wasm-bindgen = "0.6"
-# gloo-utils = "0.2.0"
-futures = "0.3"
 log = "0.4"
-simple_logger = "4.0"
+# simple_logger = "4.0"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+bincode = "1.3.3"
 chrono = {version="0.4.38", features=["serde", "wasmbind"] }
 time = {version="0.3", features=["serde"]}
+# seahash = "4"
 
 thiserror = "1.0"
-stylist = {version="0.13.0", features=["parser"]}
 anyhow = "1.0.86"
 rand  = "0.8.5" 
-async-trait = "0.1.80"
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
 http = { version = "1.0" }
 
 # leptos client + server
-leptos = { version = "0.6", features=["nightly"]}
-leptos_meta = {version = "0.6", features=["nightly"]}
-leptos_router = {version="0.6", features=["csr", "nightly"]}
-leptos-struct-table = {version="0.10.2", features=["uuid", "time"]}
-leptos-use = "0.10.10"
-leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
-wasm-bindgen = "0.2"
-console_log = "1.0"
-console_error_panic_hook = "0.1"
-broadcaster = "1"
-lazy_static = "1"
-once_cell = "1.18"
-gloo-net = { git = "https://github.com/rustwasm/gloo" }
+leptos = { version = "0.6", features=[ ]}
+# leptos-struct-table = {version="0.10.2", features=["uuid", "time"]}
+# broadcaster = "1"
+# lazy_static = "1"
+# gloo-net = { git = "https://github.com/rustwasm/gloo" }
 # leptos_sse = {version = "0.4.0"}
+# serde-wasm-bindgen = "0.6"
+# gloo-utils = "0.2.0"
+# sqlx = { version = "0.7", features = [
+# 	"runtime-tokio-rustls",
+# 	"sqlite",
+# ], optional = true }
+# tracing = "0.1"
+
+# client only
+console_error_panic_hook = {version="0.1", optional=true}
+leptos-use = {version="0.10.10", optional=true}
+leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys", optional=true}
+wasm-bindgen = {version="0.2", optional = true}
+console_log = {version="1.0", optional = true}
+stylist = {version="0.13.0", features=["parser"], optional=true}
+leptos_router = {version="0.6", features=["csr" ], optional=true}
+leptos_meta = {version = "0.6", features=[ ], optional=true}
 
 # server only
 axum = { version = "0.7", optional = true }
@@ -50,24 +55,37 @@ tower-http = { version = "0.5", features = ["fs"], optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 tower-sessions-sled-store = { path = "../lib/tower-sessions-sled-store-master", optional = true }
 tower-sessions =  { version = "0.12.2", optional = true }
-axum-login =  { version = "0.15.2", optional = true }
+# axum-login =  { version = "0.15.2", optional = true }
 sled = {version="0.34.7", optional = true }
 typed-sled = {version="0.2", optional = true }
 random_word = { version = "0.4.3", features = ["de"], optional = true}
 rand_chacha = "0.3.1"
 tokio-stream = { version = "0.1.14", optional = true }
-
 axum-extra = { version="0.9.3", features = ["typed-header"] , optional = true}
-# tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true}
-# sqlx = { version = "0.7", features = [
-# 	"runtime-tokio-rustls",
-# 	"sqlite",
-# ], optional = true }
+once_cell = {version="1.18", optional=true}
+async-trait = {version="0.1.80", optional = true}
+serde_json = {version="1", optional=true}
+futures = {version="0.3", optional=true}
+
 
 [features]
-csr = ["leptos/csr", "leptos_meta/csr", "leptos_router/csr"]
+csr = [
+	"leptos/csr", 
+	"dep:leptos_router",
+	"dep:leptos_meta",
+	"leptos_meta/csr", 
+	"leptos_router/csr",
+	"dep:console_error_panic_hook",
+	"dep:leptos-use",
+	"dep:leptos_hotkeys",
+	"dep:wasm-bindgen",
+	"dep:console_log",
+	"dep:stylist",
+]
+
 ssr = [
+	"dep:once_cell", "dep:async-trait", "dep:serde_json", "dep:futures",
 	"dep:axum", "axum/ws",
 	"dep:axum-extra",
 	"dep:tower",
@@ -77,14 +95,14 @@ ssr = [
 	"leptos/ssr",
 	# "leptos_sse/ssr",
 	# "leptos_sse/axum",
-	"leptos_meta/ssr",
-	"leptos_router/ssr",
+	# "leptos_meta/ssr",
+	# "leptos_router/ssr",
 	"dep:leptos_axum",
 	"dep:leptos_integration_utils",
-	"leptos-use/ssr",
+	# "leptos-use/ssr",
 	"dep:tower-sessions",
 	"dep:tower-sessions-sled-store",
-	"dep:axum-login",
+	# "dep:axum-login",
 	"dep:sled",
 	"dep:typed-sled",
 	"dep:random_word",
@@ -94,26 +112,17 @@ ssr = [
 ]
 
 [dev-dependencies]
-pretty_assertions = "1.4.0"
+# pretty_assertions = "1.4.0"
+wasm-bindgen-test  = "0.3"
+
+[[bin]]
+name = "web-server"
+path = "src/main.rs"
 
 [package.metadata.cargo-all-features]
 denylist = ["axum", "tower", "tower-http", "tokio", "sqlx", "leptos_axum"]
 skip_feature_sets = [["csr", "ssr"], ["csr", "hydrate"], ["ssr", "hydrate"]]
 
-
-# Enable a small amount of optimization in debug mode
-[profile.dev]
-opt-level = 1
-
-# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-opt-level = 3
-
-[profile.wasm-release]
-inherits = "release"
-opt-level = 'z'
-lto = true
-codegen-units = 1
 
 
 [package.metadata.leptos]

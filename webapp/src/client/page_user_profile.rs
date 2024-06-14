@@ -48,7 +48,7 @@ pub fn UserProfilePage() -> impl IntoView {
     let (get_id, _) = create_signal(_uuid);
 
     let profile = create_resource(
-        move || get_id(),
+        move || get_id.get(),
         |uuid| async move {
             if let Ok(uuid) = uuid {
                 user::get_profile(uuid).await
@@ -58,7 +58,7 @@ pub fn UserProfilePage() -> impl IntoView {
         },
     );
     let profile_view = move || {
-        if let (Ok(user_id), Some(Ok(profile))) = (get_id(), profile()) {
+        if let (Ok(user_id), Some(Ok(profile))) = (get_id.get(), profile.get()) {
             view! { <UserProfileView p=profile _user_id=user_id/> }.into_view()
         } else {
             view! { <p>profile not found!</p> }.into_view()

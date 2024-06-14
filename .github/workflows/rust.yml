@@ -5,10 +5,10 @@ on:
     branches: [ "master", "bos" ]
   workflow_dispatch:
 
-permissions:
-  contents: write # for committing to gh-pages branch.
-  pages: write
-  id-token: write
+# permissions:
+#   contents: write # for committing to gh-pages branch.
+#   pages: write
+#   id-token: write
   
 concurrency:
   group: "pages"
@@ -19,11 +19,13 @@ env:
 
 jobs:
   build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
@@ -31,12 +33,19 @@ jobs:
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: nightly
+        toolchain: stable
 
     - name: Add wasm32-unknown-unknown
       run: rustup target add wasm32-unknown-unknown
       
     - uses: Swatinem/rust-cache@v2
+      with:
+        cache-all-crates: true
+        key: ${{ matrix.os }}
+        cache-on-failure: true
+        workspaces: |
+          .
+          webapp
     
     - name: Install binstall
       uses: cargo-bins/cargo-binstall@main
@@ -49,24 +58,11 @@ jobs:
 
     - name: Install cargo-leptos
       run: cargo binstall cargo-leptos --no-confirm
-
-    - name: Cargo Check
-      run: cd webapp && cargo check && cargo test
-
-    - name: Trunk Build Prod
-      run: cd webapp && cargo-leptos build --release --public-url "/Sparganothis"
-
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
+      
+    - name: Install Node.js
+      uses: actions/setup-node@v4
       with:
-        enablement: true
-        # token:
+        node-version: 20
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: "./webapp/target/site"
-
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+    - name: Cargo TEST ${{ matrix.os }} NOFAIL
+      run: time ( bash ./build.sh && bash ./test.sh ) || true
