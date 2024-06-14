@@ -221,6 +221,12 @@ use crate::game::random::GameSeed;
 use crate::game::tet::TetAction;
 use crate::game::timestamp::get_timestamp_now_nano;
 
+pub fn key_debounce_ms(_action:TetAction) -> i64{
+    match _action{
+        TetAction::HardDrop => 100,
+        _ => 16,
+    }
+}
 #[component]
 pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     let state = create_rw_signal(tet::GameState::new(&seed, get_timestamp_now_nano()));
@@ -246,12 +252,14 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
         _timer_resume();
     };
 
-    let (get_ts, set_ts) = create_signal(crate::game::timestamp::get_timestamp_now_ms());
+    let (get_ts, set_ts) = create_signal(std::collections::HashMap::<TetAction, i64>::new());
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
         let timestamp1 = crate::game::timestamp::get_timestamp_now_ms();
-
-        if (timestamp1 - get_ts.get()) > 10 {
-            set_ts.set(timestamp1);
+        let timestamp0= *get_ts.get().get(&_action).unwrap_or(&0);
+        if (timestamp1 - timestamp0) > key_debounce_ms(_action) {
+            set_ts.update(move |m|{
+                m.insert(_action, timestamp1);
+            });
             state.update(|state| {
                 if state
                     .apply_action_if_works(_action, get_timestamp_now_nano())
