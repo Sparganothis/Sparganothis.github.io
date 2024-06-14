@@ -533,6 +533,7 @@ impl GameState {
         };
         new_state.refill_nextpcs(start_time);
         let _ = new_state.put_next_piece(start_time);
+        new_state.put_ghost();
         new_state
     }
 
