@@ -51,7 +51,7 @@ jobs:
       run: cargo binstall cargo-leptos --no-confirm
 
     - name: Cargo Check
-      run: cd webapp && cargo check && cargo test && cargo test --target wasm32-unknown-unknown
+      run: cd webapp && cargo test && cargo test --target wasm32-unknown-unknown && cargo check
 
     # - name: cargo-leptos build release
     #   run: cd webapp && cargo-leptos build --release
