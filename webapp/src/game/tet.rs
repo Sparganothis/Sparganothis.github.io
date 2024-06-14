@@ -612,12 +612,31 @@ impl GameState {
 
     fn try_rotateleft(&mut self) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
-
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs = current_pcs;
+        let mut new_current_pcs: CurrentPcsInfo = current_pcs;
+        if (new_current_pcs.tet.name()=="I"){
+            if new_current_pcs.pos.1==-2 {
+                new_current_pcs.pos.1+=1;
+            }
+            else {
+                if new_current_pcs.pos.1==7 {
+                new_current_pcs.pos.1-=1;
+            }
+            }
+        }
+        if new_current_pcs.tet.name()!="O"{
+            if new_current_pcs.pos.1==-1 {
+                new_current_pcs.pos.1+=1;
+            }
+            else {
+                if new_current_pcs.pos.1==8 {
+                new_current_pcs.pos.1-=1;
+            }
+            }
+        }
         new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Left);
 
         self.main_board.spawn_piece(&new_current_pcs)?;
@@ -633,6 +652,26 @@ impl GameState {
         }
 
         let mut new_current_pcs = current_pcs;
+        if (new_current_pcs.tet.name()=="I"){
+            if new_current_pcs.pos.1==-2 {
+                new_current_pcs.pos.1+=1;
+            }
+            else {
+                if new_current_pcs.pos.1==7 {
+                new_current_pcs.pos.1-=1;
+            }
+            }
+        }
+        if (new_current_pcs.tet.name()!="O"){
+            if new_current_pcs.pos.1==-1 {
+                new_current_pcs.pos.1+=1;
+            }
+            else {
+                if new_current_pcs.pos.1==8 {
+                new_current_pcs.pos.1-=1;
+            }
+            }
+        }
         new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Right);
 
         self.main_board.spawn_piece(&new_current_pcs)?;
