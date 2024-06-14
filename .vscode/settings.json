@@ -4,7 +4,7 @@
     "files.autoSave": "afterDelay",
     "terminal.integrated.enableMultiLinePasteWarning": "never",
     "explorer.confirmDelete": false,
-    "editor.wordWrapColumn": 101,
+    "editor.wordWrapColumn": 123,
     "editor.wordWrap": "bounded",
     "editor.wrappingIndent": "deepIndent",
     "extensions.autoCheckUpdates": false,

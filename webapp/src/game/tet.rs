@@ -593,7 +593,7 @@ impl GameState {
         self.current_pcs = Some(new_current_pcs);
         Ok(())
     }
-
+    
     fn try_moveright(&mut self) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
 
@@ -609,34 +609,33 @@ impl GameState {
         Ok(())
     }
 
-    fn try_rotateleft(&mut self) -> anyhow::Result<()> {
+    fn try_rotate(&mut self, rot:RotDirection) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
 
-        let mut new_current_pcs: CurrentPcsInfo = current_pcs;
-        new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Left);
+        let before = &current_pcs.rs;
+        let after = &current_pcs.rs.rotate(rot);
 
-        self.main_board.spawn_piece(&new_current_pcs)?;
-        self.current_pcs = Some(new_current_pcs);
-        Ok(())
-    }
+        for (x, y) in super::rot::srs_offsets(*before, *after, *(&current_pcs.tet)) {
+            let mut new_current_pcs: CurrentPcsInfo = current_pcs;
+            new_current_pcs.rs = *after;
+            // warning! table above in (x, y) but our repr in (y, x)
+            new_current_pcs.pos.0 += y;
+            new_current_pcs.pos.1 += x;
 
-    fn try_rotateright(&mut self) -> anyhow::Result<()> {
-        let current_pcs = self.current_pcs.context("no current pcs")?;
-
-        if let Err(e) = self.main_board.delete_piece(&current_pcs) {
-            log::warn!("ccannot delete picei from main board plz: {:?}", e)
+            
+            if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
+                self.current_pcs = Some(new_current_pcs);
+                return Ok(());
+            }
         }
 
-        let mut new_current_pcs = current_pcs;
-        new_current_pcs.rs = new_current_pcs.rs.rotate(RotDirection::Right);
+        anyhow::bail!("all ooffset are blocked")
 
-        self.main_board.spawn_piece(&new_current_pcs)?;
-        self.current_pcs = Some(new_current_pcs);
-        Ok(())
     }
+
 
     fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
         if self.game_over {
@@ -664,10 +663,10 @@ impl GameState {
                 new.try_hold(event_time)?;
             }
             TetAction::RotateLeft => {
-                new.try_rotateleft()?;
+                new.try_rotate(RotDirection::Left)?;
             }
             TetAction::RotateRight => {
-                new.try_rotateright()?;
+                new.try_rotate(RotDirection::Right)?;
             }
             TetAction::Nothing => {}
         }
