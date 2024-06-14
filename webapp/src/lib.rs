@@ -1,3 +1,5 @@
+#![deny(unused_crate_dependencies)]
+
 pub mod error_template;
 pub mod errors;
 
