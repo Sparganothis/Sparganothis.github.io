@@ -26,9 +26,9 @@ uuid = { version = "1.8.0", features = ["v4", "serde"] }
 http = { version = "1.0" }
 
 # leptos client + server
-leptos = { version = "0.6", features=["nightly"]}
-leptos_meta = {version = "0.6", features=["nightly"]}
-leptos_router = {version="0.6", features=["csr", "nightly"]}
+leptos = { version = "0.6", features=[ ]}
+leptos_meta = {version = "0.6", features=[ ]}
+leptos_router = {version="0.6", features=["csr" ]}
 leptos-struct-table = {version="0.10.2", features=["uuid", "time"]}
 leptos-use = "0.10.10"
 leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}

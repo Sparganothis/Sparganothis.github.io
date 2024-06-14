@@ -1,5 +1,3 @@
-#![feature(lazy_cell)]
-#![feature(concat_bytes)]
 
 pub mod error_template;
 pub mod errors;

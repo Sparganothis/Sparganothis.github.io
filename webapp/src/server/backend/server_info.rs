@@ -1,5 +1,5 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::sync::LazyLock;
+use once_cell::sync::Lazy;
 
 const MAGIC_NUMBER: u64 = 666666;
 
@@ -47,4 +47,4 @@ fn get_timestamp_hash() -> u64 {
         % MAGIC_NUMBER as u128) as u64
 }
 
-pub static GIT_VERSION: LazyLock<String> = LazyLock::new(|| _fetch_git_version());
+pub static GIT_VERSION: Lazy<String> = Lazy::new(|| _fetch_git_version());
