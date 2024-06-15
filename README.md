@@ -1,6 +1,7 @@
 ![](./docs/Screenshot.png)
 
 
+
 # HOW TO COMPILE
 
 - install "rustup" and "nodejs"
@@ -27,6 +28,8 @@ bash run-server.sh
 
 
 # todo
+
+- https://github.com/goldfire/howler.js/tree/master/examples/sprite
 - rotate SRS
 - rotate tests fromm mwiki
   - finesse https://harddrop.com/wiki/0G_60_Hz_SRS_Movement_Finesse
