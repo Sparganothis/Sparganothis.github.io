@@ -16,10 +16,10 @@ pub struct Person {
 }
 #[component]
 pub fn TableDemo() -> impl IntoView {
-    let new_game_id = create_resource(
-        || (),
-        |_| async move { crate::server::api::game_replay::create_new_game_id().await },
-    );
+    // let new_game_id = create_resource(
+    //     || (),
+    //     |_| async move { crate::server::api::game_replay::create_new_game_id().await },
+    // );
 
     let all_games = create_resource(
         || (),
@@ -27,7 +27,7 @@ pub fn TableDemo() -> impl IntoView {
     );
 
     let trigger_rows = move || {
-        if let (Some(Ok(rows)), Some(Ok(new_id))) = (all_games.get(), new_game_id.get()) {
+        if let (Some(Ok(rows))) = (all_games.get()) {
             let rows = rows
                 .iter()
                 .map(|r| FullGameReplayTableRow::new(r.clone()))
@@ -47,7 +47,7 @@ pub fn TableDemo() -> impl IntoView {
         }
     };
 
-    view!{
+    view! {
         {trigger_rows}
     }
 }

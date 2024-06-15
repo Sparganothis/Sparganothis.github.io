@@ -1,4 +1,4 @@
-use crate::game::tet::{self, CellValue, GameState};
+use crate::game::tet::{self, CellValue, GameReplaySegment, GameState};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;
@@ -226,9 +226,72 @@ pub fn key_debounce_ms(_action: TetAction) -> i64 {
         _ => 16,
     }
 }
+
+use crate::server::api::game_replay::GameId;
+
 #[component]
-pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
-    let state = create_rw_signal(tet::GameState::new(&seed, get_timestamp_now_nano()));
+pub fn PlayerGameBoard() -> impl IntoView {
+    let new_game_id = create_resource(
+        || (),
+        |_| async move { crate::server::api::game_replay::create_new_game_id().await },
+    );
+
+    let on_state_change = Callback::<GameState>::new(move |s| {
+        use crate::server::api::game_replay::append_game_segment;
+        log::info!("we changed state: {}", s.get_debug_info());
+
+        let game_id = new_game_id.get().unwrap().unwrap();
+
+        let segment: GameReplaySegment = {
+            if s.replay.replay_slices.is_empty() {
+                GameReplaySegment::Init(s.replay)
+            } else if s.game_over {
+                GameReplaySegment::GameOver
+            } else {
+                GameReplaySegment::Update(s.replay.replay_slices.last().unwrap().clone())
+            }
+        };
+        log::info!("segment: {:?}", &segment);
+        spawn_local(async move {
+            log::info!("spawn local ... ");
+            if let Err(err) = append_game_segment(game_id, (&segment).clone()).await {
+                log::warn!("fail to updload segmnet {:?} : {:?}", segment, err);
+            }
+            log::info!("spawn local OK!");
+        });
+    });
+
+    let on_reset: Callback<()> = Callback::<()>::new(move |_| {
+        // append_game_segment
+        new_game_id.refetch();
+    });
+    let game_state = move || {
+        if let Some(Ok(game_id)) = new_game_id.get() {
+            view! {
+                <PlayerGameBoardSingle game_id on_reset on_state_change/>
+            }
+            .into_view()
+        } else {
+            view! {
+                <p> loading game id ... </p>
+            }
+            .into_view()
+        }
+    };
+
+    view! {
+         {game_state}
+    }
+}
+
+#[component]
+pub fn PlayerGameBoardSingle(
+    game_id: GameId,
+    on_reset: Callback<()>,
+    on_state_change: Callback<GameState>,
+) -> impl IntoView {
+    let state = create_rw_signal(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+    on_state_change.call(state.get());
 
     let leptos_use::utils::Pausable {
         pause: _timer_pause,
@@ -238,8 +301,12 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
         move || {
             state.update(move |state| {
                 if !state.game_over {
-                    let _ =
-                        state.apply_action_if_works(TetAction::SoftDrop, get_timestamp_now_nano());
+                    if state
+                        .apply_action_if_works(TetAction::SoftDrop, get_timestamp_now_nano())
+                        .is_ok()
+                    {
+                        on_state_change.call(state.clone());
+                    }
                 }
             })
         },
@@ -264,15 +331,10 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
                     .apply_action_if_works(_action, get_timestamp_now_nano())
                     .is_ok()
                 {
+                    on_state_change.call(state.clone());
                     reset_timer();
                 }
             })
-        }
-    });
-
-    let on_reset: Callback<()> = Callback::<()>::new(move |_| {
-        if state.get().game_over {
-            state.set(GameState::new(&seed, get_timestamp_now_nano()));
         }
     });
 

@@ -6,10 +6,10 @@ pub fn Game2PPage() -> impl IntoView {
     let seed: GameSeed = [0; 32];
     view! {
         <div class="main_left">
-            <PlayerGameBoard seed=seed/>
+            <PlayerGameBoard/>
         </div>
         <div class="main_right">
-            <PlayerGameBoard seed=seed/>
+            <PlayerGameBoard />
         </div>
     }
 }

@@ -61,3 +61,52 @@ pub async fn create_new_game_id() -> Result<GameId, ServerFnError> {
     GAME_REPLAY_DB.insert(&g, &row).unwrap();
     Ok(g)
 }
+
+#[server]
+pub async fn append_game_segment(
+    id: GameId,
+    segment: GameReplaySegment,
+) -> Result<(), ServerFnError> {
+    use super::super::database::tables::GAME_REPLAY_DB;
+    use super::user::who_am_i;
+    let who = who_am_i().await?.user_id;
+    if !who.eq(&id.user_id) {
+        return Err(ServerFnError::new("no impersonate plz"));
+    }
+
+    let mut existing_game = GAME_REPLAY_DB.get(&id).unwrap().unwrap();
+
+    match &segment {
+        GameReplaySegment::Init(_) => {
+            if existing_game.segments.len() != 0 {
+                return Err(ServerFnError::new("only 1st segment should be init"));
+            }
+        }
+        GameReplaySegment::Update(update_seg) => {
+            let last_segment = existing_game.segments.last().unwrap();
+            match last_segment {
+                GameReplaySegment::Init(_) => {
+                    if update_seg.idx != 0 {
+                        return Err(ServerFnError::new("1st update segmnet needs idx=0"));
+                    }
+                }
+                GameReplaySegment::Update(old_update) => {
+                    if old_update.idx != update_seg.idx - 1 {
+                        return Err(ServerFnError::new(
+                            "segment idx do not match up - missing/duplicate",
+                        ));
+                    }
+                }
+                GameReplaySegment::GameOver => {
+                    return Err(ServerFnError::new("already have old segmnet for game over"))
+                }
+            }
+        }
+        GameReplaySegment::GameOver => {
+            log::info!("append segment game over");
+        }
+    };
+    existing_game.segments.push(segment);
+    GAME_REPLAY_DB.insert(&id, &existing_game).unwrap();
+    Ok(())
+}
