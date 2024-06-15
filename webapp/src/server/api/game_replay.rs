@@ -65,8 +65,9 @@ pub async fn create_new_game_id() -> Result<GameId, ServerFnError> {
 #[server]
 pub async fn append_game_segment(
     id: GameId,
-    segment: GameReplaySegment,
+    segment_json: String,
 ) -> Result<(), ServerFnError> {
+    let segment: GameReplaySegment  = serde_json::from_str(&segment_json).expect("json never fail");
     use super::super::database::tables::GAME_REPLAY_DB;
     use super::user::who_am_i;
     let who = who_am_i().await?.user_id;

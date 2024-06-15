@@ -254,7 +254,8 @@ pub fn PlayerGameBoard() -> impl IntoView {
         log::info!("segment: {:?}", &segment);
         spawn_local(async move {
             log::info!("spawn local ... ");
-            if let Err(err) = append_game_segment(game_id, (&segment).clone()).await {
+            let segment_json: String = serde_json::to_string(&segment).expect("json never fail");
+            if let Err(err) = append_game_segment(game_id, segment_json).await {
                 log::warn!("fail to updload segmnet {:?} : {:?}", segment, err);
             }
             log::info!("spawn local OK!");

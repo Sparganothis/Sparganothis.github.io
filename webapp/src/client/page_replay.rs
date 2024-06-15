@@ -31,6 +31,7 @@ pub fn TableDemo() -> impl IntoView {
             let rows = rows
                 .iter()
                 .map(|r| FullGameReplayTableRow::new(r.clone()))
+                // .filter(|f| f.num_segments > 0)
                 .collect::<Vec<_>>();
 
             view! {
