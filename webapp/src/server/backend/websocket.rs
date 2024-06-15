@@ -150,9 +150,12 @@ async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
             let action = TetAction::random();
             let t2 = get_timestamp_now_nano();
             let _ = state.apply_action_if_works(action, t2);
+            if state.game_over {
+                is_over = true;
+            }
             maybe_state = Some(state.clone());
 
-            let new_state = maybe_state
+            let new_slice = maybe_state
                 .as_ref()
                 .unwrap()
                 .replay
@@ -160,7 +163,7 @@ async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
                 .last()
                 .unwrap()
                 .clone();
-            new_segments.push(GameReplaySegment::Update(new_state));
+            new_segments.push(GameReplaySegment::Update(new_slice));
         } else {
             let seed: [u8; 32] = [0; 32];
             maybe_state = Some(GameState::new(&seed, get_timestamp_now_nano()));
@@ -172,52 +175,19 @@ async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
         for segment in new_segments {
             let json = serde_json::to_string(&segment).expect("json never fail");
             if let Err(_e) = socket.send(Message::Text(json)).await {
-                log::warn!("ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN");
+                log::warn!("game {:?}: ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN",_game_id);
                 return;
             }
-            if segment.is_game_over() {
-                is_over = true;
-            }
         }
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+
         if is_over {
-            log::info!("got segment with game over, cloze");
+            log::info!("game {:?}: got segment with game over, cloze", _game_id);
+            let segment = GameReplaySegment::GameOver;
+            let json = serde_json::to_string(&segment).expect("json never fail");
+            let _ = socket.send(Message::Text(json)).await;
+            let _ = socket.recv().await;
             return;
         }
+        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
     }
-    // log::info!("game finished srteaming success");
 }
-
-// /// helper to print contents of messages to stdout. Has special treatment for Close.
-// fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
-//     match msg {
-//         Message::Text(t) => {
-//             log::info!(">>> {who} sent str: {t:?}");
-//         }
-//         Message::Binary(d) => {
-//             log::info!(">>> {} sent {} bytes: {:?}", who, d.len(), d);
-//         }
-//         Message::Close(c) => {
-//             if let Some(cf) = c {
-//                 log::info!(
-//                     ">>> {} sent close with code {} and reason `{}`",
-//                     who, cf.code, cf.reason
-//                 );
-//             } else {
-//                 log::info!(">>> {who} somehow sent close message without CloseFrame");
-//             }
-//             return ControlFlow::Break(());
-//         }
-
-//         Message::Pong(v) => {
-//             log::info!(">>> {who} sent pong with {v:?}");
-//         }
-//         // You should never need to manually handle Message::Ping, as axum's websocket library
-//         // will do so for you automagically by replying with Pong and copying the v according to
-//         // spec. But if you need the contents of the pings you can see them here.
-//         Message::Ping(v) => {
-//             log::info!(">>> {who} sent ping with {v:?}");
-//         }
-//     }
-//     ControlFlow::Continue(())
-// }

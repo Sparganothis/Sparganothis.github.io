@@ -31,13 +31,13 @@ pub fn accept_event(
     event_ts: i64,
     event_idx: u32,
 ) -> GameSeed {
-    let event_hash = bincode::serialize(event).unwrap(); // 5 bytes
-    assert!(event_hash.len() == 5);
+    let event_hash = bincode::serialize(event).unwrap(); // 4 bytes
+    assert!(event_hash.len() == 4);
     let ts = event_ts.to_le_bytes();
     let event_idx = event_idx.to_le_bytes();
 
     let mut rng = get_rng(seed);
-    let more_bytes: [u8; 15] = rng.gen(); // 5 + 8 + 4 + 15 = 32
+    let more_bytes: [u8; 16] = rng.gen(); // 4 + 8 + 4 + 16 = 32
 
     let all_bytes: Vec<u8> = event_hash
         .iter()
@@ -78,22 +78,22 @@ pub mod tests {
 
         let evt1 = GameReplayEvent {
             action: crate::game::tet::TetAction::SoftDrop,
-            game_over: false,
+            // game_over: false,
         };
 
         let encoded_evt1 = bincode::serialize(&evt1).unwrap();
-        let expected_str3: Vec<u8> = vec![1, 0, 0, 0, 0];
+        let expected_str3: Vec<u8> = vec![1, 0, 0, 0];
         assert_eq!(encoded_evt1, expected_str3);
 
         let seed = [0; 32];
         let event = GameReplayEvent {
             action: crate::game::tet::TetAction::MoveLeft,
-            game_over: true,
+            // game_over: true,
         };
         let result = accept_event(&seed, &event, 0, 0);
         let expected_result = [
-            51, 52, 212, 146, 170, 34, 166, 63, 51, 161, 145, 215, 91, 5, 109, 45, 185, 19, 32, 55,
-            249, 73, 198, 204, 53, 200, 210, 77, 185, 40, 88, 62,
+            102, 77, 149, 118, 163, 7, 253, 99, 165, 242, 176, 192, 189, 62, 213, 71, 30, 107, 105,
+            69, 11, 122, 244, 12, 1, 227, 176, 160, 124, 102, 156, 86,
         ];
         assert_eq!(result, expected_result);
     }

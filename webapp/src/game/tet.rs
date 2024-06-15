@@ -166,7 +166,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
-                        CellValue::Empty|CellValue::Ghost => {}
+                        CellValue::Empty | CellValue::Ghost => {}
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
                         }
@@ -184,7 +184,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
-                        CellValue::Empty |CellValue::Ghost=> {
+                        CellValue::Empty | CellValue::Ghost => {
                             self.v[cy as usize][cx as usize] = CellValue::Piece(piece);
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
@@ -207,7 +207,6 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
 
         let shape = piece.shape(rot_state);
 
-
         for (j, row) in shape.iter().enumerate() {
             for (i, cell) in row.iter().enumerate() {
                 if *cell {
@@ -217,7 +216,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
                     match self.v[cy as usize][cx as usize] {
-                        CellValue::Empty |CellValue::Ghost=> {
+                        CellValue::Empty | CellValue::Ghost => {
                             self.v[cy as usize][cx as usize] = CellValue::Ghost;
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
@@ -297,6 +296,7 @@ impl TetAction {
             Self::SoftDrop
         } else {
             let choices = [
+                Self::HardDrop,
                 Self::SoftDrop,
                 Self::MoveLeft,
                 Self::MoveRight,
@@ -354,16 +354,17 @@ impl GameReplay {
 pub enum GameReplaySegment {
     Init(GameReplay),
     Update(GameReplaySlice),
+    GameOver,
 }
 
-impl GameReplaySegment {
-    pub fn is_game_over(&self) -> bool {
-        match self {
-            Self::Update(slice) => slice.event.game_over,
-            _ => false,
-        }
-    }
-}
+// impl GameReplaySegment {
+//     pub fn is_game_over(&self) -> bool {
+//         match self {
+//             Self::Update(slice) => slice.event.game_over,
+//             _ => false,
+//         }
+//     }
+// }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplaySlice {
@@ -376,7 +377,7 @@ pub struct GameReplaySlice {
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplayEvent {
     pub action: TetAction,
-    pub game_over: bool,
+    // pub game_over: bool,
 }
 
 const SPAWN_POS: (i8, i8) = (18, 3);
@@ -502,11 +503,20 @@ impl GameState {
 
     pub fn accept_replay_slice(&mut self, slice: &GameReplaySlice) -> anyhow::Result<()> {
         log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
+        if let Some(prev_slice) = self.replay.replay_slices.last() {
+            if slice.idx != prev_slice.idx + 1 {
+                anyhow::bail!("duplicate slice mismatch");
+            }
+        } else {
+            if slice.idx != 0 {
+                anyhow::bail!("first slice mismatch");
+            }
+        }
         *self = self.try_action(slice.event.action, slice.event_timestamp)?;
         let self_slicce = self.replay.replay_slices.last().unwrap();
         if !slice.eq(self_slicce) {
             log::warn!(
-                "no  mat ch in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
+                "no  match in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
                 slice,
                 self_slicce
             )
@@ -711,27 +721,29 @@ impl GameState {
         }
         let ev = GameReplayEvent {
             action,
-            game_over: self.game_over,
+            // game_over: self.game_over,
         };
         new.put_replay_event(&ev, event_time);
         new.clear_ghost();
-        if !new.game_over{
+        if !new.game_over {
             new.put_ghost();
         }
         Ok(new)
     }
 
-    fn put_ghost(&mut self){
+    fn put_ghost(&mut self) {
         let mut ghost_board = self.main_board.clone();
         let info = self.current_pcs.unwrap();
-        ghost_board.delete_piece(&info).expect("cannot delete pice in put_ghost");
+        ghost_board
+            .delete_piece(&info)
+            .expect("cannot delete pice in put_ghost");
 
         let mut final_ghost_board = None;
-            
+
         for y in (-3..info.pos.0).rev() {
             let mut ghost_info = info.clone();
             ghost_info.pos.0 = y;
-            if  ghost_board.spawn_piece(&ghost_info).is_err() {
+            if ghost_board.spawn_piece(&ghost_info).is_err() {
                 ghost_info.pos.0 += 1;
                 final_ghost_board = Some(ghost_info);
                 break;
@@ -743,21 +755,17 @@ impl GameState {
         }
 
         if let Some(ghost_info) = final_ghost_board {
-            if self.main_board.spawn_ghost(&ghost_info).is_err() {
-                log::debug!("cannot spawn ghost");
-            }
+            let _  = self.main_board.spawn_ghost(&ghost_info);
         }
     }
 
-    fn clear_ghost(&mut self){
+    fn clear_ghost(&mut self) {
         for y in 0..self.main_board.get_num_rows() {
             for x in 0..self.main_board.get_num_cols() {
-
                 let old_value = (&self.main_board.v)[y][x];
                 if old_value.eq(&CellValue::Ghost) {
-                    self.main_board.v[y ][ x ]  = CellValue::Empty;
+                    self.main_board.v[y][x] = CellValue::Empty;
                 }
-                
             }
         }
     }
@@ -797,16 +805,16 @@ pub mod tests {
         state.apply_action_if_works(TetAction::SoftDrop, 0).unwrap();
 
         let expected_seed = [
-            184, 68, 55, 204, 137, 83, 38, 119, 235, 217, 151, 252, 189, 211, 31, 240, 177, 134,
-            34, 165, 4, 237, 12, 233, 188, 242, 29, 154, 187, 93, 148, 100,
+            171, 40, 80, 152, 75, 128, 86, 158, 75, 125, 16, 157, 144, 245, 5, 162, 114, 11, 172,
+            187, 117, 160, 51, 219, 154, 112, 95, 249, 135, 175, 135, 202,
         ];
         assert_eq!(expected_seed, state.seed);
 
         state.apply_action_if_works(TetAction::HardDrop, 1).unwrap();
 
         let expected_seed = [
-            63, 8, 223, 96, 71, 65, 34, 121, 209, 0, 184, 121, 139, 200, 63, 17, 128, 97, 128, 199,
-            15, 96, 110, 237, 142, 156, 165, 26, 138, 216, 176, 245,
+            191, 181, 134, 68, 198, 122, 193, 86, 133, 117, 213, 55, 160, 168, 100, 54, 183, 31,
+            91, 168, 236, 182, 197, 72, 247, 194, 248, 34, 211, 234, 107, 43,
         ];
         assert_eq!(expected_seed, state.seed);
     }

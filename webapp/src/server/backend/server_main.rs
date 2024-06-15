@@ -37,7 +37,6 @@ pub async fn server_main() {
         // handler for the server fns
         // this should include a get() handler if you have any GetUrl-based server fns
         .route("/api/*fn_name", post(leptos_axum::handle_server_fns))
-        .route("/api/events", get(super::demo_sse::handle_sse_game_stream))
         .route(
             "/api/ws",
             get(crate::server::backend::websocket::ws_handler),

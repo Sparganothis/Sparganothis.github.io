@@ -139,7 +139,6 @@ pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool) -> impl IntoView {
             tet::CellValue::Empty => "empty".to_string(),
             tet::CellValue::Garbage => "garbage".to_string(),
             tet::CellValue::Ghost => "ghost".to_string(),
-            
         };
         let overflow_txt = if overflow { "overflow_cell" } else { "cell" };
         let _cell_cls = format!("{_cell_cls} {overflow_txt}");
@@ -192,9 +191,9 @@ pub fn GameBoard(
                 </div>
 
                 <div class="score_window_left">
-                    <code class="side_board_code">
+                    <h1 class="side_board_code">
                         {move || { format!("{:?}", game_state.get().score) }}
-                    </code>
+                    </h1>
                 </div>
 
                 <div class="main_board">
@@ -221,8 +220,8 @@ use crate::game::random::GameSeed;
 use crate::game::tet::TetAction;
 use crate::game::timestamp::get_timestamp_now_nano;
 
-pub fn key_debounce_ms(_action:TetAction) -> i64{
-    match _action{
+pub fn key_debounce_ms(_action: TetAction) -> i64 {
+    match _action {
         TetAction::HardDrop => 100,
         _ => 16,
     }
@@ -255,9 +254,9 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
     let (get_ts, set_ts) = create_signal(std::collections::HashMap::<TetAction, i64>::new());
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
         let timestamp1 = crate::game::timestamp::get_timestamp_now_ms();
-        let timestamp0= *get_ts.get().get(&_action).unwrap_or(&0);
+        let timestamp0 = *get_ts.get().get(&_action).unwrap_or(&0);
         if (timestamp1 - timestamp0) > key_debounce_ms(_action) {
-            set_ts.update(move |m|{
+            set_ts.update(move |m| {
                 m.insert(_action, timestamp1);
             });
             state.update(|state| {
