@@ -1,6 +1,6 @@
 use crate::game::random::GameSeed;
 
-use super::game_board::{OpponentGameBoard, PlayerGameBoard};
+use super::game_board::{RandomOpponentGameBoard, PlayerGameBoard};
 use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {
@@ -11,7 +11,7 @@ pub fn GameCPUPage() -> impl IntoView {
             <PlayerGameBoard seed=seed/>
         </div>
         <div class="main_right">
-            <OpponentGameBoard seed=seed/>
+            <RandomOpponentGameBoard seed=seed/>
         </div>
     }
 }

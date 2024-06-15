@@ -46,6 +46,7 @@ console_log = {version="1.0", optional = true}
 stylist = {version="0.13.0", features=["parser"], optional=true}
 leptos_router = {version="0.6", features=["csr" ], optional=true}
 leptos_meta = {version = "0.6", features=[ ], optional=true}
+leptonic = {version = "0.5.0" , optional = true,features = ["csr"]}
 
 # server only
 axum = { version = "0.7", optional = true }
@@ -82,6 +83,7 @@ csr = [
 	"dep:wasm-bindgen",
 	"dep:console_log",
 	"dep:stylist",
+	"dep:leptonic", "leptonic/csr"
 ]
 
 ssr = [
@@ -124,6 +126,15 @@ skip_feature_sets = [["csr", "ssr"], ["csr", "hydrate"], ["ssr", "hydrate"]]
 
 
 
+[package.metadata.leptonic]
+# REQUIRED: Leptonic's build-script will copy the Leptonic themes to this directory. Relative to your project root.
+style-dir = "style"
+
+# REQUIRED: Leptonic's build-script will copy static JS dependencies to this directory. Relative to your project root.
+# Leptonic's `<Root>` component expects JS files to be available at a "js" directory at runtime (for dynamic script includes). Specify a different prop value if you choose a non-stadard location here. 
+js-dir = "public/js"
+
+
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "webapp"
@@ -134,6 +145,7 @@ site-root = "target/site"
 site-pkg-dir = "pkg"
 # [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
 # style-file = "./style.css"
+style-file = "style/main.scss"
 # [Optional] Files in the asset-dir will be copied to the site-root directory
 assets-dir = "public"
 # The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.

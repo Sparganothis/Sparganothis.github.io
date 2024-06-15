@@ -6,7 +6,7 @@ use crate::game::tet::{GameReplaySegment, GameState};
 use crate::server::api::websocket::SocketType;
 
 #[component]
-pub fn WebsocketDemo() -> impl IntoView {
+pub fn SpectatorGameBoard() -> impl IntoView {
     let seed: GameSeed = [0; 32];
     let state = create_rw_signal(GameState::new(&seed, 0));
 

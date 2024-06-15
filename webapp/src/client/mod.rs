@@ -7,4 +7,4 @@ pub mod page_replay;
 pub mod page_user_profile;
 pub mod page_vs_cpu;
 pub mod style;
-pub mod websocket_demo;
+pub mod game_board_spectator;

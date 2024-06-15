@@ -283,7 +283,7 @@ pub fn PlayerGameBoard(seed: GameSeed) -> impl IntoView {
 }
 
 #[component]
-pub fn OpponentGameBoard(seed: GameSeed) -> impl IntoView {
+pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
     let state = create_rw_signal(tet::GameState::new(&seed, get_timestamp_now_nano()));
     let leptos_use::utils::Pausable {
         pause: _,

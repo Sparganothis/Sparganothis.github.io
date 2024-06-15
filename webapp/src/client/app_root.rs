@@ -1,7 +1,8 @@
 use leptos::*;
-use leptos_meta::provide_meta_context;
+use leptos_meta::{provide_meta_context, Meta, Stylesheet, Title};
 use leptos_router::*;
 // use crate::error_template::ErrorTemplate;
+use leptonic::prelude::*;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -78,9 +79,18 @@ pub fn AppRoot() -> impl IntoView {
     use super::page_replay::GameReplayPage;
     use super::page_user_profile::{MyAccountPage, UserProfilePage};
     use super::page_vs_cpu::GameCPUPage;
-    use super::websocket_demo::WebsocketDemo;
+    use super::game_board_spectator::SpectatorGameBoard;
 
     view! {
+        <Title text="FALLING BLOCK GAME"/>
+        <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <Meta name="theme-color" content="#e66956"/>
+        <Meta name="charset" content="UTF-8"/>
+        <Stylesheet id="leptos" href="/leptonic-ciordit.css"/>
+        <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
+
+
+        <Root default_theme=LeptonicTheme::default()>
         <div class=_style.get_class_name().to_string()>
             // <Transition fallback=move || view! {<p>"Loading..."</p> }>
             // <ErrorBoundary fallback=|errors| view!{<ErrorTemplate errors=errors/>}>
@@ -96,7 +106,7 @@ pub fn AppRoot() -> impl IntoView {
                         <Route path="/vs_net" view=Game2PPage/>
                         <Route path="/replay" view=GameReplayPage/>
                         <Route path="/account" view=MyAccountPage/>
-                        <Route path="/ws_demo" view=WebsocketDemo/>
+                        <Route path="/ws_demo" view=SpectatorGameBoard/>
                         <Route path="/user/:user_id" view=UserProfilePage/>
                         <Route path="/*any" view=|| view! { <h1>"Not Found"</h1> }/>
                     </Routes>
@@ -106,6 +116,8 @@ pub fn AppRoot() -> impl IntoView {
         // </ErrorBoundary>
         // </Transition>
         </div>
+
+        </Root>
     }
 }
 
