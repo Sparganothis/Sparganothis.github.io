@@ -175,7 +175,10 @@ async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
         for segment in new_segments {
             let json = serde_json::to_string(&segment).expect("json never fail");
             if let Err(_e) = socket.send(Message::Text(json)).await {
-                log::warn!("game {:?}: ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN",_game_id);
+                log::warn!(
+                    "game {:?}: ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN",
+                    _game_id
+                );
                 return;
             }
         }

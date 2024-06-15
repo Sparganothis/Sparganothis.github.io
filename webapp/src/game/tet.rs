@@ -755,7 +755,7 @@ impl GameState {
         }
 
         if let Some(ghost_info) = final_ghost_board {
-            let _  = self.main_board.spawn_ghost(&ghost_info);
+            let _ = self.main_board.spawn_ghost(&ghost_info);
         }
     }
 

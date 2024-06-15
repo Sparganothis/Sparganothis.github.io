@@ -66,11 +66,11 @@ pub fn SpectatorGameBoard() -> impl IntoView {
             }
             Some(GameReplaySegment::GameOver) => {
                 log::info!("got GameOver event; reply close and cloze websockat");
-                let json = serde_json::to_string(&GameReplaySegment::GameOver).expect("json never fail");
+                let json =
+                    serde_json::to_string(&GameReplaySegment::GameOver).expect("json never fail");
                 send(&json);
                 _ws_close();
                 true
-                
             }
             None => {
                 log::info!("websocket message is none!~");

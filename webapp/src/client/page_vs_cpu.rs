@@ -1,6 +1,6 @@
 use crate::game::random::GameSeed;
 
-use super::game_board::{RandomOpponentGameBoard, PlayerGameBoard};
+use super::game_board::{PlayerGameBoard, RandomOpponentGameBoard};
 use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {

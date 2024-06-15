@@ -74,12 +74,12 @@ pub fn AppRoot() -> impl IntoView {
 
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
+    use super::game_board_spectator::SpectatorGameBoard;
     use super::page_1p::Game1PPage;
     use super::page_2p::Game2PPage;
     use super::page_replay::GameReplayPage;
     use super::page_user_profile::{MyAccountPage, UserProfilePage};
     use super::page_vs_cpu::GameCPUPage;
-    use super::game_board_spectator::SpectatorGameBoard;
 
     view! {
         <Title text="FALLING BLOCK GAME"/>
@@ -87,7 +87,9 @@ pub fn AppRoot() -> impl IntoView {
         <Meta name="theme-color" content="#e66956"/>
         <Meta name="charset" content="UTF-8"/>
         <Stylesheet id="leptos" href="/leptonic-ciordit.css"/>
+        <Stylesheet id="leptos" href="/table-bootstrap.css"/>
         <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
+        <Stylesheet href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"/>
 
 
         <Root default_theme=LeptonicTheme::default()>
