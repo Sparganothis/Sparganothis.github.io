@@ -41,7 +41,15 @@ jobs:
 
     - name: Add wasm32-unknown-unknown
       run: rustup target add wasm32-unknown-unknown
-      
+        
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        
+    - name: npm install wasm-pack
+      run: npm install wasm-pack
+
     - uses: Swatinem/rust-cache@v2
       with:
         cache-all-crates: true
@@ -71,10 +79,8 @@ jobs:
     - name: Install cargo-leptos
       run: cargo binstall cargo-leptos --no-confirm
       
-    - name: Install Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+    - name: wasm-pack --version
+      run: wasm-pack --version
 
     - name: GAME TEST HOST # ${{ matrix.os }}
       run: cd game && cargo test 
@@ -82,7 +88,6 @@ jobs:
     - name: GAME TEST WASM # ${{ matrix.os }}
       run: cd game && wasm-pack test --node 
 
-  
     - name: SERVER TEST # ${{ matrix.os }}
       run: cd server && cargo test
 
