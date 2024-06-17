@@ -23,10 +23,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ubuntu-latest
     # runs-on: ${{ matrix.os }}
@@ -76,19 +76,20 @@ jobs:
       with:
         node-version: 20
 
-    - name: SERVER BUILD ${{ matrix.os }}
-      run: cd server && cargo build
+    - name: GAME TEST HOST # ${{ matrix.os }}
+      run: cd game && cargo test 
   
-    - name: GAME TEST ${{ matrix.os }}
-      run: cd game && wasm-pack test --node
+    - name: GAME TEST WASM # ${{ matrix.os }}
+      run: cd game && wasm-pack test --node 
+
   
-    - name: SERVER TEST ${{ matrix.os }}
+    - name: SERVER TEST # ${{ matrix.os }}
       run: cd server && cargo test
 
-    - name: CLIENT TEST ${{ matrix.os }}
-      run: cd client && cargo test
+    - name: CLIENT TEST # ${{ matrix.os }}
+      run: cd client && cargo test && wasm-pack test --node
 
-    - name: CLIENT BUILD ${{ matrix.os }}
+    - name: CLIENT BUILD # ${{ matrix.os }}
       run: cd client && trunk build
 
     - name: Trunk Build Prod
