@@ -1,9 +1,9 @@
 use leptos::*;
 
 use crate::comp::game_board::GameBoard;
+use game::api::websocket::SocketType;
 use game::random::GameSeed;
 use game::tet::{GameReplaySegment, GameState};
-use game::api::websocket::SocketType;
 
 #[component]
 pub fn SpectatorGameBoard() -> impl IntoView {

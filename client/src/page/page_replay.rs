@@ -1,6 +1,12 @@
-use game::{random::GameSeed, api::game_replay::FullGameReplayDbRow};
+use game::{
+    api::{game_replay::FullGameReplayDbRow, websocket::GetAllFullGameReplays},
+    random::GameSeed,
+};
 
-use crate::comp::game_board::RandomOpponentGameBoard;
+use crate::{
+    comp::game_board::RandomOpponentGameBoard,
+    websocket::demo_comp::{call_websocket_api, WebsocketAPI},
+};
 use icondata as i;
 use leptonic::prelude::*;
 use leptos::*;
@@ -16,14 +22,20 @@ pub struct Person {
 }
 #[component]
 pub fn TableDemo() -> impl IntoView {
-    // let new_game_id = create_resource(
-    //     || (),
-    //     |_| async move { crate::server::api::game_replay::create_new_game_id().await },
-    // );
-
+    let api2: WebsocketAPI = expect_context();
     let all_games = create_resource(
         || (),
-        |_| async move { crate::server::api::game_replay::get_all_full_game_replays().await },
+        move |_| {
+            let api2 = api2.clone();
+            async move {
+                log::info!("calling websocket api");
+                let r = call_websocket_api::<GetAllFullGameReplays>(api2, ())
+                    .expect("cannot obtain future")
+                    .await;
+                log::info!("got back response: {:?}", r);
+                r
+            }
+        },
     );
 
     let trigger_rows = move || {
@@ -41,8 +53,7 @@ pub fn TableDemo() -> impl IntoView {
             }
             .into_view()
         } else {
-            view! { <p>no rows</p> }
-            .into_view()
+            view! { <p>no rows</p> }.into_view()
         }
     };
 

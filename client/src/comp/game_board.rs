@@ -217,9 +217,9 @@ pub fn GameBoard(
     }
 }
 
+use game::api::game_replay::GameId;
 use game::random::GameSeed;
 use game::tet::TetAction;
-use game::api::game_replay::GameId;
 use game::timestamp::get_timestamp_now_nano;
 
 pub fn key_debounce_ms(_action: TetAction) -> i64 {
@@ -232,14 +232,21 @@ use crate::websocket::demo_comp::call_websocket_api;
 use game::api::websocket::*;
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
-    let api  = expect_context::<WebsocketAPI>();
+    let api = expect_context::<WebsocketAPI>();
+    let api2 = api.clone();
 
     let new_game_id = create_resource(
         || (),
-        |_| async move {                     let r = call_websocket_api::<CreateNewGameId>(api, ())
-            .expect("cannot obtain future").await
-        ;
-        r.unwrap() },
+        move |_| {
+            
+            let api= api.clone();
+
+            async move {
+            let r = call_websocket_api::<CreateNewGameId>(api.clone(), ())
+                .expect("cannot obtain future")
+                .await;
+            r.unwrap()
+        }}
     );
 
     let on_state_change = Callback::<GameState>::new(move |s| {
@@ -257,14 +264,17 @@ pub fn PlayerGameBoard() -> impl IntoView {
             }
         };
         log::info!("segment: {:?}", &segment);
-        spawn_local(async move {
-            log::info!("spawn local ... ");
+        spawn_local({
+            let api2 = api2.clone();
+            
+            async move {
+            log::info!("calling websocket api");
             let segment_json: String = serde_json::to_string(&segment).expect("json never fail");
-            if let Err(err) = crate::server::api::game_replay::append_game_segment(game_id, segment_json).await {
-                log::warn!("fail to updload segmnet {:?} : {:?}", segment, err);
-            }
-            log::info!("spawn local OK!");
-        });
+            let r = call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
+                .expect("cannot obtain future")
+                .await;
+            log::info!("got back response: {:?}", r);
+        }});
     });
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
@@ -272,12 +282,10 @@ pub fn PlayerGameBoard() -> impl IntoView {
         new_game_id.refetch();
     });
     let game_state = move || {
-        if let Some(Ok(game_id)) = new_game_id.get() {
-            view! { <PlayerGameBoardSingle game_id on_reset on_state_change/> }
-            .into_view()
+        if let Some(game_id) = new_game_id.get() {
+            view! { <PlayerGameBoardSingle game_id on_reset on_state_change/> }.into_view()
         } else {
-            view! { <p>loading game id ...</p> }
-            .into_view()
+            view! { <p>loading game id ...</p> }.into_view()
         }
     };
 
@@ -354,7 +362,8 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             state.update(move |state| {
-                let random_action = crate::game::tet::TetAction::random();
+                let random_action = 
+                game::tet::TetAction::random();
                 let _ = state.apply_action_if_works(random_action, get_timestamp_now_nano());
             })
         },

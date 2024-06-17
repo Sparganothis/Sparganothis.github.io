@@ -2,7 +2,10 @@ use leptos::*;
 use leptos_meta::{provide_meta_context, Meta, Title};
 use leptos_router::*;
 // use crate::error_template::ErrorTemplate;
+use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType, WhoAmI};
 use leptonic::prelude::*;
+use leptos_use::core::ConnectionReadyState;
+use leptos_use::{use_websocket, UseWebsocketReturn};
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -75,6 +78,97 @@ pub fn AppRoot() -> impl IntoView {
     let main_ref = create_node_ref::<html::Main>();
     let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
 
+    use crate::websocket::demo_comp::*;
+    use std::rc::Rc;
+
+    let UseWebsocketReturn {
+        ready_state,
+        // message,
+        message_bytes,
+        // send,
+        send_bytes,
+        open,
+        close,
+        ..
+    } = use_websocket("ws://localhost:3000/api/ws");
+
+    // let message =
+    // let message = bincode::serialize(&message).unwrap();
+    let api = WebsocketAPI {
+        map: create_rw_signal(std::collections::HashMap::<_, _>::new()),
+        sender: create_rw_signal(Rc::new(Box::new(send_bytes.clone()))),
+    };
+    provide_context(api.clone());
+
+    let api2 = api.clone();
+    let send_byte_message = move |_| {
+        let api2 = api2.clone();
+        let _res = create_resource(
+            || (),
+            move |_| {
+                let api2 = api2.clone();
+                async move {
+                    log::info!("calling websocket api");
+                    let r = call_websocket_api::<WhoAmI>(api2, ())
+                        .expect("cannot obtain future")
+                        .await;
+                    log::info!("got back response: {:?}", r);
+                    r
+                }
+            },
+        );
+    };
+    let mut recv_bytes_stream = message_bytes.to_stream();
+
+    log::info!("console init");
+    let api_spawn = api.clone();
+    spawn_local(async move {
+        log::info!("spawn local init");
+        use futures::stream::StreamExt;
+        loop {
+            while let Some(Some(c)) = recv_bytes_stream.next().await {
+                match bincode::deserialize::<WebsocketAPIMessageRaw>(&c) {
+                    Ok(msg) => {
+                        log::info!("recv message type={:?} len={}", msg._type, c.len(),);
+                        accept_reply_message(&api_spawn.clone(), msg).await;
+                        // let ctx = expect_context::<RwSignal<WebsocketAPI>>();
+                        // log::info!("successfully got global context size={}!", ctx.get_untracked().map.len());
+                    }
+                    Err(e) => {
+                        log::warn!("websocket deserialize error {:?}", e);
+                    }
+                }
+            }
+            log::info!("websocket reciever died.");
+            // thread::sleep(std::time::Duration::from_millis(3));
+        }
+    });
+
+    let status = move || {
+        let st = ready_state.get().to_string();
+        log::info!("websocket status: {}", st);
+        st
+    };
+
+    let connected = move || ready_state.get() == ConnectionReadyState::Open;
+
+    let open_connection = move |_| {
+        log::info!("websocket reopened.");
+        open();
+    };
+
+    let close_connection = move |_| {
+        log::info!("websocket closed intentionally.");
+        close();
+    };
+
+    use crate::comp::game_board_spectator::SpectatorGameBoard;
+    use crate::page::page_1p::Game1PPage;
+    use crate::page::page_2p::Game2PPage;
+    use crate::page::page_replay::GameReplayPage;
+    use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
+    use crate::page::page_vs_cpu::GameCPUPage;
+
     view! {
         <Meta name="charset" content="UTF-8"/>
         <Meta name="description" content="FALLING BLOCKS"/>
@@ -100,12 +194,36 @@ pub fn AppRoot() -> impl IntoView {
                 }>
                     <nav>
                         <MainMenu/>
+                        <div>
+                            <p>"status: " {status}</p>
+
+                            <button on:click=send_byte_message disabled=move || !connected()>
+                                "Send bytes"
+                            </button>
+                            <button on:click=open_connection disabled=connected>
+                                "Open"
+                            </button>
+                            <button on:click=close_connection disabled=move || !connected()>
+                                "Close"
+                            </button>
+
+                            // <p>{sig}</p>
+                            <p>
+                                "Receive byte message: "
+                                {move || format!("{:?}", message_bytes.get())}
+                            </p>
+                        </div>
                     </nav>
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
                         <Routes>
-                            <Route path="" view=crate::websocket::demo_comp::WebsocketDemo2/>
-                        // <Route path="/*any" view=|| view! { <h1>"Not Found"</h1> }/>
+                            <Route path="" view=Game1PPage/>
+                            <Route path="/vs_cpu" view=GameCPUPage/>
+                            <Route path="/vs_net" view=Game2PPage/>
+                            <Route path="/replay" view=GameReplayPage/>
+                            <Route path="/account" view=MyAccountPage/>
+                            <Route path="/ws_demo" view=SpectatorGameBoard/>
+                            <Route path="/user/:user_id" view=UserProfilePage/>
                         </Routes>
                     </main>
                 </Router>
@@ -114,25 +232,6 @@ pub fn AppRoot() -> impl IntoView {
     }
 }
 
-#[component]
-pub fn MainView() -> impl IntoView {
-    // use crate::comp::game_board_spectator::SpectatorGameBoard;
-    // use crate::page::page_1p::Game1PPage;
-    // use crate::page::page_2p::Game2PPage;
-    // use crate::page::page_replay::GameReplayPage;
-    // use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
-    // use crate::page::page_vs_cpu::GameCPUPage;
-    view! {
-
-        // <Route path="" view=Game1PPage/>
-        // <Route path="/vs_cpu" view=GameCPUPage/>
-        // <Route path="/vs_net" view=Game2PPage/>
-        // <Route path="/replay" view=GameReplayPage/>
-        // <Route path="/account" view=MyAccountPage/>
-        // <Route path="/ws_demo" view=SpectatorGameBoard/>
-        // <Route path="/user/:user_id" view=UserProfilePage/>
-    }
-}
 
 #[component]
 pub fn MainMenu() -> impl IntoView {
