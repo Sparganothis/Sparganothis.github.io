@@ -5,8 +5,8 @@ use leptos::*;
 pub mod app_root;
 mod error_template;
 pub mod style;
-// pub mod comp;
-// pub mod page;
+pub mod comp;
+pub mod page;
 pub mod websocket;
 
 fn main() {

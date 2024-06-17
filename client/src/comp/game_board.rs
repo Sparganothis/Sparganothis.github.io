@@ -149,6 +149,7 @@ pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool) -> impl IntoView {
 }
 
 use crate::style::*;
+use crate::websocket::demo_comp::WebsocketAPI;
 #[component]
 pub fn GameBoard(
     #[prop(into)] game_state: RwSignal<tet::GameState>,
@@ -227,19 +228,24 @@ pub fn key_debounce_ms(_action: TetAction) -> i64 {
         _ => 16,
     }
 }
-
-
+use crate::websocket::demo_comp::call_websocket_api;
+use game::api::websocket::*;
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
+    let api  = expect_context::<WebsocketAPI>();
+
     let new_game_id = create_resource(
         || (),
-        |_| async move { crate::server::api::game_replay::create_new_game_id().await },
+        |_| async move {                     let r = call_websocket_api::<CreateNewGameId>(api, ())
+            .expect("cannot obtain future").await
+        ;
+        r.unwrap() },
     );
 
     let on_state_change = Callback::<GameState>::new(move |s| {
         log::info!("we changed state: {}", s.get_debug_info());
 
-        let game_id = new_game_id.get().unwrap().unwrap();
+        let game_id = new_game_id.get().unwrap();
 
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {

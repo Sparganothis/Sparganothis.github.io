@@ -20,6 +20,7 @@ codegen-units = 1
 
 [dependencies]
 game = {path = "../game"}
+
 console_error_panic_hook = "0.1.7"
 leptonic = { version = "0.5.0", features = ["csr"] }
 leptos = { version = "0.6.5", features = ["csr"] }
