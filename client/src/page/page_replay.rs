@@ -36,21 +36,17 @@ pub fn TableDemo() -> impl IntoView {
 
             view! {
                 <table>
-                    <TableContent rows />
+                    <TableContent rows/>
                 </table>
             }
             .into_view()
         } else {
-            view! {
-                <p>no rows</p>
-            }
+            view! { <p>no rows</p> }
             .into_view()
         }
     };
 
-    view! {
-        {trigger_rows}
-    }
+    view! { {trigger_rows} }
 }
 
 #[component]
@@ -64,34 +60,34 @@ pub fn GameReplayPage() -> impl IntoView {
         </div>
         <div class="main_right">
 
-
-        <Slider min=0.0 max=1.0 step=0.0001
-        value=value set_value=set_value
-        value_display=move |v| format!("{v:.4}") />
+            <Slider
+                min=0.0
+                max=1.0
+                step=0.0001
+                value=value
+                set_value=set_value
+                value_display=move |v| format!("{v:.4}")
+            />
 
             <Tabs mount=Mount::Once>
                 <Tab name="tab-1" label="Tab 1".into_view()>
                     <div style="font-size: 8em; color: #8f39d3;">
-                        <Icon icon=i::AiCarryOutTwotone style="color: green" />
+                        <Icon icon=i::AiCarryOutTwotone style="color: green"/>
                         <Icon icon=i::BiGraphql width="2em" height="2em" style="color: green"/>
                         <Icon icon=i::BiGraphql style="color: orange"/>
                         <Icon icon=i::Bs1Circle style="color: red"/>
-                        <Icon icon=i::FaBarsSolid />
-                        <Icon icon=i::ImPagebreak />
-                        <Icon icon=i::ImPageBreak />
-                        <Icon icon=i::OcAlertSm />
-                        <Icon icon=i::OcAlertLg width="1em" height="2em" />
+                        <Icon icon=i::FaBarsSolid/>
+                        <Icon icon=i::ImPagebreak/>
+                        <Icon icon=i::ImPageBreak/>
+                        <Icon icon=i::OcAlertSm/>
+                        <Icon icon=i::OcAlertLg width="1em" height="2em"/>
 
                     </div>
                 </Tab>
 
-
-
                 <Tab name="tab-2" label="Tab 2".into_view()>
-                         <TableDemo/>
+                    <TableDemo/>
                 </Tab>
-
-
 
             </Tabs>
         </div>
@@ -131,7 +127,7 @@ where
 {
     view! {
         <td class=class>
-            <p>{move || format!("{:?}",value.get())}</p>
+            <p>{move || format!("{:?}", value.get())}</p>
         </td>
     }
 }
@@ -148,7 +144,7 @@ where
 {
     view! {
         <td class=class>
-            <p>{move || format!("{:?}, ..",value.get()[0])}</p>
+            <p>{move || format!("{:?}, ..", value.get()[0])}</p>
         </td>
     }
 }

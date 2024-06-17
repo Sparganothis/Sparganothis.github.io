@@ -22,6 +22,7 @@ cargo binstall wasm-bindgen-cli --no-confirm
 cargo binstall wasm-pack --no-confirm
 cargo binstall cargo-leptos --no-confirm
 cargo binstall leptosfmt --no-confirm
+cargo binstall cargo-watch --no-confirm
 
 bash test.sh
 bash run-server.sh

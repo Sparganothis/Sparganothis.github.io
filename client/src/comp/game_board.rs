@@ -267,21 +267,15 @@ pub fn PlayerGameBoard() -> impl IntoView {
     });
     let game_state = move || {
         if let Some(Ok(game_id)) = new_game_id.get() {
-            view! {
-                <PlayerGameBoardSingle game_id on_reset on_state_change/>
-            }
+            view! { <PlayerGameBoardSingle game_id on_reset on_state_change/> }
             .into_view()
         } else {
-            view! {
-                <p> loading game id ... </p>
-            }
+            view! { <p>loading game id ...</p> }
             .into_view()
         }
     };
 
-    view! {
-         {game_state}
-    }
+    view! { {game_state} }
 }
 
 #[component]

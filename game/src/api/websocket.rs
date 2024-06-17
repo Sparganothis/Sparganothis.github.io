@@ -18,9 +18,7 @@ pub enum WebsocketAPIMessageType {
     GetAllFullGameReplays,
     CreateNewGameId,
     AppendGameSegment,
-} 
-
-
+}
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct WebsocketAPIMessageRaw {
@@ -31,12 +29,12 @@ pub struct WebsocketAPIMessageRaw {
 }
 
 use anyhow::Context;
-pub trait  APIMethod {
+pub trait APIMethod {
     const TYPE: WebsocketAPIMessageType;
-    type Req: Serialize + for <'a> Deserialize<'a> + std::marker::Send + std::marker::Sync + 'static;
-    type Resp: Serialize + for <'a>  Deserialize<'a> + std::marker::Send + std::marker::Sync + 'static;
+    type Req: Serialize + for<'a> Deserialize<'a> + std::marker::Send + std::marker::Sync + 'static;
+    type Resp: Serialize + for<'a> Deserialize<'a> + std::marker::Send + std::marker::Sync + 'static;
 
-    fn send(msg: Self::Req, sender: impl Fn(Vec<u8>), id: u32) -> anyhow::Result<u32>{
+    fn send(msg: Self::Req, sender: impl Fn(Vec<u8>), id: u32) -> anyhow::Result<u32> {
         let b = WebsocketAPIMessageRaw {
             id,
             is_req: true,
@@ -94,7 +92,6 @@ impl APIMethod for CreateNewGameId {
 pub struct AppendGameSegment {}
 impl APIMethod for AppendGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendGameSegment;
-    type Req = (GameId,String);
+    type Req = (GameId, String);
     type Resp = ();
 }
-

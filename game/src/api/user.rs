@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
@@ -20,7 +19,6 @@ impl Default for GuestInfo {
         }
     }
 }
-
 
 #[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
 pub struct UserProfile {

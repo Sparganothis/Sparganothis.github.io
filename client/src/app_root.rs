@@ -92,9 +92,10 @@ pub fn AppRoot() -> impl IntoView {
 
                 <Router fallback=|| {
                     let mut outside_errors = Errors::default();
-                    outside_errors.insert_with_default_key(crate::error_template::AppError::NotFound);
+                    outside_errors
+                        .insert_with_default_key(crate::error_template::AppError::NotFound);
                     view! {
-                        <crate::error_template::ErrorTemplate outside_errors/>
+                        <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
                     <nav>
@@ -104,7 +105,7 @@ pub fn AppRoot() -> impl IntoView {
                         // all our routes will appear inside <main>
                         <Routes>
                             <Route path="" view=crate::websocket::demo_comp::WebsocketDemo2/>
-                            // <Route path="/*any" view=|| view! { <h1>"Not Found"</h1> }/>
+                        // <Route path="/*any" view=|| view! { <h1>"Not Found"</h1> }/>
                         </Routes>
                     </main>
                 </Router>
@@ -169,6 +170,5 @@ pub fn MainMenu() -> impl IntoView {
             />
 
         </ul>
-        // <p>{{ git_version }}</p>
     }
 }

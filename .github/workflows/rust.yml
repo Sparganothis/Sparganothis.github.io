@@ -56,8 +56,9 @@ jobs:
         # key: ${{ matrix.os }}
         cache-on-failure: true
         workspaces: |
-          server
-          client
+          ./server
+          ./client
+          ./game
         
     - name: Install Trunk
       uses: jetli/trunk-action@v0.5.0
@@ -109,7 +110,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: "./client/target/site"
+        path: "./client/dist"
 
     - name: Deploy to GitHub Pages
       id: deployment

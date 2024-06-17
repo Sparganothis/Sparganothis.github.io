@@ -9,7 +9,7 @@ pub fn Game2PPage() -> impl IntoView {
             <PlayerGameBoard/>
         </div>
         <div class="main_right">
-            <PlayerGameBoard />
+            <PlayerGameBoard/>
         </div>
     }
 }

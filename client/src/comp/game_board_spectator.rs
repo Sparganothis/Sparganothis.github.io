@@ -84,15 +84,12 @@ pub fn SpectatorGameBoard() -> impl IntoView {
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     log::info!("sse demo");
     view! {
-
         <GameBoard on_reset_game=on_reset game_state=state/>
 
-        <p> Ws Status {ws_status} </p>
-        <p> Is started: {move|| is_spectate_started()} </p>
-        <p> Is ready: {move || memo_state.get()} </p>
+        <p>Ws Status {ws_status}</p>
+        <p>Is started: {move || is_spectate_started()}</p>
+        <p>Is ready: {move || memo_state.get()}</p>
 
         <p>"Receive message: " {move || format!("{:?}", message.get())}</p>
-
-
     }
 }

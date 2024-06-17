@@ -3,19 +3,32 @@ set -e
 
 echo
 echo "======================================"
-echo "===  TEST DEFAULT PLATFORM WIN32  ===="
+echo "===  TEST GAME  HOST/win32  ===="
 echo "======================================"
-cargo test --package=webapp --no-default-features --features=ssr
+( cd game && cargo test  )
 
 echo
 echo "======================================"
-echo "=======    TEST WASM32 NODEJS    ======="
+echo "===  TEST GAME  WASM/nodejs  ===="
 echo "======================================"
-cargo test  --package=webapp --lib --target-dir=target/front --no-default-features --features=csr --target=wasm32-unknown-unknown
+( cd game && wasm-pack test --node )
 
 
-# echo
-# echo "======================================"
-# echo "=======    CARGO LEPTOS TEST    ======="
-# echo "======================================"
-# cargo leptos test
+echo
+echo "======================================"
+echo "===  TEST CLIENT  HOST/win32  ===="
+echo "======================================"
+( cd client && cargo test  )
+
+echo
+echo "======================================"
+echo "===  TEST CLIENT  WASM/nodejs  ===="
+echo "======================================"
+( cd client && wasm-pack test --node )
+
+
+echo
+echo "======================================"
+echo "===  TEST SEERVER HOST/win32   ===="
+echo "======================================"
+(  cd server && cargo test )

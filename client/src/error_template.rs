@@ -36,26 +36,25 @@ pub fn ErrorTemplate(
 
     view! {
         <Box style="display: flex; flex-direction: column; align-items:center;">
-            <H1>{match num_errors {
-                1 => "Error",
-                _ => "Errors",
-            }}</H1>
+            <H1>
+                {match num_errors {
+                    1 => "Error",
+                    _ => "Errors",
+                }}
+
+            </H1>
 
             <For
                 each=move || { errors.clone().into_iter().enumerate() }
                 key=|(index, _error)| *index
                 children=move |(_index, error)| {
                     match error {
-                        AppError::NotFound => view! {
-                            <P>"404 - Not Found"</P>
-                        },
+                        AppError::NotFound => view! { <P>"404 - Not Found"</P> },
                     }
                 }
             />
 
-            <LinkButton href="/">
-                "Back"
-            </LinkButton>
+            <LinkButton href="/">"Back"</LinkButton>
         </Box>
     }
 }

@@ -160,13 +160,18 @@ pub fn WebsocketDemo2() -> impl IntoView {
         <div>
             <p>"status: " {status}</p>
 
-            <button on:click=send_byte_message disabled=move || !connected()>"Send bytes"</button>
-            <button on:click=open_connection disabled=connected>"Open"</button>
-            <button on:click=close_connection disabled=move || !connected()>"Close"</button>
+            <button on:click=send_byte_message disabled=move || !connected()>
+                "Send bytes"
+            </button>
+            <button on:click=open_connection disabled=connected>
+                "Open"
+            </button>
+            <button on:click=close_connection disabled=move || !connected()>
+                "Close"
+            </button>
 
             // <p>{sig}</p>
             <p>"Receive byte message: " {move || format!("{:?}", message_bytes.get())}</p>
         </div>
-
     }
 }

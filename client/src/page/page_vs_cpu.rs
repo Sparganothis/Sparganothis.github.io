@@ -8,7 +8,7 @@ pub fn GameCPUPage() -> impl IntoView {
 
     view! {
         <div class="main_left">
-            <PlayerGameBoard />
+            <PlayerGameBoard/>
         </div>
         <div class="main_right">
             <RandomOpponentGameBoard seed=seed/>

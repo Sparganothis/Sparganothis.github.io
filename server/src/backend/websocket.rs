@@ -66,7 +66,6 @@ pub async fn ws_handler(
 
 /// Actual websocket statemachine (one will be spawned per connection)
 async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
-
     let user_info = (&guest).guest_data.clone();
     use futures::{sink::SinkExt, stream::StreamExt};
     let (mut sender, mut receiver) = socket.split();
@@ -116,7 +115,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
                     break;
                 }
             }
-            
+
             tokio::time::sleep(tokio::time::Duration::from_millis(3)).await;
         }
         cnt
@@ -139,7 +138,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
                 log::warn!("cannot put response on channel: {e}");
                 break;
             }
-            
+
             tokio::time::sleep(tokio::time::Duration::from_millis(3)).await;
         }
         cnt
@@ -185,7 +184,11 @@ pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow:
     let msg: WebsocketAPIMessageRaw =
         bincode::deserialize(&b).context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
     let msg_type = msg._type.clone();
-    log::info!("handling request {:?} for userID {:?}", msg_type, user_id.user_id);
+    log::info!(
+        "handling request {:?} for userID {:?}",
+        msg_type,
+        user_id.user_id
+    );
     let r: WebsocketAPIMessageRaw = match msg._type {
         WebsocketAPIMessageType::WhoAmI => {
             let callback = move |_, i| Ok(i);
@@ -213,8 +216,11 @@ pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow:
     }
     .context(format!("specific handler {:?}", msg_type))?;
 
-    
-    log::info!("sending response {:?} for userID {:?}", msg_type, user_id2.user_id);
+    log::info!(
+        "sending response {:?} for userID {:?}",
+        msg_type,
+        user_id2.user_id
+    );
     Ok(bincode::serialize(&r).context("bincode never fail")?)
 }
 use anyhow::Context;
