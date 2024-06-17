@@ -250,7 +250,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
     );
 
     let on_state_change = Callback::<GameState>::new(move |s| {
-        log::info!("we changed state: {}", s.get_debug_info());
+        // log::info!("we changed state: {}", s.get_debug_info());
 
         let game_id = new_game_id.get().unwrap();
 
@@ -263,17 +263,17 @@ pub fn PlayerGameBoard() -> impl IntoView {
                 GameReplaySegment::Update(s.replay.replay_slices.last().unwrap().clone())
             }
         };
-        log::info!("segment: {:?}", &segment);
+        // log::info!("segment: {:?}", &segment);
         spawn_local({
             let api2 = api2.clone();
             
             async move {
-            log::info!("calling websocket api");
+            // log::info!("calling websocket api");
             let segment_json: String = serde_json::to_string(&segment).expect("json never fail");
             let r = call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
                 .expect("cannot obtain future")
                 .await;
-            log::info!("got back response: {:?}", r);
+            // log::info!("got back response: {:?}", r);
         }});
     });
 

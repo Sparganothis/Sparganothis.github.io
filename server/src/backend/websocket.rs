@@ -37,6 +37,8 @@ use axum::extract::connect_info::ConnectInfo;
 use axum::extract::ws::CloseFrame;
 use axum_extra::headers;
 
+use crate::database::tables::get_or_create_user_profile;
+
 use super::session::Guest;
 //allows to split the websocket stream into separate TX and RX branches
 // use futures::{sink::SinkExt, stream::StreamExt};
@@ -180,6 +182,7 @@ pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow:
     use crate::backend::server_fn::*;
     use game::api::websocket::*;
     let user_id2 = user_id.clone();
+    get_or_create_user_profile(&user_id2.user_id).unwrap();
 
     let msg: WebsocketAPIMessageRaw =
         bincode::deserialize(&b).context("bincode deserialize fail for WebsocketAPIMessageRaw")?;

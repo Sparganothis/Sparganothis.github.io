@@ -14,11 +14,11 @@ pub fn MyAccountPage() -> impl IntoView {
         move |_| {
             let api2 = api2.clone();
             async move {
-                log::info!("calling websocket api");
+                // log::info!("calling websocket api");
                 let r = call_websocket_api::<WhoAmI>(api2, ())
                     .expect("cannot obtain future")
                     .await;
-                log::info!("got back response: {:?}", r);
+                // log::info!("got back response: {:?}", r);
                 r
             }
         },
@@ -30,12 +30,12 @@ pub fn MyAccountPage() -> impl IntoView {
             let api2 = api3.clone();
             async move {
                 if let Some(Ok(_guest_id)) = _guest_id {
-                    log::info!("calling websocket api");
+                    // log::info!("calling websocket api");
                     let r: Result<user::UserProfile, String> =
                         call_websocket_api::<GetProfile>(api2, _guest_id.user_id)
                             .expect("cannot obtain future")
                             .await;
-                    log::info!("got back response: {:?}", r);
+                    // log::info!("got back response: {:?}", r);
                     r
                 } else {
                     Err("fmm loading...".to_string())
@@ -91,12 +91,12 @@ pub fn UserProfilePage() -> impl IntoView {
             let api2 = api2.clone();
             async move {
                 if let Ok(_guest_id) = _guest_id {
-                    log::info!("calling websocket api");
+                    // log::info!("calling websocket api");
                     let r: Result<user::UserProfile, String> =
                         call_websocket_api::<GetProfile>(api2, _guest_id)
                             .expect("cannot obtain future")
                             .await;
-                    log::info!("got back response: {:?}", r);
+                    // log::info!("got back response: {:?}", r);
                     r
                 } else {
                     Err("fmm loading...".to_string())

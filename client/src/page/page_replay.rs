@@ -28,11 +28,11 @@ pub fn TableDemo() -> impl IntoView {
         move |_| {
             let api2 = api2.clone();
             async move {
-                log::info!("calling websocket api");
+                // log::info!("calling websocket api");
                 let r = call_websocket_api::<GetAllFullGameReplays>(api2, ())
                     .expect("cannot obtain future")
                     .await;
-                log::info!("got back response: {:?}", r);
+                // log::info!("got back response: {:?}", r);
                 r
             }
         },

@@ -1,3 +1,4 @@
+use futures::{SinkExt, StreamExt};
 use leptos::*;
 use leptos_meta::{provide_meta_context, Meta, Title};
 use leptos_router::*;
@@ -92,11 +93,51 @@ pub fn AppRoot() -> impl IntoView {
         ..
     } = use_websocket("ws://localhost:3000/api/ws");
 
+
+    
+    let connected = move || ready_state.get() == ConnectionReadyState::Open;
+    let mut ready_state_stream  = ready_state.clone().to_stream();
+    let ready_signal = create_rw_signal(false);
+
+    let (tx, rx) = async_channel::bounded::<ConnectionReadyState>(1);
+    spawn_local(
+        async move {
+            loop {
+                let r = ready_state_stream.next().await;
+                if let Some(r) = r {
+                    
+                    if r.eq(&ConnectionReadyState::Open) {
+                        ready_signal.set(true);
+                    } else {
+                        ready_signal.set(false);
+                    }
+                    if let Err(e) = tx.send(r).await {
+                        log::warn!("error sending to ready stream...: {e:?}");
+                    } else {
+                        log::info!("sent on stream: {:?}", r);
+                    }
+                }
+            }
+        }
+    );
+
+    let open_connection = move |_| {
+        log::info!("websocket reopened.");
+        open();
+    };
+
+    let close_connection = move |_| {
+        log::info!("websocket closed intentionally.");
+        close();
+    };
+
     // let message =
     // let message = bincode::serialize(&message).unwrap();
     let api = WebsocketAPI {
         map: create_rw_signal(std::collections::HashMap::<_, _>::new()),
         sender: create_rw_signal(Rc::new(Box::new(send_bytes.clone()))),
+        ready_state_stream: rx,
+        ready_signal,
     };
     provide_context(api.clone());
 
@@ -108,11 +149,11 @@ pub fn AppRoot() -> impl IntoView {
             move |_| {
                 let api2 = api2.clone();
                 async move {
-                    log::info!("calling websocket api");
+                    // log::info!("calling websocket api");
                     let r = call_websocket_api::<WhoAmI>(api2, ())
                         .expect("cannot obtain future")
                         .await;
-                    log::info!("got back response: {:?}", r);
+                    // log::info!("got back response: {:?}", r);
                     r
                 }
             },
@@ -129,7 +170,7 @@ pub fn AppRoot() -> impl IntoView {
             while let Some(Some(c)) = recv_bytes_stream.next().await {
                 match bincode::deserialize::<WebsocketAPIMessageRaw>(&c) {
                     Ok(msg) => {
-                        log::info!("recv message type={:?} len={}", msg._type, c.len(),);
+                        // log::info!("recv message type={:?} len={}", msg._type, c.len(),);
                         accept_reply_message(&api_spawn.clone(), msg).await;
                         // let ctx = expect_context::<RwSignal<WebsocketAPI>>();
                         // log::info!("successfully got global context size={}!", ctx.get_untracked().map.len());
@@ -150,17 +191,6 @@ pub fn AppRoot() -> impl IntoView {
         st
     };
 
-    let connected = move || ready_state.get() == ConnectionReadyState::Open;
-
-    let open_connection = move |_| {
-        log::info!("websocket reopened.");
-        open();
-    };
-
-    let close_connection = move |_| {
-        log::info!("websocket closed intentionally.");
-        close();
-    };
 
     use crate::comp::game_board_spectator::SpectatorGameBoard;
     use crate::page::page_1p::Game1PPage;
@@ -210,7 +240,7 @@ pub fn AppRoot() -> impl IntoView {
                             // <p>{sig}</p>
                             <p>
                                 "Receive byte message: "
-                                {move || format!("{:?}", message_bytes.get())}
+                                {move || format!("{:?}", message_bytes.get().unwrap_or(vec![]).len())}
                             </p>
                         </div>
                     </nav>

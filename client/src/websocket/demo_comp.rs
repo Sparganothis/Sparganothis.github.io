@@ -1,7 +1,9 @@
+use futures::Stream;
 use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType, WhoAmI};
 use leptos::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
+use core::pin::Pin;
 
 // async fn await_reply_message(msg_type: WebsocketAPIMessageType, msg_id: u32) -> WebsocketAPIMessageRaw {
 //     let (tx, rx) = futures::channel::oneshot::channel::<WebsocketAPIMessageRaw>();
@@ -17,10 +19,16 @@ use std::rc::Rc;
 pub struct WsMessageKey(u32, WebsocketAPIMessageType);
 #[derive(Clone)]
 pub struct WsMessageCell(Rc<futures::channel::oneshot::Sender<WebsocketAPIMessageRaw>>);
+use core::cell::RefCell;
+
+
+
 #[derive(Clone)]
 pub struct WebsocketAPI {
     pub map: RwSignal<std::collections::HashMap<WsMessageKey, WsMessageCell>>,
     pub sender: RwSignal<Rc<Box<dyn Fn(Vec<u8>)>>>,
+    pub  ready_state_stream:   async_channel::Receiver<ConnectionReadyState>,
+    pub ready_signal: RwSignal<bool>,
 }
 
 pub fn call_websocket_api<T: APIMethod>(
@@ -37,10 +45,30 @@ pub fn call_websocket_api<T: APIMethod>(
     });
 
     let sender = api.sender.get_untracked();
-    T::send(arg, move |x| sender(x), id)?;
-
+    let ready_signal = api.ready_signal.clone();
+    use futures::StreamExt;
     // let api = api.clone();
     Ok(async move {
+        if !ready_signal.get_untracked() {
+            log::info!("waiting for ready state");
+
+            loop {
+                if let Ok(current_state) = api.ready_state_stream.recv().await  {
+                    match current_state {
+                        ConnectionReadyState::Connecting => continue,
+                        ConnectionReadyState::Open => break,
+                        ConnectionReadyState::Closing => continue,
+                        ConnectionReadyState::Closed => continue,
+                    }
+                }
+                if ready_signal.get_untracked() {
+                    break;
+                }
+            }
+        }
+        // log::info!("found ready state");
+        T::send(arg, move |x| sender(x), id).map_err(|e| format!("send error: {:?}", e))?;
+
         match rx.await {
             Ok(val) => match bincode::deserialize::<Result<T::Resp, String>>(&val.data) {
                 Ok(val) => val,
@@ -54,7 +82,7 @@ pub fn call_websocket_api<T: APIMethod>(
 pub async fn accept_reply_message(api: &WebsocketAPI, msg: WebsocketAPIMessageRaw) {
     let key = WsMessageKey(msg.id, msg._type);
 
-    log::info!("accepting websocket reploy for {:?}", &key);
+    // log::info!("accepting websocket reploy for {:?}", &key);
     api.map.update_untracked(|map| {
         if let Some(cell) = map.remove(&key) {
             if let Ok(cell) = Rc::try_unwrap(cell.0) {
