@@ -1,4 +1,4 @@
-![](./docs/Screenshot.png)
+![](./.docs/Screenshot.png)
 
 
 
@@ -7,6 +7,7 @@
 - install "rustup" and "nodejs"
 - install "vscode" including "rust-analyzer" plugin
 - install "git for windows" including "bash"
+- install "sass" using npm: `npm install -g sass`
 - run commands in vscode bash terminal
 
 

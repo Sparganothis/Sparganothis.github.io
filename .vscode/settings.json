@@ -10,7 +10,9 @@
     "extensions.autoCheckUpdates": false,
     "update.mode": "manual",
     "update.showReleaseNotes": false,
-    "rust-analyzer.cargo.features": [
-        "ssr","csr"
+    "rust-analyzer.linkedProjects": [
+        "client/Cargo.toml",
+        "server/Cargo.toml",
+        "game/Cargo.toml",
     ]
 }
