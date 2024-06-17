@@ -71,13 +71,13 @@ jobs:
       uses: cargo-bins/cargo-binstall@main
 
     - name: Install wasm-bindgen
-      run: cargo binstall wasm-bindgen-cli --no-confirm
+      run: cargo binstall wasm-bindgen-cli --no-confirm --force
 
     - name: Install wasm-pack
-      run: cargo binstall wasm-pack --no-confirm
+      run: cargo binstall wasm-pack --no-confirm --force
 
     - name: Install cargo-leptos
-      run: cargo binstall cargo-leptos --no-confirm
+      run: cargo binstall cargo-leptos --no-confirm --force
       
     - name: wasm-pack --version
       run: wasm-pack --version
