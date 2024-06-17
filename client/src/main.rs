@@ -22,7 +22,6 @@ fn main() {
     });
 }
 
-
 #[cfg(test)]
 pub mod tests {
     use wasm_bindgen_test::*;
@@ -30,6 +29,6 @@ pub mod tests {
     #[test]
     #[wasm_bindgen_test]
     pub fn test_2_plus_2() {
-        assert_eq!(2+2,4)
+        assert_eq!(2 + 2, 4)
     }
 }

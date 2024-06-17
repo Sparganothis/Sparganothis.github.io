@@ -24,7 +24,7 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
-use game::api::websocket::{APIMethod, GetProfile, SocketType, WebsocketAPIMessageRaw, WhoAmI};
+use game::api::websocket::{APIMethod, SocketType, WebsocketAPIMessageRaw};
 // use serde::Deserialize;
 
 use std::borrow::Cow;

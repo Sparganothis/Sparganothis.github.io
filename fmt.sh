@@ -1,4 +1,4 @@
 set -ex 
-( cd client && leptosfmt src )
-( cd server &&  cargo fmt )
-( cd game  && cargo fmt )
+( cd client && cargo fmt && leptosfmt src && cargo fix --allow-dirty )
+( cd server &&  cargo fmt && cargo fix --allow-dirty )
+( cd game  && cargo fmt && cargo fix --allow-dirty )

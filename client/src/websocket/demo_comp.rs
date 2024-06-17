@@ -1,7 +1,4 @@
-use std::thread;
-
 use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType, WhoAmI};
-use leptonic::prelude::*;
 use leptos::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
@@ -56,7 +53,7 @@ pub fn call_websocket_api<T: APIMethod>(
 
 async fn accept_reply_message(api: &WebsocketAPI, msg: WebsocketAPIMessageRaw) {
     let key = WsMessageKey(msg.id, msg._type);
-    
+
     log::info!("accepting websocket reploy for {:?}", &key);
     api.map.update_untracked(|map| {
         if let Some(cell) = map.remove(&key) {
