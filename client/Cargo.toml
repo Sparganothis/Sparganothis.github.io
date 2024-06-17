@@ -66,6 +66,8 @@ console_log = {version="1.0"}
 stylist = {version="0.13.0", features=["parser"]}
 leptos-struct-table = {version = "0.10.2"}
 
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
 
 [package.metadata.leptonic]
 # REQUIRED: Leptonic's build-script will copy the Leptonic themes to this directory. Relative to your project root.

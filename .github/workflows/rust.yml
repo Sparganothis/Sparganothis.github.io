@@ -5,10 +5,10 @@ on:
     branches: [ "master", "bos" ]
   workflow_dispatch:
 
-# permissions:
-#   contents: write # for committing to gh-pages branch.
-#   pages: write
-#   id-token: write
+permissions:
+  contents: write # for committing to gh-pages branch.
+  pages: write
+  id-token: write
   
 concurrency:
   group: "pages"
@@ -19,13 +19,17 @@ env:
 
 jobs:
   build:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
-    # runs-on: ubuntu-latest
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    # runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
@@ -41,12 +45,20 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         cache-all-crates: true
-        key: ${{ matrix.os }}
+        # key: ${{ matrix.os }}
         cache-on-failure: true
         workspaces: |
-          .
-          webapp
+          server
+          client
+        
+    - name: Install Trunk
+      uses: jetli/trunk-action@v0.5.0
+      with:
+        version: "latest"
     
+    - name: Print Trunk Version
+      run: trunk --version
+
     - name: Install binstall
       uses: cargo-bins/cargo-binstall@main
 
@@ -64,8 +76,35 @@ jobs:
       with:
         node-version: 20
 
+    - name: SERVER BUILD ${{ matrix.os }}
+      run: cd server && cargo build
+  
+    - name: GAME TEST ${{ matrix.os }}
+      run: cd game && wasm-pack test --node
+  
     - name: SERVER TEST ${{ matrix.os }}
-      run: cargo test --no-default-features --features=ssr  --package=webapp 
+      run: cd server && cargo test
 
-    # - name: CLIENT TEST ${{ matrix.os }}
-    #   run: cargo test  --package=webapp   --target-dir=target/front --no-default-features --features=csr --target=wasm32-unknown-unknown
+    - name: CLIENT TEST ${{ matrix.os }}
+      run: cd client && cargo test
+
+    - name: CLIENT BUILD ${{ matrix.os }}
+      run: cd client && trunk build
+
+    - name: Trunk Build Prod
+      run: cd client && trunk build --release --public-url "/Sparganothis"
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      with:
+        enablement: true
+        # token:
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "./client/target/site"
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
