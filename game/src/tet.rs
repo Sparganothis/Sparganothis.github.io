@@ -316,7 +316,6 @@ type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GameState {
     pub score: i64,
-    pub need_hard_drop: bool,
     pub have_combo: bool,
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
@@ -542,7 +541,6 @@ impl GameState {
             next_pcs: VecDeque::new(),
             current_pcs: None,
             game_over: false,
-            need_hard_drop: false,
             hold_pcps: None,
             current_id: 0,
             seed: *seed,
@@ -611,17 +609,16 @@ impl GameState {
     }
 
     fn try_harddrop(&mut self, event_time: i64) -> anyhow::Result<()> {
-
+        let mut soft_drops: i16 =0;
         let current_pcs = self.current_pcs.context("no current pcs")?;
-
-        self.need_hard_drop= true;
 
         let mut r = self.try_softdrop(event_time);
         while r.is_ok() && current_pcs.id == self.current_pcs.unwrap().id {
             r = self.try_softdrop(event_time);
+            soft_drops +=1;
         }
         self.score+=10;
-        self.need_hard_drop= false;
+        self.score-=(soft_drops*2) as  i64;
         Ok(())
     }
 
@@ -631,15 +628,10 @@ impl GameState {
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
             log::warn!("ccannot delete picei from main board plz: {:?}", e)
         }
-        let mut val: i8=0;
-        if !self.need_hard_drop
-        {
-          val = 2;
-        }
         let mut new_current_pcs = current_pcs;
         new_current_pcs.pos.0 -= 1;
         if self.main_board.spawn_piece(&new_current_pcs).is_ok() {
-            self.score+=(val as i64);
+            self.score+=2;
             self.current_pcs = Some(new_current_pcs);
         } else {
             self.main_board.spawn_piece(&current_pcs).unwrap();
