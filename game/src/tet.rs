@@ -408,6 +408,8 @@ impl GameState {
     fn clear_line(&mut self) {
         let mut score = 0;
         let mut lines = 0;
+        let mut score2 = 0;
+
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
@@ -423,12 +425,22 @@ impl GameState {
         }
         score += match lines {
             1 => 40,
-            2 => 100,
-            3 => 300,
+            2 => 80,
+            3 => 160,
+            4 => 320,
             _ => 0,
         };
+        if self.is_gameboard_empty(){
+            score2 += match lines {
+                1 => 200,
+                2 => 400,
+                3 => 800,
+                4 => 1600,
+                _ => 0,
+            };
+        }
 
-        self.score += (score as i64);
+        self.score += ((score + score2) as i64);
     }
 
     fn can_clear_line(&self) -> Option<i8> {
@@ -767,6 +779,19 @@ impl GameState {
         if let Some(ghost_info) = final_ghost_board {
             let _ = self.main_board.spawn_ghost(&ghost_info);
         }
+    }
+
+    fn is_gameboard_empty(&mut self) -> bool {
+        let mut gameboard_empty= true;
+        for y in 0..self.main_board.get_num_rows() {
+            for x in 0..self.main_board.get_num_cols() {
+                let value = (&self.main_board.v)[y][x];
+                if !(value.eq(&CellValue::Ghost) || value.eq(&CellValue::Empty)) {
+                 gameboard_empty = false;
+                }
+            }
+        }
+        gameboard_empty
     }
 
     fn clear_ghost(&mut self) {
