@@ -11,9 +11,9 @@ if [ -z "$(git status --porcelain)" ]; then
     git commit -m "cargo fmt $(date)" || true
     git push
 
-    ( cd client ;  cargo fix || true )
-    ( cd server ;   cargo fix || true   )
-    ( cd game  ;   cargo fix || true   )
+    ( cd client ;  cargo fix --allow-dirty || true )
+    ( cd server ;   cargo fix   --allow-dirty || true   )
+    ( cd game  ;   cargo fix  --allow-dirty  || true   )
     
     git add .
     git status
