@@ -6,7 +6,8 @@ use game::api::websocket::{GetProfile, WhoAmI};
 
 #[component]
 pub fn MyAccountPage() -> impl IntoView {
-    #[allow(unused_variables)] // compiler bug saying we have unused variable (but we dont)
+    #[allow(unused_variables)]
+    // compiler bug saying we have unused variable (but we dont)
     let _api: WebsocketAPI = expect_context();
     #[allow(unused_variables)]
     let guest_id = create_resource(
@@ -46,7 +47,9 @@ pub fn MyAccountPage() -> impl IntoView {
     );
 
     let user_link = move || {
-        if let (Some(Ok(g_id)), Some(Ok(profile))) = (guest_id.get(), user_profile.get()) {
+        if let (Some(Ok(g_id)), Some(Ok(profile))) =
+            (guest_id.get(), user_profile.get())
+        {
             view! {
                 <a href=format!("/user/{}", g_id.user_id)>
                     <UserProfileView _user_id=g_id.user_id p=profile/>
@@ -72,8 +75,9 @@ pub fn MyAccountPage() -> impl IntoView {
 pub fn UserProfilePage() -> impl IntoView {
     let api2: WebsocketAPI = expect_context();
     let params = leptos_router::use_params_map();
-    let _uuid = params
-        .with(|params| uuid::Uuid::parse_str(&params.get("user_id").cloned().unwrap_or_default()));
+    let _uuid = params.with(|params| {
+        uuid::Uuid::parse_str(&params.get("user_id").cloned().unwrap_or_default())
+    });
     let (get_id, _) = create_signal(_uuid);
 
     let user_profile = create_resource(

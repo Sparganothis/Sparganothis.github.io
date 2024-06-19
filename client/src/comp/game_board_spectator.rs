@@ -19,7 +19,8 @@ pub fn SpectatorGameBoard() -> impl IntoView {
     } = leptos_use::use_websocket("/api/ws");
     let ws_status = move || ready_state.get().to_string();
 
-    let connected = move || ready_state.get() == leptos_use::core::ConnectionReadyState::Open;
+    let connected =
+        move || ready_state.get() == leptos_use::core::ConnectionReadyState::Open;
 
     let _send2 = send.clone();
     let is_spectate_started = move || {
@@ -66,8 +67,8 @@ pub fn SpectatorGameBoard() -> impl IntoView {
             }
             Some(GameReplaySegment::GameOver) => {
                 log::info!("got GameOver event; reply close and cloze websockat");
-                let json =
-                    serde_json::to_string(&GameReplaySegment::GameOver).expect("json never fail");
+                let json = serde_json::to_string(&GameReplaySegment::GameOver)
+                    .expect("json never fail");
                 send(&json);
                 _ws_close();
                 true

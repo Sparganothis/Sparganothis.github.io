@@ -62,7 +62,8 @@ pub fn BoardTable<const R: usize, const C: usize>(
 
     let do_update = move || {
         let board = {
-            let mut v_new: Vec<_> = board.get().rows().into_iter().enumerate().collect();
+            let mut v_new: Vec<_> =
+                board.get().rows().into_iter().enumerate().collect();
             v_new.reverse();
             v_new
         };
@@ -164,11 +165,14 @@ pub fn GameBoard(
         .get_class_name()
         .to_owned();
 
-    let hold_board = create_read_slice(game_state, |state: &tet::GameState| state.get_hold_board());
+    let hold_board =
+        create_read_slice(game_state, |state: &tet::GameState| state.get_hold_board());
 
-    let next_board = create_read_slice(game_state, |state: &tet::GameState| state.get_next_board());
+    let next_board =
+        create_read_slice(game_state, |state: &tet::GameState| state.get_next_board());
 
-    let main_board = create_read_slice(game_state, |state: &tet::GameState| state.main_board);
+    let main_board =
+        create_read_slice(game_state, |state: &tet::GameState| state.main_board);
 
     let gameover = view! {
         <Show when=move || game_state.get().game_over fallback=|| view! {}>
@@ -260,7 +264,9 @@ pub fn PlayerGameBoard() -> impl IntoView {
             } else if s.game_over {
                 GameReplaySegment::GameOver
             } else {
-                GameReplaySegment::Update(s.replay.replay_slices.last().unwrap().clone())
+                GameReplaySegment::Update(
+                    s.replay.replay_slices.last().unwrap().clone(),
+                )
             }
         };
         // log::info!("segment: {:?}", &segment);
@@ -271,10 +277,12 @@ pub fn PlayerGameBoard() -> impl IntoView {
                 // log::info!("calling websocket api");
                 let segment_json: String =
                     serde_json::to_string(&segment).expect("json never fail");
-                let _r =
-                    call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
-                        .expect("cannot obtain future")
-                        .await;
+                let _r = call_websocket_api::<AppendGameSegment>(
+                    api2.clone(),
+                    (game_id, segment_json),
+                )
+                .expect("cannot obtain future")
+                .await;
                 if let Err(e) = _r {
                     log::warn!("failed to append game segment: {}", e);
                 }
@@ -289,7 +297,8 @@ pub fn PlayerGameBoard() -> impl IntoView {
     });
     let game_state = move || {
         if let Some(game_id) = new_game_id.get() {
-            view! { <PlayerGameBoardSingle game_id on_reset on_state_change/> }.into_view()
+            view! { <PlayerGameBoardSingle game_id on_reset on_state_change/> }
+                .into_view()
         } else {
             view! { <p>loading game id ...</p> }.into_view()
         }
@@ -304,7 +313,8 @@ pub fn PlayerGameBoardSingle(
     on_reset: Callback<()>,
     on_state_change: Callback<GameState>,
 ) -> impl IntoView {
-    let state = create_rw_signal(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+    let state =
+        create_rw_signal(tet::GameState::new(&game_id.init_seed, game_id.start_time));
     on_state_change.call(state.get());
 
     let leptos_use::utils::Pausable {
@@ -316,7 +326,10 @@ pub fn PlayerGameBoardSingle(
             state.update(move |state| {
                 if !state.game_over {
                     if state
-                        .apply_action_if_works(TetAction::SoftDrop, get_timestamp_now_nano())
+                        .apply_action_if_works(
+                            TetAction::SoftDrop,
+                            get_timestamp_now_nano(),
+                        )
                         .is_ok()
                     {
                         on_state_change.call(state.clone());
@@ -332,7 +345,8 @@ pub fn PlayerGameBoardSingle(
         _timer_resume();
     };
 
-    let (get_ts, set_ts) = create_signal(std::collections::HashMap::<TetAction, i64>::new());
+    let (get_ts, set_ts) =
+        create_signal(std::collections::HashMap::<TetAction, i64>::new());
     let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
         let timestamp1 = game::timestamp::get_timestamp_now_ms();
         let timestamp0 = *get_ts.get().get(&_action).unwrap_or(&0);
@@ -369,7 +383,8 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
         move || {
             state.update(move |state| {
                 let random_action = game::tet::TetAction::random();
-                let _ = state.apply_action_if_works(random_action, get_timestamp_now_nano());
+                let _ = state
+                    .apply_action_if_works(random_action, get_timestamp_now_nano());
             })
         },
         1000,

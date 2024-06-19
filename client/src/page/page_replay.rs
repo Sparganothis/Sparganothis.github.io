@@ -87,7 +87,12 @@ pub fn GameReplayPage() -> impl IntoView {
                 <Tab name="tab-1" label="Tab 1".into_view()>
                     <div style="font-size: 8em; color: #8f39d3;">
                         <Icon icon=i::AiCarryOutTwotone style="color: green"/>
-                        <Icon icon=i::BiGraphql width="2em" height="2em" style="color: green"/>
+                        <Icon
+                            icon=i::BiGraphql
+                            width="2em"
+                            height="2em"
+                            style="color: green"
+                        />
                         <Icon icon=i::BiGraphql style="color: orange"/>
                         <Icon icon=i::Bs1Circle style="color: red"/>
                         <Icon icon=i::FaBarsSolid/>

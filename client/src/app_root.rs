@@ -210,7 +210,9 @@ pub fn AppRoot() -> impl IntoView {
                 <Router fallback=|| {
                     let mut outside_errors = Errors::default();
                     outside_errors
-                        .insert_with_default_key(crate::error_template::AppError::NotFound);
+                        .insert_with_default_key(
+                            crate::error_template::AppError::NotFound,
+                        );
                     view! {
                         <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
@@ -220,13 +222,19 @@ pub fn AppRoot() -> impl IntoView {
                         <div>
                             <p>"status: " {status}</p>
 
-                            <button on:click=send_byte_message disabled=move || !connected()>
+                            <button
+                                on:click=send_byte_message
+                                disabled=move || !connected()
+                            >
                                 "Send bytes"
                             </button>
                             <button on:click=open_connection disabled=connected>
                                 "Open"
                             </button>
-                            <button on:click=close_connection disabled=move || !connected()>
+                            <button
+                                on:click=close_connection
+                                disabled=move || !connected()
+                            >
                                 "Close"
                             </button>
 
@@ -246,7 +254,10 @@ pub fn AppRoot() -> impl IntoView {
                             <Route path="" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
                             <Route path="/vs_net" view=Game2PPage/>
-                            <Route path="/replay" view=crate::page::page_replay::GameReplayPage/>
+                            <Route
+                                path="/replay"
+                                view=crate::page::page_replay::GameReplayPage
+                            />
                             <Route path="/account" view=MyAccountPage/>
                             <Route path="/ws_demo" view=SpectatorGameBoard/>
                             <Route path="/user/:user_id" view=UserProfilePage/>

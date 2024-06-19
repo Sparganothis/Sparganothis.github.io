@@ -1,4 +1,6 @@
-use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType};
+use game::api::websocket::{
+    APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType,
+};
 use leptos::*;
 use leptos_use::core::ConnectionReadyState;
 
@@ -59,10 +61,12 @@ pub fn call_websocket_api<T: APIMethod>(
             }
         }
         // log::info!("found ready state");
-        T::send(arg, move |x| sender(x), id).map_err(|e| format!("send error: {:?}", e))?;
+        T::send(arg, move |x| sender(x), id)
+            .map_err(|e| format!("send error: {:?}", e))?;
 
         match rx.await {
-            Ok(val) => match bincode::deserialize::<Result<T::Resp, String>>(&val.data) {
+            Ok(val) => match bincode::deserialize::<Result<T::Resp, String>>(&val.data)
+            {
                 Ok(val) => val,
                 Err(e) => Err(format!("err websocket response deserialize: {:?}", e)),
             },
