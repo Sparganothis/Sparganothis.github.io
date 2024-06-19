@@ -4,7 +4,6 @@ use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
 use crate::database::tables::GAME_SEGMENT_COUNT_DB;
 use crate::database::tables::GAME_SEGMENT_DB;
 
-use anyhow::anyhow;
 use anyhow::Context;
 use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
