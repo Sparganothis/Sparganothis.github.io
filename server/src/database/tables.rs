@@ -17,7 +17,10 @@ pub static USER_PROFILE_DB: Lazy<typed_sled::Tree<uuid::Uuid, UserProfile>> =
     Lazy::new(|| typed_sled::Tree::<uuid::Uuid, UserProfile>::open(&TABLES_DB, "user_profile_v1"));
 
 pub static GAME_IS_IN_PROGRESS_DB: Lazy<typed_sled::Tree<GameId, bool>> =
-    Lazy::new(|| typed_sled::Tree::<GameId, bool>::open(&TABLES_DB, "game_in_progress_v1"));
+    Lazy::new(|| typed_sled::Tree::<GameId, bool>::open(&TABLES_DB, "game_is_in_progress_v1"));
+
+pub static GAME_SEGMENT_COUNT_DB: Lazy<typed_sled::Tree<GameId, u32>> =
+    Lazy::new(|| typed_sled::Tree::<GameId, u32>::open(&TABLES_DB, "game_segment_count_v1"));
 
 pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegment>> =
     Lazy::new(|| {

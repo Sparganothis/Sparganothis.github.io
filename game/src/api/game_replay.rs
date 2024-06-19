@@ -2,8 +2,8 @@ use crate::{random::GameSeed, tet::GameReplaySegment};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GameSegmentId {
-    game_id: GameId,
-    segment_id: u32,
+    pub game_id: GameId,
+    pub segment_id: u32,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
