@@ -1,5 +1,8 @@
 use game::{
-    api::{game_replay::GameId, websocket::{GameSegmentCountReply, GetAllGames}},
+    api::{
+        game_replay::GameId,
+        websocket::{GameSegmentCountReply, GetAllGames},
+    },
     random::GameSeed,
 };
 use http::header::GetAll;
@@ -124,15 +127,13 @@ pub fn CustomTableRowRenderer(
     let row2 = row.clone();
     view! {
         <tr class=class on:click=move |mouse_event| on_select.run(mouse_event)>
-        {row2.render_row(index, on_change)}
-            <a href=move || format!("/game-replay/{}",row.to_url())>
-               LINK
-            </a>
+            {row2.render_row(index, on_change)}
+            <a href=move || format!("/game-replay/{}", row.to_url())>LINK</a>
         </tr>
     }
 }
 
-#[derive(TableRow, Clone,Debug)]
+#[derive(TableRow, Clone, Debug)]
 #[table(impl_vec_data_provider)]
 pub struct FullGameReplayTableRow {
     #[table(renderer = "WeedRenderer")]
@@ -155,12 +156,13 @@ impl FullGameReplayTableRow {
         }
     }
 
-    pub fn to_url(&self) -> String{
-        GameId{
+    pub fn to_url(&self) -> String {
+        GameId {
             user_id: self.user_id,
             init_seed: self.init_seed,
             start_time: self.start_time,
-        }.to_url()
+        }
+        .to_url()
     }
 }
 #[component]

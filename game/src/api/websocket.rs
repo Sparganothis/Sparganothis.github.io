@@ -58,7 +58,6 @@ impl APIMethod for GetProfile {
     type Resp = crate::api::user::UserProfile;
 }
 
-
 pub struct WhoAmI {}
 impl APIMethod for WhoAmI {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::WhoAmI;
@@ -88,7 +87,7 @@ impl APIMethod for AppendGameSegment {
 }
 
 #[derive(Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
-pub struct GameSegmentCountReply{
+pub struct GameSegmentCountReply {
     pub is_in_progress: bool,
     pub segment_count: u32,
 }
@@ -113,10 +112,9 @@ impl APIMethod for GetFull {
     type Resp = GameState;
 }
 
-
 pub struct GetAllGames {}
 impl APIMethod for GetAllGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllGames;
     type Req = ();
-    type Resp = Vec<(GameId,GameSegmentCountReply)>;
+    type Resp = Vec<(GameId, GameSegmentCountReply)>;
 }

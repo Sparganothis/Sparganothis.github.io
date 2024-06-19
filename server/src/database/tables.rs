@@ -1,5 +1,5 @@
 use game::{
-    api::game_replay::{ GameId, GameSegmentId},
+    api::game_replay::{GameId, GameSegmentId},
     tet::{GameReplaySegment, GameState},
 };
 

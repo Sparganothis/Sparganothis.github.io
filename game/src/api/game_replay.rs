@@ -14,10 +14,10 @@ pub struct GameId {
 }
 
 impl GameId {
-    pub fn to_url(&self) -> String{
+    pub fn to_url(&self) -> String {
         let bytes = bincode::serialize(self).unwrap();
         hex::encode(bytes)
-    }    
+    }
 }
 
 use serde::{Deserialize, Serialize};
