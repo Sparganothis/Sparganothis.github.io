@@ -104,7 +104,6 @@ impl APIMethod for GetSegmentCount {
     type Req = GameId;
     type Resp = GameSegmentCountReply;
 }
-use crate::api::game_replay::GameSegmentId;
 pub struct GetAllSegments {}
 impl APIMethod for GetAllSegments {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllSegments;
