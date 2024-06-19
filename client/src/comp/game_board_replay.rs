@@ -107,24 +107,23 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
         }
     };
 
-    let on_click_play = move|_| {
+    let on_click_play = move |_| {
         log::info!("click on_click_play");
     };
-    let on_click_pause = move|_| {
+    let on_click_pause = move |_| {
         log::info!("click on_click_pause");
     };
-    let on_click_stop = move|_| {
+    let on_click_stop = move |_| {
         log::info!("click on_click_stop");
     };
-    let on_click_rewind = move|_| {
+    let on_click_rewind = move |_| {
         log::info!("click on_click_rewind");
     };
-    let on_click_fast = move|_| {
+    let on_click_fast = move |_| {
         log::info!("click on_click_fast");
     };
 
     let control_icons = view! {
-        // BiPauseCircleRegular BiStopCircleRegular    BiLoaderCircleRegular   
         <div class="control_icon_parent">
             <div class="control_icon_container">
                 <Icon
@@ -138,43 +137,43 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
             </div>
 
             <div class="control_icon_container">
-            <Icon
-                class="control_icon"
-                icon=icondata::BiPlayCircleRegular
-                on:click=on_click_play
-                width="5vmin"
-                height="5vmin"
-            />
+                <Icon
+                    class="control_icon"
+                    icon=icondata::BiPlayCircleRegular
+                    on:click=on_click_play
+                    width="5vmin"
+                    height="5vmin"
+                />
             </div>
 
             <div class="control_icon_container">
-            <Icon
-            class="control_icon"
-                icon=icondata::BiPlayCircleRegular
-                on:click=on_click_pause
-                width="5vmin"
-                height="5vmin"
-            />
+                <Icon
+                    class="control_icon"
+                    icon=icondata::BiPlayCircleRegular
+                    on:click=on_click_pause
+                    width="5vmin"
+                    height="5vmin"
+                />
             </div>
 
             <div class="control_icon_container">
-            <Icon
-            class="control_icon"
-                icon=icondata::BiPlayCircleRegular
-                on:click=on_click_stop
-                width="5vmin"
-                height="5vmin"
-            />
+                <Icon
+                    class="control_icon"
+                    icon=icondata::BiPlayCircleRegular
+                    on:click=on_click_stop
+                    width="5vmin"
+                    height="5vmin"
+                />
             </div>
 
             <div class="control_icon_container">
-            <Icon
-            class="control_icon"
-                icon=icondata::BiFastForwardCircleRegular
-                on:click=on_click_fast
-                width="5vmin"
-                height="5vmin"
-            />
+                <Icon
+                    class="control_icon"
+                    icon=icondata::BiFastForwardCircleRegular
+                    on:click=on_click_fast
+                    width="5vmin"
+                    height="5vmin"
+                />
             </div>
         </div>
     };
