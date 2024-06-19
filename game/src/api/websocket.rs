@@ -20,7 +20,7 @@ pub enum WebsocketAPIMessageType {
     AppendGameSegment,
     GetSegmentCount,
     GetSegment,
-    GetFull,
+    GetFullGameState,
     GetAllGames,
 }
 
@@ -105,9 +105,9 @@ impl APIMethod for GetSegment {
     type Resp = GameReplaySegment;
 }
 
-pub struct GetFull {}
-impl APIMethod for GetFull {
-    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetFull;
+pub struct GetFullGameState {}
+impl APIMethod for GetFullGameState {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetFullGameState;
     type Req = GameSegmentId;
     type Resp = GameState;
 }

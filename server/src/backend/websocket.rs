@@ -217,8 +217,8 @@ pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow:
         WebsocketAPIMessageType::GetSegment => {
             specific_sync_request::<GetSegment>(msg, user_id, get_segment_by_id).await
         }
-        WebsocketAPIMessageType::GetFull => {
-            specific_sync_request::<GetFull>(msg, user_id, get_full_game_state).await
+        WebsocketAPIMessageType::GetFullGameState => {
+            specific_sync_request::<GetFullGameState>(msg, user_id, get_full_game_state).await
         }
         WebsocketAPIMessageType::GetAllGames => {
             specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await
