@@ -1,7 +1,7 @@
 use crate::comp::game_board::GameBoard;
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::game_replay::GameId;
-use game::api::websocket::{GetAllSegments};
+use game::api::websocket::GetAllSegments;
 use game::tet::{GameReplaySegment, GameState};
 use game::timestamp::get_timestamp_now_ms;
 use leptonic::slider::Slider;
@@ -102,8 +102,7 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
             }
             .into_view()
         } else {
-            view! { <p>loading...</p> }
-            .into_view()
+            view! { <p>loading...</p> }.into_view()
         }
     };
 

@@ -1,13 +1,7 @@
-use game::{
-    api::{
-        game_replay::GameId,
-    },
-};
+use game::api::game_replay::GameId;
 use leptos_router::use_params_map;
 
-use crate::{
-    comp::game_board_replay::ReplayGameBoard,
-};
+use crate::comp::game_board_replay::ReplayGameBoard;
 use leptos::*;
 use leptos_struct_table::*;
 
