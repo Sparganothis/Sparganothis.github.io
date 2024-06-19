@@ -6,7 +6,9 @@ use game::api::websocket::{GetProfile, WhoAmI};
 
 #[component]
 pub fn MyAccountPage() -> impl IntoView {
+    #[allow(unused_variables)] // compiler bug saying we have unused variable (but we dont)
     let _api: WebsocketAPI = expect_context();
+    #[allow(unused_variables)]
     let guest_id = create_resource(
         || (),
         move |_| {
