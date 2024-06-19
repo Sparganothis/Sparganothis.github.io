@@ -654,8 +654,8 @@ impl GameState {
         new_current_pcs.pos.0 -= 1;
         if self.main_board.spawn_piece(&new_current_pcs).is_ok() {
             self.score += 2;
-            self.is_t_spin = false;
             self.current_pcs = Some(new_current_pcs);
+            self.is_t_spin = false;
         } else {
             self.main_board.spawn_piece(&current_pcs).unwrap();
             self.current_pcs = None;

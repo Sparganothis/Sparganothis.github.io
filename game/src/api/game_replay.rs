@@ -1,12 +1,13 @@
 use crate::{random::GameSeed, tet::GameReplaySegment};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FullGameReplayDbRow {
-    pub id: GameId,
-    pub segments: Vec<GameReplaySegment>,
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct GameSegmentId{
+    game_id: GameId,
+    segment_id: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GameId {
     pub user_id: uuid::Uuid,
     pub init_seed: GameSeed,
