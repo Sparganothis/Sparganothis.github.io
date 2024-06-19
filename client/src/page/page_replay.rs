@@ -1,5 +1,5 @@
 use game::{
-    api::{game_replay::FullGameReplayDbRow, websocket::GetAllFullGameReplays},
+    api::{ websocket::GetAllFullGameReplays},
     random::GameSeed,
 };
 

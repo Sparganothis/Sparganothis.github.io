@@ -237,6 +237,7 @@ pub fn AppRoot() -> impl IntoView {
                                 {move || {
                                     format!("{:?}", message_bytes.get().unwrap_or(vec![]).len())
                                 }}
+
                             </p>
                         </div>
                     </nav>

@@ -1,8 +1,7 @@
 use crate::{random::GameSeed, tet::GameReplaySegment};
 
-
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct GameSegmentId{
+pub struct GameSegmentId {
     game_id: GameId,
     segment_id: u32,
 }

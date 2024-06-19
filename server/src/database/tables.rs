@@ -1,10 +1,12 @@
-use game::{api::game_replay::{FullGameReplayDbRow, GameId, GameSegmentId}, tet::{GameReplaySegment, GameState}};
+use game::{
+    api::game_replay::{ GameId, GameSegmentId},
+    tet::{GameReplaySegment, GameState},
+};
 
 use super::config::SERVER_DATA_PATH;
 use anyhow::Context;
 
 use once_cell::sync::Lazy;
-
 
 pub static TABLES_DB: Lazy<sled::Db> =
     Lazy::new(|| sled::open(format!("{SERVER_DATA_PATH}/tables.sled")).unwrap());
@@ -17,13 +19,13 @@ pub static USER_PROFILE_DB: Lazy<typed_sled::Tree<uuid::Uuid, UserProfile>> =
 pub static GAME_IS_IN_PROGRESS_DB: Lazy<typed_sled::Tree<GameId, bool>> =
     Lazy::new(|| typed_sled::Tree::<GameId, bool>::open(&TABLES_DB, "game_in_progress_v1"));
 
-    pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegment>> =
-    Lazy::new(|| typed_sled::Tree::<GameSegmentId, GameReplaySegment>::open(&TABLES_DB, "game_segment_db_v1"));
-   
-    pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameSegmentId, GameState>> =
+pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegment>> =
+    Lazy::new(|| {
+        typed_sled::Tree::<GameSegmentId, GameReplaySegment>::open(&TABLES_DB, "game_segment_db_v1")
+    });
+
+pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameSegmentId, GameState>> =
     Lazy::new(|| typed_sled::Tree::<GameSegmentId, GameState>::open(&TABLES_DB, "game_full_v1"));
-
-
 
 pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
     Ok(USER_PROFILE_DB

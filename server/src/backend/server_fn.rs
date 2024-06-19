@@ -1,5 +1,8 @@
+use std::arch::x86_64::_CMP_FALSE_OS;
+
 use super::super::database::tables::GAME_REPLAY_DB;
 use crate::backend::server_info::GIT_VERSION;
+use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
 use anyhow::Context;
 use game::api::game_replay::FullGameReplayDbRow;
 use game::api::game_replay::GameId;
@@ -31,17 +34,17 @@ pub fn get_full_game_replay(
         .context("not fond error")?)
 }
 
-pub fn get_all_full_game_replays(
-    _: (),
-    _current_user_id: GuestInfo,
-) -> anyhow::Result<Vec<FullGameReplayDbRow>> {
-    let mut v = vec![];
-    for x in GAME_REPLAY_DB.iter() {
-        let y = x?.1;
-        v.push(y);
-    }
-    Ok(v)
-}
+// pub fn get_all_full_game_replays(
+//     _: (),
+//     _current_user_id: GuestInfo,
+// ) -> anyhow::Result<Vec<FullGameReplayDbRow>> {
+//     let mut v = vec![];
+//     for x in GAME_REPLAY_DB.iter() {
+//         let y = x?.1;
+//         v.push(y);
+//     }
+//     Ok(v)
+// }
 
 pub fn create_new_game_id(_: (), _current_user_id: GuestInfo) -> anyhow::Result<GameId> {
     let who = _current_user_id.user_id;
@@ -51,11 +54,8 @@ pub fn create_new_game_id(_: (), _current_user_id: GuestInfo) -> anyhow::Result<
         init_seed: rand.gen(),
         start_time: get_timestamp_now_nano(),
     };
-    let row = FullGameReplayDbRow {
-        id: (&g).clone(),
-        segments: vec![],
-    };
-    GAME_REPLAY_DB.insert(&g, &row)?;
+    
+    GAME_IS_IN_PROGRESS_DB.insert(&g, &false)?;
     Ok(g)
 }
 

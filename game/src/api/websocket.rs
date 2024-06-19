@@ -1,7 +1,6 @@
 use serde::Deserialize;
 use serde::Serialize;
 
-use super::game_replay::FullGameReplayDbRow;
 use super::game_replay::GameId;
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum SocketType {
