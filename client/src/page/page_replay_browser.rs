@@ -26,7 +26,7 @@ pub struct Person {
 }
 
 #[component]
-pub fn GamesTable(list_type: GetAllGamesArg) -> impl IntoView {
+pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     let api2: WebsocketAPI = expect_context();
     let all_games = create_resource(
         || (),
@@ -87,19 +87,19 @@ pub fn GameReplayPage() -> impl IntoView {
             <Tabs mount=Mount::WhenShown>
 
                 <Tab name="tab-best-games" label="Best Games".into_view()>
-                    <GamesTable list_type=GetAllGamesArg::BestGames/>
+                    <AllGamesTable list_type=GetAllGamesArg::BestGames/>
                 </Tab>
 
                 <Tab name="tab-recent-games" label="Recent Games".into_view()>
-                    <GamesTable list_type=GetAllGamesArg::RecentGames/>
+                    <AllGamesTable list_type=GetAllGamesArg::RecentGames/>
                 </Tab>
 
                 <Tab name="tab-my-best-games" label="My Best Games".into_view()>
-                    <GamesTable list_type=GetAllGamesArg::MyBestGames/>
+                    <AllGamesTable list_type=GetAllGamesArg::MyBestGames/>
                 </Tab>
 
                 <Tab name="tab-my-recent-games" label="My Recent Games".into_view()>
-                    <GamesTable list_type=GetAllGamesArg::MyRecentGames/>
+                    <AllGamesTable list_type=GetAllGamesArg::MyRecentGames/>
                 </Tab>
 
                 <Tab name="tab-1" label="Tab 1".into_view()>

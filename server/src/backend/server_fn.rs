@@ -210,7 +210,7 @@ pub fn get_all_games(
         Ok(v)
     };
     let sort_recent = |mut v: Vec<(GameId, _)>| -> anyhow::Result<_> {
-        v.sort_by_key(|x| -(x.0.start_time as i32));
+        v.sort_by_key(|x| -((x.0.start_time/100000) as i32));
         Ok(v)
     };
 

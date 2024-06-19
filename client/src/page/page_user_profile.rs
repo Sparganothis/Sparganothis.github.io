@@ -1,6 +1,6 @@
 use leptos::*;
 
-use super::page_replay_browser::GamesTable;
+use super::page_replay_browser::AllGamesTable;
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::user;
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
@@ -125,14 +125,14 @@ pub fn UserProfileView(_user_id: uuid::Uuid, p: user::UserProfile) -> impl IntoV
                     name="tab-best-user-games"
                     label="Best Games from $User".into_view()
                 >
-                    <GamesTable list_type=GetAllGamesArg::BestGamesForPlayer(_user_id)/>
+                    <AllGamesTable list_type=GetAllGamesArg::BestGamesForPlayer(_user_id)/>
                 </Tab>
 
                 <Tab
                     name="tab-recent-user-games"
                     label="Recent Games from $User".into_view()
                 >
-                    <GamesTable list_type=GetAllGamesArg::RecentGamesForPlayer(
+                    <AllGamesTable list_type=GetAllGamesArg::RecentGamesForPlayer(
                         _user_id,
                     )/>
                 </Tab>
