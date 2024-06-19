@@ -1,13 +1,11 @@
 use crate::comp::game_board::GameBoard;
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::game_replay::GameId;
-use game::api::websocket::{GetAllSegments, GetLastFullGameState};
-use game::random::GameSeed;
+use game::api::websocket::{GetAllSegments};
 use game::tet::{GameReplaySegment, GameState};
 use game::timestamp::get_timestamp_now_ms;
 use leptonic::slider::Slider;
 use leptos::*;
-use leptos_router::use_params_map;
 
 #[component]
 pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
