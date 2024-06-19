@@ -1,6 +1,9 @@
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::tet::GameReplaySegment;
+use crate::tet::GameState;
+
 use super::game_replay::GameId;
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum SocketType {
@@ -13,10 +16,12 @@ pub enum WebsocketAPIMessageType {
     GetProfile,
     WhoAmI,
     GitVersion,
-    GetFullGameReplay,
-    GetAllFullGameReplays,
     CreateNewGameId,
     AppendGameSegment,
+    GetSegmentCount,
+    GetSegment,
+    GetFull,
+    GetAllGames,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -53,6 +58,7 @@ impl APIMethod for GetProfile {
     type Resp = crate::api::user::UserProfile;
 }
 
+
 pub struct WhoAmI {}
 impl APIMethod for WhoAmI {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::WhoAmI;
@@ -67,20 +73,6 @@ impl APIMethod for GitVersion {
     type Resp = String;
 }
 
-pub struct GetFullGameReplay {}
-impl APIMethod for GetFullGameReplay {
-    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetFullGameReplay;
-    type Req = GameId;
-    type Resp = FullGameReplayDbRow;
-}
-
-pub struct GetAllFullGameReplays {}
-impl APIMethod for GetAllFullGameReplays {
-    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllFullGameReplays;
-    type Req = ();
-    type Resp = Vec<FullGameReplayDbRow>;
-}
-
 pub struct CreateNewGameId {}
 impl APIMethod for CreateNewGameId {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::CreateNewGameId;
@@ -93,4 +85,38 @@ impl APIMethod for AppendGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendGameSegment;
     type Req = (GameId, String);
     type Resp = ();
+}
+
+#[derive(Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
+pub struct GameSegmentCountReply{
+    pub is_in_progress: bool,
+    pub segment_count: u32,
+}
+pub struct GetSegmentCount {}
+impl APIMethod for GetSegmentCount {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetSegmentCount;
+    type Req = GameId;
+    type Resp = GameSegmentCountReply;
+}
+use crate::api::game_replay::GameSegmentId;
+pub struct GetSegment {}
+impl APIMethod for GetSegment {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetSegment;
+    type Req = GameSegmentId;
+    type Resp = GameReplaySegment;
+}
+
+pub struct GetFull {}
+impl APIMethod for GetFull {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetFull;
+    type Req = GameSegmentId;
+    type Resp = GameState;
+}
+
+
+pub struct GetAllGames {}
+impl APIMethod for GetAllGames {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllGames;
+    type Req = ();
+    type Resp = Vec<GameId>;
 }

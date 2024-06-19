@@ -203,19 +203,26 @@ pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow:
         WebsocketAPIMessageType::GitVersion => {
             specific_sync_request::<GitVersion>(msg, user_id, git_version).await
         }
-        WebsocketAPIMessageType::GetFullGameReplay => {
-            specific_sync_request::<GetFullGameReplay>(msg, user_id, get_full_game_replay).await
-        }
-        WebsocketAPIMessageType::GetAllFullGameReplays => {
-            specific_sync_request::<GetAllFullGameReplays>(msg, user_id, get_all_full_game_replays)
-                .await
-        }
+
         WebsocketAPIMessageType::CreateNewGameId => {
             specific_sync_request::<CreateNewGameId>(msg, user_id, create_new_game_id).await
         }
         WebsocketAPIMessageType::AppendGameSegment => {
             specific_sync_request::<AppendGameSegment>(msg, user_id, append_game_segment).await
         }
+
+        WebsocketAPIMessageType::GetSegmentCount => {
+            specific_sync_request::<GetSegmentCount>(msg, user_id, get_segment_count).await
+        },
+        WebsocketAPIMessageType::GetSegment => {
+            specific_sync_request::<GetSegment>(msg, user_id, get_segment_by_id).await
+        },
+        WebsocketAPIMessageType::GetFull => {
+            specific_sync_request::<GetFull>(msg, user_id, get_full_game_state).await
+        },
+        WebsocketAPIMessageType::GetAllGames => {
+            specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

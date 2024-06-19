@@ -1,6 +1,5 @@
 use std::arch::x86_64::_CMP_FALSE_OS;
 
-use super::super::database::tables::GAME_REPLAY_DB;
 use crate::backend::server_info::GIT_VERSION;
 use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
 use crate::database::tables::GAME_SEGMENT_COUNT_DB;
@@ -8,11 +7,11 @@ use crate::database::tables::GAME_SEGMENT_DB;
 use crate::database::tables::GAME_FULL_DB;
 
 use anyhow::Context;
-use game::api::game_replay::FullGameReplayDbRow;
 use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
 use game::api::user::GuestInfo;
 use game::api::user::UserProfile;
+use game::api::websocket::GameSegmentCountReply;
 use game::tet::GameReplaySegment;
 use game::tet::GameState;
 use game::timestamp::get_timestamp_now_nano;
@@ -30,27 +29,6 @@ pub fn git_version(_: (), _current_user_id: GuestInfo) -> anyhow::Result<String>
     Ok(GIT_VERSION.clone())
 }
 
-pub fn get_full_game_replay(
-    id: GameId,
-    _current_user_id: GuestInfo,
-) -> anyhow::Result<FullGameReplayDbRow> {
-    Ok(GAME_REPLAY_DB
-        .get(&id)
-        .context("db get error")?
-        .context("not fond error")?)
-}
-
-// pub fn get_all_full_game_replays(
-//     _: (),
-//     _current_user_id: GuestInfo,
-// ) -> anyhow::Result<Vec<FullGameReplayDbRow>> {
-//     let mut v = vec![];
-//     for x in GAME_REPLAY_DB.iter() {
-//         let y = x?.1;
-//         v.push(y);
-//     }
-//     Ok(v)
-// }
 
 pub fn create_new_game_id(_: (), _current_user_id: GuestInfo) -> anyhow::Result<GameId> {
     let who = _current_user_id.user_id;
@@ -79,12 +57,16 @@ pub fn append_game_segment(
 
     let existing_segment_count = GAME_SEGMENT_COUNT_DB.get(&id)?.context("game segment count not found!")?;
     let last_segment: Option<GameReplaySegment> = if existing_segment_count > 0 {
-        Some(GAME_SEGMENT_DB.get(&GameSegmentId{game_id:id, segment_id:existing_segment_count-1})?.expect("segment not found")?)
+        let old_segment_id  = GameSegmentId{game_id:id, segment_id:existing_segment_count-1};
+        let maybe_segment = GAME_SEGMENT_DB.get(&old_segment_id)?.context("not found")?;
+        Some(maybe_segment)
     } else {
         None
     };
     let last_state: Option<GameState> = if existing_segment_count > 0 {
-        Some(GAME_FULL_DB.get(&GameSegmentId{game_id:id, segment_id:existing_segment_count-1})?.expect("game full not found")?)
+        let old_segment_id  = GameSegmentId{game_id:id, segment_id:existing_segment_count-1};
+        let maybe_gamestate = GAME_FULL_DB.get(&old_segment_id)?.context("not found")?;
+        Some(maybe_gamestate)
     } else {
         None
     };
@@ -149,4 +131,45 @@ pub fn append_game_segment(
     GAME_FULL_DB.insert(&new_segment_id, &new_game_state)?;
 
     Ok(())
+}
+
+
+
+pub fn get_full_game_state(
+    segid: GameSegmentId,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<GameState> {
+    let r = GAME_FULL_DB.get(&segid)?.context("not fgound")?;
+    Ok(r)
+}
+
+pub fn get_segment_by_id(
+    segid: GameSegmentId,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<GameReplaySegment> {
+    let r = GAME_SEGMENT_DB.get(&segid)?.context("not fgound")?;
+    Ok(r)
+}
+
+pub fn get_segment_count(
+    segid: GameId,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<GameSegmentCountReply> {
+    let is_in_progress = GAME_IS_IN_PROGRESS_DB.get(&segid)?.context("not fgound")?;
+    let seg_count = GAME_SEGMENT_COUNT_DB.get(&segid)?.context("not found")?;
+    Ok(GameSegmentCountReply{
+        is_in_progress,
+        segment_count: seg_count
+    })
+}
+
+pub fn get_all_games(
+    segid: (),
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<Vec<GameId>> {
+    let mut v = vec![];
+    for r in GAME_IS_IN_PROGRESS_DB.iter().keys(){
+        v.push(r?);
+    }
+    Ok(v)
 }

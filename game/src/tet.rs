@@ -7,7 +7,7 @@ use super::rot::{RotDirection, RotState, Shape};
 use super::random::*;
 
 use std::collections::VecDeque;
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Tet {
     I,
     L,
@@ -119,16 +119,18 @@ impl Tet {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CellValue {
     Piece(Tet),
     Garbage,
     Empty,
     Ghost,
 }
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+use serde_with::{serde_as, Bytes};
+#[serde_as]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
+    #[serde_as(as = "[[_; C]; R]")]
     v: [[CellValue; C]; R],
 }
 
@@ -313,7 +315,7 @@ impl TetAction {
 pub const SIDE_BOARD_WIDTH: usize = 4;
 type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameState {
     pub score: i64,
     pub is_t_spin: bool,
@@ -384,13 +386,13 @@ pub struct GameReplayEvent {
 
 const SPAWN_POS: (i8, i8) = (18, 3);
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HoldPcsInfo {
     can_use: bool,
     tet: Tet,
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CurrentPcsInfo {
     pos: (i8, i8),
     tet: Tet,

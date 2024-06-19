@@ -189,7 +189,6 @@ pub fn AppRoot() -> impl IntoView {
     use crate::comp::game_board_spectator::SpectatorGameBoard;
     use crate::page::page_1p::Game1PPage;
     use crate::page::page_2p::Game2PPage;
-    use crate::page::page_replay::GameReplayPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
     use crate::page::page_vs_cpu::GameCPUPage;
 
@@ -247,7 +246,7 @@ pub fn AppRoot() -> impl IntoView {
                             <Route path="" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
                             <Route path="/vs_net" view=Game2PPage/>
-                            <Route path="/replay" view=GameReplayPage/>
+                            // <Route path="/replay" view=crate::page::page_replay::GameReplayPage/>
                             <Route path="/account" view=MyAccountPage/>
                             <Route path="/ws_demo" view=SpectatorGameBoard/>
                             <Route path="/user/:user_id" view=UserProfilePage/>
