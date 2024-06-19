@@ -224,11 +224,11 @@ pub async fn websocket_handle_request(
             specific_sync_request::<GetSegmentCount>(msg, user_id, get_segment_count)
                 .await
         }
-        WebsocketAPIMessageType::GetSegment => {
-            specific_sync_request::<GetSegment>(msg, user_id, get_segment_by_id).await
+        WebsocketAPIMessageType::GetAllSegments => {
+            specific_sync_request::<GetAllSegments>(msg, user_id, get_all_segments_for_game).await
         }
-        WebsocketAPIMessageType::GetFullGameState => {
-            specific_sync_request::<GetFullGameState>(msg, user_id, get_full_game_state)
+        WebsocketAPIMessageType::GetLastFullGameState => {
+            specific_sync_request::<GetLastFullGameState>(msg, user_id, get_last_full_game_state)
                 .await
         }
         WebsocketAPIMessageType::GetAllGames => {

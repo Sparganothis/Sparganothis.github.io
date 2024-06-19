@@ -4,6 +4,7 @@ use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
 use crate::database::tables::GAME_SEGMENT_COUNT_DB;
 use crate::database::tables::GAME_SEGMENT_DB;
 
+use anyhow::anyhow;
 use anyhow::Context;
 use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
@@ -71,12 +72,8 @@ pub fn append_game_segment(
         None
     };
     let last_state: Option<GameState> = if existing_segment_count > 0 {
-        let old_segment_id = GameSegmentId {
-            game_id: id,
-            segment_id: existing_segment_count - 1,
-        };
         let maybe_gamestate =
-            GAME_FULL_DB.get(&old_segment_id)?.context("not found")?;
+            GAME_FULL_DB.get(&id)?.context("not found")?;
         Some(maybe_gamestate)
     } else {
         None
@@ -143,24 +140,34 @@ pub fn append_game_segment(
             last_state
         }
     };
-    GAME_FULL_DB.insert(&new_segment_id, &new_game_state)?;
+    GAME_FULL_DB.insert(&id, &new_game_state)?;
 
     Ok(())
 }
 
-pub fn get_full_game_state(
-    segid: GameSegmentId,
+pub fn get_last_full_game_state(
+    game_id: GameId,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<GameState> {
-    let r = GAME_FULL_DB.get(&segid)?.context("not fgound")?;
-    Ok(r)
+   Ok(GAME_FULL_DB.get(&game_id)?.context("game not found")?)
 }
 
-pub fn get_segment_by_id(
-    segid: GameSegmentId,
+pub fn get_all_segments_for_game(
+    game_id: GameId,
     _current_user_id: GuestInfo,
-) -> anyhow::Result<GameReplaySegment> {
-    let r = GAME_SEGMENT_DB.get(&segid)?.context("not fgound")?;
+) -> anyhow::Result<Vec<GameReplaySegment>> {
+    let mut r = vec![];
+    for item in GAME_SEGMENT_DB.range(GameSegmentId::get_range_for_game(&game_id)).into_iter() {
+        let (_segment_id, replay_segment) = item?;
+        r.push(replay_segment);
+    }
+    r.sort_by_key(|s| {
+        match s {
+            GameReplaySegment::Init(_) => -1,
+            GameReplaySegment::Update(_s) => _s.idx as i32,
+            GameReplaySegment::GameOver => i32::MAX,
+        }
+    });
     Ok(r)
 }
 

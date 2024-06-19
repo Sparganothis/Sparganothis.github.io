@@ -36,9 +36,9 @@ pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegme
         )
     });
 
-pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameSegmentId, GameState>> =
+pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameId, GameState>> =
     Lazy::new(|| {
-        typed_sled::Tree::<GameSegmentId, GameState>::open(&TABLES_DB, "game_full_v1")
+        typed_sled::Tree::<GameId, GameState>::open(&TABLES_DB, "game_full_v2")
     });
 
 pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {

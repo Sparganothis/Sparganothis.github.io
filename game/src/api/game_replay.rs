@@ -34,6 +34,10 @@ pub struct GameId {
 }
 
 impl GameId {
+    pub fn from_url(url: String) -> anyhow::Result<Self> {
+        let b = hex::decode(url)?;
+        Ok(bincode::deserialize(&b)?)
+    }
     pub fn to_url(&self) -> String {
         let bytes = bincode::serialize(self).unwrap();
         hex::encode(bytes)

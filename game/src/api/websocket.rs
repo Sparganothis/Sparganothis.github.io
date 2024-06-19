@@ -16,8 +16,8 @@ pub enum WebsocketAPIMessageType {
     CreateNewGameId,
     AppendGameSegment,
     GetSegmentCount,
-    GetSegment,
-    GetFullGameState,
+    GetAllSegments,
+    GetLastFullGameState,
     GetAllGames,
 }
 
@@ -105,17 +105,17 @@ impl APIMethod for GetSegmentCount {
     type Resp = GameSegmentCountReply;
 }
 use crate::api::game_replay::GameSegmentId;
-pub struct GetSegment {}
-impl APIMethod for GetSegment {
-    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetSegment;
-    type Req = GameSegmentId;
-    type Resp = GameReplaySegment;
+pub struct GetAllSegments {}
+impl APIMethod for GetAllSegments {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllSegments;
+    type Req = GameId;
+    type Resp = Vec<GameReplaySegment>;
 }
 
-pub struct GetFullGameState {}
-impl APIMethod for GetFullGameState {
-    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetFullGameState;
-    type Req = GameSegmentId;
+pub struct GetLastFullGameState {}
+impl APIMethod for GetLastFullGameState {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetLastFullGameState;
+    type Req = GameId;
     type Resp = GameState;
 }
 

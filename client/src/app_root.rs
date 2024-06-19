@@ -264,11 +264,12 @@ pub fn AppRoot() -> impl IntoView {
                             <Route path="/vs_net" view=Game2PPage/>
                             <Route
                                 path="/replay"
-                                view=crate::page::page_replay_browser::GameReplayPage
+                                view=crate::page::page_replay_browser::GameReplayBrowserPage
                             />
                             <Route path="/account" view=MyAccountPage/>
                             <Route path="/ws_demo" view=SpectatorGameBoard/>
                             <Route path="/user/:user_id" view=UserProfilePage/>
+                            <Route path="/view-game/:game_id" view=crate::page::page_replay_single::GameReplaySinglePage/>
                         </Routes>
                     </main>
                 </Router>

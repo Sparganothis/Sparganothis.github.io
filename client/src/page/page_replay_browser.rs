@@ -17,14 +17,6 @@ use leptonic::prelude::*;
 use leptos::*;
 use leptos_struct_table::*;
 
-#[derive(TableRow, Clone)]
-#[table(impl_vec_data_provider)]
-pub struct Person {
-    id: u32,
-    name: String,
-    age: u32,
-}
-
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     let api2: WebsocketAPI = expect_context();
@@ -66,23 +58,13 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
 }
 
 #[component]
-pub fn GameReplayPage() -> impl IntoView {
+pub fn GameReplayBrowserPage() -> impl IntoView {
     let seed: GameSeed = [0; 32];
-    let (value, set_value) = create_signal(6.0);
     view! {
         <div class="main_right">
             <RandomOpponentGameBoard seed=seed/>
         </div>
         <div class="main_left">
-
-            <Slider
-                min=0.0
-                max=1.0
-                step=0.0001
-                value=value
-                set_value=set_value
-                value_display=move |v| format!("{v:.4}")
-            />
 
             <Tabs mount=Mount::WhenShown>
 
