@@ -6,5 +6,28 @@
         <link data-trunk rel="scss" href="style/main.scss" />
         <link data-trunk rel="copy-file" href="public/robots.txt" />
         <link data-trunk rel="copy-dir" href="public/js/" />
+        <style>
+                .control_icon_parent {
+                    position:absolute;
+                    top:8vmin;
+                    left:16vmin;
+                    z-index:666;
+                    height: max-content;
+                    width: max-content;
+                    display: flex;                  /* establish flex container */
+                    flex-direction: row;            /* default value; can be omitted */
+                    flex-wrap: nowrap;              /* default value; can be omitted */
+                    justify-content: space-between;
+                }
+                .control_icon_container {
+                    height: 6vmin;
+                    width: 6vmin;
+                }
+                .control_icon {
+                    height: 6vmin;
+                    width: 6vmin;
+                    color: black;
+                }
+        </style>
     </head>
 </html>

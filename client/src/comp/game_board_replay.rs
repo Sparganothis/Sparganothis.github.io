@@ -4,6 +4,7 @@ use game::api::game_replay::GameId;
 use game::api::websocket::GetAllSegments;
 use game::tet::{GameReplaySegment, GameState};
 use game::timestamp::get_timestamp_now_ms;
+use leptonic::prelude::*;
 use leptonic::slider::Slider;
 use leptos::*;
 
@@ -106,10 +107,83 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
         }
     };
 
+    let on_click_play = move|_| {
+        log::info!("click on_click_play");
+    };
+    let on_click_pause = move|_| {
+        log::info!("click on_click_pause");
+    };
+    let on_click_stop = move|_| {
+        log::info!("click on_click_stop");
+    };
+    let on_click_rewind = move|_| {
+        log::info!("click on_click_rewind");
+    };
+    let on_click_fast = move|_| {
+        log::info!("click on_click_fast");
+    };
+
+    let control_icons = view! {
+        // BiPauseCircleRegular BiStopCircleRegular    BiLoaderCircleRegular   
+        <div class="control_icon_parent">
+            <div class="control_icon_container">
+                <Icon
+                    class="control_icon"
+                    icon=icondata::BiRewindCircleRegular
+                    style="color: black"
+                    on:click=on_click_rewind
+                    width="5vmin"
+                    height="5vmin"
+                />
+            </div>
+
+            <div class="control_icon_container">
+            <Icon
+                class="control_icon"
+                icon=icondata::BiPlayCircleRegular
+                on:click=on_click_play
+                width="5vmin"
+                height="5vmin"
+            />
+            </div>
+
+            <div class="control_icon_container">
+            <Icon
+            class="control_icon"
+                icon=icondata::BiPlayCircleRegular
+                on:click=on_click_pause
+                width="5vmin"
+                height="5vmin"
+            />
+            </div>
+
+            <div class="control_icon_container">
+            <Icon
+            class="control_icon"
+                icon=icondata::BiPlayCircleRegular
+                on:click=on_click_stop
+                width="5vmin"
+                height="5vmin"
+            />
+            </div>
+
+            <div class="control_icon_container">
+            <Icon
+            class="control_icon"
+                icon=icondata::BiFastForwardCircleRegular
+                on:click=on_click_fast
+                width="5vmin"
+                height="5vmin"
+            />
+            </div>
+        </div>
+    };
+
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
         {slider}
         {update_state_on_slider_change}
+        {control_icons}
 
         <GameBoard on_reset_game=on_reset game_state=state_signal/>
     }

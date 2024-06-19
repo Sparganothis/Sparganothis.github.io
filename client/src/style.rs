@@ -32,6 +32,7 @@ pub fn default_style(
     table {
         border-collapse: collapse;
     }
+
     .main_container {
         height: 96.2vmin;
         width: ${cell_width_vmin * (2.0 * SIDE_BOARD_WIDTH as f64 + 11.8)}vmin;
@@ -40,6 +41,7 @@ pub fn default_style(
         top: 0vmin;
         left: 0vmin;
         overflow: hidden;
+        z-index: -1;
     }
     .main_board, .side_board_left, .side_board_right, .score_window_left, .score_window_right, .label_bottom {
         width: max-content;
