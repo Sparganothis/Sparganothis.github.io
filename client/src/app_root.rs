@@ -13,30 +13,31 @@ pub fn AppRoot() -> impl IntoView {
     let _style = stylist::style!(
         nav {
             position: absolute;
-            left: 0vmin;
-            top: 0vmin;
+            left: 1vmin;
+            top: 1vmin;
             height: 98vmin;
-            width: 18vmin;
+            width: 19.2vmin;
             border: 1vmin solid black;
         }
         main {
             position: absolute;
-            top: 0vmin;
+            top: 1vmin;
             left: 19.85vmin;
             height: 100vmin;
         }
         main > div.main_left {
             position: absolute;
             top: 0vmin;
-            width: 70.1vmin;
+            width: 71.1vmin;
+            left: 1.1vmin;
             height: 98vmin;
             border: 1vmin solid green;
         }
         main > div.main_right {
             position: absolute;
             top: 0vmin;
-            width: 70.1vmin;
-            left: 71.85vmin;
+            width: 71.1vmin;
+            left: 72.85vmin;
             height: 98vmin;
             border: 1vmin solid blue;
         }
@@ -155,6 +156,8 @@ pub fn AppRoot() -> impl IntoView {
         );
     };
     let mut recv_bytes_stream = message_bytes.to_stream();
+    // let last_message_size = create_rw_signal(0);
+    // let last_message_id = create_rw_signal(0);
 
     log::info!("console init");
     let api_spawn = api.clone();
@@ -163,6 +166,9 @@ pub fn AppRoot() -> impl IntoView {
         use futures::stream::StreamExt;
         loop {
             while let Some(Some(c)) = recv_bytes_stream.next().await {
+                // last_message_size.set_untracked(c.len() as i32);
+                // last_message_id.set_untracked(last_message_id.try_get_untracked().unwrap_or(0) % 999);
+                log::debug!("websocket got {} bytes", c.len());
                 match bincode::deserialize::<WebsocketAPIMessageRaw>(&c) {
                     Ok(msg) => {
                         // log::info!("recv message type={:?} len={}", msg._type, c.len(),);
@@ -201,7 +207,7 @@ pub fn AppRoot() -> impl IntoView {
         // <Stylesheet id="leptos" href="/pkg/leptonic-template-ssr.css"/>
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
 
-        <Title text="Leptonic CSR template"/>
+        <Title text="TOTRES"/>
 
         <Root default_theme=LeptonicTheme::default()>
 
@@ -240,11 +246,10 @@ pub fn AppRoot() -> impl IntoView {
 
                             // <p>{sig}</p>
                             <p>
-                                "Receive byte message: "
                                 {move || {
-                                    format!("{:?}", message_bytes.get().unwrap_or(vec![]).len())
+                                    format!("{:?} bytes", message_bytes.get().unwrap_or(vec![]).len())
+                                    // format!("{} bytes ({})", last_message_size.get(),)
                                 }}
-
                             </p>
                         </div>
                     </nav>
@@ -256,7 +261,7 @@ pub fn AppRoot() -> impl IntoView {
                             <Route path="/vs_net" view=Game2PPage/>
                             <Route
                                 path="/replay"
-                                view=crate::page::page_replay::GameReplayPage
+                                view=crate::page::page_replay_browser::GameReplayPage
                             />
                             <Route path="/account" view=MyAccountPage/>
                             <Route path="/ws_demo" view=SpectatorGameBoard/>

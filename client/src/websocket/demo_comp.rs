@@ -60,7 +60,7 @@ pub fn call_websocket_api<T: APIMethod>(
                 }
             }
         }
-        // log::info!("found ready state");
+        log::info!("Websocket Request: {:?}", T::TYPE);
         T::send(arg, move |x| sender(x), id)
             .map_err(|e| format!("send error: {:?}", e))?;
 
@@ -84,6 +84,8 @@ pub async fn accept_reply_message(api: &WebsocketAPI, msg: WebsocketAPIMessageRa
             if let Ok(cell) = Rc::try_unwrap(cell.0) {
                 if let Err(e) = cell.send(msg) {
                     log::warn!("failed to send message into oneshot: {:?}", e._type);
+                } else {
+                    log::info!("Websocket: {:?} SUCCESS", key.1);
                 }
             } else {
                 log::warn!("failed to unwrap Rc that we just removed from map!");

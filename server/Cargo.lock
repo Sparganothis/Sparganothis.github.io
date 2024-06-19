@@ -582,6 +582,7 @@ dependencies = [
  "serde",
  "serde_with",
  "time",
+ "timediff",
  "uuid",
  "wasm-bindgen-test",
 ]
@@ -714,6 +715,12 @@ name = "httpdate"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
+
+[[package]]
+name = "humantime"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
@@ -1468,19 +1475,15 @@ dependencies = [
  "axum",
  "axum-extra",
  "bincode",
- "chrono",
  "futures",
  "game",
  "http",
  "log",
  "once_cell",
  "rand",
- "rand_chacha",
  "random_word",
- "serde",
  "serde_json",
  "sled",
- "thiserror",
  "time",
  "tokio",
  "tower",
@@ -1490,7 +1493,6 @@ dependencies = [
  "tracing-subscriber",
  "typed-sled",
  "uuid",
- "wasm-bindgen-test",
 ]
 
 [[package]]
@@ -1666,6 +1668,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26197e33420244aeb70c3e8c78376ca46571bc4e701e4791c2cd9f57dcb3a43f"
 dependencies = [
  "time-core",
+]
+
+[[package]]
+name = "timediff"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ec397e7943b73844bbf8329640375f30d62fc65ee0180489ccf54e0b32462cd"
+dependencies = [
+ "humantime",
 ]
 
 [[package]]

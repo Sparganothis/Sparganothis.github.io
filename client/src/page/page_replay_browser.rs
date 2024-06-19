@@ -3,7 +3,7 @@ use game::{
         game_replay::GameId,
         websocket::{GameSegmentCountReply, GetAllGames},
     },
-    random::GameSeed,
+    random::GameSeed, timestamp::get_human_readable_nano,
 };
 
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
 use icondata as i;
 use leptonic::prelude::*;
 use leptos::*;
-
+use game::api::websocket::GetAllGamesArg;
 use leptos_struct_table::*;
 
 #[derive(TableRow, Clone)]
@@ -23,8 +23,9 @@ pub struct Person {
     name: String,
     age: u32,
 }
+
 #[component]
-pub fn TableDemo() -> impl IntoView {
+pub fn GamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     let api2: WebsocketAPI = expect_context();
     let all_games = create_resource(
         || (),
@@ -32,7 +33,7 @@ pub fn TableDemo() -> impl IntoView {
             let api2 = api2.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<GetAllGames>(api2, ())
+                let r = call_websocket_api::<GetAllGames>(api2, list_type)
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);
@@ -50,13 +51,13 @@ pub fn TableDemo() -> impl IntoView {
                 .collect::<Vec<_>>();
 
             view! {
-                <table>
+                <table id={format!("{list_type:?}")}>
                     <TableContent rows row_renderer=CustomTableRowRenderer/>
                 </table>
             }
             .into_view()
         } else {
-            view! { <p>no rows</p> }.into_view()
+            view! { <p>loading...</p> }.into_view()
         }
     };
 
@@ -68,11 +69,10 @@ pub fn GameReplayPage() -> impl IntoView {
     let seed: GameSeed = [0; 32];
     let (value, set_value) = create_signal(6.0);
     view! {
-        <div class="main_left">
-
+        <div class="main_right">
             <RandomOpponentGameBoard seed=seed/>
         </div>
-        <div class="main_right">
+        <div class="main_left">
 
             <Slider
                 min=0.0
@@ -83,7 +83,24 @@ pub fn GameReplayPage() -> impl IntoView {
                 value_display=move |v| format!("{v:.4}")
             />
 
-            <Tabs mount=Mount::Once>
+            <Tabs mount=Mount::WhenShown>
+                    
+                <Tab name="tab-best-games" label="Best Games".into_view()>
+                    <GamesTable list_type=GetAllGamesArg::BestGames/>
+                </Tab>
+
+                <Tab name="tab-recent-games" label="Recent Games".into_view()>
+                    <GamesTable list_type=GetAllGamesArg::RecentGames/>
+                </Tab>
+                    
+                <Tab name="tab-my-best-games" label="My Best Games".into_view()>
+                    <GamesTable list_type=GetAllGamesArg::MyBestGames/>
+                </Tab>
+
+                <Tab name="tab-my-recent-games" label="My Recent Games".into_view()>
+                    <GamesTable list_type=GetAllGamesArg::MyRecentGames/>
+                </Tab>
+
                 <Tab name="tab-1" label="Tab 1".into_view()>
                     <div style="font-size: 8em; color: #8f39d3;">
                         <Icon icon=i::AiCarryOutTwotone style="color: green"/>
@@ -104,14 +121,12 @@ pub fn GameReplayPage() -> impl IntoView {
                     </div>
                 </Tab>
 
-                <Tab name="tab-2" label="Tab 2".into_view()>
-                    <TableDemo/>
-                </Tab>
 
             </Tabs>
         </div>
     }
 }
+
 
 #[allow(unused_variables, non_snake_case)]
 pub fn CustomTableRowRenderer(
@@ -129,13 +144,21 @@ pub fn CustomTableRowRenderer(
     on_change: EventHandler<ChangeEvent<FullGameReplayTableRow>>,
 ) -> impl IntoView {
     let row2 = row.clone();
+    let row3 = row.clone();
     view! {
         <tr class=class on:click=move |mouse_event| on_select.run(mouse_event)>
             {row2.render_row(index, on_change)}
-            <a href=move || format!("/game-replay/{}", row.to_url())>LINK</a>
+            <td><a href=move || format!("/view-game/{}", row.to_url())>{move || {
+                if row3.is_in_progress {
+                    "Spectate".to_string()
+                } else {
+                    "Replay".to_string()
+                }
+            }}</a></td>
         </tr>
     }
 }
+
 
 #[derive(TableRow, Clone, Debug)]
 #[table(impl_vec_data_provider)]
@@ -144,6 +167,7 @@ pub struct FullGameReplayTableRow {
     pub user_id: uuid::Uuid,
     #[table(renderer = "SeedRenderer")]
     pub init_seed: GameSeed,
+    #[table(renderer = "TimeRenderer")]
     pub start_time: i64,
     pub num_segments: usize,
     pub is_in_progress: bool,
@@ -169,6 +193,27 @@ impl FullGameReplayTableRow {
         .to_url()
     }
 }
+
+
+#[allow(unused_variables)]
+#[component]
+fn TimeRenderer<F>(
+    class: String,
+    #[prop(into)] value: MaybeSignal<i64>,
+    on_change: F,
+    index: usize,
+) -> impl IntoView
+where
+    F: Fn(i64) + 'static,
+{
+    view! {
+        <td class=class>
+            <p >{move || {get_human_readable_nano(value.get())}}</p>
+        </td>
+    }
+}
+
+
 #[allow(unused_variables)]
 #[component]
 fn WeedRenderer<F>(
@@ -182,10 +227,14 @@ where
 {
     view! {
         <td class=class>
-            <p>{move || format!("{:?}", value.get())}</p>
+            <a href={format!("/user/{:?}", value.get())}>
+            <p style="border: 1px solid black">{move || {format!("{:?}", value.get())[0..8].to_string()}}</p>
+            </a>
         </td>
     }
 }
+
+
 #[allow(unused_variables)]
 #[component]
 fn SeedRenderer<F>(

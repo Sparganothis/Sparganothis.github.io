@@ -1,3 +1,6 @@
+#![deny(unused_crate_dependencies)]
+use tower as _;
+
 pub mod backend;
 pub mod database;
 

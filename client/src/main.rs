@@ -1,5 +1,9 @@
-// #![deny(unused_crate_dependencies)]
+#![deny(unused_crate_dependencies)]
 #![allow(unused_braces)]
+
+use serde as _;
+use wasm_bindgen as _;
+
 use leptos::*;
 
 pub mod app_root;

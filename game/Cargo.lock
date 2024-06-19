@@ -165,6 +165,7 @@ dependencies = [
  "serde",
  "serde_with",
  "time",
+ "timediff",
  "uuid",
  "wasm-bindgen-test",
 ]
@@ -199,6 +200,12 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
+name = "humantime"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "iana-time-zone"
@@ -478,6 +485,15 @@ checksum = "3f252a68540fde3a3877aeea552b832b40ab9a69e318efd078774a01ddee1ccf"
 dependencies = [
  "num-conv",
  "time-core",
+]
+
+[[package]]
+name = "timediff"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ec397e7943b73844bbf8329640375f30d62fc65ee0180489ccf54e0b32462cd"
+dependencies = [
+ "humantime",
 ]
 
 [[package]]

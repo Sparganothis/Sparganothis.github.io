@@ -21,7 +21,9 @@ anyhow = "1.0.86"
 rand  = {version="0.8.5"}
 rand_chacha = "0.3.1"
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
+timediff = "0.2.3"
 
 wasm-bindgen-test = "0.3"
+
 [dev-dependencies]
 # pretty_assertions = "1.4.0"

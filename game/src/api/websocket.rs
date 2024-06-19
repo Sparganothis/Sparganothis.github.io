@@ -119,9 +119,21 @@ impl APIMethod for GetFullGameState {
     type Resp = GameState;
 }
 
+
+#[derive(
+    Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
+)]
+pub enum GetAllGamesArg {
+    BestGames,
+    RecentGames,
+    MyBestGames,
+    MyRecentGames,
+    BestGamesForPlayer(uuid::Uuid),
+    RecentGamesForPlayer(uuid::Uuid),
+}
 pub struct GetAllGames {}
 impl APIMethod for GetAllGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllGames;
-    type Req = ();
+    type Req = GetAllGamesArg;
     type Resp = Vec<(GameId, GameSegmentCountReply)>;
 }

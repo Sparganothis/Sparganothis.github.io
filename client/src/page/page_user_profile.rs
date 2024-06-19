@@ -2,7 +2,9 @@ use leptos::*;
 
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::user;
-use game::api::websocket::{GetProfile, WhoAmI};
+use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
+use leptonic::prelude::*;
+use super::page_replay_browser::GamesTable;
 
 #[component]
 pub fn MyAccountPage() -> impl IntoView {
@@ -113,11 +115,25 @@ pub fn UserProfilePage() -> impl IntoView {
 
 #[component]
 pub fn UserProfileView(_user_id: uuid::Uuid, p: user::UserProfile) -> impl IntoView {
+
     view! {
         <div class="profile_view_container">
             <h1>{{ &p.display_name }}</h1>
             <h3>user_id: {{ format!("{:?}", _user_id) }}</h3>
-            <pre>{{ format!("User Profile: {:?}", &p) }}</pre>
+
+            <Tabs mount=Mount::WhenShown>
+                <Tab name="tab-best-user-games" label="Best Games from $User".into_view()>
+                    <GamesTable list_type=GetAllGamesArg::BestGamesForPlayer(_user_id)/>
+                </Tab>
+
+                <Tab name="tab-recent-user-games" label="Recent Games from $User".into_view()>
+                    <GamesTable list_type=GetAllGamesArg::RecentGamesForPlayer(_user_id)/>
+                </Tab>
+            </Tabs>
+
+            
+            <code><pre>{{ format!("{:#?}", &p) }}</pre></code>
+
         </div>
     }
 }

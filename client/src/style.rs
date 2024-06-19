@@ -33,12 +33,13 @@ pub fn default_style(
         border-collapse: collapse;
     }
     .main_container {
-        height: 97.9vmin;
-        width: ${cell_width_vmin * (2.0 * SIDE_BOARD_WIDTH as f64 + 12.)}vmin;
+        height: 96.2vmin;
+        width: ${cell_width_vmin * (2.0 * SIDE_BOARD_WIDTH as f64 + 11.8)}vmin;
         border: 0.2vmin solid green;
         position: absolute;
         top: 0vmin;
         left: 0vmin;
+        overflow: hidden;
     }
     .main_board, .side_board_left, .side_board_right, .score_window_left, .score_window_right, .label_bottom {
         width: max-content;
