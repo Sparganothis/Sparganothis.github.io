@@ -4,9 +4,7 @@ use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::user;
 use game::api::websocket::{GetProfile, WhoAmI};
 
-
 #[component]
-#[allow(unused_variables)]
 pub fn MyAccountPage() -> impl IntoView {
     let _api: WebsocketAPI = expect_context();
     let guest_id = create_resource(
@@ -104,11 +102,7 @@ pub fn UserProfilePage() -> impl IntoView {
         }
     };
 
-        view! {
-            <div>{
-                move || profile_view()}
-            </div> 
-        }
+    view! { <div>{move || profile_view()}</div> }
 }
 
 #[component]

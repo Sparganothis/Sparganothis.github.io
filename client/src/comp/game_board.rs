@@ -275,9 +275,9 @@ pub fn PlayerGameBoard() -> impl IntoView {
                     call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
                         .expect("cannot obtain future")
                         .await;
-                    if let Err(e) = _r {
-                        log::warn!("failed to append game segment: {}", e);
-                    }
+                if let Err(e) = _r {
+                    log::warn!("failed to append game segment: {}", e);
+                }
                 // log::info!("got back response: {:?}", r);
             }
         });
@@ -295,10 +295,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
         }
     };
 
-    
-    view! {
-        {game_state}
-    }
+    view! { {game_state} }
 }
 
 #[component]

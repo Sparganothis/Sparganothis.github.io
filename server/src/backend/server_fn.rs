@@ -1,4 +1,3 @@
-
 use crate::backend::server_info::GIT_VERSION;
 use crate::database::tables::GAME_FULL_DB;
 use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
@@ -160,7 +159,9 @@ pub fn get_segment_count(
     game_id: GameId,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<GameSegmentCountReply> {
-    let is_in_progress = GAME_IS_IN_PROGRESS_DB.get(&game_id)?.context("not fgound")?;
+    let is_in_progress = GAME_IS_IN_PROGRESS_DB
+        .get(&game_id)?
+        .context("not fgound")?;
     let seg_count = GAME_SEGMENT_COUNT_DB.get(&game_id)?.context("not found")?;
     Ok(GameSegmentCountReply {
         is_in_progress,

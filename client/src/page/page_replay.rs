@@ -6,7 +6,6 @@ use game::{
     random::GameSeed,
 };
 
-
 use crate::{
     comp::game_board::RandomOpponentGameBoard,
     websocket::demo_comp::{call_websocket_api, WebsocketAPI},
@@ -61,9 +60,7 @@ pub fn TableDemo() -> impl IntoView {
         }
     };
 
-        view! {
-             {trigger_rows} 
-        }
+    view! { {trigger_rows} }
 }
 
 #[component]

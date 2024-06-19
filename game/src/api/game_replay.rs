@@ -20,4 +20,3 @@ impl GameId {
         hex::encode(bytes)
     }
 }
-
