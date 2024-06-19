@@ -1,9 +1,6 @@
-use core::pin::Pin;
-use futures::Stream;
-use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType, WhoAmI};
+use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType};
 use leptos::*;
 use leptos_use::core::ConnectionReadyState;
-use leptos_use::{use_websocket, UseWebsocketReturn};
 
 // async fn await_reply_message(msg_type: WebsocketAPIMessageType, msg_id: u32) -> WebsocketAPIMessageRaw {
 //     let (tx, rx) = futures::channel::oneshot::channel::<WebsocketAPIMessageRaw>();
@@ -19,7 +16,6 @@ use std::rc::Rc;
 pub struct WsMessageKey(u32, WebsocketAPIMessageType);
 #[derive(Clone)]
 pub struct WsMessageCell(Rc<futures::channel::oneshot::Sender<WebsocketAPIMessageRaw>>);
-use core::cell::RefCell;
 
 #[derive(Clone)]
 pub struct WebsocketAPI {
@@ -44,8 +40,6 @@ pub fn call_websocket_api<T: APIMethod>(
 
     let sender = api.sender.get_untracked();
     let ready_signal = api.ready_signal.clone();
-    use futures::StreamExt;
-    // let api = api.clone();
     Ok(async move {
         if !ready_signal.get_untracked() {
             log::info!("waiting for ready state");

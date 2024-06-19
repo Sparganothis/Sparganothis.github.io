@@ -24,7 +24,7 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
-use game::api::websocket::{APIMethod, SocketType, WebsocketAPIMessageRaw};
+use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw};
 // use serde::Deserialize;
 
 use std::borrow::Cow;
@@ -264,91 +264,91 @@ pub async fn specific_sync_request<T: APIMethod>(
     })
 }
 
-async fn process_socket(socket: &mut WebSocket, socket_type: SocketType) {
-    match socket_type {
-        SocketType::Specctate(game_id) => {
-            log::warn!("spectate started game id = {game_id} ");
-            process_replay_spectate(game_id, socket).await;
-        }
-        SocketType::Game1V1 => {
-            log::warn!("socket type 1v1 not impl;");
-        }
-    }
+// async fn process_socket(socket: &mut WebSocket, socket_type: SocketType) {
+//     match socket_type {
+//         SocketType::Specctate(game_id) => {
+//             log::warn!("spectate started game id = {game_id} ");
+//             process_replay_spectate(game_id, socket).await;
+//         }
+//         SocketType::Game1V1 => {
+//             log::warn!("socket type 1v1 not impl;");
+//         }
+//     }
 
-    if let Err(e) = socket
-        .send(Message::Close(Some(CloseFrame {
-            code: axum::extract::ws::close_code::NORMAL,
-            reason: Cow::from("Goodbye"),
-        })))
-        .await
-    {
-        log::warn!("Could not send Close due to {e}, probably it is ok?");
-    } else {
-        log::info!("Goodbyte.");
-    }
-}
+//     if let Err(e) = socket
+//         .send(Message::Close(Some(CloseFrame {
+//             code: axum::extract::ws::close_code::NORMAL,
+//             reason: Cow::from("Goodbye"),
+//         })))
+//         .await
+//     {
+//         log::warn!("Could not send Close due to {e}, probably it is ok?");
+//     } else {
+//         log::info!("Goodbyte.");
+//     }
+// }
 
-async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
-    // use axum::response::sse::{Event, Sse};
-    // use futures::stream::{self, Stream};
-    // use std::{convert::Infallible, time::Duration};
+// async fn process_replay_spectate(_game_id: uuid::Uuid, socket: &mut WebSocket) {
+//     // use axum::response::sse::{Event, Sse};
+//     // use futures::stream::{self, Stream};
+//     // use std::{convert::Infallible, time::Duration};
 
-    use game::tet::*;
-    use game::timestamp::get_timestamp_now_nano;
-    // use std::collections::VecDeque;
+//     use game::tet::*;
+//     use game::timestamp::get_timestamp_now_nano;
+//     // use std::collections::VecDeque;
 
-    let mut maybe_state: Option<GameState> = None;
+//     let mut maybe_state: Option<GameState> = None;
 
-    let mut is_over = false;
+//     let mut is_over = false;
 
-    loop {
-        let mut new_segments = Vec::<GameReplaySegment>::new();
+//     loop {
+//         let mut new_segments = Vec::<GameReplaySegment>::new();
 
-        if let Some(mut state) = (&maybe_state).clone() {
-            let action = TetAction::random();
-            let t2 = get_timestamp_now_nano();
-            let _ = state.apply_action_if_works(action, t2);
-            if state.game_over {
-                is_over = true;
-            }
-            maybe_state = Some(state.clone());
+//         if let Some(mut state) = (&maybe_state).clone() {
+//             let action = TetAction::random();
+//             let t2 = get_timestamp_now_nano();
+//             let _ = state.apply_action_if_works(action, t2);
+//             if state.game_over {
+//                 is_over = true;
+//             }
+//             maybe_state = Some(state.clone());
 
-            let new_slice = maybe_state
-                .as_ref()
-                .unwrap()
-                .replay
-                .replay_slices
-                .last()
-                .unwrap()
-                .clone();
-            new_segments.push(GameReplaySegment::Update(new_slice));
-        } else {
-            let seed: [u8; 32] = [0; 32];
-            maybe_state = Some(GameState::new(&seed, get_timestamp_now_nano()));
-            new_segments.push(GameReplaySegment::Init(
-                maybe_state.as_ref().unwrap().replay.clone(),
-            ));
-        }
+//             let new_slice = maybe_state
+//                 .as_ref()
+//                 .unwrap()
+//                 .replay
+//                 .replay_slices
+//                 .last()
+//                 .unwrap()
+//                 .clone();
+//             new_segments.push(GameReplaySegment::Update(new_slice));
+//         } else {
+//             let seed: [u8; 32] = [0; 32];
+//             maybe_state = Some(GameState::new(&seed, get_timestamp_now_nano()));
+//             new_segments.push(GameReplaySegment::Init(
+//                 maybe_state.as_ref().unwrap().replay.clone(),
+//             ));
+//         }
 
-        for segment in new_segments {
-            let json = serde_json::to_string(&segment).expect("json never fail");
-            if let Err(_e) = socket.send(Message::Text(json)).await {
-                log::warn!(
-                    "game {:?}: ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN",
-                    _game_id
-                );
-                return;
-            }
-        }
+//         for segment in new_segments {
+//             let json = serde_json::to_string(&segment).expect("json never fail");
+//             if let Err(_e) = socket.send(Message::Text(json)).await {
+//                 log::warn!(
+//                     "game {:?}: ERROR SOCKET SEND GAMME SSLICE  BAD HAPPEN",
+//                     _game_id
+//                 );
+//                 return;
+//             }
+//         }
 
-        if is_over {
-            log::info!("game {:?}: got segment with game over, cloze", _game_id);
-            let segment = GameReplaySegment::GameOver;
-            let json = serde_json::to_string(&segment).expect("json never fail");
-            let _ = socket.send(Message::Text(json)).await;
-            let _ = socket.recv().await;
-            return;
-        }
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-    }
-}
+//         if is_over {
+//             log::info!("game {:?}: got segment with game over, cloze", _game_id);
+//             let segment = GameReplaySegment::GameOver;
+//             let json = serde_json::to_string(&segment).expect("json never fail");
+//             let _ = socket.send(Message::Text(json)).await;
+//             let _ = socket.recv().await;
+//             return;
+//         }
+//         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+//     }
+// }

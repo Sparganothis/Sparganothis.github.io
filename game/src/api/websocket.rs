@@ -5,11 +5,6 @@ use crate::tet::GameReplaySegment;
 use crate::tet::GameState;
 
 use super::game_replay::GameId;
-#[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
-pub enum SocketType {
-    Specctate(uuid::Uuid),
-    Game1V1,
-}
 
 #[derive(Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum WebsocketAPIMessageType {

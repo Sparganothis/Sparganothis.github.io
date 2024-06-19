@@ -1,21 +1,21 @@
 use leptos::*;
 
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
-use game::api::user::{self, UserProfile};
+use game::api::user;
 use game::api::websocket::{GetProfile, WhoAmI};
 
+
 #[component]
+#[allow(unused_variables)]
 pub fn MyAccountPage() -> impl IntoView {
-    let api2: WebsocketAPI = expect_context();
-    let api = api2.clone();
-    let api3 = api2.clone();
+    let _api: WebsocketAPI = expect_context();
     let guest_id = create_resource(
         || (),
         move |_| {
-            let api2 = api2.clone();
+            let api_bis = _api.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<WhoAmI>(api2, ())
+                let r = call_websocket_api::<WhoAmI>(api_bis, ())
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);
@@ -24,15 +24,16 @@ pub fn MyAccountPage() -> impl IntoView {
         },
     );
 
+    let _api2: WebsocketAPI = expect_context();
     let user_profile = create_resource(
         move || guest_id.get(),
         move |_guest_id| {
-            let api2 = api3.clone();
+            let api2_bis = _api2.clone();
             async move {
                 if let Some(Ok(_guest_id)) = _guest_id {
                     // log::info!("calling websocket api");
                     let r: Result<user::UserProfile, String> =
-                        call_websocket_api::<GetProfile>(api2, _guest_id.user_id)
+                        call_websocket_api::<GetProfile>(api2_bis, _guest_id.user_id)
                             .expect("cannot obtain future")
                             .await;
                     // log::info!("got back response: {:?}", r);
@@ -43,16 +44,6 @@ pub fn MyAccountPage() -> impl IntoView {
             }
         },
     );
-
-    // let user_profile = create_resource(
-    //     |g| async move {
-
-    //             user::get_profile(guest_info.user_id).await
-    //         } else {
-    //             Err(ServerFnError::new("cannot get user profile"))
-    //         }
-    //     },
-    // );
 
     let user_link = move || {
         if let (Some(Ok(g_id)), Some(Ok(profile))) = (guest_id.get(), user_profile.get()) {
@@ -113,7 +104,11 @@ pub fn UserProfilePage() -> impl IntoView {
         }
     };
 
-    view! { <div>{{ move || profile_view() }}</div> }
+        view! {
+            <div>{
+                move || profile_view()}
+            </div> 
+        }
 }
 
 #[component]

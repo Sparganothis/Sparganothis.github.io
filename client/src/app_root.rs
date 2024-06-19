@@ -1,9 +1,9 @@
-use futures::{SinkExt, StreamExt};
+use futures::StreamExt;
 use leptos::*;
 use leptos_meta::{provide_meta_context, Meta, Title};
 use leptos_router::*;
 // use crate::error_template::ErrorTemplate;
-use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType, WhoAmI};
+use game::api::websocket::{ WebsocketAPIMessageRaw, WhoAmI};
 use leptonic::prelude::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};

@@ -126,7 +126,7 @@ pub enum CellValue {
     Empty,
     Ghost,
 }
-use serde_with::{serde_as, Bytes};
+use serde_with::serde_as;
 #[serde_as]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
@@ -423,7 +423,7 @@ impl GameState {
             lines += 1;
             self.have_combo = true;
         }
-        if (self.have_combo) {
+        if self.have_combo {
             self.score += 50;
             self.have_combo = false;
         }

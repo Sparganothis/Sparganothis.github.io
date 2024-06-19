@@ -43,7 +43,7 @@ pub fn TableDemo() -> impl IntoView {
     );
 
     let trigger_rows = move || {
-        if let (Some(Ok(rows))) = (all_games.get()) {
+        if let Some(Ok(rows)) = all_games.get() {
             let rows = rows
                 .iter()
                 .map(|r| FullGameReplayTableRow::new(r.clone()))
@@ -61,7 +61,9 @@ pub fn TableDemo() -> impl IntoView {
         }
     };
 
-    view! { {trigger_rows} }
+        view! {
+             {trigger_rows} 
+        }
 }
 
 #[component]
@@ -165,6 +167,7 @@ impl FullGameReplayTableRow {
         .to_url()
     }
 }
+#[allow(unused_variables)]
 #[component]
 fn WeedRenderer<F>(
     class: String,
@@ -181,7 +184,7 @@ where
         </td>
     }
 }
-
+#[allow(unused_variables)]
 #[component]
 fn SeedRenderer<F>(
     class: String,

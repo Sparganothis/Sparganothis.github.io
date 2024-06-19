@@ -1,7 +1,6 @@
 use leptos::*;
 
 use crate::comp::game_board::GameBoard;
-use game::api::websocket::SocketType;
 use game::random::GameSeed;
 use game::tet::{GameReplaySegment, GameState};
 
@@ -22,14 +21,15 @@ pub fn SpectatorGameBoard() -> impl IntoView {
 
     let connected = move || ready_state.get() == leptos_use::core::ConnectionReadyState::Open;
 
-    let send2 = send.clone();
+    let _send2 = send.clone();
     let is_spectate_started = move || {
         if connected() {
             log::info!("we are ocnnected to wesbsock");
-            let socket_type = SocketType::Specctate(uuid::Uuid::new_v4());
-            let json = serde_json::to_string(&socket_type).expect("json never fail");
-            send2(&json);
-            return true;
+            // let socket_type = SocketType::Specctate(uuid::Uuid::new_v4());
+            // let json = serde_json::to_string(&socket_type).expect("json never fail");
+            // send2(&json);
+            // TODO: SEND SPECTATE REQUEST
+            true
         } else {
             false
         }

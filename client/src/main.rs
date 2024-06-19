@@ -1,5 +1,5 @@
 // #![deny(unused_crate_dependencies)]
-
+#![allow(unused_braces)]
 use leptos::*;
 
 pub mod app_root;

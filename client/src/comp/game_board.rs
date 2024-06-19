@@ -271,10 +271,13 @@ pub fn PlayerGameBoard() -> impl IntoView {
                 // log::info!("calling websocket api");
                 let segment_json: String =
                     serde_json::to_string(&segment).expect("json never fail");
-                let r =
+                let _r =
                     call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
                         .expect("cannot obtain future")
                         .await;
+                    if let Err(e) = _r {
+                        log::warn!("failed to append game segment: {}", e);
+                    }
                 // log::info!("got back response: {:?}", r);
             }
         });
@@ -292,7 +295,10 @@ pub fn PlayerGameBoard() -> impl IntoView {
         }
     };
 
-    view! { {game_state} }
+    
+    view! {
+        {game_state}
+    }
 }
 
 #[component]

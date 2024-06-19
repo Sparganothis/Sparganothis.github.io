@@ -1,4 +1,3 @@
-use std::arch::x86_64::_CMP_FALSE_OS;
 
 use crate::backend::server_info::GIT_VERSION;
 use crate::database::tables::GAME_FULL_DB;
@@ -158,11 +157,11 @@ pub fn get_segment_by_id(
 }
 
 pub fn get_segment_count(
-    segid: GameId,
+    game_id: GameId,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<GameSegmentCountReply> {
-    let is_in_progress = GAME_IS_IN_PROGRESS_DB.get(&segid)?.context("not fgound")?;
-    let seg_count = GAME_SEGMENT_COUNT_DB.get(&segid)?.context("not found")?;
+    let is_in_progress = GAME_IS_IN_PROGRESS_DB.get(&game_id)?.context("not fgound")?;
+    let seg_count = GAME_SEGMENT_COUNT_DB.get(&game_id)?.context("not found")?;
     Ok(GameSegmentCountReply {
         is_in_progress,
         segment_count: seg_count,
@@ -170,7 +169,7 @@ pub fn get_segment_count(
 }
 
 pub fn get_all_games(
-    segid: (),
+    _: (),
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<Vec<(GameId, GameSegmentCountReply)>> {
     let mut v = vec![];

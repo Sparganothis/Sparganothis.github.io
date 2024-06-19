@@ -1,4 +1,5 @@
-use crate::{random::GameSeed, tet::GameReplaySegment};
+use crate::random::GameSeed;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GameSegmentId {
@@ -20,5 +21,3 @@ impl GameId {
     }
 }
 
-use serde::{Deserialize, Serialize};
-use serde_with::Bytes;
