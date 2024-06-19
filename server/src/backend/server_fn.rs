@@ -72,8 +72,7 @@ pub fn append_game_segment(
         None
     };
     let last_state: Option<GameState> = if existing_segment_count > 0 {
-        let maybe_gamestate =
-            GAME_FULL_DB.get(&id)?.context("not found")?;
+        let maybe_gamestate = GAME_FULL_DB.get(&id)?.context("not found")?;
         Some(maybe_gamestate)
     } else {
         None
@@ -149,7 +148,7 @@ pub fn get_last_full_game_state(
     game_id: GameId,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<GameState> {
-   Ok(GAME_FULL_DB.get(&game_id)?.context("game not found")?)
+    Ok(GAME_FULL_DB.get(&game_id)?.context("game not found")?)
 }
 
 pub fn get_all_segments_for_game(
@@ -157,16 +156,17 @@ pub fn get_all_segments_for_game(
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<Vec<GameReplaySegment>> {
     let mut r = vec![];
-    for item in GAME_SEGMENT_DB.range(GameSegmentId::get_range_for_game(&game_id)).into_iter() {
+    for item in GAME_SEGMENT_DB
+        .range(GameSegmentId::get_range_for_game(&game_id))
+        .into_iter()
+    {
         let (_segment_id, replay_segment) = item?;
         r.push(replay_segment);
     }
-    r.sort_by_key(|s| {
-        match s {
-            GameReplaySegment::Init(_) => -1,
-            GameReplaySegment::Update(_s) => _s.idx as i32,
-            GameReplaySegment::GameOver => i32::MAX,
-        }
+    r.sort_by_key(|s| match s {
+        GameReplaySegment::Init(_) => -1,
+        GameReplaySegment::Update(_s) => _s.idx as i32,
+        GameReplaySegment::GameOver => i32::MAX,
     });
     Ok(r)
 }
@@ -217,7 +217,7 @@ pub fn get_all_games(
         Ok(v)
     };
     let sort_recent = |mut v: Vec<(GameId, _)>| -> anyhow::Result<_> {
-        v.sort_by_key(|x| -((x.0.start_time/100000) as i32));
+        v.sort_by_key(|x| -((x.0.start_time / 100000) as i32));
         Ok(v)
     };
 

@@ -1,13 +1,13 @@
+use crate::comp::game_board::GameBoard;
+use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::game_replay::GameId;
-use game::api::websocket::{GetLastFullGameState, GetAllSegments};
+use game::api::websocket::{GetAllSegments, GetLastFullGameState};
+use game::random::GameSeed;
+use game::tet::{GameReplaySegment, GameState};
 use game::timestamp::get_timestamp_now_ms;
 use leptonic::slider::Slider;
 use leptos::*;
 use leptos_router::use_params_map;
-use crate::comp::game_board::GameBoard;
-use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
-use game::random::GameSeed;
-use game::tet::{GameReplaySegment, GameState};
 
 #[component]
 pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
@@ -39,11 +39,11 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
             let mut current_state = match all_segments.get(0) {
                 Some(GameReplaySegment::Init(_replay)) => {
                     GameState::new(&_replay.init_seed, _replay.start_time)
-                },
+                }
                 _ => {
                     log::error!("got no init segment");
-                    return vec![]
-                },
+                    return vec![];
+                }
             };
             let mut all_states = vec![];
             all_states.push(current_state.clone());
@@ -51,24 +51,24 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
                 match segment {
                     GameReplaySegment::Init(_) => {
                         log::error!("got two init segments");
-                        return vec![]
-                    },
+                        return vec![];
+                    }
                     GameReplaySegment::Update(_slice) => {
                         if let Err(e) = current_state.accept_replay_slice(_slice) {
                             log::error!("failed to accept replay slice: {:#?}", e);
                             return vec![];
                         }
-                    },
+                    }
                     GameReplaySegment::GameOver => {
                         if !current_state.game_over {
                             log::error!("expected to see game over in simulation!");
                         }
-                    },
+                    }
                 }
                 all_states.push(current_state.clone());
             }
             let t1 = get_timestamp_now_ms();
-            status_message.set_untracked(format!("done {}ms", t1-t0));
+            status_message.set_untracked(format!("done {}ms", t1 - t0));
             all_states
         } else {
             vec![]
@@ -77,35 +77,35 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
 
     let update_state_on_slider_change = move || {
         let slider_val = get_slider.get() as usize;
-        all_states.with(|all_states|{
+        all_states.with(|all_states| {
             if all_states.is_empty() {
-                return view!{<p>"no data..."</p>}.into_view();
+                return view! { <p>"no data..."</p> }.into_view();
             }
             if slider_val >= all_states.len() {
-                return view! {<p>"simulating..."</p>}.into_view();
+                return view! { <p>"simulating..."</p> }.into_view();
             }
             state_signal.set(all_states[slider_val].clone());
-            view!{<p>{status_message.get_untracked()}</p>}.into_view()
+            view! { <p>{status_message.get_untracked()}</p> }.into_view()
         })
     };
 
     let slider = move || {
         if let Some(Ok(all_segments)) = all_segments.get() {
             let maxval = all_segments.len() as f64;
-            view!{
+            view! {
                 <Slider
-                min=0.0
-                max=maxval
-                step=1.0
-                value=get_slider
-                set_value=set_slider
-                value_display=move |v| format!("{v:.0}/{maxval:.0}")
-            />
-            }.into_view()
+                    min=0.0
+                    max=maxval
+                    step=1.0
+                    value=get_slider
+                    set_value=set_slider
+                    value_display=move |v| format!("{v:.0}/{maxval:.0}")
+                />
+            }
+            .into_view()
         } else {
-            view!  {
-                <p>loading...</p>
-            }.into_view()
+            view! { <p>loading...</p> }
+            .into_view()
         }
     };
 

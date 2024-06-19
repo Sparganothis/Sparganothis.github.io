@@ -225,11 +225,20 @@ pub async fn websocket_handle_request(
                 .await
         }
         WebsocketAPIMessageType::GetAllSegments => {
-            specific_sync_request::<GetAllSegments>(msg, user_id, get_all_segments_for_game).await
+            specific_sync_request::<GetAllSegments>(
+                msg,
+                user_id,
+                get_all_segments_for_game,
+            )
+            .await
         }
         WebsocketAPIMessageType::GetLastFullGameState => {
-            specific_sync_request::<GetLastFullGameState>(msg, user_id, get_last_full_game_state)
-                .await
+            specific_sync_request::<GetLastFullGameState>(
+                msg,
+                user_id,
+                get_last_full_game_state,
+            )
+            .await
         }
         WebsocketAPIMessageType::GetAllGames => {
             specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await

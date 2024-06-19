@@ -543,7 +543,11 @@ impl GameState {
             }
         } else {
             if slice.idx != 0 {
-                anyhow::bail!("first slice mismatch: got slice {} expected slice {}", slice.idx, 0);
+                anyhow::bail!(
+                    "first slice mismatch: got slice {} expected slice {}",
+                    slice.idx,
+                    0
+                );
             }
         }
         *self = self.try_action(slice.event.action, slice.event_timestamp)?;

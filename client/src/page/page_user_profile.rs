@@ -125,7 +125,9 @@ pub fn UserProfileView(_user_id: uuid::Uuid, p: user::UserProfile) -> impl IntoV
                     name="tab-best-user-games"
                     label="Best Games from $User".into_view()
                 >
-                    <AllGamesTable list_type=GetAllGamesArg::BestGamesForPlayer(_user_id)/>
+                    <AllGamesTable list_type=GetAllGamesArg::BestGamesForPlayer(
+                        _user_id,
+                    )/>
                 </Tab>
 
                 <Tab

@@ -29,15 +29,18 @@ pub fn GameReplaySinglePage() -> impl IntoView {
         let p = GameId::from_url(p).map_err(|_e| "url corrupted".to_string())?;
         Ok(p)
     };
-    
+
     view! {
         <div class="main_left">
             {move || {
                 match game_id() {
-                    Ok(game_id) => view!{<ReplayGameBoard game_id=game_id/>}.into_view(),
-                    Err(err) => view!{<p>{err}...</p>}.into_view(),
+                    Ok(game_id) => {
+                        view! { <ReplayGameBoard game_id=game_id/> }.into_view()
+                    }
+                    Err(err) => view! { <p>{err} ...</p> }.into_view(),
                 }
             }}
+
         </div>
     }
 }

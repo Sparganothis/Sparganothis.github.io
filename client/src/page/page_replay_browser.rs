@@ -140,6 +140,7 @@ pub fn CustomTableRowRenderer(
                             "Replay".to_string()
                         }
                     }}
+
                 </a>
             </td>
         </tr>
