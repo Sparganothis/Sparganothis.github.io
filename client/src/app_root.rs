@@ -247,9 +247,12 @@ pub fn AppRoot() -> impl IntoView {
                             // <p>{sig}</p>
                             <p>
                                 {move || {
-                                    format!("{:?} bytes", message_bytes.get().unwrap_or(vec![]).len())
-                                    // format!("{} bytes ({})", last_message_size.get(),)
+                                    format!(
+                                        "{:?} bytes",
+                                        message_bytes.get().unwrap_or(vec![]).len(),
+                                    )
                                 }}
+
                             </p>
                         </div>
                     </nav>

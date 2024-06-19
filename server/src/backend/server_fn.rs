@@ -180,13 +180,12 @@ pub fn get_segment_count(
 use game::api::websocket::GetAllGamesArg;
 const PAGE_SIZE: usize = 9;
 
-
 pub fn get_all_games(
     arg: GetAllGamesArg,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<Vec<(GameId, GameSegmentCountReply)>> {
-    let load_all_games = || -> anyhow::Result<_> {    
-        let mut v = vec![];        
+    let load_all_games = || -> anyhow::Result<_> {
+        let mut v = vec![];
         for game_id in GAME_IS_IN_PROGRESS_DB.iter().keys() {
             let game_id = game_id?;
             let r = get_segment_count(game_id, _current_user_id.clone())?;
@@ -194,9 +193,12 @@ pub fn get_all_games(
         }
         Ok(v)
     };
-    let load_games_for_user = |user: &uuid::Uuid| -> anyhow::Result<_> {  
-        let mut v = vec![];        
-        for game_id in GAME_IS_IN_PROGRESS_DB.range(GameId::get_range_for_user(user)).keys() {
+    let load_games_for_user = |user: &uuid::Uuid| -> anyhow::Result<_> {
+        let mut v = vec![];
+        for game_id in GAME_IS_IN_PROGRESS_DB
+            .range(GameId::get_range_for_user(user))
+            .keys()
+        {
             let game_id = game_id?;
             let r = get_segment_count(game_id, _current_user_id.clone())?;
             v.push((game_id, r));
@@ -213,24 +215,20 @@ pub fn get_all_games(
     };
 
     let mut v = match arg {
-        GetAllGamesArg::BestGames => {
-            sort_best(load_all_games()?)?
-        },
-        GetAllGamesArg::RecentGames => {
-            sort_recent(load_all_games()?)?
-        },
+        GetAllGamesArg::BestGames => sort_best(load_all_games()?)?,
+        GetAllGamesArg::RecentGames => sort_recent(load_all_games()?)?,
         GetAllGamesArg::MyBestGames => {
-            sort_best(load_games_for_user(&_current_user_id.user_id)?            )?
-        },
+            sort_best(load_games_for_user(&_current_user_id.user_id)?)?
+        }
         GetAllGamesArg::MyRecentGames => {
-            sort_recent(load_games_for_user(&_current_user_id.user_id)?            )?
-        },
+            sort_recent(load_games_for_user(&_current_user_id.user_id)?)?
+        }
         GetAllGamesArg::BestGamesForPlayer(player_id) => {
-            sort_best(load_games_for_user(&player_id)?            )?
-        },
+            sort_best(load_games_for_user(&player_id)?)?
+        }
         GetAllGamesArg::RecentGamesForPlayer(player_id) => {
-            sort_recent(load_games_for_user(&player_id)?            )?
-        },
+            sort_recent(load_games_for_user(&player_id)?)?
+        }
     };
     v.truncate(PAGE_SIZE);
     Ok(v)

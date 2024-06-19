@@ -3,17 +3,18 @@ use game::{
         game_replay::GameId,
         websocket::{GameSegmentCountReply, GetAllGames},
     },
-    random::GameSeed, timestamp::get_human_readable_nano,
+    random::GameSeed,
+    timestamp::get_human_readable_nano,
 };
 
 use crate::{
     comp::game_board::RandomOpponentGameBoard,
     websocket::demo_comp::{call_websocket_api, WebsocketAPI},
 };
+use game::api::websocket::GetAllGamesArg;
 use icondata as i;
 use leptonic::prelude::*;
 use leptos::*;
-use game::api::websocket::GetAllGamesArg;
 use leptos_struct_table::*;
 
 #[derive(TableRow, Clone)]
@@ -51,7 +52,7 @@ pub fn GamesTable(list_type: GetAllGamesArg) -> impl IntoView {
                 .collect::<Vec<_>>();
 
             view! {
-                <table id={format!("{list_type:?}")}>
+                <table id=format!("{list_type:?}")>
                     <TableContent rows row_renderer=CustomTableRowRenderer/>
                 </table>
             }
@@ -84,7 +85,7 @@ pub fn GameReplayPage() -> impl IntoView {
             />
 
             <Tabs mount=Mount::WhenShown>
-                    
+
                 <Tab name="tab-best-games" label="Best Games".into_view()>
                     <GamesTable list_type=GetAllGamesArg::BestGames/>
                 </Tab>
@@ -92,7 +93,7 @@ pub fn GameReplayPage() -> impl IntoView {
                 <Tab name="tab-recent-games" label="Recent Games".into_view()>
                     <GamesTable list_type=GetAllGamesArg::RecentGames/>
                 </Tab>
-                    
+
                 <Tab name="tab-my-best-games" label="My Best Games".into_view()>
                     <GamesTable list_type=GetAllGamesArg::MyBestGames/>
                 </Tab>
@@ -121,12 +122,10 @@ pub fn GameReplayPage() -> impl IntoView {
                     </div>
                 </Tab>
 
-
             </Tabs>
         </div>
     }
 }
-
 
 #[allow(unused_variables, non_snake_case)]
 pub fn CustomTableRowRenderer(
@@ -148,17 +147,22 @@ pub fn CustomTableRowRenderer(
     view! {
         <tr class=class on:click=move |mouse_event| on_select.run(mouse_event)>
             {row2.render_row(index, on_change)}
-            <td><a href=move || format!("/view-game/{}", row.to_url())>{move || {
-                if row3.is_in_progress {
-                    "Spectate".to_string()
-                } else {
-                    "Replay".to_string()
-                }
-            }}</a></td>
+            <td>
+                <a href=move || {
+                    format!("/view-game/{}", row.to_url())
+                }>
+                    {move || {
+                        if row3.is_in_progress {
+                            "Spectate".to_string()
+                        } else {
+                            "Replay".to_string()
+                        }
+                    }}
+                </a>
+            </td>
         </tr>
     }
 }
-
 
 #[derive(TableRow, Clone, Debug)]
 #[table(impl_vec_data_provider)]
@@ -194,7 +198,6 @@ impl FullGameReplayTableRow {
     }
 }
 
-
 #[allow(unused_variables)]
 #[component]
 fn TimeRenderer<F>(
@@ -208,11 +211,10 @@ where
 {
     view! {
         <td class=class>
-            <p >{move || {get_human_readable_nano(value.get())}}</p>
+            <p>{move || { get_human_readable_nano(value.get()) }}</p>
         </td>
     }
 }
-
 
 #[allow(unused_variables)]
 #[component]
@@ -227,13 +229,14 @@ where
 {
     view! {
         <td class=class>
-            <a href={format!("/user/{:?}", value.get())}>
-            <p style="border: 1px solid black">{move || {format!("{:?}", value.get())[0..8].to_string()}}</p>
+            <a href=format!("/user/{:?}", value.get())>
+                <p style="border: 1px solid black">
+                    {move || { format!("{:?}", value.get())[0..8].to_string() }}
+                </p>
             </a>
         </td>
     }
 }
-
 
 #[allow(unused_variables)]
 #[component]

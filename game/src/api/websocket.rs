@@ -119,7 +119,6 @@ impl APIMethod for GetFullGameState {
     type Resp = GameState;
 }
 
-
 #[derive(
     Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
 )]
