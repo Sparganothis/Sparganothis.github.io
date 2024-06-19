@@ -1,9 +1,9 @@
+use core::pin::Pin;
 use futures::Stream;
 use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType, WhoAmI};
 use leptos::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
-use core::pin::Pin;
 
 // async fn await_reply_message(msg_type: WebsocketAPIMessageType, msg_id: u32) -> WebsocketAPIMessageRaw {
 //     let (tx, rx) = futures::channel::oneshot::channel::<WebsocketAPIMessageRaw>();
@@ -21,13 +21,11 @@ pub struct WsMessageKey(u32, WebsocketAPIMessageType);
 pub struct WsMessageCell(Rc<futures::channel::oneshot::Sender<WebsocketAPIMessageRaw>>);
 use core::cell::RefCell;
 
-
-
 #[derive(Clone)]
 pub struct WebsocketAPI {
     pub map: RwSignal<std::collections::HashMap<WsMessageKey, WsMessageCell>>,
     pub sender: RwSignal<Rc<Box<dyn Fn(Vec<u8>)>>>,
-    pub  ready_state_stream:   async_channel::Receiver<ConnectionReadyState>,
+    pub ready_state_stream: async_channel::Receiver<ConnectionReadyState>,
     pub ready_signal: RwSignal<bool>,
 }
 
@@ -53,7 +51,7 @@ pub fn call_websocket_api<T: APIMethod>(
             log::info!("waiting for ready state");
 
             loop {
-                if let Ok(current_state) = api.ready_state_stream.recv().await  {
+                if let Ok(current_state) = api.ready_state_stream.recv().await {
                     match current_state {
                         ConnectionReadyState::Connecting => continue,
                         ConnectionReadyState::Open => break,

@@ -316,6 +316,7 @@ type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GameState {
     pub score: i64,
+    pub is_t_spin: bool,
     pub have_combo: bool,
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
@@ -409,6 +410,7 @@ impl GameState {
         let mut score = 0;
         let mut lines = 0;
         let mut score2 = 0;
+        let mut score3 = 0;
 
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
@@ -417,11 +419,11 @@ impl GameState {
                 }
             }
             lines += 1;
-            self.have_combo=true;
+            self.have_combo = true;
         }
-        if (self.have_combo){
-            self.score+=50;
-            self.have_combo=false;
+        if (self.have_combo) {
+            self.score += 50;
+            self.have_combo = false;
         }
         score += match lines {
             1 => 40,
@@ -430,7 +432,7 @@ impl GameState {
             4 => 320,
             _ => 0,
         };
-        if self.is_gameboard_empty(){
+        if self.is_gameboard_empty() {
             score2 += match lines {
                 1 => 200,
                 2 => 400,
@@ -439,8 +441,16 @@ impl GameState {
                 _ => 0,
             };
         }
-
-        self.score += ((score + score2) as i64);
+        if self.is_t_spin {
+            score3 += match lines {
+                1 => 1000,
+                2 => 2000,
+                3 => 3000,
+                _ => 0,
+            };
+            self.is_t_spin = false;
+        }
+        self.score += (score + score2 + score3) as i64;
     }
 
     fn can_clear_line(&self) -> Option<i8> {
@@ -546,6 +556,7 @@ impl GameState {
         let mut new_state = Self {
             score: 0,
             have_combo: false,
+            is_t_spin: false,
             main_board: BoardMatrix::empty(),
             // next_board: BoardMatrixNext::empty(),
             // hold_board: BoardMatrixHold::empty(),
@@ -621,20 +632,19 @@ impl GameState {
     }
 
     fn try_harddrop(&mut self, event_time: i64) -> anyhow::Result<()> {
-        let mut soft_drops: i16 =0;
+        let mut soft_drops: i16 = 0;
         let current_pcs = self.current_pcs.context("no current pcs")?;
-
         let mut r = self.try_softdrop(event_time);
         while r.is_ok() && current_pcs.id == self.current_pcs.unwrap().id {
             r = self.try_softdrop(event_time);
-            soft_drops +=1;
+            soft_drops += 1;
         }
-        self.score+=10;
-        self.score-=(soft_drops*2) as  i64;
+        self.score += 10;
+        self.score -= (soft_drops * 2) as i64;
         Ok(())
     }
 
-    fn try_softdrop(&mut self, event_time: i64,) -> anyhow::Result<()> {
+    fn try_softdrop(&mut self, event_time: i64) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
 
         if let Err(e) = self.main_board.delete_piece(&current_pcs) {
@@ -643,7 +653,8 @@ impl GameState {
         let mut new_current_pcs = current_pcs;
         new_current_pcs.pos.0 -= 1;
         if self.main_board.spawn_piece(&new_current_pcs).is_ok() {
-            self.score+=2;
+            self.score += 2;
+            self.is_t_spin = false;
             self.current_pcs = Some(new_current_pcs);
         } else {
             self.main_board.spawn_piece(&current_pcs).unwrap();
@@ -701,6 +712,7 @@ impl GameState {
 
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
                 self.current_pcs = Some(new_current_pcs);
+                self.is_t_spin = new_current_pcs.tet == Tet::T;
                 return Ok(());
             }
         }
@@ -782,12 +794,12 @@ impl GameState {
     }
 
     fn is_gameboard_empty(&mut self) -> bool {
-        let mut gameboard_empty= true;
+        let mut gameboard_empty = true;
         for y in 0..self.main_board.get_num_rows() {
             for x in 0..self.main_board.get_num_cols() {
                 let value = (&self.main_board.v)[y][x];
                 if !(value.eq(&CellValue::Ghost) || value.eq(&CellValue::Empty)) {
-                 gameboard_empty = false;
+                    gameboard_empty = false;
                 }
             }
         }

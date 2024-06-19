@@ -238,15 +238,15 @@ pub fn PlayerGameBoard() -> impl IntoView {
     let new_game_id = create_resource(
         || (),
         move |_| {
-            
-            let api= api.clone();
+            let api = api.clone();
 
             async move {
-            let r = call_websocket_api::<CreateNewGameId>(api.clone(), ())
-                .expect("cannot obtain future")
-                .await;
-            r.unwrap()
-        }}
+                let r = call_websocket_api::<CreateNewGameId>(api.clone(), ())
+                    .expect("cannot obtain future")
+                    .await;
+                r.unwrap()
+            }
+        },
     );
 
     let on_state_change = Callback::<GameState>::new(move |s| {
@@ -266,15 +266,18 @@ pub fn PlayerGameBoard() -> impl IntoView {
         // log::info!("segment: {:?}", &segment);
         spawn_local({
             let api2 = api2.clone();
-            
+
             async move {
-            // log::info!("calling websocket api");
-            let segment_json: String = serde_json::to_string(&segment).expect("json never fail");
-            let r = call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
-                .expect("cannot obtain future")
-                .await;
-            // log::info!("got back response: {:?}", r);
-        }});
+                // log::info!("calling websocket api");
+                let segment_json: String =
+                    serde_json::to_string(&segment).expect("json never fail");
+                let r =
+                    call_websocket_api::<AppendGameSegment>(api2.clone(), (game_id, segment_json))
+                        .expect("cannot obtain future")
+                        .await;
+                // log::info!("got back response: {:?}", r);
+            }
+        });
     });
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
@@ -362,8 +365,7 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             state.update(move |state| {
-                let random_action = 
-                game::tet::TetAction::random();
+                let random_action = game::tet::TetAction::random();
                 let _ = state.apply_action_if_works(random_action, get_timestamp_now_nano());
             })
         },
