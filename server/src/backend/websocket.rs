@@ -178,14 +178,17 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
     log::info!("Websocket context {who} destroyed");
 }
 use game::api::user::GuestInfo;
-pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow::Result<Vec<u8>> {
+pub async fn websocket_handle_request(
+    b: Vec<u8>,
+    user_id: GuestInfo,
+) -> anyhow::Result<Vec<u8>> {
     use crate::backend::server_fn::*;
     use game::api::websocket::*;
     let user_id2 = user_id.clone();
     get_or_create_user_profile(&user_id2.user_id).unwrap();
 
-    let msg: WebsocketAPIMessageRaw =
-        bincode::deserialize(&b).context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
+    let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
+        .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
     let msg_type = msg._type.clone();
     log::info!(
         "handling request {:?} for userID {:?}",
@@ -205,20 +208,28 @@ pub async fn websocket_handle_request(b: Vec<u8>, user_id: GuestInfo) -> anyhow:
         }
 
         WebsocketAPIMessageType::CreateNewGameId => {
-            specific_sync_request::<CreateNewGameId>(msg, user_id, create_new_game_id).await
+            specific_sync_request::<CreateNewGameId>(msg, user_id, create_new_game_id)
+                .await
         }
         WebsocketAPIMessageType::AppendGameSegment => {
-            specific_sync_request::<AppendGameSegment>(msg, user_id, append_game_segment).await
+            specific_sync_request::<AppendGameSegment>(
+                msg,
+                user_id,
+                append_game_segment,
+            )
+            .await
         }
 
         WebsocketAPIMessageType::GetSegmentCount => {
-            specific_sync_request::<GetSegmentCount>(msg, user_id, get_segment_count).await
+            specific_sync_request::<GetSegmentCount>(msg, user_id, get_segment_count)
+                .await
         }
         WebsocketAPIMessageType::GetSegment => {
             specific_sync_request::<GetSegment>(msg, user_id, get_segment_by_id).await
         }
         WebsocketAPIMessageType::GetFullGameState => {
-            specific_sync_request::<GetFullGameState>(msg, user_id, get_full_game_state).await
+            specific_sync_request::<GetFullGameState>(msg, user_id, get_full_game_state)
+                .await
         }
         WebsocketAPIMessageType::GetAllGames => {
             specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await
@@ -248,7 +259,8 @@ pub async fn specific_sync_request<T: APIMethod>(
     if !request_msg.is_req {
         anyhow::bail!("message is not request");
     }
-    let request: T::Req = bincode::deserialize(&request_msg.data).context("bincode never fail")?;
+    let request: T::Req =
+        bincode::deserialize(&request_msg.data).context("bincode never fail")?;
 
     let response: anyhow::Result<T::Resp> =
         tokio::task::spawn_blocking(move || callback(request, guest_info))

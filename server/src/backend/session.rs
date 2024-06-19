@@ -33,7 +33,10 @@ where
     S: Send + Sync,
 {
     type Rejection = (StatusCode, &'static str);
-    async fn from_request_parts(req: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        req: &mut Parts,
+        state: &S,
+    ) -> Result<Self, Self::Rejection> {
         let _session = Session::from_request_parts(req, state).await?;
 
         let mut guest_data: GuestInfo = _session

@@ -6,7 +6,9 @@ use crate::tet::GameState;
 
 use super::game_replay::GameId;
 
-#[derive(Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
+#[derive(
+    Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
+)]
 pub enum WebsocketAPIMessageType {
     GetProfile,
     WhoAmI,
@@ -30,8 +32,16 @@ pub struct WebsocketAPIMessageRaw {
 use anyhow::Context;
 pub trait APIMethod {
     const TYPE: WebsocketAPIMessageType;
-    type Req: Serialize + for<'a> Deserialize<'a> + std::marker::Send + std::marker::Sync + 'static;
-    type Resp: Serialize + for<'a> Deserialize<'a> + std::marker::Send + std::marker::Sync + 'static;
+    type Req: Serialize
+        + for<'a> Deserialize<'a>
+        + std::marker::Send
+        + std::marker::Sync
+        + 'static;
+    type Resp: Serialize
+        + for<'a> Deserialize<'a>
+        + std::marker::Send
+        + std::marker::Sync
+        + 'static;
 
     fn send(msg: Self::Req, sender: impl Fn(Vec<u8>), id: u32) -> anyhow::Result<u32> {
         let b = WebsocketAPIMessageRaw {
@@ -81,7 +91,9 @@ impl APIMethod for AppendGameSegment {
     type Resp = ();
 }
 
-#[derive(Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
+#[derive(
+    Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
+)]
 pub struct GameSegmentCountReply {
     pub is_in_progress: bool,
     pub segment_count: u32,

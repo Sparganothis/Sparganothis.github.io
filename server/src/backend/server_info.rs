@@ -34,7 +34,9 @@ fn _fetch_git_version() -> String {
     };
     let dirty_hash = calculate_hash(&dirty_state) % MAGIC_NUMBER;
     let ts_hash = get_timestamp_hash();
-    let version = format!("branch={branch_name} commit={commit_hash} dh={dirty_hash} ts={ts_hash}");
+    let version = format!(
+        "branch={branch_name} commit={commit_hash} dh={dirty_hash} ts={ts_hash}"
+    );
     log::info!("backend found git version = {version}");
     version
 }

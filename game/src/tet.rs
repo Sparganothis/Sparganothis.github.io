@@ -417,7 +417,8 @@ impl GameState {
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
-                    self.main_board.v[i as usize][j] = self.main_board.v[i as usize + 1][j];
+                    self.main_board.v[i as usize][j] =
+                        self.main_board.v[i as usize + 1][j];
                 }
             }
             lines += 1;
@@ -531,7 +532,10 @@ impl GameState {
         Ok(())
     }
 
-    pub fn accept_replay_slice(&mut self, slice: &GameReplaySlice) -> anyhow::Result<()> {
+    pub fn accept_replay_slice(
+        &mut self,
+        slice: &GameReplaySlice,
+    ) -> anyhow::Result<()> {
         log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
         if let Some(prev_slice) = self.replay.replay_slices.last() {
             if slice.idx != prev_slice.idx + 1 {
@@ -854,16 +858,17 @@ pub mod tests {
         state.apply_action_if_works(TetAction::SoftDrop, 0).unwrap();
 
         let expected_seed = [
-            171, 40, 80, 152, 75, 128, 86, 158, 75, 125, 16, 157, 144, 245, 5, 162, 114, 11, 172,
-            187, 117, 160, 51, 219, 154, 112, 95, 249, 135, 175, 135, 202,
+            171, 40, 80, 152, 75, 128, 86, 158, 75, 125, 16, 157, 144, 245, 5, 162,
+            114, 11, 172, 187, 117, 160, 51, 219, 154, 112, 95, 249, 135, 175, 135,
+            202,
         ];
         assert_eq!(expected_seed, state.seed);
 
         state.apply_action_if_works(TetAction::HardDrop, 1).unwrap();
 
         let expected_seed = [
-            191, 181, 134, 68, 198, 122, 193, 86, 133, 117, 213, 55, 160, 168, 100, 54, 183, 31,
-            91, 168, 236, 182, 197, 72, 247, 194, 248, 34, 211, 234, 107, 43,
+            191, 181, 134, 68, 198, 122, 193, 86, 133, 117, 213, 55, 160, 168, 100, 54,
+            183, 31, 91, 168, 236, 182, 197, 72, 247, 194, 248, 34, 211, 234, 107, 43,
         ];
         assert_eq!(expected_seed, state.seed);
     }

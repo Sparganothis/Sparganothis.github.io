@@ -69,8 +69,10 @@ pub mod tests {
     #[test]
     #[wasm_bindgen_test]
     pub fn random_have_pinned_results() {
-        let encoded_str1 = bincode::serialize(&crate::tet::TetAction::SoftDrop).unwrap();
-        let encoded_str2 = bincode::serialize(&crate::tet::TetAction::MoveLeft).unwrap();
+        let encoded_str1 =
+            bincode::serialize(&crate::tet::TetAction::SoftDrop).unwrap();
+        let encoded_str2 =
+            bincode::serialize(&crate::tet::TetAction::MoveLeft).unwrap();
         let expected_str1: Vec<u8> = vec![1, 0, 0, 0];
         let expected_str2: Vec<u8> = vec![2, 0, 0, 0];
         assert_eq!(encoded_str1, expected_str1);
@@ -92,8 +94,8 @@ pub mod tests {
         };
         let result = accept_event(&seed, &event, 0, 0);
         let expected_result = [
-            102, 77, 149, 118, 163, 7, 253, 99, 165, 242, 176, 192, 189, 62, 213, 71, 30, 107, 105,
-            69, 11, 122, 244, 12, 1, 227, 176, 160, 124, 102, 156, 86,
+            102, 77, 149, 118, 163, 7, 253, 99, 165, 242, 176, 192, 189, 62, 213, 71,
+            30, 107, 105, 69, 11, 122, 244, 12, 1, 227, 176, 160, 124, 102, 156, 86,
         ];
         assert_eq!(result, expected_result);
     }

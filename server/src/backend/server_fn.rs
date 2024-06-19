@@ -27,7 +27,10 @@ pub fn git_version(_: (), _current_user_id: GuestInfo) -> anyhow::Result<String>
     Ok(GIT_VERSION.clone())
 }
 
-pub fn create_new_game_id(_: (), _current_user_id: GuestInfo) -> anyhow::Result<GameId> {
+pub fn create_new_game_id(
+    _: (),
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<GameId> {
     let who = _current_user_id.user_id;
     let mut rand = rand::thread_rng();
     let g = GameId {
@@ -61,7 +64,8 @@ pub fn append_game_segment(
             game_id: id,
             segment_id: existing_segment_count - 1,
         };
-        let maybe_segment = GAME_SEGMENT_DB.get(&old_segment_id)?.context("not found")?;
+        let maybe_segment =
+            GAME_SEGMENT_DB.get(&old_segment_id)?.context("not found")?;
         Some(maybe_segment)
     } else {
         None
@@ -71,7 +75,8 @@ pub fn append_game_segment(
             game_id: id,
             segment_id: existing_segment_count - 1,
         };
-        let maybe_gamestate = GAME_FULL_DB.get(&old_segment_id)?.context("not found")?;
+        let maybe_gamestate =
+            GAME_FULL_DB.get(&old_segment_id)?.context("not found")?;
         Some(maybe_gamestate)
     } else {
         None
@@ -98,7 +103,9 @@ pub fn append_game_segment(
                 }
                 GameReplaySegment::Update(old_update) => {
                     if old_update.idx != update_seg.idx - 1 {
-                        anyhow::bail!("segment idx do not match up - missing/duplicate");
+                        anyhow::bail!(
+                            "segment idx do not match up - missing/duplicate"
+                        );
                     }
                 }
                 GameReplaySegment::GameOver => {
@@ -120,7 +127,9 @@ pub fn append_game_segment(
     GAME_SEGMENT_COUNT_DB.insert(&id, &(existing_segment_count + 1))?;
 
     let new_game_state = match new_segment {
-        GameReplaySegment::Init(replay) => GameState::new(&replay.init_seed, replay.start_time),
+        GameReplaySegment::Init(replay) => {
+            GameState::new(&replay.init_seed, replay.start_time)
+        }
         GameReplaySegment::Update(slice) => {
             let mut last_state = last_state.context("no last state found")?;
             last_state.accept_replay_slice(&slice)?;
