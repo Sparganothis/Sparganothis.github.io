@@ -246,7 +246,7 @@ pub fn AppRoot() -> impl IntoView {
                             <Route path="" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
                             <Route path="/vs_net" view=Game2PPage/>
-                            // <Route path="/replay" view=crate::page::page_replay::GameReplayPage/>
+                            <Route path="/replay" view=crate::page::page_replay::GameReplayPage/>
                             <Route path="/account" view=MyAccountPage/>
                             <Route path="/ws_demo" view=SpectatorGameBoard/>
                             <Route path="/user/:user_id" view=UserProfilePage/>

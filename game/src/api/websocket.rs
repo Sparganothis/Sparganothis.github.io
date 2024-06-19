@@ -118,5 +118,5 @@ pub struct GetAllGames {}
 impl APIMethod for GetAllGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllGames;
     type Req = ();
-    type Resp = Vec<GameId>;
+    type Resp = Vec<(GameId,GameSegmentCountReply)>;
 }

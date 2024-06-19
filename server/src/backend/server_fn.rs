@@ -40,7 +40,7 @@ pub fn create_new_game_id(_: (), _current_user_id: GuestInfo) -> anyhow::Result<
     };
     
     GAME_IS_IN_PROGRESS_DB.insert(&g, &false)?;
-    GAME_SEGMENT_COUNT_DB.insert(&g, &0);
+    GAME_SEGMENT_COUNT_DB.insert(&g, &0)?;
     Ok(g)
 }
 
@@ -166,10 +166,12 @@ pub fn get_segment_count(
 pub fn get_all_games(
     segid: (),
     _current_user_id: GuestInfo,
-) -> anyhow::Result<Vec<GameId>> {
+) -> anyhow::Result<Vec<(GameId, GameSegmentCountReply)>> {
     let mut v = vec![];
-    for r in GAME_IS_IN_PROGRESS_DB.iter().keys(){
-        v.push(r?);
+    for game_id in GAME_IS_IN_PROGRESS_DB.iter().keys(){
+        let game_id=game_id?;
+        let r = get_segment_count(game_id,_current_user_id.clone())?;
+        v.push((game_id,r));
     }
     Ok(v)
 }

@@ -594,6 +594,7 @@ dependencies = [
  "bincode",
  "chrono",
  "getrandom",
+ "hex",
  "log",
  "rand",
  "rand_chacha",
