@@ -11,7 +11,6 @@ pub fn ReplayGameBoard(
     slider: RwSignal<f64>,
     game_state: RwSignal<GameState>,
 ) -> impl IntoView {
-
     let status_message = create_rw_signal(String::from("downloading..."));
 
     // let api2: WebsocketAPI = expect_context();

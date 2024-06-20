@@ -1,4 +1,7 @@
-use game::{api::{game_replay::GameId, websocket::GetAllSegments}, tet::GameState};
+use game::{
+    api::{game_replay::GameId, websocket::GetAllSegments},
+    tet::GameState,
+};
 use leptos_router::use_params_map;
 
 use crate::{
@@ -52,7 +55,7 @@ pub fn GameReplaySinglePage() -> impl IntoView {
         }
     };
     let slider = create_rw_signal(0.0);
-    
+
     let game_state = create_rw_signal(GameState::new(&[0; 32], 0));
 
     view! {
@@ -75,7 +78,11 @@ pub fn GameReplaySinglePage() -> impl IntoView {
 
         </div>
         <div class="main_right">
-            <TableReplaySegments all_segments=all_segments.into_signal() slider game_state=game_state.read_only()/>
+            <TableReplaySegments
+                all_segments=all_segments.into_signal()
+                slider
+                game_state=game_state.read_only()
+            />
         </div>
     }
 }

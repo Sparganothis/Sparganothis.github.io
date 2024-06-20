@@ -205,8 +205,7 @@ pub fn GameBoard(
                     <BoardTable board=main_board/>
                 </div>
 
-                <div class="label_bottom">
-                    // <code class="side_board_code">{debug_info}</code>
+                <div class="label_bottom">// <code class="side_board_code">{debug_info}</code>
                 </div>
 
                 <div class="side_board_right">

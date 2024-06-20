@@ -22,20 +22,34 @@ pub fn TableReplaySegments(
                 .enumerate()
                 .skip(init_row)
                 .take(page_size)
-                .map(|r| GameSegmentTableRow::new(r.0, r.1.clone(), pointer as usize, if r.0 == (pointer as usize) {Some(game_state.clone())} else {None}))
+                .map(|r| {
+                    GameSegmentTableRow::new(
+                        r.0,
+                        r.1.clone(),
+                        pointer as usize,
+                        if r.0 == (pointer as usize) {
+                            Some(game_state.clone())
+                        } else {
+                            None
+                        },
+                    )
+                })
                 .collect::<Vec<_>>();
             if rows.len() > 2 {
-
-                for i in 1..rows.len()-1{
-                    if let (Some(a), Some(b)) = (rows[i-1].update_slice.clone(), rows[i].update_slice.clone()) {
+                for i in 1..rows.len() - 1 {
+                    if let (Some(a), Some(b)) = (
+                        rows[i - 1].update_slice.clone(),
+                        rows[i].update_slice.clone(),
+                    ) {
                         let dt_ns = b.event_timestamp - a.event_timestamp;
-                        let dt_ms  = dt_ns as f64/1000.0;
+                        let dt_ms = dt_ns as f64 / 1000.0;
                         rows[i].since_last = format!("{dt_ms:.0}ms")
                     }
                 }
             }
 
-            view! { <TableContent rows  row_renderer=CustomTableRowRenderer /> } //
+            view! { <TableContent rows row_renderer=CustomTableRowRenderer/> }
+            //
         })
     };
     view! { <table id="table-replay-segments">{make_table}</table> }
@@ -60,7 +74,7 @@ impl GameSegmentTableRow {
         row_idx: usize,
         db_row: GameReplaySegment,
         current_slider: usize,
-        state: Option<GameState>
+        state: Option<GameState>,
     ) -> Self {
         let selected = if row_idx == current_slider {
             "X".to_string()
@@ -73,27 +87,31 @@ impl GameSegmentTableRow {
                 idx: "".to_owned(),
                 action: "".to_owned(),
                 since_last: "".to_owned(),
-                selected,state, update_slice: None,
+                selected,
+                state,
+                update_slice: None,
             },
             GameReplaySegment::Update(_update) => Self {
                 _type: "update".to_owned(),
                 idx: _update.idx.to_string(),
                 action: format!("{:?}", _update.event.action),
                 since_last: "".to_string(),
-                selected,state, update_slice: Some(_update),
+                selected,
+                state,
+                update_slice: Some(_update),
             },
             GameReplaySegment::GameOver => Self {
                 _type: "game_over".to_owned(),
                 idx: "".to_owned(),
                 action: "".to_owned(),
                 since_last: "".to_owned(),
-                selected,state, update_slice: None,
+                selected,
+                state,
+                update_slice: None,
             },
         }
     }
 }
-
-
 
 #[allow(unused_variables, non_snake_case)]
 pub fn CustomTableRowRenderer(
@@ -112,13 +130,18 @@ pub fn CustomTableRowRenderer(
 ) -> impl IntoView {
     let row2 = row.clone();
     let row3 = row.clone();
-    let display_state =
-        if let Some(state) = row.state {
-            view!{
-                <tr><td colspan="100%"><code><pre>{format!("{}", state.get_debug_info())}</pre></code></td></tr>
-            }.into_view()
-        } else {
-            view!{}.into_view()
+    let display_state = if let Some(state) = row.state {
+        view! {
+            <tr>
+                <td colspan="100%">
+                    <code>
+                        <pre>{format!("{}", state.get_debug_info())}</pre>
+                    </code>
+                </td>
+            </tr>
+        }.into_view()
+    } else {
+        view! {}.into_view()
     };
     view! {
         <tr class=class on:click=move |mouse_event| on_select.run(mouse_event)>
