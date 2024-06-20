@@ -9,8 +9,6 @@ use game::{
 
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::websocket::GetAllGamesArg;
-use icondata as i;
-use leptonic::prelude::*;
 use leptos::*;
 use leptos_struct_table::*;
 

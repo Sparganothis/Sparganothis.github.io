@@ -1,17 +1,7 @@
 use game::{
-    api::{
-        game_replay::GameId,
-        websocket::{GameSegmentCountReply, GetAllGames},
-    },
-    random::GameSeed,
     tet::GameReplaySegment,
-    timestamp::get_human_readable_nano,
 };
 
-use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
-use game::api::websocket::GetAllGamesArg;
-use icondata as i;
-use leptonic::prelude::*;
 use leptos::*;
 use leptos_struct_table::*;
 

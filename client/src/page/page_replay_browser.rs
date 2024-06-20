@@ -1,15 +1,9 @@
 use game::{
-    api::{
-        game_replay::GameId,
-        websocket::{GameSegmentCountReply, GetAllGames},
-    },
     random::GameSeed,
-    timestamp::get_human_readable_nano,
 };
 
 use crate::{
     comp::{game_board::RandomOpponentGameBoard, table_replay_games::AllGamesTable},
-    websocket::demo_comp::{call_websocket_api, WebsocketAPI},
 };
 use game::api::websocket::GetAllGamesArg;
 use icondata as i;
