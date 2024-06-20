@@ -3,13 +3,11 @@ use leptos_router::use_params_map;
 
 use crate::comp::game_board_replay::ReplayGameBoard;
 use leptos::*;
-use leptos_struct_table::*;
 
 #[component]
 pub fn GameReplaySinglePage() -> impl IntoView {
     let params = use_params_map();
 
-    // id: || -> Option<String>
     let game_id = move || -> Result<GameId, String> {
         let p = params.with(|params| params.get("game_id").cloned());
         let p = p.ok_or("param missing".to_string())?;

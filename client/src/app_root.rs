@@ -15,7 +15,7 @@ pub fn AppRoot() -> impl IntoView {
             position: absolute;
             left: 1vmin;
             top: 1vmin;
-            height: 98vmin;
+            height: 97vmin;
             width: 19.2vmin;
             border: 1vmin solid black;
         }
@@ -23,14 +23,14 @@ pub fn AppRoot() -> impl IntoView {
             position: absolute;
             top: 1vmin;
             left: 19.85vmin;
-            height: 100vmin;
+            height: 98vmin;
         }
         main > div.main_left {
             position: absolute;
             top: 0vmin;
             width: 71.1vmin;
             left: 1.1vmin;
-            height: 98vmin;
+            height: 97vmin;
             border: 1vmin solid green;
         }
         main > div.main_right {
@@ -38,7 +38,7 @@ pub fn AppRoot() -> impl IntoView {
             top: 0vmin;
             width: 71.1vmin;
             left: 72.85vmin;
-            height: 98vmin;
+            height: 97vmin;
             border: 1vmin solid blue;
         }
         .menu_root {

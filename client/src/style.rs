@@ -34,7 +34,7 @@ pub fn default_style(
     }
 
     .main_container {
-        height: 96.2vmin;
+        height: 95.2vmin;
         width: ${cell_width_vmin * (2.0 * SIDE_BOARD_WIDTH as f64 + 11.8)}vmin;
         border: 0.2vmin solid green;
         position: absolute;
