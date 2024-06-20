@@ -89,6 +89,7 @@ impl RotState {
         }
     }
 }
+
 pub type Shape = Vec<Vec<bool>>;
 #[allow(non_snake_case)]
 pub fn rotate_shape(shape: Shape, rot: RotDirection) -> Shape {

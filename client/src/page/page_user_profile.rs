@@ -1,6 +1,6 @@
 use leptos::*;
 
-use super::page_replay_browser::AllGamesTable;
+use crate::comp::table_replay_games::AllGamesTable;
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::user;
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};

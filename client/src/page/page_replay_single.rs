@@ -1,7 +1,7 @@
-use game::api::game_replay::GameId;
+use game::api::{game_replay::GameId, websocket::GetAllSegments};
 use leptos_router::use_params_map;
 
-use crate::comp::game_board_replay::ReplayGameBoard;
+use crate::{comp::{game_board_replay::ReplayGameBoard, table_replay_segments::TableReplaySegments}, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
 use leptos::*;
 
 #[component]
@@ -15,17 +15,52 @@ pub fn GameReplaySinglePage() -> impl IntoView {
         Ok(p)
     };
 
+    let api: WebsocketAPI = expect_context();
+    let all_segments = create_resource(
+        move || game_id(),
+        move |game_id| {
+            let api3 = api.clone();
+            async move {
+                if game_id.is_err() {
+                    return vec![];
+                }
+                let game_id = game_id.unwrap();
+                // log::info!("calling websocket api");
+                let r = call_websocket_api::<GetAllSegments>(api3, game_id)
+                    .expect("cannot obtain future")
+                    .await;
+                // log::info!("got back response: {:?}", r);
+                if let Ok(all_segments) = r {
+                    all_segments
+                } else {
+                    vec![]
+                }
+            }
+        },
+    );
+
+    let all_segments = move || {
+        if let Some(s) = all_segments.get() {
+            s
+        } else {
+            vec![]
+        }
+    };
+    let slider = create_rw_signal(0.0);
+
     view! {
         <div class="main_left">
             {move || {
                 match game_id() {
-                    Ok(game_id) => {
-                        view! { <ReplayGameBoard game_id=game_id/> }.into_view()
+                    Ok(_game_id) => {
+                        view! { <ReplayGameBoard all_segments=all_segments.into_signal() slider /> }.into_view()
                     }
                     Err(err) => view! { <p>{err} ...</p> }.into_view(),
                 }
             }}
-
+        </div>
+        <div class="main_right">
+            <TableReplaySegments all_segments=all_segments.into_signal() slider />
         </div>
     }
 }
