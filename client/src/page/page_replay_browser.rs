@@ -1,15 +1,10 @@
-use game::{
-    random::GameSeed,
-};
+use game::random::GameSeed;
 
-use crate::{
-    comp::{game_board::RandomOpponentGameBoard, table_replay_games::AllGamesTable},
-};
+use crate::comp::{game_board::RandomOpponentGameBoard, table_replay_games::AllGamesTable};
 use game::api::websocket::GetAllGamesArg;
 use icondata as i;
 use leptonic::prelude::*;
 use leptos::*;
-use leptos_struct_table::*;
 
 #[component]
 pub fn GameReplayBrowserPage() -> impl IntoView {

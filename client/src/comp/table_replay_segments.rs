@@ -1,6 +1,4 @@
-use game::{
-    tet::GameReplaySegment,
-};
+use game::tet::GameReplaySegment;
 
 use leptos::*;
 use leptos_struct_table::*;
