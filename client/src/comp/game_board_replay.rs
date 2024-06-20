@@ -112,158 +112,158 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
         let tick = create_rw_signal(0);
         let do_every_tick = create_rw_signal(4);
 
-        
-    let leptos_use::utils::Pausable  {
-        pause,
-        resume,
-        ..
-    }  = leptos_use::use_interval_fn(move || {
-        tick.set(tick.get_untracked() + 1);
-        if tick.get_untracked() % do_every_tick.get_untracked() == 0 {
-            let old_slider = get_slider.get_untracked();
+        let leptos_use::utils::Pausable { pause, resume, .. } =
+            leptos_use::use_interval_fn(
+                move || {
+                    tick.set(tick.get_untracked() + 1);
+                    if tick.get_untracked() % do_every_tick.get_untracked() == 0 {
+                        let old_slider = get_slider.get_untracked();
 
-            let diff_slider = if is_backwards.get_untracked() {
-                -1.0
-            } else {
-                1.0
-            };
-            let mut new_slider = old_slider + diff_slider;
-            new_slider = new_slider.max(0.0).min(all_states.with_untracked(|w| w.len() as f64));
+                        let diff_slider = if is_backwards.get_untracked() {
+                            -1.0
+                        } else {
+                            1.0
+                        };
+                        let mut new_slider = old_slider + diff_slider;
+                        new_slider = new_slider
+                            .max(0.0)
+                            .min(all_states.with_untracked(|w| w.len() as f64));
 
-            set_slider.set(new_slider);
-        }
-    }, 16 );
+                        set_slider.set(new_slider);
+                    }
+                },
+                16,
+            );
 
-    let resume1 = resume.clone();
-    let on_click_play = move |_| {
-        log::info!("click on_click_play");
-        is_backwards.set(false);
-        do_every_tick.set(4);
-        resume1();
-    };
+        let resume1 = resume.clone();
+        let on_click_play = move |_| {
+            log::info!("click on_click_play");
+            is_backwards.set(false);
+            do_every_tick.set(4);
+            resume1();
+        };
 
-    let pause1 = pause.clone();
-    let on_click_pause = move |_| {
-        pause1();
-    };
+        let pause1 = pause.clone();
+        let on_click_pause = move |_| {
+            pause1();
+        };
 
-    let pause1 = pause.clone();
-    let on_click_stop = move |_| {
-        pause1();
-        set_slider.set(0.0);
-    };
+        let pause1 = pause.clone();
+        let on_click_stop = move |_| {
+            pause1();
+            set_slider.set(0.0);
+        };
 
-    let resume1 = resume.clone();
-    let on_click_rewind = move |_| {
-        is_backwards.set(true);
-        do_every_tick.set(1);
-        resume1();
-    };
+        let resume1 = resume.clone();
+        let on_click_rewind = move |_| {
+            is_backwards.set(true);
+            do_every_tick.set(1);
+            resume1();
+        };
 
-    let resume1 = resume.clone();
-    let on_click_fast = move |_| {
-        is_backwards.set(false);
-        do_every_tick.set(1);
-        resume1();
-    };
+        let resume1 = resume.clone();
+        let on_click_fast = move |_| {
+            is_backwards.set(false);
+            do_every_tick.set(1);
+            resume1();
+        };
 
-    let resume1 = resume.clone();
-    let on_click_skip_to_end = move |_| {
-        is_backwards.set(false);
-        let len = all_states.with_untracked(|s| s.len());
-        set_slider.set(len as f64);
-        is_backwards.set(true);
-        do_every_tick.set(1);
-        resume1();
-    };
+        let resume1 = resume.clone();
+        let on_click_skip_to_end = move |_| {
+            is_backwards.set(false);
+            let len = all_states.with_untracked(|s| s.len());
+            set_slider.set(len as f64);
+            is_backwards.set(true);
+            do_every_tick.set(1);
+            resume1();
+        };
 
-    let resume1 = resume.clone();
-    let on_click_skip_to_start = move |_| {
-        is_backwards.set(false);
-        set_slider.set(0.0 as f64);
-        do_every_tick.set(1);
-        is_backwards.set(false);
-        resume1();
-    };
+        let resume1 = resume.clone();
+        let on_click_skip_to_start = move |_| {
+            is_backwards.set(false);
+            set_slider.set(0.0 as f64);
+            do_every_tick.set(1);
+            is_backwards.set(false);
+            resume1();
+        };
 
         view! {
-        <div class="control_icon_parent">
+            <div class="control_icon_parent">
 
-            <div class="control_icon_container">
-            <Icon
-                class="control_icon"
-                icon=icondata::BiSkipPreviousCircleRegular
-                on:click=on_click_skip_to_start
-                width="5vmin"
-                height="5vmin"
-            />
-        </div>
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiSkipPreviousCircleRegular
+                        on:click=on_click_skip_to_start
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
 
-            <div class="control_icon_container">
-                <Icon
-                    class="control_icon"
-                    icon=icondata::BiRewindCircleRegular
-                    style="color: black"
-                    on:click=on_click_rewind
-                    width="5vmin"
-                    height="5vmin"
-                />
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiRewindCircleRegular
+                        style="color: black"
+                        on:click=on_click_rewind
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
+
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiPlayCircleRegular
+                        on:click=on_click_play
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
+
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiPauseCircleRegular
+                        on:click=on_click_pause
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
+
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiStopCircleRegular
+                        on:click=on_click_stop
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
+
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiFastForwardCircleRegular
+                        on:click=on_click_fast
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
+
+                <div class="control_icon_container">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BiSkipNextCircleRegular
+                        on:click=on_click_skip_to_end
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                </div>
+
             </div>
-
-            <div class="control_icon_container">
-                <Icon
-                    class="control_icon"
-                    icon=icondata::BiPlayCircleRegular
-                    on:click=on_click_play
-                    width="5vmin"
-                    height="5vmin"
-                />
-            </div>
-
-            <div class="control_icon_container">
-                <Icon
-                    class="control_icon"
-                    icon=icondata::BiPauseCircleRegular
-                    on:click=on_click_pause
-                    width="5vmin"
-                    height="5vmin"
-                />
-            </div>
-
-            <div class="control_icon_container">
-                <Icon
-                    class="control_icon"
-                    icon=icondata::BiStopCircleRegular
-                    on:click=on_click_stop
-                    width="5vmin"
-                    height="5vmin"
-                />
-            </div>
-
-            <div class="control_icon_container">
-                <Icon
-                    class="control_icon"
-                    icon=icondata::BiFastForwardCircleRegular
-                    on:click=on_click_fast
-                    width="5vmin"
-                    height="5vmin"
-                />
-            </div>
-
-            <div class="control_icon_container">
-                <Icon
-                    class="control_icon"
-                    icon=icondata::BiSkipNextCircleRegular
-                    on:click=on_click_skip_to_end
-                    width="5vmin"
-                    height="5vmin"
-                />
-            </div>
-
-            
-        </div>
-    }
-};
+        }
+    };
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
