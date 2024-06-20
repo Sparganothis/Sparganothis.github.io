@@ -12,15 +12,14 @@ use leptos::*;
 pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
     let state_signal = create_rw_signal(GameState::new(&[0; 32], 0));
     let api: WebsocketAPI = expect_context();
-    let api2: WebsocketAPI = expect_context();
 
     let all_segments = create_resource(
         || (),
         move |_| {
-            let api2 = api.clone();
+            let api3 = api.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<GetAllSegments>(api2, game_id)
+                let r = call_websocket_api::<GetAllSegments>(api3, game_id)
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);
@@ -31,10 +30,11 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
     let (get_slider, set_slider) = create_signal(6.0);
     let status_message = create_rw_signal(String::from("downloading..."));
 
+    // let api2: WebsocketAPI = expect_context();
     let all_states = create_memo(move |_| {
         if let Some(Ok(all_segments)) = all_segments.get() {
             let t0 = get_timestamp_now_ms();
-            status_message.set_untracked("simulating...".to_string());
+            status_message.set("simulating...".to_string());
             let mut current_state = match all_segments.get(0) {
                 Some(GameReplaySegment::Init(_replay)) => {
                     GameState::new(&_replay.init_seed, _replay.start_time)
@@ -67,7 +67,7 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
                 all_states.push(current_state.clone());
             }
             let t1 = get_timestamp_now_ms();
-            status_message.set_untracked(format!("done {}ms", t1 - t0));
+            status_message.set(format!("done {}ms", t1 - t0));
             all_states
         } else {
             vec![]
@@ -107,24 +107,98 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
         }
     };
 
+    let control_icons = {
+        let is_backwards = create_rw_signal(false);
+        let tick = create_rw_signal(0);
+        let do_every_tick = create_rw_signal(4);
+
+        
+    let leptos_use::utils::Pausable  {
+        pause,
+        resume,
+        ..
+    }  = leptos_use::use_interval_fn(move || {
+        tick.set(tick.get_untracked() + 1);
+        if tick.get_untracked() % do_every_tick.get_untracked() == 0 {
+            let old_slider = get_slider.get_untracked();
+
+            let diff_slider = if is_backwards.get_untracked() {
+                -1.0
+            } else {
+                1.0
+            };
+            let mut new_slider = old_slider + diff_slider;
+            new_slider = new_slider.max(0.0).min(all_states.with_untracked(|w| w.len() as f64));
+
+            set_slider.set(new_slider);
+        }
+    }, 16 );
+
+    let resume1 = resume.clone();
     let on_click_play = move |_| {
         log::info!("click on_click_play");
-    };
-    let on_click_pause = move |_| {
-        log::info!("click on_click_pause");
-    };
-    let on_click_stop = move |_| {
-        log::info!("click on_click_stop");
-    };
-    let on_click_rewind = move |_| {
-        log::info!("click on_click_rewind");
-    };
-    let on_click_fast = move |_| {
-        log::info!("click on_click_fast");
+        is_backwards.set(false);
+        do_every_tick.set(4);
+        resume1();
     };
 
-    let control_icons = view! {
+    let pause1 = pause.clone();
+    let on_click_pause = move |_| {
+        pause1();
+    };
+
+    let pause1 = pause.clone();
+    let on_click_stop = move |_| {
+        pause1();
+        set_slider.set(0.0);
+    };
+
+    let resume1 = resume.clone();
+    let on_click_rewind = move |_| {
+        is_backwards.set(true);
+        do_every_tick.set(1);
+        resume1();
+    };
+
+    let resume1 = resume.clone();
+    let on_click_fast = move |_| {
+        is_backwards.set(false);
+        do_every_tick.set(1);
+        resume1();
+    };
+
+    let resume1 = resume.clone();
+    let on_click_skip_to_end = move |_| {
+        is_backwards.set(false);
+        let len = all_states.with_untracked(|s| s.len());
+        set_slider.set(len as f64);
+        is_backwards.set(true);
+        do_every_tick.set(1);
+        resume1();
+    };
+
+    let resume1 = resume.clone();
+    let on_click_skip_to_start = move |_| {
+        is_backwards.set(false);
+        set_slider.set(0.0 as f64);
+        do_every_tick.set(1);
+        is_backwards.set(false);
+        resume1();
+    };
+
+        view! {
         <div class="control_icon_parent">
+
+            <div class="control_icon_container">
+            <Icon
+                class="control_icon"
+                icon=icondata::BiSkipPreviousCircleRegular
+                on:click=on_click_skip_to_start
+                width="5vmin"
+                height="5vmin"
+            />
+        </div>
+
             <div class="control_icon_container">
                 <Icon
                     class="control_icon"
@@ -149,7 +223,7 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
             <div class="control_icon_container">
                 <Icon
                     class="control_icon"
-                    icon=icondata::BiPlayCircleRegular
+                    icon=icondata::BiPauseCircleRegular
                     on:click=on_click_pause
                     width="5vmin"
                     height="5vmin"
@@ -159,7 +233,7 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
             <div class="control_icon_container">
                 <Icon
                     class="control_icon"
-                    icon=icondata::BiPlayCircleRegular
+                    icon=icondata::BiStopCircleRegular
                     on:click=on_click_stop
                     width="5vmin"
                     height="5vmin"
@@ -175,8 +249,21 @@ pub fn ReplayGameBoard(game_id: GameId) -> impl IntoView {
                     height="5vmin"
                 />
             </div>
+
+            <div class="control_icon_container">
+                <Icon
+                    class="control_icon"
+                    icon=icondata::BiSkipNextCircleRegular
+                    on:click=on_click_skip_to_end
+                    width="5vmin"
+                    height="5vmin"
+                />
+            </div>
+
+            
         </div>
-    };
+    }
+};
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
