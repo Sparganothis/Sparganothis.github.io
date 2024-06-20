@@ -9,7 +9,10 @@ use leptonic::slider::Slider;
 use leptos::*;
 
 #[component]
-pub fn ReplayGameBoard(all_segments: Signal<Vec<GameReplaySegment>>, slider: RwSignal<f64>) -> impl IntoView {
+pub fn ReplayGameBoard(
+    all_segments: Signal<Vec<GameReplaySegment>>,
+    slider: RwSignal<f64>,
+) -> impl IntoView {
     let state_signal = create_rw_signal(GameState::new(&[0; 32], 0));
 
     let status_message = create_rw_signal(String::from("downloading..."));
@@ -17,42 +20,41 @@ pub fn ReplayGameBoard(all_segments: Signal<Vec<GameReplaySegment>>, slider: RwS
     // let api2: WebsocketAPI = expect_context();
     let all_states = create_memo(move |_| {
         let all_segments = all_segments.get();
-            let t0 = get_timestamp_now_ms();
-            status_message.set("simulating...".to_string());
-            let mut current_state = match all_segments.get(0) {
-                Some(GameReplaySegment::Init(_replay)) => {
-                    GameState::new(&_replay.init_seed, _replay.start_time)
-                }
-                _ => {
-                    log::error!("got no init segment");
+        let t0 = get_timestamp_now_ms();
+        status_message.set("simulating...".to_string());
+        let mut current_state = match all_segments.get(0) {
+            Some(GameReplaySegment::Init(_replay)) => {
+                GameState::new(&_replay.init_seed, _replay.start_time)
+            }
+            _ => {
+                log::error!("got no init segment");
+                return vec![];
+            }
+        };
+        let mut all_states = vec![];
+        all_states.push(current_state.clone());
+        for segment in &all_segments[1..] {
+            match segment {
+                GameReplaySegment::Init(_) => {
+                    log::error!("got two init segments");
                     return vec![];
                 }
-            };
-            let mut all_states = vec![];
-            all_states.push(current_state.clone());
-            for segment in &all_segments[1..] {
-                match segment {
-                    GameReplaySegment::Init(_) => {
-                        log::error!("got two init segments");
+                GameReplaySegment::Update(_slice) => {
+                    if let Err(e) = current_state.accept_replay_slice(_slice) {
+                        log::error!("failed to accept replay slice: {:#?}", e);
                         return vec![];
                     }
-                    GameReplaySegment::Update(_slice) => {
-                        if let Err(e) = current_state.accept_replay_slice(_slice) {
-                            log::error!("failed to accept replay slice: {:#?}", e);
-                            return vec![];
-                        }
-                    }
-                    GameReplaySegment::GameOver => {
-                        current_state.game_over = true;
-                    }
                 }
-                all_states.push(current_state.clone());
+                GameReplaySegment::GameOver => {
+                    current_state.game_over = true;
+                }
             }
-            let t1 = get_timestamp_now_ms();
-            status_message.set(format!("done {}ms", t1 - t0));
-            all_states
+            all_states.push(current_state.clone());
         }
-    );
+        let t1 = get_timestamp_now_ms();
+        status_message.set(format!("done {}ms", t1 - t0));
+        all_states
+    });
 
     let update_state_on_slider_change = move || {
         let slider_val = slider.get() as usize;
@@ -69,19 +71,19 @@ pub fn ReplayGameBoard(all_segments: Signal<Vec<GameReplaySegment>>, slider: RwS
     };
 
     let make_slider = move || {
-        let all_segments = all_segments.get() ;
-            let maxval = all_segments.len() as f64 - 1.0;
-            view! {
-                <Slider
-                    min=0.0
-                    max=maxval
-                    step=1.0
-                    value=slider.read_only()
-                    set_value=slider.write_only()
-                    value_display=move |v| format!("{v:.0}/{maxval:.0}")
-                />
-            }
-            .into_view()
+        let all_segments = all_segments.get();
+        let maxval = all_segments.len() as f64 - 1.0;
+        view! {
+            <Slider
+                min=0.0
+                max=maxval
+                step=1.0
+                value=slider.read_only()
+                set_value=slider.write_only()
+                value_display=move |v| format!("{v:.0}/{maxval:.0}")
+            />
+        }
+        .into_view()
     };
 
     let control_icons = {
@@ -104,12 +106,12 @@ pub fn ReplayGameBoard(all_segments: Signal<Vec<GameReplaySegment>>, slider: RwS
                         let mut new_slider = old_slider + diff_slider;
                         new_slider = new_slider
                             .max(0.0)
-                            .min(all_states.with_untracked(|w| w.len() as f64-1.0));
+                            .min(all_states.with_untracked(|w| w.len() as f64 - 1.0));
 
-                            // if new_slider < 1.0 || new_slider > all_states.with_untracked(|w| w.len() as f64-1.0) {
-                            //     // pause();
-                            // }
-                            slider.set(new_slider);
+                        // if new_slider < 1.0 || new_slider > all_states.with_untracked(|w| w.len() as f64-1.0) {
+                        //     // pause();
+                        // }
+                        slider.set(new_slider);
                     }
                 },
                 25,
@@ -152,7 +154,7 @@ pub fn ReplayGameBoard(all_segments: Signal<Vec<GameReplaySegment>>, slider: RwS
         let on_click_one_right = move |_| {
             is_backwards.set(false);
             let len = all_states.with_untracked(|s| s.len());
-            slider.update(|s| *s=(*s+1.0).min(len as f64 - 1.0));
+            slider.update(|s| *s = (*s + 1.0).min(len as f64 - 1.0));
             do_every_tick.set(4);
             pause1();
             log::info!("right one");
@@ -161,7 +163,7 @@ pub fn ReplayGameBoard(all_segments: Signal<Vec<GameReplaySegment>>, slider: RwS
         let pause1 = pause.clone();
         let on_click_left_one = move |_| {
             is_backwards.set(false);
-            slider.update(|s| *s=(*s-1.0).max(0.0));
+            slider.update(|s| *s = (*s - 1.0).max(0.0));
             do_every_tick.set(4);
             pause1();
             log::info!("left one");

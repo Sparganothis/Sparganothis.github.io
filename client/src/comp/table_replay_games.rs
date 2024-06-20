@@ -7,15 +7,12 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::{
-    websocket::demo_comp::{call_websocket_api, WebsocketAPI},
-};
+use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
 use game::api::websocket::GetAllGamesArg;
 use icondata as i;
 use leptonic::prelude::*;
 use leptos::*;
 use leptos_struct_table::*;
-
 
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
@@ -56,7 +53,6 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
 
     view! { {table_from_rows} }
 }
-
 
 #[allow(unused_variables, non_snake_case)]
 pub fn CustomTableRowRenderer(

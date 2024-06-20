@@ -1,7 +1,12 @@
 use game::api::{game_replay::GameId, websocket::GetAllSegments};
 use leptos_router::use_params_map;
 
-use crate::{comp::{game_board_replay::ReplayGameBoard, table_replay_segments::TableReplaySegments}, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
+use crate::{
+    comp::{
+        game_board_replay::ReplayGameBoard, table_replay_segments::TableReplaySegments,
+    },
+    websocket::demo_comp::{call_websocket_api, WebsocketAPI},
+};
 use leptos::*;
 
 #[component]
@@ -53,14 +58,21 @@ pub fn GameReplaySinglePage() -> impl IntoView {
             {move || {
                 match game_id() {
                     Ok(_game_id) => {
-                        view! { <ReplayGameBoard all_segments=all_segments.into_signal() slider /> }.into_view()
+                        view! {
+                            <ReplayGameBoard
+                                all_segments=all_segments.into_signal()
+                                slider
+                            />
+                        }
+                            .into_view()
                     }
                     Err(err) => view! { <p>{err} ...</p> }.into_view(),
                 }
             }}
+
         </div>
         <div class="main_right">
-            <TableReplaySegments all_segments=all_segments.into_signal() slider />
+            <TableReplaySegments all_segments=all_segments.into_signal() slider/>
         </div>
     }
 }

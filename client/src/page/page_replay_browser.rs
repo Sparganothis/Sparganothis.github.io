@@ -17,7 +17,6 @@ use leptonic::prelude::*;
 use leptos::*;
 use leptos_struct_table::*;
 
-
 #[component]
 pub fn GameReplayBrowserPage() -> impl IntoView {
     let seed: GameSeed = [0; 32];
