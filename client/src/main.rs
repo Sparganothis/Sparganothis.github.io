@@ -2,8 +2,8 @@
 #![allow(unused_braces)]
 
 use serde as _;
-use wasm_bindgen as _;
 use tracing as _;
+use wasm_bindgen as _;
 
 use leptos::*;
 
