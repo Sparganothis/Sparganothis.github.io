@@ -9,8 +9,8 @@ use leptos::*;
 pub fn ReplayGameBoard(
     all_segments: Signal<Vec<GameReplaySegment>>,
     slider: RwSignal<f64>,
+    game_state: RwSignal<GameState>,
 ) -> impl IntoView {
-    let state_signal = create_rw_signal(GameState::new(&[0; 32], 0));
 
     let status_message = create_rw_signal(String::from("downloading..."));
 
@@ -62,7 +62,7 @@ pub fn ReplayGameBoard(
             if slider_val >= all_states.len() {
                 return view! { <p>"simulating..."</p> }.into_view();
             }
-            state_signal.set(all_states[slider_val].clone());
+            game_state.set(all_states[slider_val].clone());
             view! { <p>{status_message.get_untracked()}</p> }.into_view()
         })
     };
@@ -250,6 +250,6 @@ pub fn ReplayGameBoard(
         {update_state_on_slider_change}
         {control_icons}
 
-        <GameBoard on_reset_game=on_reset game_state=state_signal/>
+        <GameBoard on_reset_game=on_reset game_state=game_state/>
     }
 }

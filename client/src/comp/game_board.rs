@@ -182,7 +182,7 @@ pub fn GameBoard(
         </Show>
     };
 
-    let debug_info = move || game_state.get().get_debug_info();
+    // let debug_info = move || game_state.get().get_debug_info();
 
     view! {
         <div class=_style_name>
@@ -206,7 +206,7 @@ pub fn GameBoard(
                 </div>
 
                 <div class="label_bottom">
-                    <code class="side_board_code">{debug_info}</code>
+                    // <code class="side_board_code">{debug_info}</code>
                 </div>
 
                 <div class="side_board_right">

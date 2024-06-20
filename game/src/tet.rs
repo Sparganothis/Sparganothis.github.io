@@ -403,8 +403,8 @@ pub struct CurrentPcsInfo {
 impl GameState {
     pub fn get_debug_info(&self) -> String {
         format!(
-            "last_acction: {:?}  \n\n next_pcs: {:?}  current_pcs: {:?} \n\n, hold_psc: {:?}",
-            self.last_action, self.next_pcs, self.current_pcs, self.hold_pcps
+            "last_acction: {:?} \n next_pcs: {:?} \n current_pcs: {:?} \n hold_psc: {:?} \n is_game_over: {:?}",
+            self.last_action, self.next_pcs, self.current_pcs, self.hold_pcps, self.game_over
         )
     }
 
