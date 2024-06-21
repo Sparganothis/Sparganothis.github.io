@@ -27,7 +27,7 @@ let set_next = move |v: Vec<Tet>| game_state.update(|game_state|{
     game_state.next_pcs=v.iter().cloned().collect::<VecDeque<_>>();
 });    
     view! {
-        <h1>next pieces selector </h1>
+        <h1>next pieces selector</h1>
         <Multiselect
             options=Tet::all()
             search_text_provider=move |o| format!("{o:?}")
@@ -55,7 +55,7 @@ pub fn MsPaintGameBoard( game_state : RwSignal<GameState>)-> impl IntoView {
     });
     
     view! {
-        <h1>mspaint.exe </h1>
+        <h1>mspaint.exe</h1>
         <GameBoard game_state on_reset_game on_main_cell_click=on_click/>
     }
 }

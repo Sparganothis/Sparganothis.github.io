@@ -104,16 +104,16 @@ pub fn BoardTable<const R: usize, const C: usize>(
                     each=do_update
                     key=|r| { r.0 }
                     children=move |r| {
-                        let cb = {Callback::<i8>::new(move |_x| {
-                            let y = r.0 as i8;
-                            on_click.call((y, _x));
-    
-                        }
-                    )};
-                    view! { 
-                        <BoardRow row_vals=r.1 row_idx=r.0 on_click=cb/> 
+                        let cb = {
+                            Callback::<
+                                i8,
+                            >::new(move |_x| {
+                                let y = r.0 as i8;
+                                on_click.call((y, _x));
+                            })
+                        };
+                        view! { <BoardRow row_vals=r.1 row_idx=r.0 on_click=cb/> }
                     }
-                }
                 />
 
             </tbody>
@@ -133,15 +133,17 @@ pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize, on_click: Ca
                 each=iter
                 key=|c| c.0
                 children=move |c| {
-                    let cb = {Callback::<()>::new(move|_| {
-                        let x = c.0;
-                        on_click.call(x as i8);
-                    })};
+                    let cb = {
+                        Callback::<
+                            (),
+                        >::new(move |_| {
+                            let x = c.0;
+                            on_click.call(x as i8);
+                        })
+                    };
                     view! {
                         <td>
-                            <BoardCell cell=c.1 overflow=overflow 
-                            on_click=cb
-                            />
+                            <BoardCell cell=c.1 overflow=overflow on_click=cb/>
                         </td>
                     }
                 }
@@ -165,7 +167,7 @@ pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool, on_click: Callback<(
         _cell_cls
     };
 
-    view! { <div class=lambda on:click=move |_| on_click.call(()) ></div> }
+    view! { <div class=lambda on:click=move |_| on_click.call(())></div> }
 }
 
 use crate::style::*;
@@ -228,8 +230,8 @@ pub fn GameBoard(
                     <BoardTable board=main_board on_click=on_main_cell_click/>
                 </div>
 
-                <div class="label_bottom">// <code class="side_board_code">{debug_info}</code>
-                </div>
+                // <code class="side_board_code">{debug_info}</code>
+                <div class="label_bottom"></div>
 
                 <div class="side_board_right">
                     <h3 class="side_board_title">NEXT</h3>

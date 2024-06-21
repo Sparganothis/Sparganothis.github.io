@@ -7,7 +7,9 @@ use super::rot::{RotDirection, RotState, Shape};
 use super::random::*;
 
 use std::collections::VecDeque;
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord)]
+#[derive(
+    Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord,
+)]
 pub enum Tet {
     I,
     L,
@@ -401,7 +403,6 @@ pub struct CurrentPcsInfo {
 }
 
 impl GameState {
-    
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
             score: 0,
@@ -429,7 +430,7 @@ impl GameState {
 
     pub fn empty() -> Self {
         let seed = [0; 32];
-        let start_time=0;
+        let start_time = 0;
         Self {
             score: 0,
             have_combo: false,
