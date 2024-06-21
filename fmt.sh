@@ -3,7 +3,7 @@ set -ex
 if [ -z "$(git status --porcelain)" ]; then 
   # Working directory clean
   
-    ( cd client ;  cargo fmt ; leptosfmt src  )
+    ( cd client ;  leptosfmt src  )
     ( cd server ;  cargo fmt  )
     ( cd game  ;   cargo fmt   )
     git add .
@@ -11,7 +11,7 @@ if [ -z "$(git status --porcelain)" ]; then
     git commit -m "cargo fmt $(date)" || true
     git push
 
-    ( cd client ;  cargo fix --allow-dirty || true )
+    # NU MERGE! ( cd client ;  cargo fix --allow-dirty || true )
     ( cd server ;   cargo fix   --allow-dirty || true   )
     ( cd game  ;   cargo fix  --allow-dirty  || true   )
     
