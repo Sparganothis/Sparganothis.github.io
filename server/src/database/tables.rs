@@ -1,3 +1,5 @@
+use std::string;
+
 use game::{
     api::game_replay::{GameId, GameSegmentId},
     tet::{GameReplaySegment, GameState},
@@ -35,6 +37,14 @@ pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegme
             "game_segment_db_v1",
         )
     });
+
+pub static CUSTOM_GAME_BOARD_DB: Lazy<typed_sled::Tree<String, GameState>> =
+Lazy::new(|| {
+    typed_sled::Tree::<String, GameState>::open(
+        &TABLES_DB,
+        "custom_game_board_v1",
+    )
+});
 
 pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameId, GameState>> = Lazy::new(|| {
     typed_sled::Tree::<GameId, GameState>::open(&TABLES_DB, "game_full_v2")

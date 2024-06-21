@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
-use game::tet::{CellValue, GameState, Tet};
-use leptonic::select::Multiselect;
+use game::tet::{CellValue, CurrentPcsInfo, GameState, Tet};
+use leptonic::select::{Multiselect, Select};
 use leptos::*;
 
 use crate::comp::game_board::GameBoard;
@@ -15,10 +15,33 @@ pub fn MsPaintPage()-> impl IntoView{
         </div>
         <div class="main_right">
             <NextPeaceSelector game_state/>
+            <CurrentPeaceSelector game_state/>
         </div>
     }
 }
 
+#[component]
+pub fn CurrentPeaceSelector( game_state : RwSignal<GameState>)-> impl IntoView {
+    let selected = move || game_state.with(|game_state| game_state.current_pcs.unwrap().tet);
+    let set_selected = move |new_current:Tet|{
+        game_state.update(|game_state|{
+            let _ = game_state.main_board.delete_piece(&game_state.current_pcs.unwrap());
+            game_state.current_pcs = Some(CurrentPcsInfo{ pos: new_current.spawn_pos(), tet: new_current, rs: game_state.current_pcs.unwrap().rs, id: game_state.current_pcs.unwrap().id });
+            let _ = game_state.main_board.spawn_piece(&game_state.current_pcs.unwrap());
+        });
+
+    };
+    view! {
+        <h1>current pieces selector</h1>
+        <Select
+        options=Tet::all()
+        search_text_provider=move |o| format!("{o:?}")
+        render_option=move |o| format!("{o:?}")
+        selected=selected
+        set_selected=set_selected
+    />
+    }
+}
 
 #[component]
 pub fn NextPeaceSelector( game_state : RwSignal<GameState>)-> impl IntoView {

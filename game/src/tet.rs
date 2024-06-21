@@ -396,10 +396,10 @@ pub struct HoldPcsInfo {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CurrentPcsInfo {
-    pos: (i8, i8),
-    tet: Tet,
-    rs: RotState,
-    id: u32,
+    pub pos: (i8, i8),
+    pub tet: Tet,
+    pub rs: RotState,
+    pub id: u32,
 }
 
 impl GameState {
@@ -431,24 +431,7 @@ impl GameState {
     pub fn empty() -> Self {
         let seed = [0; 32];
         let start_time = 0;
-        Self {
-            score: 0,
-            have_combo: false,
-            is_t_spin: false,
-            main_board: BoardMatrix::empty(),
-            // next_board: BoardMatrixNext::empty(),
-            // hold_board: BoardMatrixHold::empty(),
-            last_action: TetAction::Nothing,
-            next_pcs: VecDeque::new(),
-            current_pcs: None,
-            game_over: false,
-            hold_pcps: None,
-            current_id: 0,
-            seed,
-            init_seed: seed,
-            replay: GameReplay::empty(&seed, start_time),
-            start_time,
-        }
+        Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
         format!(

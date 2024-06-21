@@ -243,6 +243,15 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::GetAllGames => {
             specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await
         }
+        WebsocketAPIMessageType::GetAllCustomGames => {
+            specific_sync_request::<GetAllCustomGames>(msg, user_id, get_all_gustom).await
+        },
+        WebsocketAPIMessageType::GetCustomGame => {
+            specific_sync_request::<GetCustomGame>(msg, user_id, get_gustom_game).await
+        },
+        WebsocketAPIMessageType::UpdateCustomGame => {
+            specific_sync_request::<UpdateCustomGame>(msg, user_id, update_custom_game).await
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

@@ -1,4 +1,5 @@
 use crate::backend::server_info::GIT_VERSION;
+use crate::database::tables::CUSTOM_GAME_BOARD_DB;
 use crate::database::tables::GAME_FULL_DB;
 use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
 use crate::database::tables::GAME_SEGMENT_COUNT_DB;
@@ -238,4 +239,32 @@ pub fn get_all_games(
     };
     v.truncate(PAGE_SIZE);
     Ok(v)
+}
+
+
+pub fn get_all_gustom(
+    arg: (),
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<Vec<(String, GameState)>> {
+    let mut v = vec![];
+    for x in CUSTOM_GAME_BOARD_DB.iter(){
+        let x  = x?;
+        v.push(x);
+    }
+    Ok(v)
+}
+
+pub fn get_gustom_game(
+    arg: String,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<GameState> {
+    Ok(CUSTOM_GAME_BOARD_DB.get(&arg)?.context("not found")?)
+}
+
+pub fn update_custom_game(
+    arg: (String,GameState),
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<()> {
+    CUSTOM_GAME_BOARD_DB.insert(&arg.0, &arg.1)?;
+    Ok(())
 }
