@@ -23,7 +23,7 @@ pub enum WebsocketAPIMessageType {
     GetAllCustomGames,
     GetCustomGame,
     UpdateCustomGame,
-
+    GetRandomWord,
 }
 
 
@@ -162,4 +162,10 @@ impl APIMethod for UpdateCustomGame{
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::UpdateCustomGame;
     type Req = (String,GameState);
     type Resp = ();
+}
+pub struct GetRandomWord {}
+impl APIMethod for GetRandomWord{
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetRandomWord;
+    type Req = ();
+    type Resp = String;
 }

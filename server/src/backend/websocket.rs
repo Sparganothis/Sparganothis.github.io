@@ -1,21 +1,3 @@
-//! Example websocket server.
-//!
-//! Run the server with
-//! ```not_rust
-//! cargo run -p example-websockets --bin example-websockets
-//! ```
-//!
-//! Run a browser client with
-//! ```not_rust
-//! firefox http://localhost:3000
-//! ```
-//!
-//! Alternatively you can run the rust client (showing two
-//! concurrent websocket connections being established) with
-//! ```not_rust
-//! cargo run -p example-websockets --bin example-client
-//! ```
-// use serde::Serialize;
 
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
@@ -251,6 +233,9 @@ pub async fn websocket_handle_request(
         },
         WebsocketAPIMessageType::UpdateCustomGame => {
             specific_sync_request::<UpdateCustomGame>(msg, user_id, update_custom_game).await
+        },
+        WebsocketAPIMessageType::GetRandomWord => {
+            specific_sync_request::<GetRandomWord>(msg, user_id, random_word2).await
         },
     }
     .context(format!("specific handler {:?}", msg_type))?;

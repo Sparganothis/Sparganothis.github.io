@@ -2,6 +2,7 @@ use crate::backend::server_info::GIT_VERSION;
 use crate::database::tables::CUSTOM_GAME_BOARD_DB;
 use crate::database::tables::GAME_FULL_DB;
 use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
+use crate::database::tables::random_word;
 use crate::database::tables::GAME_SEGMENT_COUNT_DB;
 use crate::database::tables::GAME_SEGMENT_DB;
 
@@ -267,4 +268,9 @@ pub fn update_custom_game(
 ) -> anyhow::Result<()> {
     CUSTOM_GAME_BOARD_DB.insert(&arg.0, &arg.1)?;
     Ok(())
+}
+
+pub fn random_word2(_:(), _current_user_id:GuestInfo,
+) -> anyhow::Result<String>{
+    Ok( random_word())
 }

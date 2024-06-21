@@ -44,7 +44,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
     board: Signal<tet::BoardMatrix<R, C>>,
     #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
     #[prop(optional)]
-    on_click: Callback<(i8,i8)>,
+    on_click: Callback<(i8, i8)>,
 ) -> impl IntoView {
     //
     // log::info!("redraw BoardTable R={} C={}", R, C);
@@ -122,7 +122,11 @@ pub fn BoardTable<const R: usize, const C: usize>(
 }
 
 #[component]
-pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize, on_click: Callback<i8>) -> impl IntoView {
+pub fn BoardRow(
+    row_vals: Vec<RwSignal<CellValue>>,
+    row_idx: usize,
+    on_click: Callback<i8>,
+) -> impl IntoView {
     let iter = move || row_vals.clone().into_iter().enumerate();
     let overflow = row_idx >= BOARD_HEIGHT;
 
@@ -154,7 +158,11 @@ pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize, on_click: Ca
 }
 
 #[component]
-pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool, on_click: Callback<()>) -> impl IntoView {
+pub fn BoardCell(
+    cell: RwSignal<CellValue>,
+    overflow: bool,
+    on_click: Callback<()>,
+) -> impl IntoView {
     let lambda = move || {
         let _cell_cls = match cell.get() {
             tet::CellValue::Piece(p) => format!("tet {}", p.name()),
@@ -179,7 +187,7 @@ pub fn GameBoard(
     on_reset_game: Callback<()>,
     #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
     #[prop(optional)]
-    on_main_cell_click: Callback<(i8,i8)>,
+    on_main_cell_click: Callback<(i8, i8)>,
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
     let bottom_free_percent = 15.0;

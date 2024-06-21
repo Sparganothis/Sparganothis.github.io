@@ -57,9 +57,11 @@ pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
         .context("user profile not found")?)
 }
 
-fn random_word() -> String {
+pub fn random_word() -> String {
     random_word::gen(random_word::Lang::De).to_string()
 }
+
+
 
 pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
     if let Ok(u) = get_user_profile(uuid) {

@@ -139,7 +139,8 @@ pub fn CustomTableRowRenderer(
                     </code>
                 </td>
             </tr>
-        }.into_view()
+        }
+        .into_view()
     } else {
         view! {}.into_view()
     };
