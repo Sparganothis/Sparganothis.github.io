@@ -2,8 +2,6 @@ use anyhow::Context;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-use crate::timestamp::get_timestamp_now_nano;
-
 use super::rot::{RotDirection, RotState, Shape};
 
 use super::random::*;
