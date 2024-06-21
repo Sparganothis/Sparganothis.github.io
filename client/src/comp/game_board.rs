@@ -103,11 +103,17 @@ pub fn BoardTable<const R: usize, const C: usize>(
                 <For
                     each=do_update
                     key=|r| { r.0 }
-                    children=move |r| view! { <BoardRow row_vals=r.1 row_idx=r.0 on_click={Callback::<i8>::new(move |_x| {
-                        let y = r.0 as i8;
-                        on_click.call((y, _x));
-
-                    })}/> }
+                    children=move |r| {
+                        let cb = {Callback::<i8>::new(move |_x| {
+                            let y = r.0 as i8;
+                            on_click.call((y, _x));
+    
+                        }
+                    )};
+                    view! { 
+                        <BoardRow row_vals=r.1 row_idx=r.0 on_click=cb/> 
+                    }
+                }
                 />
 
             </tbody>
@@ -127,13 +133,14 @@ pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize, on_click: Ca
                 each=iter
                 key=|c| c.0
                 children=move |c| {
+                    let cb = {Callback::<()>::new(move|_| {
+                        let x = c.0;
+                        on_click.call(x as i8);
+                    })};
                     view! {
                         <td>
                             <BoardCell cell=c.1 overflow=overflow 
-                            on_click={Callback::<()>::new(move|_| {
-                                let x = c.0;
-                                on_click.call(x as i8);
-                            })}
+                            on_click=cb
                             />
                         </td>
                     }
