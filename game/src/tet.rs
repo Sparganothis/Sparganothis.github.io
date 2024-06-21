@@ -2,6 +2,8 @@ use anyhow::Context;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use crate::timestamp::get_timestamp_now_nano;
+
 use super::rot::{RotDirection, RotState, Shape};
 
 use super::random::*;
@@ -401,6 +403,36 @@ pub struct CurrentPcsInfo {
 }
 
 impl GameState {
+    
+    pub fn new(seed: &GameSeed, start_time: i64) -> Self {
+        let mut new_state = Self {
+            score: 0,
+            have_combo: false,
+            is_t_spin: false,
+            main_board: BoardMatrix::empty(),
+            // next_board: BoardMatrixNext::empty(),
+            // hold_board: BoardMatrixHold::empty(),
+            last_action: TetAction::Nothing,
+            next_pcs: VecDeque::new(),
+            current_pcs: None,
+            game_over: false,
+            hold_pcps: None,
+            current_id: 0,
+            seed: *seed,
+            init_seed: *seed,
+            replay: GameReplay::empty(seed, start_time),
+            start_time,
+        };
+        new_state.refill_nextpcs(start_time);
+        let _ = new_state.put_next_piece(start_time);
+        new_state.put_ghost();
+        new_state
+    }
+
+    pub fn empty() -> Self {
+        let seed = [0; 32];
+        Self::new(&seed, get_timestamp_now_nano())
+    }
     pub fn get_debug_info(&self) -> String {
         format!(
             "last_acction: {:?} \n next_pcs: {:?} \n current_pcs: {:?} \n hold_psc: {:?} \n is_game_over: {:?}",
@@ -561,32 +593,6 @@ impl GameState {
         }
         Ok(())
     }
-
-    pub fn new(seed: &GameSeed, start_time: i64) -> Self {
-        let mut new_state = Self {
-            score: 0,
-            have_combo: false,
-            is_t_spin: false,
-            main_board: BoardMatrix::empty(),
-            // next_board: BoardMatrixNext::empty(),
-            // hold_board: BoardMatrixHold::empty(),
-            last_action: TetAction::Nothing,
-            next_pcs: VecDeque::new(),
-            current_pcs: None,
-            game_over: false,
-            hold_pcps: None,
-            current_id: 0,
-            seed: *seed,
-            init_seed: *seed,
-            replay: GameReplay::empty(seed, start_time),
-            start_time,
-        };
-        new_state.refill_nextpcs(start_time);
-        let _ = new_state.put_next_piece(start_time);
-        new_state.put_ghost();
-        new_state
-    }
-
     pub fn get_next_board(&self) -> BoardMatrixNext {
         let mut b = BoardMatrixNext::empty();
         b.spawn_nextpcs(&self.next_pcs);

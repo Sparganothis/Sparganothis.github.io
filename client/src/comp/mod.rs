@@ -4,3 +4,4 @@ pub mod game_board_spectator;
 pub mod hotkey_reader;
 pub mod table_replay_games;
 pub mod table_replay_segments;
+pub mod game_board_mspaint;

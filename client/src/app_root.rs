@@ -8,6 +8,8 @@ use leptonic::prelude::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
 
+use crate::comp::game_board_mspaint::MsPaintGameBoard;
+
 #[component]
 pub fn AppRoot() -> impl IntoView {
     let _style = stylist::style!(
@@ -273,6 +275,7 @@ pub fn AppRoot() -> impl IntoView {
                                 path="/view-game/:game_id"
                                 view=crate::page::page_replay_single::GameReplaySinglePage
                             />
+                            <Route path="/mspaint" view=MsPaintGameBoard/>
                         </Routes>
                     </main>
                 </Router>
@@ -293,7 +296,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/settings", "settings"),
             ("/about", "about"),
             ("/credits", "credits"),
-            ("/sse_demo", "sse_demo"),
+            ("/mspaint", "mspaint"),
             ("/ws_demo", "ws_demo"),
         ]
     };
