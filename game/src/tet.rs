@@ -9,7 +9,7 @@ use super::rot::{RotDirection, RotState, Shape};
 use super::random::*;
 
 use std::collections::VecDeque;
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord)]
 pub enum Tet {
     I,
     L,
@@ -133,7 +133,7 @@ use serde_with::serde_as;
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
     #[serde_as(as = "[[_; C]; R]")]
-    v: [[CellValue; C]; R],
+    pub v: [[CellValue; C]; R],
 }
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
@@ -431,7 +431,25 @@ impl GameState {
 
     pub fn empty() -> Self {
         let seed = [0; 32];
-        Self::new(&seed, get_timestamp_now_nano())
+        let start_time=0;
+        Self {
+            score: 0,
+            have_combo: false,
+            is_t_spin: false,
+            main_board: BoardMatrix::empty(),
+            // next_board: BoardMatrixNext::empty(),
+            // hold_board: BoardMatrixHold::empty(),
+            last_action: TetAction::Nothing,
+            next_pcs: VecDeque::new(),
+            current_pcs: None,
+            game_over: false,
+            hold_pcps: None,
+            current_id: 0,
+            seed,
+            init_seed: seed,
+            replay: GameReplay::empty(&seed, start_time),
+            start_time,
+        }
     }
     pub fn get_debug_info(&self) -> String {
         format!(

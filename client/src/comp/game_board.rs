@@ -42,6 +42,9 @@ impl BoardMatrixSignals {
 #[component]
 pub fn BoardTable<const R: usize, const C: usize>(
     board: Signal<tet::BoardMatrix<R, C>>,
+    #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
+    #[prop(optional)]
+    on_click: Callback<(i8,i8)>,
 ) -> impl IntoView {
     //
     // log::info!("redraw BoardTable R={} C={}", R, C);
@@ -100,7 +103,11 @@ pub fn BoardTable<const R: usize, const C: usize>(
                 <For
                     each=do_update
                     key=|r| { r.0 }
-                    children=|r| view! { <BoardRow row_vals=r.1 row_idx=r.0/> }
+                    children=move |r| view! { <BoardRow row_vals=r.1 row_idx=r.0 on_click={Callback::<i8>::new(move |_x| {
+                        let y = r.0 as i8;
+                        on_click.call((y, _x));
+
+                    })}/> }
                 />
 
             </tbody>
@@ -109,7 +116,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
 }
 
 #[component]
-pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize) -> impl IntoView {
+pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize, on_click: Callback<i8>) -> impl IntoView {
     let iter = move || row_vals.clone().into_iter().enumerate();
     let overflow = row_idx >= BOARD_HEIGHT;
 
@@ -122,7 +129,12 @@ pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize) -> impl Into
                 children=move |c| {
                     view! {
                         <td>
-                            <BoardCell cell=c.1 overflow=overflow/>
+                            <BoardCell cell=c.1 overflow=overflow 
+                            on_click={Callback::<()>::new(move|_| {
+                                let x = c.0;
+                                on_click.call(x as i8);
+                            })}
+                            />
                         </td>
                     }
                 }
@@ -133,7 +145,7 @@ pub fn BoardRow(row_vals: Vec<RwSignal<CellValue>>, row_idx: usize) -> impl Into
 }
 
 #[component]
-pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool) -> impl IntoView {
+pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool, on_click: Callback<()>) -> impl IntoView {
     let lambda = move || {
         let _cell_cls = match cell.get() {
             tet::CellValue::Piece(p) => format!("tet {}", p.name()),
@@ -146,15 +158,19 @@ pub fn BoardCell(cell: RwSignal<CellValue>, overflow: bool) -> impl IntoView {
         _cell_cls
     };
 
-    view! { <div class=lambda></div> }
+    view! { <div class=lambda on:click=move |_| on_click.call(()) ></div> }
 }
 
 use crate::style::*;
 use crate::websocket::demo_comp::WebsocketAPI;
+
 #[component]
 pub fn GameBoard(
     #[prop(into)] game_state: RwSignal<tet::GameState>,
     on_reset_game: Callback<()>,
+    #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
+    #[prop(optional)]
+    on_main_cell_click: Callback<(i8,i8)>,
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
     let bottom_free_percent = 15.0;
@@ -202,7 +218,7 @@ pub fn GameBoard(
                 </div>
 
                 <div class="main_board">
-                    <BoardTable board=main_board/>
+                    <BoardTable board=main_board on_click=on_main_cell_click/>
                 </div>
 
                 <div class="label_bottom">// <code class="side_board_code">{debug_info}</code>

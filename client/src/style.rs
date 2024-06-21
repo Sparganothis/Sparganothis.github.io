@@ -41,7 +41,7 @@ pub fn default_style(
         top: 0vmin;
         left: 0vmin;
         overflow: hidden;
-        z-index: -1;
+        // z-index: -1;
     }
     .main_board, .side_board_left, .side_board_right, .score_window_left, .score_window_right, .label_bottom {
         width: max-content;
