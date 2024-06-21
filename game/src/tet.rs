@@ -719,16 +719,17 @@ impl GameState {
         let before = &current_pcs.rs;
         let after = &current_pcs.rs.rotate(rot);
 
-        for (x, y) in super::rot::srs_offsets(*before, *after, *(&current_pcs.tet)) {
+        for (try_idx,(x, y)) in super::rot::srs_offsets(*before, *after, *(&current_pcs.tet)).iter().enumerate() {
             let mut new_current_pcs: CurrentPcsInfo = current_pcs;
             new_current_pcs.rs = *after;
             // warning! table above in (x, y) but our repr in (y, x)
             new_current_pcs.pos.0 += y;
             new_current_pcs.pos.1 += x;
-
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
                 self.current_pcs = Some(new_current_pcs);
-                self.is_t_spin = new_current_pcs.tet == Tet::T;
+                let is_blocked_up = false;
+                self.is_t_spin = true;
+               // self.is_t_spin = try_idx>0 || is_blocked_up;
                 return Ok(());
             }
         }

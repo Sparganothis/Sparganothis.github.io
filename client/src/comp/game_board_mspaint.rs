@@ -137,6 +137,11 @@ pub fn MsPaintPage() -> impl IntoView {
             </Button>
             {move || status.get()}
 
+            <div>
+            <a href={move || format!("/play-custom-game/{}", save_name.get())}>
+            Play
+            </a>
+            </div>
             </Tab>
 
             <Tab name="list-custom-games" label="All Custom Games".into_view()>
