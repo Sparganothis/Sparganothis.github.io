@@ -329,7 +329,9 @@ pub fn PlayerGameBoard() -> impl IntoView {
     });
     let game_state = move || {
         if let Some(game_id) = new_game_id.get() {
-            view! { <PlayerGameBoardSingle game_id on_reset on_state_change/> }
+            let state =
+            create_rw_signal(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+            view! { <PlayerGameBoardSingle state on_reset on_state_change/> }
                 .into_view()
         } else {
             view! { <p>loading game id ...</p> }.into_view()
@@ -341,12 +343,18 @@ pub fn PlayerGameBoard() -> impl IntoView {
 
 #[component]
 pub fn PlayerGameBoardSingle(
-    game_id: GameId,
+    state: RwSignal<GameState>,
+
+    #[prop(default = Callback::<()>::new(move |_| {}))]
+    #[prop(optional)]
     on_reset: Callback<()>,
+
+    #[prop(default = Callback::<GameState>::new(move |_| {}))]
+    #[prop(optional)]
     on_state_change: Callback<GameState>,
+    
 ) -> impl IntoView {
-    let state =
-        create_rw_signal(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+
     on_state_change.call(state.get());
 
     let leptos_use::utils::Pausable {
