@@ -2,15 +2,10 @@ use leptos::*;
 
 
 use game::{
-    api::{
-        game_replay::GameId,
-        websocket::{GameSegmentCountReply, GetAllCustomGames, GetAllGames},
-    }, random::GameSeed, tet::GameState, timestamp::get_human_readable_nano
+    api::websocket::GetAllCustomGames, tet::GameState
 };
 
 use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
-use game::api::websocket::GetAllGamesArg;
-use leptos::*;
 use leptos_struct_table::*;
 
 #[component]

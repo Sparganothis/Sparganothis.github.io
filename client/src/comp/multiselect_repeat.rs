@@ -1,4 +1,3 @@
-use std::string;
 
 use game::tet::Tet;
 use leptonic::input::TextInput;

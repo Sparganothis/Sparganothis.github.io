@@ -253,7 +253,6 @@ pub fn GameBoard(
     }
 }
 
-use game::api::game_replay::GameId;
 use game::random::GameSeed;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
