@@ -209,9 +209,12 @@ pub fn AppRoot() -> impl IntoView {
         <Stylesheet id="bootstrap" href="/public/bootstrap.min.css"/>
         <Stylesheet id="bootstrap-extra" href="/public/bootstrap_extra.css"/>
         <Script src="/public/bootstrap.min.js"/>
-        <leptos_meta::Link rel="icon" type_="image/x-icon" href="/public/favicon.ico" />
+        <leptos_meta::Link
+            rel="icon"
+            type_="image/x-icon"
+            href="/public/favicon.ico"
+        ></leptos_meta::Link>
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
-        
 
         <Title text="TOTRES"/>
 
