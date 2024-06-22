@@ -568,7 +568,7 @@ impl GameState {
         &mut self,
         slice: &GameReplaySlice,
     ) -> anyhow::Result<()> {
-        log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
+        // log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
         if let Some(prev_slice) = self.replay.replay_slices.last() {
             if slice.idx != prev_slice.idx + 1 {
                 anyhow::bail!("duplicate slice mismatch");

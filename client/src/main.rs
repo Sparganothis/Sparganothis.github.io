@@ -1,9 +1,11 @@
 #![deny(unused_crate_dependencies)]
 #![allow(unused_braces)]
-
+use matchbox_socket as _;
 use serde as _;
 use tracing as _;
 use wasm_bindgen as _;
+use wasm_bindgen_futures as _;
+use futures_timer as _;
 
 use leptos::*;
 
@@ -13,6 +15,8 @@ mod error_template;
 pub mod page;
 pub mod style;
 pub mod websocket;
+mod demo_matchbox;
+
 
 fn main() {
     console_error_panic_hook::set_once();
@@ -22,6 +26,9 @@ fn main() {
             .build(),
     );
     console_log::init_with_level(log::Level::Debug).expect("cannot register log");
+    
+    wasm_bindgen_futures::spawn_local(demo_matchbox::async_main());
+
     mount_to_body(|| {
         view! { <app_root::AppRoot></app_root::AppRoot> }
     });
