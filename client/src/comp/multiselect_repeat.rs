@@ -61,10 +61,3 @@ pub fn MultiSelectSmecher(
     }
     }
 
-
-fn penis() {
-    struct vagin {
-        pub puradel: u32,
-    }
-
-}

@@ -24,26 +24,25 @@ pub fn MsPaintPlayPage() ->impl IntoView{
     let params = use_params_map();
 
     let api2 = api.clone();
-    let read_gameboard = move || {
-        let api2 = api2.clone();
-        
-        let p = params.with(|params| params.get("save_id").cloned());
-        log::info!("readcting to URL papram save_id = {:?}", p);
-        if let Some(url_save_name) = p {
-                spawn_local(
-                    async move {
-                        if let Ok(ceva) = call_websocket_api::<GetCustomGame>(api2, url_save_name) {
-                        if let Ok(ceva) = ceva.await {
-                            game_state.set(ceva);
+    create_effect(
+        move |_| {
+            let api2 = api2.clone();
+            
+            let p = params.with(|params| params.get("save_id").cloned());
+            log::info!("readcting to URL papram save_id = {:?}", p);
+            if let Some(url_save_name) = p {
+                    spawn_local(
+                        async move {
+                            if let Ok(ceva) = call_websocket_api::<GetCustomGame>(api2, url_save_name) {
+                            if let Ok(ceva) = ceva.await {
+                                game_state.set(ceva);
+                            }
                         }
-                        }
-                        
-            });
+                });
+            }
         }
-        "".to_string()
-    };
+    );
     view! {
-        {read_gameboard}
         <PlayerGameBoardSingle state=game_state/>
     }
 }
@@ -61,7 +60,7 @@ pub fn MsPaintPage() -> impl IntoView {
     let game_state = create_rw_signal(GameState::empty());
 
     let api2= api.clone();
-    let load_init = move || {
+    create_effect( move |_| {
         let p = params.with(|params| params.get("save_id").cloned());
         log::info!("readcting to URL papram save_id = {:?}", p);
         if let Some(url_save_name) = p {
@@ -75,7 +74,6 @@ pub fn MsPaintPage() -> impl IntoView {
                            }
                         }
             });
-            "".to_string()
         } else {
             let navigate = use_navigate();
     
@@ -90,10 +88,8 @@ pub fn MsPaintPage() -> impl IntoView {
                     }
                 }
             });
-            
-            "".to_string()
         }
-    };
+    });
 
     let api2 = api.clone();
     let on_save = move |_| {
@@ -122,13 +118,12 @@ pub fn MsPaintPage() -> impl IntoView {
         </div>
         <div class="main_right">
 
-         {load_init}  
         <Tabs mount=Mount::WhenShown>
 
             <Tab name="current-cusxtom-game" label="Edit Custom Game".into_view()>
             <NextPeaceSelector game_state/>
             <CurrentPeaceSelector game_state/>
-            <h1>Safe Name</h1>
+            <h1>save name</h1>
             <TextInput get=save_name set=set_save_name/>
             <Button 
             on_click=on_save 
@@ -137,11 +132,9 @@ pub fn MsPaintPage() -> impl IntoView {
             </Button>
             {move || status.get()}
 
-            <div>
-            <a href={move || format!("/play-custom-game/{}", save_name.get())}>
-            Play
-            </a>
-            </div>
+                <a href={move || format!("/play-custom-game/{}", save_name.get())}>
+                Play
+                </a>
             </Tab>
 
             <Tab name="list-custom-games" label="All Custom Games".into_view()>
@@ -176,7 +169,7 @@ pub fn CurrentPeaceSelector(game_state: RwSignal<GameState>) -> impl IntoView {
         });
     };
     view! {
-        <h1>current pieces selector</h1>
+        <h1>"select current piece"</h1>
         <Select
         options=Tet::all()
         search_text_provider=move |o| format!("{o:?}")
@@ -203,7 +196,7 @@ pub fn NextPeaceSelector(game_state: RwSignal<GameState>) -> impl IntoView {
         })
     });
     view! {
-        <h1>next pieces selector</h1>
+        <h1>"select next pieces"</h1>
         <MultiSelectSmecher
             options=Tet::all()
             selected=get_next.into_signal()

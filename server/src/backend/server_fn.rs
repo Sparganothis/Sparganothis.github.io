@@ -243,6 +243,7 @@ pub fn get_all_games(
 }
 
 
+#[allow(unused_variables)]
 pub fn get_all_gustom(
     arg: (),
     _current_user_id: GuestInfo,
