@@ -37,7 +37,7 @@ tower-sessions-sled-store = { path = "../lib/tower-sessions-sled-store-master"}
 tower-sessions =  { version = "0.12.2"}
 # axum-login =  { version = "0.15.2"}
 sled = {version="0.34.7"}
-typed-sled = {version="0.2"}
+typed-sled = {path="../lib/typed-sled-main"}
 random_word = { version = "0.4.3", features = ["de"] }
 # rand_chacha = "0.3.1"
 # tokio-stream = { version = "0.1.14"}

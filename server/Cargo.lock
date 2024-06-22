@@ -1960,8 +1960,6 @@ dependencies = [
 [[package]]
 name = "typed-sled"
 version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1060f05a4450ec5b758da60951b04f225a93a62079316630e76cf25c4034500d"
 dependencies = [
  "bincode",
  "pin-project",

@@ -24,6 +24,8 @@ pub enum WebsocketAPIMessageType {
     GetCustomGame,
     UpdateCustomGame,
     GetRandomWord,
+
+    SubscribeGamePlz,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -166,4 +168,26 @@ impl APIMethod for GetRandomWord {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetRandomWord;
     type Req = ();
     type Resp = String;
+}
+
+#[derive(
+    Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord,
+)]
+pub struct SubscribeGamePlzArgument {
+   pub game_id: GameId,
+    pub command: SubscribeGamePlzCommmand,
+}
+#[derive(
+    Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
+)]
+pub enum SubscribeGamePlzCommmand {
+    StartStreaming,
+    StopStreaming,
+}
+
+pub struct SubscribeGamePlz {}
+impl APIMethod for SubscribeGamePlz {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::SubscribeGamePlz;
+    type Req = SubscribeGamePlzArgument;
+    type Resp = ();
 }

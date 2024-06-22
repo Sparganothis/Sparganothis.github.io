@@ -5,10 +5,10 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
-use game::api::websocket::{APIMethod, WebsocketAPIMessageRaw};
+use game::api::{game_replay::{GameId, GameSegmentId}, websocket::{APIMethod, SubscribeGamePlzArgument, WebsocketAPIMessageRaw}};
 // use serde::Deserialize;
 
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::HashMap};
 // use std::ops::ControlFlow;
 use std::net::SocketAddr;
 // use tower_http::services::ServeDir;
@@ -158,6 +158,85 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
     // returning from the handler closes the websocket connection
     log::info!("Websocket context {who} destroyed");
 }
+
+
+struct SingleSubscribedGameState{
+    pub join_handle: tokio::task::JoinHandle<()>,
+
+}
+pub struct SubscribedGamesState {
+    pub games_info: HashMap<GameId, SingleSubscribedGameState>,
+}
+
+impl SubscribedGamesState {
+    pub fn new() -> Self {
+        Self {
+            games_info: HashMap::<_,_>::new(),        
+        }
+    }
+    pub async  fn accept_message(&mut self, msg: &SubscribeGamePlzArgument) -> anyhow::Result<()> {
+        match msg.command {
+            game::api::websocket::SubscribeGamePlzCommmand::StartStreaming =>{
+                self.start_streaming(&msg.game_id).await?;
+            },
+            game::api::websocket::SubscribeGamePlzCommmand::StopStreaming => 
+            {
+                self.stop_streaming(&msg.game_id).await?;
+            },
+        }
+        Ok(())
+    }
+    pub async  fn start_streaming(&mut self, msg: &GameId) -> anyhow::Result<()> {
+        use crate::database::tables::GAME_SEGMENT_DB;
+        let game_id = msg.clone();
+        let mut existing_segments = vec![];
+        for item in GAME_SEGMENT_DB.range(GameSegmentId::get_range_for_game(&game_id)) {
+            existing_segments.push(item?);
+        }
+        existing_segments.sort_by_key(|x|x.0.segment_id);
+
+        let subscriber = GAME_SEGMENT_DB.watch_prefix2(&game_id);
+        log::info!("Start streaming for game{:?}",game_id);
+        let new_thread = tokio::task::spawn_local(async move {
+            let game_id = game_id.clone();
+
+            log::info!("{:?}: Spectate found existing segments {}", game_id, existing_segments.len());
+            let mut subscriber = subscriber;
+
+            loop {
+                while let Some(x) = (&mut subscriber).await {
+                    match x {
+                        typed_sled::Event::Insert { key, value } =>{
+                            log::info!("insert new segment {:?} value={:?}", key, value);
+                        },
+                        typed_sled::Event::Remove { key } => {
+                            log::info!("delete wtf?? {:?}", key);
+                        },
+                    }
+                }
+            }
+
+
+        });
+        let new_state = SingleSubscribedGameState {
+            join_handle: new_thread,
+        };
+        self.games_info.insert(*msg, new_state);
+        Ok(())
+    }
+    
+    pub async  fn stop_streaming(&mut self, game_id: &GameId) -> anyhow::Result<()> {
+        log::info!("STOP streaming for game{:?}",game_id);
+        if let Some(_v) = self.games_info.remove(game_id){
+            _v.join_handle.abort();
+            log::info!("AVORT OK{:?}",game_id);
+        }
+        Ok(())
+    }
+
+
+}
+
 use game::api::user::GuestInfo;
 pub async fn websocket_handle_request(
     b: Vec<u8>,
@@ -168,6 +247,7 @@ pub async fn websocket_handle_request(
     let user_id2 = user_id.clone();
     get_or_create_user_profile(&user_id2.user_id).unwrap();
 
+    let mut subscribed_games = SubscribedGamesState::new();
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
         .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
     let msg_type = msg._type.clone();
@@ -238,6 +318,19 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::GetRandomWord => {
             specific_sync_request::<GetRandomWord>(msg, user_id, random_word2).await
         }
+        WebsocketAPIMessageType::SubscribeGamePlz => {
+            let request: <game::api::websocket::SubscribeGamePlz as APIMethod>::Req = bincode::deserialize(&msg.data).context("bincode never fail")?;
+
+            let response = subscribed_games.accept_message(&request).await?;
+            // let response = response.map_err(|e| format!("websocket method error: {e}"));
+
+            Ok(WebsocketAPIMessageRaw {
+                id: msg.id,
+                _type: msg._type,
+                is_req: false,
+                data: bincode::serialize(&response).context("bincode never fail")?,
+            })
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

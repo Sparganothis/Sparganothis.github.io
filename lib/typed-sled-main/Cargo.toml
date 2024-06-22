@@ -1,0 +1,35 @@
+[package]
+name = "typed-sled"
+description = "Sled with types instead of bytes."
+version = "0.2.3"
+edition = "2018"
+license = "MIT"
+repository = "https://github.com/chronicl/typed-sled"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sled = "0.34"
+serde = {version = "1", features=["derive"]}
+bincode = "1"
+pin-project = "1"
+thiserror = "1"
+tantivy = {version = "0.19", optional = true}
+chrono = {version = "0.4", features = ["serde"], optional = true}
+
+[[example]]
+name = "key_generating"
+required-features = ["key-generating"]
+
+[[example]]
+name = "basic_search"
+required-features = ["key-generating", "search"]
+
+[[example]]
+name = "advanced_search"
+required-features = ["key-generating", "search", "chrono"]
+
+[features]
+key-generating = []
+convert = []
+search = ["tantivy"]
