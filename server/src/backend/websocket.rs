@@ -5,7 +5,7 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
-use game::api::{game_replay::{GameId, GameSegmentId}, websocket::{APIMethod, SubscribeGamePlzArgument, WebsocketAPIMessageRaw}};
+use game::{api::{game_replay::{GameId, GameSegmentId}, websocket::{APIMethod, SubscribeGamePlzArgument, WebsocketAPIMessageRaw}}, tet::GameState};
 // use serde::Deserialize;
 
 use std::{borrow::Cow, collections::HashMap};
@@ -197,7 +197,7 @@ impl SubscribedGamesState {
 
         let subscriber = GAME_SEGMENT_DB.watch_prefix2(&game_id);
         log::info!("Start streaming for game{:?}",game_id);
-        let new_thread = tokio::task::spawn_local(async move {
+        let new_thread = tokio::task::spawn(async move {
             let game_id = game_id.clone();
 
             log::info!("{:?}: Spectate found existing segments {}", game_id, existing_segments.len());

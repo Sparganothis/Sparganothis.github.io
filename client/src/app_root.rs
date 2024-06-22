@@ -9,6 +9,7 @@ use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
 
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
+use crate::page::page_spectate::SpectateGamePage;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -194,7 +195,6 @@ pub fn AppRoot() -> impl IntoView {
         st
     };
 
-    use crate::comp::game_board_spectator::SpectatorGameBoard;
     use crate::page::page_1p::Game1PPage;
     use crate::page::page_2p::Game2PPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
@@ -276,7 +276,7 @@ pub fn AppRoot() -> impl IntoView {
                                 view=crate::page::page_replay_browser::GameReplayBrowserPage
                             />
                             <Route path="/account" view=MyAccountPage/>
-                            <Route path="/ws_demo" view=SpectatorGameBoard/>
+                            <Route path="/spectate-game/:game_id" view=SpectateGamePage/>
                             <Route path="/user/:user_id" view=UserProfilePage/>
                             <Route
                                 path="/view-game/:game_id"
