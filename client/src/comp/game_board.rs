@@ -354,7 +354,7 @@ pub fn PlayerGameBoardSingle(
     
 ) -> impl IntoView {
 
-    on_state_change.call(state.get());
+    on_state_change.call(state.get_untracked());
 
     let leptos_use::utils::Pausable {
         pause: _timer_pause,

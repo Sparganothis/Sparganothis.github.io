@@ -23,7 +23,7 @@ pub struct WsMessageCell(Rc<futures::channel::oneshot::Sender<WebsocketAPIMessag
 pub struct WebsocketAPI {
     pub map: RwSignal<std::collections::HashMap<WsMessageKey, WsMessageCell>>,
     pub sender: RwSignal<Rc<Box<dyn Fn(Vec<u8>)>>>,
-    pub ready_state_stream: async_channel::Receiver<ConnectionReadyState>,
+    pub ready_state_stream: async_broadcast::InactiveReceiver<ConnectionReadyState>,
     pub ready_signal: RwSignal<bool>,
 }
 
@@ -47,7 +47,8 @@ pub fn call_websocket_api<T: APIMethod>(
             log::info!("waiting for ready state");
 
             loop {
-                if let Ok(current_state) = api.ready_state_stream.recv().await {
+                let mut stream = api.ready_state_stream.activate_cloned();
+                if let Ok(current_state) = stream.recv().await {
                     match current_state {
                         ConnectionReadyState::Connecting => continue,
                         ConnectionReadyState::Open => break,

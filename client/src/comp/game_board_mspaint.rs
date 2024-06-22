@@ -22,6 +22,7 @@ pub fn MsPaintPlayPage() ->impl IntoView{
     let api = expect_context::<WebsocketAPI>();
     let game_state = create_rw_signal(GameState::empty());
     let params = use_params_map();
+    let (save_name, set_save_name) = create_signal("".to_string());
 
     let api2 = api.clone();
     create_effect(
@@ -31,6 +32,7 @@ pub fn MsPaintPlayPage() ->impl IntoView{
             let p = params.with(|params| params.get("save_id").cloned());
             log::info!("readcting to URL papram save_id = {:?}", p);
             if let Some(url_save_name) = p {
+                    set_save_name.set(url_save_name.clone());
                     spawn_local(
                         async move {
                             if let Ok(ceva) = call_websocket_api::<GetCustomGame>(api2, url_save_name) {
@@ -42,7 +44,10 @@ pub fn MsPaintPlayPage() ->impl IntoView{
             }
         }
     );
-    view! { <PlayerGameBoardSingle state=game_state/> }
+    view! {
+        <h1>"play custom     | "{save_name}</h1> 
+        <PlayerGameBoardSingle state=game_state/>
+     }
 }
 #[component]
 pub fn MsPaintPage() -> impl IntoView {
@@ -112,7 +117,7 @@ pub fn MsPaintPage() -> impl IntoView {
 
     view! {
         <div class="main_left">
-            <MsPaintGameBoard game_state/>
+            <MsPaintGameBoard game_state save_name/>
         </div>
         <div class="main_right">
 
@@ -201,7 +206,7 @@ pub fn NextPeaceSelector(game_state: RwSignal<GameState>) -> impl IntoView {
     }
 }
 #[component]
-pub fn MsPaintGameBoard(game_state: RwSignal<GameState>) -> impl IntoView {
+pub fn MsPaintGameBoard(game_state: RwSignal<GameState>, save_name: ReadSignal<String>) -> impl IntoView {
     let on_reset_game = Callback::<()>::new(move |_| {});
     let on_click = Callback::<(i8, i8)>::new(move |(y, x)| {
         game_state.update(|game_state| {
@@ -217,7 +222,7 @@ pub fn MsPaintGameBoard(game_state: RwSignal<GameState>) -> impl IntoView {
     });
 
     view! {
-        <h1>mspaint.exe</h1>
+        <h1>mspaint.exe " | " {save_name}</h1>
         <GameBoard game_state on_reset_game on_main_cell_click=on_click/>
     }
 }

@@ -100,7 +100,7 @@ pub fn AppRoot() -> impl IntoView {
     let mut ready_state_stream = ready_state.clone().to_stream();
     let ready_signal = create_rw_signal(false);
 
-    let (tx, rx) = async_channel::bounded::<ConnectionReadyState>(1);
+    let (tx, rx) = async_broadcast::broadcast::<ConnectionReadyState>(1);
     spawn_local(async move {
         loop {
             let r = ready_state_stream.next().await;
@@ -110,7 +110,7 @@ pub fn AppRoot() -> impl IntoView {
                 } else {
                     ready_signal.set(false);
                 }
-                if let Err(e) = tx.send(r).await {
+                if let Err(e) = tx.broadcast(r).await {
                     log::warn!("error sending to ready stream...: {e:?}");
                 } else {
                     log::info!("sent on stream: {:?}", r);
@@ -134,7 +134,7 @@ pub fn AppRoot() -> impl IntoView {
     let api = WebsocketAPI {
         map: create_rw_signal(std::collections::HashMap::<_, _>::new()),
         sender: create_rw_signal(Rc::new(Box::new(send_bytes.clone()))),
-        ready_state_stream: rx,
+        ready_state_stream: rx.deactivate(),
         ready_signal,
     };
     provide_context(api.clone());
