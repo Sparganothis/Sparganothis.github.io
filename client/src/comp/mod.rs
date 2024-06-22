@@ -6,3 +6,4 @@ pub mod hotkey_reader;
 pub mod table_replay_games;
 pub mod table_replay_segments;
 pub mod table_custom_games;
+pub mod multiselect_repeat;

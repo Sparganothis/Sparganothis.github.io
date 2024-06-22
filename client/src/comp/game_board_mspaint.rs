@@ -13,7 +13,7 @@ use leptonic::{
 use leptos::*;
 
 use crate::{
-    comp::{game_board::{GameBoard, PlayerGameBoard, PlayerGameBoardSingle}, table_custom_games::ListAllCustomGames},
+    comp::{game_board::{GameBoard, PlayerGameBoard, PlayerGameBoardSingle}, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
     websocket::demo_comp::{call_websocket_api, WebsocketAPI},
 };
 
@@ -197,18 +197,16 @@ pub fn NextPeaceSelector(game_state: RwSignal<GameState>) -> impl IntoView {
             .cloned()
             .collect::<Vec<_>>()
     };
-    let set_next = move |v: Vec<Tet>| {
+    let set_next = Callback::new(move |v: Vec<Tet>| {
         game_state.update(|game_state| {
             game_state.next_pcs = v.iter().cloned().collect::<VecDeque<_>>();
         })
-    };
+    });
     view! {
         <h1>next pieces selector</h1>
-        <Multiselect
+        <MultiSelectSmecher
             options=Tet::all()
-            search_text_provider=move |o| format!("{o:?}")
-            render_option=move |o| format!("{o:?}")
-            selected=get_next
+            selected=get_next.into_signal()
             set_selected=set_next
         />
     }
