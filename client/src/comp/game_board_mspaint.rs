@@ -45,9 +45,9 @@ pub fn MsPaintPlayPage() ->impl IntoView{
         }
     );
     view! {
-        <h1>"play custom     | "{save_name}</h1> 
+        <h1>"play custom     | " {save_name}</h1>
         <PlayerGameBoardSingle state=game_state/>
-     }
+    }
 }
 #[component]
 pub fn MsPaintPage() -> impl IntoView {
