@@ -1,4 +1,4 @@
 #!/bin/bash
 set -ex
 cd client
-trunk serve --watch . --ignore dist --ignore target --watch ../game/ --ignore ../game/target
+trunk serve --offline --watch . --ignore dist --ignore target --watch ../game/ --ignore ../game/target

@@ -1,6 +1,6 @@
 use futures::StreamExt;
 use leptos::*;
-use leptos_meta::{provide_meta_context, Meta, Title};
+use leptos_meta::{provide_meta_context, Meta, Script, Stylesheet, Title};
 use leptos_router::*;
 // use crate::error_template::ErrorTemplate;
 use game::api::websocket::{WebsocketAPIMessageRaw, WhoAmI};
@@ -206,8 +206,12 @@ pub fn AppRoot() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <Meta name="theme-color" content="#e66956"/>
 
-        // <Stylesheet id="leptos" href="/pkg/leptonic-template-ssr.css"/>
+        <Stylesheet id="bootstrap" href="/public/bootstrap.min.css"/>
+        <Stylesheet id="bootstrap-extra" href="/public/bootstrap_extra.css"/>
+        <Script src="/public/bootstrap.min.js"/>
+        <leptos_meta::Link rel="icon" type_="image/x-icon" href="/public/favicon.ico" />
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
+        
 
         <Title text="TOTRES"/>
 

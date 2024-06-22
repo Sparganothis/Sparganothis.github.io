@@ -90,8 +90,11 @@ pub fn CustomTableRowRenderer(
     }
 }
 
+use leptos_struct_table::BootstrapClassesPreset;
+
 #[derive(TableRow, Clone, Debug)]
-#[table(impl_vec_data_provider)]
+#[table( 
+    classes_provider = "BootstrapClassesPreset", impl_vec_data_provider)]
 pub struct FullGameReplayTableRow {
     #[table(renderer = "WeedRenderer")]
     pub user_id: uuid::Uuid,

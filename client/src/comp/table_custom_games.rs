@@ -49,8 +49,10 @@ pub fn ListAllCustomGames() -> impl IntoView {
 }
 
 
+use leptos_struct_table::BootstrapClassesPreset;
 #[derive(TableRow, Clone, Debug)]
-#[table(impl_vec_data_provider)]
+#[table( 
+    classes_provider = "BootstrapClassesPreset", impl_vec_data_provider)]
 pub struct CustomGameDbRow {
     pub save_name: String,
     #[table(skip)]

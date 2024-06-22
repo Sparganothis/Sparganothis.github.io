@@ -55,8 +55,10 @@ pub fn TableReplaySegments(
     view! { <table id="table-replay-segments">{make_table}</table> }
 }
 
+
+use leptos_struct_table::BootstrapClassesPreset;
 #[derive(TableRow, Clone, Debug)]
-#[table(impl_vec_data_provider)]
+#[table( classes_provider = "BootstrapClassesPreset", impl_vec_data_provider)]
 pub struct GameSegmentTableRow {
     pub _type: String,
     pub idx: String,

@@ -194,7 +194,7 @@ pub fn GameBoard(
     let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
 
     // let _style = stylist::Style::new(style_str).expect("Failed to create style");
-    let _style_name = default_style(tet_style, bottom_free_percent, cell_width_vmin)
+    let _style_name = default_gameboard_style(tet_style, bottom_free_percent, cell_width_vmin)
         .get_class_name()
         .to_owned();
 
