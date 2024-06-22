@@ -53,11 +53,9 @@ pub fn MultiSelectSmecher(
             set_selected.call(vt);
         };
         let set_text = Callback::<String>::new(set_text);
-    view!{
-     {move || {format!("{:?}",options.get())}}
-     <TextInput get=text.into_signal() set=set_text/>
-    
-    
+    view! {
+        {move || { format!("{:?}", options.get()) }}
+        <TextInput get=text.into_signal() set=set_text/>
     }
     }
 

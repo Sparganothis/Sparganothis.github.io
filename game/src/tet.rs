@@ -719,7 +719,11 @@ impl GameState {
         let before = &current_pcs.rs;
         let after = &current_pcs.rs.rotate(rot);
 
-        for (_try_idx,(x, y)) in super::rot::srs_offsets(*before, *after, *(&current_pcs.tet)).iter().enumerate() {
+        for (_try_idx, (x, y)) in
+            super::rot::srs_offsets(*before, *after, *(&current_pcs.tet))
+                .iter()
+                .enumerate()
+        {
             let mut new_current_pcs: CurrentPcsInfo = current_pcs;
             new_current_pcs.rs = *after;
             // warning! table above in (x, y) but our repr in (y, x)
@@ -729,7 +733,7 @@ impl GameState {
                 self.current_pcs = Some(new_current_pcs);
                 let _is_blocked_up = false;
                 self.is_t_spin = true;
-               // self.is_t_spin = try_idx>0 || is_blocked_up;
+                // self.is_t_spin = try_idx>0 || is_blocked_up;
                 return Ok(());
             }
         }

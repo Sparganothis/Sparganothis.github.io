@@ -41,7 +41,7 @@ pub fn ListAllCustomGames() -> impl IntoView {
 
             view! {
                 <table id="get_custom_games">
-                    <TableContent rows row_renderer=CustomTableRowRenderer />
+                    <TableContent rows row_renderer=CustomTableRowRenderer/>
                 </table>
             }
             .into_view()
@@ -100,17 +100,13 @@ pub fn CustomTableRowRenderer(
             <td>
                 <a href=move || {
                     format!("/edit-custom-game/{}", row2.save_name)
-                }>
-                Edit
-                </a>
+                }>Edit</a>
             </td>
             <td>
-            <a href=move || {
-                format!("/play-custom-game/{}", row3.save_name)
-            }>
-            Play
-            </a>
-        </td>
+                <a href=move || {
+                    format!("/play-custom-game/{}", row3.save_name)
+                }>Play</a>
+            </td>
         </tr>
     }
 }

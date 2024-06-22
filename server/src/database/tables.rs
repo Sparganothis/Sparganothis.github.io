@@ -1,4 +1,3 @@
-
 use game::{
     api::game_replay::{GameId, GameSegmentId},
     tet::{GameReplaySegment, GameState},
@@ -38,12 +37,9 @@ pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegme
     });
 
 pub static CUSTOM_GAME_BOARD_DB: Lazy<typed_sled::Tree<String, GameState>> =
-Lazy::new(|| {
-    typed_sled::Tree::<String, GameState>::open(
-        &TABLES_DB,
-        "custom_game_board_v1",
-    )
-});
+    Lazy::new(|| {
+        typed_sled::Tree::<String, GameState>::open(&TABLES_DB, "custom_game_board_v1")
+    });
 
 pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameId, GameState>> = Lazy::new(|| {
     typed_sled::Tree::<GameId, GameState>::open(&TABLES_DB, "game_full_v2")
@@ -59,8 +55,6 @@ pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
 pub fn random_word() -> String {
     random_word::gen(random_word::Lang::De).to_string()
 }
-
-
 
 pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
     if let Ok(u) = get_user_profile(uuid) {

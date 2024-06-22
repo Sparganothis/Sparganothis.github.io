@@ -19,13 +19,12 @@ pub enum WebsocketAPIMessageType {
     GetAllSegments,
     GetLastFullGameState,
     GetAllGames,
-    
+
     GetAllCustomGames,
     GetCustomGame,
     UpdateCustomGame,
     GetRandomWord,
 }
-
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct WebsocketAPIMessageRaw {
@@ -141,30 +140,29 @@ impl APIMethod for GetAllGames {
     type Req = GetAllGamesArg;
     type Resp = Vec<(GameId, GameSegmentCountReply)>;
 }
- 
+
 pub struct GetAllCustomGames {}
-impl APIMethod for GetAllCustomGames{
+impl APIMethod for GetAllCustomGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllCustomGames;
     type Req = ();
     type Resp = Vec<(String, GameState)>;
 }
 
-
 pub struct GetCustomGame {}
-impl APIMethod for GetCustomGame{
+impl APIMethod for GetCustomGame {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetCustomGame;
     type Req = String;
     type Resp = GameState;
 }
 
 pub struct UpdateCustomGame {}
-impl APIMethod for UpdateCustomGame{
+impl APIMethod for UpdateCustomGame {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::UpdateCustomGame;
-    type Req = (String,GameState);
+    type Req = (String, GameState);
     type Resp = ();
 }
 pub struct GetRandomWord {}
-impl APIMethod for GetRandomWord{
+impl APIMethod for GetRandomWord {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetRandomWord;
     type Req = ();
     type Resp = String;

@@ -1,4 +1,3 @@
-
 use axum::{
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     response::IntoResponse,
@@ -226,17 +225,19 @@ pub async fn websocket_handle_request(
             specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await
         }
         WebsocketAPIMessageType::GetAllCustomGames => {
-            specific_sync_request::<GetAllCustomGames>(msg, user_id, get_all_gustom).await
-        },
+            specific_sync_request::<GetAllCustomGames>(msg, user_id, get_all_gustom)
+                .await
+        }
         WebsocketAPIMessageType::GetCustomGame => {
             specific_sync_request::<GetCustomGame>(msg, user_id, get_gustom_game).await
-        },
+        }
         WebsocketAPIMessageType::UpdateCustomGame => {
-            specific_sync_request::<UpdateCustomGame>(msg, user_id, update_custom_game).await
-        },
+            specific_sync_request::<UpdateCustomGame>(msg, user_id, update_custom_game)
+                .await
+        }
         WebsocketAPIMessageType::GetRandomWord => {
             specific_sync_request::<GetRandomWord>(msg, user_id, random_word2).await
-        },
+        }
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

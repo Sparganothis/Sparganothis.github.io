@@ -42,9 +42,7 @@ pub fn MsPaintPlayPage() ->impl IntoView{
             }
         }
     );
-    view! {
-        <PlayerGameBoardSingle state=game_state/>
-    }
+    view! { <PlayerGameBoardSingle state=game_state/> }
 }
 #[component]
 pub fn MsPaintPage() -> impl IntoView {
@@ -118,31 +116,29 @@ pub fn MsPaintPage() -> impl IntoView {
         </div>
         <div class="main_right">
 
-        <Tabs mount=Mount::WhenShown>
+            <Tabs mount=Mount::WhenShown>
 
-            <Tab name="current-cusxtom-game" label="Edit Custom Game".into_view()>
-            <NextPeaceSelector game_state/>
-            <CurrentPeaceSelector game_state/>
-            <h1>save name</h1>
-            <TextInput get=save_name set=set_save_name/>
-            <Button 
-            on_click=on_save 
-            color=ButtonColor::Info>
-            "Save"
-            </Button>
-            {move || status.get()}
+                <Tab name="current-cusxtom-game" label="Edit Custom Game".into_view()>
+                    <NextPeaceSelector game_state/>
+                    <CurrentPeaceSelector game_state/>
+                    <h1>save name</h1>
+                    <TextInput get=save_name set=set_save_name/>
+                    <Button on_click=on_save color=ButtonColor::Info>
+                        "Save"
+                    </Button>
+                    {move || status.get()}
 
-                <a href={move || format!("/play-custom-game/{}", save_name.get())}>
-                Play
-                </a>
-            </Tab>
+                    <a href=move || {
+                        format!("/play-custom-game/{}", save_name.get())
+                    }>Play</a>
+                </Tab>
 
-            <Tab name="list-custom-games" label="All Custom Games".into_view()>
+                <Tab name="list-custom-games" label="All Custom Games".into_view()>
 
-            <ListAllCustomGames/>
-            </Tab>
+                    <ListAllCustomGames/>
+                </Tab>
 
-        </Tabs>
+            </Tabs>
         </div>
     }
 }
@@ -171,12 +167,12 @@ pub fn CurrentPeaceSelector(game_state: RwSignal<GameState>) -> impl IntoView {
     view! {
         <h1>"select current piece"</h1>
         <Select
-        options=Tet::all()
-        search_text_provider=move |o| format!("{o:?}")
-        render_option=move |o| format!("{o:?}")
-        selected=selected
-        set_selected=set_selected
-    />
+            options=Tet::all()
+            search_text_provider=move |o| format!("{o:?}")
+            render_option=move |o| format!("{o:?}")
+            selected=selected
+            set_selected=set_selected
+        />
     }
 }
 
