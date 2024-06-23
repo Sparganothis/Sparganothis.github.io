@@ -132,7 +132,7 @@ pub fn default_gameboard_style(
     .game_over_display {
         color: #f00c;
         font-weight: bold;
-        top: 24vmin;
+        top: 28vmin;
         left: 16vmin;
         width: 40vmin;
         height: 40vmin;
@@ -140,8 +140,10 @@ pub fn default_gameboard_style(
         text-align: center;
         z-index: 888;
         position: absolute;
-        background-color: #ffffff38;
-        animation: spin 4s linear infinite;
+        background-color: #000c;
+        animation: spin 5s linear 1;
+        border: 1vh dashed  #f00c;
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
     }
 
 ).expect("bad css");
