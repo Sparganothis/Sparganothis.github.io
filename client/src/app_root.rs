@@ -175,7 +175,13 @@ pub fn AppRoot() -> impl IntoView {
                 match bincode::deserialize::<WebsocketAPIMessageRaw>(&c) {
                     Ok(msg) => {
                         // log::info!("recv message type={:?} len={}", msg._type, c.len(),);
-                        accept_reply_message(&api_spawn.clone(), msg).await;
+                        if msg.is_req {
+                            if let Err(e) = accept_subscribe_notification(&api_spawn.clone(), msg).await {
+                                log::warn!("error accepting subscribe notifgication: {:?}", e);
+                            }
+                        } else {
+                            accept_reply_message(&api_spawn.clone(), msg).await;
+                        }
                         // let ctx = expect_context::<RwSignal<WebsocketAPI>>();
                         // log::info!("successfully got global context size={}!", ctx.get_untracked().map.len());
                     }

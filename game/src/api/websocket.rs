@@ -5,6 +5,7 @@ use crate::tet::GameReplaySegment;
 use crate::tet::GameState;
 
 use super::game_replay::GameId;
+use super::game_replay::GameSegmentId;
 
 #[derive(
     Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
@@ -26,6 +27,7 @@ pub enum WebsocketAPIMessageType {
     GetRandomWord,
 
     SubscribeGamePlz,
+    SubscribedGameUpdateNotification,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -189,5 +191,13 @@ pub struct SubscribeGamePlz {}
 impl APIMethod for SubscribeGamePlz {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::SubscribeGamePlz;
     type Req = SubscribeGamePlzArgument;
+    type Resp = ();
+}
+
+pub struct SubscribedGameUpdateNotification {}
+
+impl APIMethod for SubscribedGameUpdateNotification {
+    const TYPE : WebsocketAPIMessageType = WebsocketAPIMessageType::SubscribedGameUpdateNotification;
+    type Req = Vec<(GameSegmentId, GameReplaySegment)>;
     type Resp = ();
 }

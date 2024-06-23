@@ -5,7 +5,7 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
-use game::{api::{game_replay::{GameId, GameSegmentId}, websocket::{APIMethod, SubscribeGamePlzArgument, WebsocketAPIMessageRaw}}, tet::GameState};
+use game::{api::{game_replay::{GameId, GameSegmentId}, websocket::{APIMethod, SubscribeGamePlzArgument, SubscribedGameUpdateNotification, WebsocketAPIMessageRaw, WebsocketAPIMessageType}}, tet::{GameReplaySegment, GameState}};
 // use serde::Deserialize;
 
 use std::{borrow::Cow, collections::HashMap};
@@ -31,6 +31,19 @@ use super::session::Guest;
 /// websocket protocol will occur.
 /// This is the last point where we can extract TCP/IP metadata such as IP address of the client
 /// as well as things from HTTP headers such as user-agent of the browser etc.
+
+
+fn convert_subscribed_message_to_bytes(vect: <game::api::websocket::SubscribedGameUpdateNotification as game::api::websocket::APIMethod>::Req) -> anyhow::Result<Vec<u8>> {
+    let data_bytes = bincode::serialize(&vect)?;
+    let msg = WebsocketAPIMessageRaw {
+        id: 0,
+        is_req: true,
+        _type: WebsocketAPIMessageType::SubscribedGameUpdateNotification,
+        data: data_bytes,
+    };
+    Ok(bincode::serialize(&msg)?)
+}
+
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
@@ -55,16 +68,37 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
     let (response_tx, mut response_rx) = tokio::sync::mpsc::channel(32);
     let (request_tx, mut request_rx) = tokio::sync::mpsc::channel(32);
 
+    let (subscribe_game_sender, mut subscribe_game_recv) = tokio::sync::mpsc::channel(16);
+    let mut subscribed_games = SubscribedGamesState::new(subscribe_game_sender);
+
     let mut send_task = tokio::spawn(async move {
         let mut cnt: usize = 0;
-        while let Some(b) = response_rx.recv().await {
-            cnt += 1;
-            if let Err(e) = sender.send(Message::Binary(b)).await {
-                log::warn!("could not send message becaue: {e}");
-                break;
+        loop {
+            tokio::select! {
+                b = response_rx.recv() => {
+                    if let Some(b) = b {
+                        cnt += 1;
+                        if let Err(e) = sender.send(Message::Binary(b)).await {
+                            log::warn!("could not send message becaue: {e}");
+                            break;
+                        }
+                    }
+                }
+                msg = subscribe_game_recv.recv() => {
+                    if let Some(msg) = msg {
+                        if let Ok(b) = convert_subscribed_message_to_bytes(msg) {
+                            cnt += 1;
+                            log::info!("SUBSCRIBE NOTIFICATION: SubscribedGameUpdateNotification  {} bytes", b.len());
+                            if let Err(e) = sender.send(Message::Binary(b)).await {
+                                log::warn!("could not send message becaue: {e}");
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            tokio::time::sleep(tokio::time::Duration::from_millis(3)).await;
         }
+
         log::info!("Sending close to {who}...");
         if let Err(e) = sender
             .send(Message::Close(Some(CloseFrame {
@@ -109,7 +143,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
         while let Some(b) = request_rx.recv().await {
             cnt += 1;
 
-            let b = match websocket_handle_request(b, (&user_info).clone()).await {
+            let b = match websocket_handle_request(b, (&user_info).clone(), &mut subscribed_games).await {
                 Ok(b) => b,
                 Err(e) => {
                     log::warn!("got error while handling websocket message: {:?}", e);
@@ -165,13 +199,15 @@ struct SingleSubscribedGameState{
 
 }
 pub struct SubscribedGamesState {
-    pub games_info: HashMap<GameId, SingleSubscribedGameState>,
+    games_info: HashMap<GameId, SingleSubscribedGameState>,
+    pub reply_callback : tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>,
 }
 
 impl SubscribedGamesState {
-    pub fn new() -> Self {
+    pub fn new(sender: tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>) -> Self {
         Self {
             games_info: HashMap::<_,_>::new(),        
+            reply_callback: sender,
         }
     }
     pub async  fn accept_message(&mut self, msg: &SubscribeGamePlzArgument) -> anyhow::Result<()> {
@@ -186,6 +222,10 @@ impl SubscribedGamesState {
         }
         Ok(())
     }
+    async fn send_update_segment_mesage(prod: tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>, msg: Vec<(GameSegmentId, GameReplaySegment)>) -> anyhow::Result<()> {
+        prod.send(msg).await?;
+        Ok(())
+    }
     pub async  fn start_streaming(&mut self, msg: &GameId) -> anyhow::Result<()> {
         use crate::database::tables::GAME_SEGMENT_DB;
         let game_id = msg.clone();
@@ -194,20 +234,25 @@ impl SubscribedGamesState {
             existing_segments.push(item?);
         }
         existing_segments.sort_by_key(|x|x.0.segment_id);
+        Self::send_update_segment_mesage(self.reply_callback.clone(), existing_segments).await?;
 
         let subscriber = GAME_SEGMENT_DB.watch_prefix2(&game_id);
         log::info!("Start streaming for game{:?}",game_id);
+        let reply_callback = self.reply_callback.clone();
         let new_thread = tokio::task::spawn(async move {
             let game_id = game_id.clone();
 
-            log::info!("{:?}: Spectate found existing segments {}", game_id, existing_segments.len());
+            // log::info!("{:?}: Spectate found existing segments {}", game_id, existing_segments.len());
             let mut subscriber = subscriber;
-
             loop {
                 while let Some(x) = (&mut subscriber).await {
+                    let reply_callback = reply_callback.clone();
                     match x {
                         typed_sled::Event::Insert { key, value } =>{
-                            log::info!("insert new segment {:?} value={:?}", key, value);
+                            log::info!("subscribe: insert new segment {:?} value={:?}", key, value);
+                            if let Err(e) = Self::send_update_segment_mesage(reply_callback, vec![(key, value)]).await {
+                                log::error!("error sending update subscribe segment for {:?}: {:?}", game_id, e);
+                            }
                         },
                         typed_sled::Event::Remove { key } => {
                             log::info!("delete wtf?? {:?}", key);
@@ -241,13 +286,14 @@ use game::api::user::GuestInfo;
 pub async fn websocket_handle_request(
     b: Vec<u8>,
     user_id: GuestInfo,
+    subscribe_games: &mut SubscribedGamesState,
 ) -> anyhow::Result<Vec<u8>> {
     use crate::backend::server_fn::*;
     use game::api::websocket::*;
     let user_id2 = user_id.clone();
     get_or_create_user_profile(&user_id2.user_id).unwrap();
 
-    let mut subscribed_games = SubscribedGamesState::new();
+
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
         .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
     let msg_type = msg._type.clone();
@@ -321,7 +367,7 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::SubscribeGamePlz => {
             let request: <game::api::websocket::SubscribeGamePlz as APIMethod>::Req = bincode::deserialize(&msg.data).context("bincode never fail")?;
 
-            let response = subscribed_games.accept_message(&request).await?;
+            let response = subscribe_games.accept_message(&request).await?;
             // let response = response.map_err(|e| format!("websocket method error: {e}"));
 
             Ok(WebsocketAPIMessageRaw {
@@ -331,6 +377,9 @@ pub async fn websocket_handle_request(
                 data: bincode::serialize(&response).context("bincode never fail")?,
             })
         },
+        _ => {
+            anyhow::bail!("Unsupported message from client: {:?}", msg._type);
+        }
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

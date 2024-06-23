@@ -76,6 +76,21 @@ pub fn call_websocket_api<T: APIMethod>(
     })
 }
 
+
+
+pub async fn accept_subscribe_notification(_api: &WebsocketAPI, msg: WebsocketAPIMessageRaw) -> anyhow::Result<()> {
+    match &msg._type {
+        WebsocketAPIMessageType::SubscribedGameUpdateNotification => {
+            let data  = bincode::deserialize::<<game::api::websocket::SubscribedGameUpdateNotification as game::api::websocket::APIMethod>::Req>(&msg.data)?;
+            log::info!("GOT SUBSCRIBE MESSAGE FOR {} segments", data.len());
+        },
+        _x => {
+            anyhow::bail!("unsupported message type for subscribe nmmotification:L {:?}", msg._type);
+        }
+    }
+    Ok(())
+}
+
 pub async fn accept_reply_message(api: &WebsocketAPI, msg: WebsocketAPIMessageRaw) {
     let key = WsMessageKey(msg.id, msg._type);
 

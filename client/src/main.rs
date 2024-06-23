@@ -27,7 +27,8 @@ fn main() {
     );
     console_log::init_with_level(log::Level::Debug).expect("cannot register log");
     
-    wasm_bindgen_futures::spawn_local(demo_matchbox::async_main());
+    // TODO P2P
+    // wasm_bindgen_futures::spawn_local(demo_matchbox::async_main());
 
     mount_to_body(|| {
         view! { <app_root::AppRoot></app_root::AppRoot> }
