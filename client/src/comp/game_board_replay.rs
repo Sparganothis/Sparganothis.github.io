@@ -104,14 +104,22 @@ pub fn ReplayGameBoard(
                             .max(0.0)
                             .min(all_states.with_untracked(|w| w.len() as f64 - 1.0));
 
-                        // if new_slider < 1.0 || new_slider > all_states.with_untracked(|w| w.len() as f64-1.0) {
-                        //     // pause();
-                        // }
                         slider.set(new_slider);
                     }
                 },
                 25,
             );
+
+        let pause1 = pause.clone();
+        create_effect(move |_| {
+            let _count = all_states.with(|w| w.len());
+            let _sl = slider.get();
+            if _count > 10 {
+                if _sl < 0.0 || _sl >(( _count  as f64)-1.1) {
+                    pause1();
+                }
+            }
+        });
 
         let resume1 = resume.clone();
         let on_click_play = move |_| {
