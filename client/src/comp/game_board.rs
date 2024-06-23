@@ -210,7 +210,7 @@ pub fn GameBoard(
     let gameover = view! {
         <Show when=move || game_state.get().game_over fallback=|| view! {}>
             <div class="game_over_display" on:click=move |_| on_reset_game.call(())>
-                game over
+                you lose
             </div>
         </Show>
     };

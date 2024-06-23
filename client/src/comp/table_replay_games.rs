@@ -74,7 +74,13 @@ pub fn CustomTableRowRenderer(
             {row2.render_row(index, on_change)}
             <td>
                 <a href=move || {
-                    format!("/view-game/{}", row.to_url())
+                    if row3.is_in_progress {
+                        format!("/spectate-game/{}", row.to_url())
+                    } else {
+                        format!("/view-game/{}", row.to_url())
+
+                    }
+
                 }>
                     {move || {
                         if row3.is_in_progress {

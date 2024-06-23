@@ -142,7 +142,7 @@ pub fn default_gameboard_style(
         position: absolute;
         background-color: #000c;
         animation: spin 5s linear 1;
-        border: 1vh dashed  #f00c;
+        border: 1vh #f00c;
         font-family: "Comic Sans MS", "Comic Sans", cursive;
     }
 

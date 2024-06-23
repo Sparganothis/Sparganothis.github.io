@@ -9,6 +9,7 @@ use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
 
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
+use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 
 #[component]
@@ -275,7 +276,8 @@ pub fn AppRoot() -> impl IntoView {
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
                         <Routes>
-                            <Route path="" view=Game1PPage/>
+                            <Route path="" view=Homepage/>
+                            <Route path="/solo" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
                             <Route path="/vs_net" view=Game2PPage/>
                             <Route
@@ -309,15 +311,12 @@ pub fn MainMenu() -> impl IntoView {
     let menu_entries = || {
         vec![
             ("/", "home"),
+            ("/solo", "solo"),
             ("/vs_cpu", "1v1 cpu"),
             ("/vs_net", "1v1 online"),
             ("/replay", "replay"),
             ("/account", "account"),
-            ("/settings", "settings"),
-            ("/about", "about"),
-            ("/credits", "credits"),
             ("/mspaint", "mspaint"),
-            ("/ws_demo", "ws_demo"),
         ]
     };
     // let git_version = create_resource(

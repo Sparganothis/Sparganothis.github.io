@@ -56,3 +56,8 @@ bash run-server.sh
 
 - singleplayer - make window centered
 - hold / next: each pcs has its own centered board
+
+
+### whatever
+
+  
