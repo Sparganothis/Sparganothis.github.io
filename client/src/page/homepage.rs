@@ -2,7 +2,7 @@
 use game::tet::GameState;
 use leptos::*;
 
-use crate::comp::game_board::GameBoard;
+use crate::comp::{game_board::GameBoard, game_board_flex::GameBoardFlex};
 
 #[component]
 pub fn Homepage()-> impl IntoView{
@@ -13,12 +13,12 @@ pub fn Homepage()-> impl IntoView{
         match x{
             0 => {
                 view!{
-                   <h1>Penis</h1> 
+                   <h1>todo</h1> 
                 }.into_view()
             },
             8 =>{
                 view!{
-                   <GameBoard game_state/>
+                   <GameBoardFlex/>
                 }.into_view()
             },
             9 => {
