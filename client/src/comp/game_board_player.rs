@@ -3,6 +3,7 @@ use game::api::websocket::*;
 use game::random::GameSeed;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
+use leptos_use::{use_interval, UseIntervalReturn};
 use crate::style::*;
 use crate::websocket::demo_comp::WebsocketAPI;
 use game::tet::{self, CellValue, GameReplaySegment, GameState};
@@ -70,18 +71,99 @@ pub fn PlayerGameBoard() -> impl IntoView {
         // append_game_segment
         new_game_id.refetch();
     });
-    let game_state = move || {
-        if let Some(game_id) = new_game_id.get() {
-            let state =
-            create_rw_signal(tet::GameState::new(&game_id.init_seed, game_id.start_time));
-            view! { <PlayerGameBoardSingle state on_reset on_state_change/> }
-                .into_view()
-        } else {
-            view! { <p>loading game id ...</p> }.into_view()
+    let UseIntervalReturn {
+        counter,
+        reset,
+        is_active,
+        pause,
+        resume
+    }  = use_interval( 1000 );
+    pause();
+    reset();
+        
+    let (pre_countdown_text, set_countdown_text) = create_signal("".to_string());
+    
+    create_effect(move |_| {
+        let counter_val = counter.get();
+        let new = match counter_val {
+            0 => "3".to_string(),
+            1 => "2".to_string(),
+            2 => "1".to_string(),
+            3 => "Go".to_string(),
+            _ => "".to_string(),
+
+        };
+        set_countdown_text.set(new);
+        if counter_val > 5 {
+            pause();
+        }
+    });
+    
+    let state = create_rw_signal(tet::GameState::empty());
+
+    let reset1 = reset.clone();
+    let resume1 = resume.clone();
+    let game_board
+     = move || {
+        let reset1 = reset1.clone();
+        let resume1 = resume1.clone();
+
+        view! { 
+            <Show
+                when=move || {  new_game_id.get().is_some() }
+                fallback=move || view! { 
+                    <GameBoard game_state=state/>
+                }
+            >
+            {
+                reset1();
+                resume1();
+                move || {
+                    view! {
+                        <Show
+                            when=move || { counter.get() > 3 }
+                            fallback=move || view! { 
+                                <GameBoard game_state=state pre_countdown_text/>
+                            }
+                        >
+                            <PlayerGameBoardSingle state on_reset on_state_change/>
+                        </Show>
+                    }
+                }
+            }
+            </Show>
         }
     };
 
-    view! { {game_state} }
+        
+    //     view! {
+
+    //     }
+    //     let counter_val = counter.get();
+    //     log::info!("counter: {counter_val}");
+
+    //     if let Some(game_id) = new_game_id.get() {
+    //         reset();
+    //         resume();
+
+            
+    //         log::info!("got id: {game_id:?}");
+
+    //         if counter_val < 4 {
+    //             set_pre_countdown_text.set((3-counter_val).to_string());
+    //         }
+            
+    //         state.set(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+
+    //         view! { 
+                
+    //          }
+    //             .into_view()
+    //     } else {
+    //         view! { <p>loading game id ...</p> }.into_view()
+    //     }
+    // };
+    view! { {game_board}}
 }
 
 #[component]
@@ -95,6 +177,12 @@ pub fn PlayerGameBoardSingle(
     #[prop(default = Callback::<GameState>::new(move |_| {}))]
     #[prop(optional)]
     on_state_change: Callback<GameState>,
+
+    
+    #[prop(into)]
+    #[prop(default = create_signal("".to_string()).0)]
+    #[prop(optional)]
+    pre_countdown_text: ReadSignal<String>,
     
 ) -> impl IntoView {
 
@@ -151,6 +239,6 @@ pub fn PlayerGameBoardSingle(
 
     view! {
         <super::hotkey_reader::HotkeyReader on_action=on_action></super::hotkey_reader::HotkeyReader>
-        <GameBoard game_state=state on_reset_game=on_reset/>
+        <GameBoard game_state=state on_reset_game=on_reset pre_countdown_text/>
     }
 }

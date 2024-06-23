@@ -146,6 +146,27 @@ pub fn default_gameboard_style(
         font-family: "Comic Sans MS", "Comic Sans", cursive;
     }
 
+    
+    .pre_game_countdown_display {
+        color: #fffc;
+        font-weight: bold;
+        top: 28vmin;
+        left: 16vmin;
+        width: 40vmin;
+        height: 40vmin;
+        font-size: 12vmin;
+        text-align: center;
+        z-index: 888;
+        position: absolute;
+        background-color: #000c;
+        // animation: spin 5s linear 1;
+        border: 1vh #f00c;
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
 ).expect("bad css");
     st
 }

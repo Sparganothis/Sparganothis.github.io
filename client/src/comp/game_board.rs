@@ -190,10 +190,20 @@ pub fn BoardCell(
 #[component]
 pub fn GameBoard(
     #[prop(into)] game_state: RwSignal<tet::GameState>,
+
+    #[prop(default = Callback::<()>::new(move |_| {}))]
+    #[prop(optional)]
     on_reset_game: Callback<()>,
+
     #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
     #[prop(optional)]
     on_main_cell_click: Callback<(i8, i8)>,
+
+    #[prop(into)]
+    #[prop(default = create_rw_signal("".to_string()).read_only())]
+    #[prop(optional)]
+    pre_countdown_text: ReadSignal<String>,
+
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
     let bottom_free_percent = 15.0;
@@ -221,6 +231,15 @@ pub fn GameBoard(
         </Show>
     };
 
+    let pre_countdown = view! {
+        <Show when=move || {pre_countdown_text.get().len()>0} fallback=|| view! {}>
+            <div class="pre_game_countdown_display">
+                {pre_countdown_text}
+            </div>
+        </Show>
+    };
+    
+
     // let debug_info = move || game_state.get().get_debug_info();
 
     view! {
@@ -228,6 +247,7 @@ pub fn GameBoard(
 
             <div class="main_container">
                 <div class="gameover">{gameover}</div>
+                <div class="pre_game_countdown">{pre_countdown}</div>
                 <div class="side_board_left">
                     <h3 class="side_board_title">HOLD</h3>
 
