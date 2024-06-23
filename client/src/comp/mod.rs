@@ -8,3 +8,4 @@ pub mod table_replay_segments;
 pub mod table_custom_games;
 pub mod multiselect_repeat;
 pub mod game_board_player;
+pub mod game_board_flex;

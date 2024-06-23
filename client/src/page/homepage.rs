@@ -1,15 +1,41 @@
 
+use game::tet::GameState;
 use leptos::*;
+
+use crate::comp::game_board::GameBoard;
 
 #[component]
 pub fn Homepage()-> impl IntoView{
+    let game_state= create_rw_signal(GameState::empty());
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
- view!{
-            <h1>{
-                x
-            }</h1>
-        }.into_view()
-    }).collect();
+    
+
+        match x{
+            0 => {
+                view!{
+                   <h1>Penis</h1> 
+                }.into_view()
+            },
+            8 =>{
+                view!{
+                   <GameBoard game_state/>
+                }.into_view()
+            },
+            9 => {
+                view!{<a href="/solo">
+                    <h3 >"SOLO"</h3>
+                </a>
+                }.into_view()
+            },
+            _ => {
+                view!{
+
+                }.into_view()
+            }
+        }
+
+
+     }).collect();
 
     view!{
         <MenuGridView views/>

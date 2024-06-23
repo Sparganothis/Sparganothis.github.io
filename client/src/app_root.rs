@@ -8,6 +8,7 @@ use leptonic::prelude::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
 
+use crate::comp::game_board_flex::GameBoardFlex;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
@@ -297,6 +298,7 @@ pub fn AppRoot() -> impl IntoView {
                                 path="/play-custom-game/:save_id"
                                 view=MsPaintPlayPage
                             />
+                            <Route path="/gamebordflex" view=GameBoardFlex/>
 
                         </Routes>
                     </main>
@@ -317,6 +319,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/replay", "replay"),
             ("/account", "account"),
             ("/mspaint", "mspaint"),
+            ("/gamebordflex", "gamebordflex"),
         ]
     };
     // let git_version = create_resource(
