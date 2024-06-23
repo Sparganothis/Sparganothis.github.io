@@ -4,6 +4,16 @@ use leptos::*;
 
 use crate::comp::game_board::GameBoard;
 
+
+#[component]
+pub fn GameBoardFlexDemoPage() -> impl IntoView {
+    view! {
+        <div class="main_left">
+            <GameBoardFlex/>
+        </div>
+    }
+}
+
 #[component]
 pub fn GameBoardFlex() -> impl IntoView {
     view! {
