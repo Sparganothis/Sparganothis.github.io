@@ -34,8 +34,8 @@ pub fn GameBoardFlex() -> impl IntoView {
 
                 // HOLD
                 <div style="border:solid green 1px;width:25%;height:100%;flex-direction: column;display: flex;">
-                    <div style="border:solid red 1px;width:100%;height:10%;">
-                        <h3>HOLD</h3>
+                    <div style="border:solid red 1px;width:100%;height:10%; container-type: size;">
+                        <h3 style="font-size:80cqh; text-align: center;">HOLD</h3>
                     </div>
                     <div style="border:solid yellow 1px;width:100%;height:20%;flex-direction: row;display: flex;">
                         <div style="border:solid red 1px;width:7%;height:100%;"></div>
@@ -54,8 +54,8 @@ pub fn GameBoardFlex() -> impl IntoView {
 
                 // NEXT
                 <div style="border:solid green 1px;width:25%;height:100%;flex-direction: column;display: flex;">
-                    <div style="border:solid red 1px;width:100%;height:10%;">
-                        <h3>NEXT</h3>
+                    <div style="border:solid red 1px;width:100%;height:10%;container-type: size;">
+                        <h3 style="font-size:80cqh; text-align: center;">NEXT</h3>
                     </div>
                     <div style="border:solid yellow 1px;width:100%;height:75%;flex-direction: row;display: flex;">
                         <div style="border:solid red 1px;width:7%;height:100%;"></div>
