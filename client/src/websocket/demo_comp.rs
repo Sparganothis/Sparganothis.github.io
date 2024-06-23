@@ -1,6 +1,6 @@
-use game::api::websocket::{
-    APIMethod, WebsocketAPIMessageRaw, WebsocketAPIMessageType,
-};
+use game::{api::{game_replay::{GameId, GameSegmentId}, websocket::{
+    APIMethod, SubscribeGamePlz, SubscribeGamePlzArgument, WebsocketAPIMessageRaw, WebsocketAPIMessageType
+}}, tet::GameReplaySegment};
 use leptos::*;
 use leptos_use::core::ConnectionReadyState;
 
@@ -12,7 +12,7 @@ use leptos_use::core::ConnectionReadyState;
 // async fn who_am_i() ->  <game::api::websocket::WhoAmI as APIMethod>::Resp {
 
 // }
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct WsMessageKey(u32, WebsocketAPIMessageType);
@@ -25,6 +25,43 @@ pub struct WebsocketAPI {
     pub sender: RwSignal<Rc<Box<dyn Fn(Vec<u8>)>>>,
     pub ready_state_stream: async_broadcast::InactiveReceiver<ConnectionReadyState>,
     pub ready_signal: RwSignal<bool>,
+
+    pub subscribe_game_callbacks: RwSignal<HashMap<GameId, SubscribeSegmentCallback>>,
+}
+
+type SubscribeSegmentCallback = Callback<Vec<(GameSegmentId, GameReplaySegment)>>;
+
+impl WebsocketAPI {
+    pub fn subscribe_to_game(&self, game_id: &GameId, cb: SubscribeSegmentCallback) {
+        self.subscribe_game_callbacks.update_untracked(|map| {
+            map.insert(*game_id, cb);
+            let game_id = *game_id;
+            let api = self.clone();
+            spawn_local(async move {
+                let api = api.clone();
+                let arg = SubscribeGamePlzArgument { game_id, command: game::api::websocket::SubscribeGamePlzCommmand::StartStreaming };
+                if let Ok(fut) = call_websocket_api::<SubscribeGamePlz>(api, arg) {
+                    if let Ok(_res) = fut.await {
+                        log::info!("subscribe OK");
+                    }
+                }
+            });
+        });
+    }
+
+   pub fn stop_subscribe_to_game(&self, game_id: &GameId) {
+    self.subscribe_game_callbacks.update_untracked(|map| {
+        map.remove(game_id);
+    })
+   }
+
+   pub fn stop_all_subscribe_to_game(&self) {
+        self.subscribe_game_callbacks.update_untracked(|map| {
+            for item in map.keys() {
+                self.stop_subscribe_to_game(item);
+            }
+        })
+   } 
 }
 
 pub fn call_websocket_api<T: APIMethod>(
@@ -83,6 +120,15 @@ pub async fn accept_subscribe_notification(_api: &WebsocketAPI, msg: WebsocketAP
         WebsocketAPIMessageType::SubscribedGameUpdateNotification => {
             let data  = bincode::deserialize::<<game::api::websocket::SubscribedGameUpdateNotification as game::api::websocket::APIMethod>::Req>(&msg.data)?;
             log::info!("GOT SUBSCRIBE MESSAGE FOR {} segments", data.len());
+
+            let first = (&data).first().cloned();
+            if let Some(first) = first.clone() {
+                _api.subscribe_game_callbacks.with_untracked(move |map| {
+                    if let  Some(cb) = map.get(&first.0.game_id) {
+                        cb.call(data.clone());
+                    }
+            })};
+            
         },
         _x => {
             anyhow::bail!("unsupported message type for subscribe nmmotification:L {:?}", msg._type);

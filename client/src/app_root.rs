@@ -137,6 +137,7 @@ pub fn AppRoot() -> impl IntoView {
         sender: create_rw_signal(Rc::new(Box::new(send_bytes.clone()))),
         ready_state_stream: rx.deactivate(),
         ready_signal,
+        subscribe_game_callbacks: create_rw_signal(std::collections::HashMap::<_, _>::new()),
     };
     provide_context(api.clone());
 
