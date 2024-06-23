@@ -13,7 +13,7 @@ use leptonic::{
 use leptos::*;
 
 use crate::{
-    comp::{game_board::{GameBoard, PlayerGameBoardSingle}, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
+    comp::{game_board::GameBoard, game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
     websocket::demo_comp::{call_websocket_api, WebsocketAPI},
 };
 
