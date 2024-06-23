@@ -44,10 +44,12 @@ pub fn GameBoardFlex() -> impl IntoView {
                         <div style="border:solid green 1px;width:7%;height:100%;"></div>
 
                     </div>
-                    <div style="border:solid green 1px;width:100%;height:25%;"></div>
+                    <div style="border:solid green 1px;width:100%;height:27%;"></div>
 
-                    <div style="border:solid green 1px;width:100%;height:15%;"></div>
-                    <div style="border:solid green 1px;width:100%;height:30%;"></div>
+                    <div style="border:solid green 1px;width:100%;height:6%; container-type: size;">
+                        <h3 style="font-size:80cqh; text-align: center;">"123,456,789"</h3>
+                    </div>
+                    <div style="border:solid green 1px;width:100%;height:37%;"></div>
 
                 </div>
                 <div style="border:solid green 1px;width:50%;height:100%;flex-direction: column;display: flex;background-color: black"></div>
