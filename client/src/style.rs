@@ -128,6 +128,22 @@ pub fn default_gameboard_style(
     .tet.O.cell {            background-color: ${tet_style.o};     }
     .tet.Z.cell {            background-color: ${tet_style.z};     }
 
+
+    .game_over_display {
+        color: #f00c;
+        font-weight: bold;
+        top: 24vmin;
+        left: 16vmin;
+        width: 40vmin;
+        height: 40vmin;
+        font-size: 12vmin;
+        text-align: center;
+        z-index: 888;
+        position: absolute;
+        background-color: #ffffff38;
+        animation: spin 4s linear infinite;
+    }
+
 ).expect("bad css");
     st
 }

@@ -209,9 +209,9 @@ pub fn GameBoard(
 
     let gameover = view! {
         <Show when=move || game_state.get().game_over fallback=|| view! {}>
-            <h3 style="color:red" on:click=move |_| on_reset_game.call(())>
+            <div class="game_over_display" on:click=move |_| on_reset_game.call(())>
                 GAME OVER
-            </h3>
+            </div>
         </Show>
     };
 
