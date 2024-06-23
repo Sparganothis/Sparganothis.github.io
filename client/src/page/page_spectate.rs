@@ -23,34 +23,22 @@ pub fn SpectateGamePage() -> impl IntoView {
 
     let left_board = move || {
         if let Some(x) = left_game_id.get() {
-            view!{
-                <SpectatorGameBoard game_id=x />
-            }.into_view()
+            view! { <SpectatorGameBoard game_id=x/> }.into_view()
         } else {
-            view!{
-                <p> "bad url?" </p>
-            }.into_view()
+            view! { <p>"bad url?"</p> }.into_view()
         }
     };
     
     let right_board = move || {
         if let Some(x) = right_game_id.get() {
-            view!{
-                <SpectatorGameBoard game_id=x />
-            }.into_view()
+            view! { <SpectatorGameBoard game_id=x/> }.into_view()
         } else {
-            view!{
-                <p> "bad url?" </p>
-            }.into_view()
+            view! { <p>"bad url?"</p> }.into_view()
         }
     };
 
-    view!{
-        <div class="main_left">
-            {left_board}
-        </div>
-        <div class="main_right">
-            {right_board}
-        </div>
+    view! {
+        <div class="main_left">{left_board}</div>
+        <div class="main_right">{right_board}</div>
     }
 }

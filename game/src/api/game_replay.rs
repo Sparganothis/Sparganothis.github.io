@@ -27,7 +27,7 @@ impl GameSegmentId {
 }
 
 #[derive(
-    Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash
+    Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash,
 )]
 pub struct GameId {
     pub user_id: uuid::Uuid,

@@ -78,9 +78,7 @@ pub fn CustomTableRowRenderer(
                         format!("/spectate-game/{}", row.to_url())
                     } else {
                         format!("/view-game/{}", row.to_url())
-
                     }
-
                 }>
                     {move || {
                         if row3.is_in_progress {

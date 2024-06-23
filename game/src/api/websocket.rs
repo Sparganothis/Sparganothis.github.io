@@ -176,7 +176,7 @@ impl APIMethod for GetRandomWord {
     Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord,
 )]
 pub struct SubscribeGamePlzArgument {
-   pub game_id: GameId,
+    pub game_id: GameId,
     pub command: SubscribeGamePlzCommmand,
 }
 #[derive(
@@ -197,7 +197,8 @@ impl APIMethod for SubscribeGamePlz {
 pub struct SubscribedGameUpdateNotification {}
 
 impl APIMethod for SubscribedGameUpdateNotification {
-    const TYPE : WebsocketAPIMessageType = WebsocketAPIMessageType::SubscribedGameUpdateNotification;
+    const TYPE: WebsocketAPIMessageType =
+        WebsocketAPIMessageType::SubscribedGameUpdateNotification;
     type Req = Vec<(GameSegmentId, GameReplaySegment)>;
     type Resp = ();
 }

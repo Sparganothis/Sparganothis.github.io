@@ -5,7 +5,16 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
-use game::{api::{game_replay::{GameId, GameSegmentId}, websocket::{APIMethod, SubscribeGamePlzArgument, SubscribedGameUpdateNotification, WebsocketAPIMessageRaw, WebsocketAPIMessageType}}, tet::{GameReplaySegment, GameState}};
+use game::{
+    api::{
+        game_replay::{GameId, GameSegmentId},
+        websocket::{
+            APIMethod, SubscribeGamePlzArgument, SubscribedGameUpdateNotification,
+            WebsocketAPIMessageRaw, WebsocketAPIMessageType,
+        },
+    },
+    tet::{GameReplaySegment, GameState},
+};
 // use serde::Deserialize;
 
 use std::{borrow::Cow, collections::HashMap};
@@ -32,8 +41,9 @@ use super::session::Guest;
 /// This is the last point where we can extract TCP/IP metadata such as IP address of the client
 /// as well as things from HTTP headers such as user-agent of the browser etc.
 
-
-fn convert_subscribed_message_to_bytes(vect: <game::api::websocket::SubscribedGameUpdateNotification as game::api::websocket::APIMethod>::Req) -> anyhow::Result<Vec<u8>> {
+fn convert_subscribed_message_to_bytes(
+    vect: <game::api::websocket::SubscribedGameUpdateNotification as game::api::websocket::APIMethod>::Req,
+) -> anyhow::Result<Vec<u8>> {
     let data_bytes = bincode::serialize(&vect)?;
     let msg = WebsocketAPIMessageRaw {
         id: 0,
@@ -68,7 +78,8 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
     let (response_tx, mut response_rx) = tokio::sync::mpsc::channel(32);
     let (request_tx, mut request_rx) = tokio::sync::mpsc::channel(32);
 
-    let (subscribe_game_sender, mut subscribe_game_recv) = tokio::sync::mpsc::channel(16);
+    let (subscribe_game_sender, mut subscribe_game_recv) =
+        tokio::sync::mpsc::channel(16);
     let mut subscribed_games = SubscribedGamesState::new(subscribe_game_sender);
 
     let mut send_task = tokio::spawn(async move {
@@ -143,7 +154,13 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
         while let Some(b) = request_rx.recv().await {
             cnt += 1;
 
-            let b = match websocket_handle_request(b, (&user_info).clone(), &mut subscribed_games).await {
+            let b = match websocket_handle_request(
+                b,
+                (&user_info).clone(),
+                &mut subscribed_games,
+            )
+            .await
+            {
                 Ok(b) => b,
                 Err(e) => {
                     log::warn!("got error while handling websocket message: {:?}", e);
@@ -193,51 +210,61 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
     log::info!("Websocket context {who} destroyed");
 }
 
-
-struct SingleSubscribedGameState{
+struct SingleSubscribedGameState {
     pub join_handle: tokio::task::JoinHandle<()>,
-
 }
 pub struct SubscribedGamesState {
     games_info: HashMap<GameId, SingleSubscribedGameState>,
-    pub reply_callback : tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>,
+    pub reply_callback:
+        tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>,
 }
 
 impl SubscribedGamesState {
-    pub fn new(sender: tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>) -> Self {
+    pub fn new(
+        sender: tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>,
+    ) -> Self {
         Self {
-            games_info: HashMap::<_,_>::new(),        
+            games_info: HashMap::<_, _>::new(),
             reply_callback: sender,
         }
     }
-    pub async  fn accept_message(&mut self, msg: &SubscribeGamePlzArgument) -> anyhow::Result<()> {
+    pub async fn accept_message(
+        &mut self,
+        msg: &SubscribeGamePlzArgument,
+    ) -> anyhow::Result<()> {
         match msg.command {
-            game::api::websocket::SubscribeGamePlzCommmand::StartStreaming =>{
+            game::api::websocket::SubscribeGamePlzCommmand::StartStreaming => {
                 self.start_streaming(&msg.game_id).await?;
-            },
-            game::api::websocket::SubscribeGamePlzCommmand::StopStreaming => 
-            {
+            }
+            game::api::websocket::SubscribeGamePlzCommmand::StopStreaming => {
                 self.stop_streaming(&msg.game_id).await?;
-            },
+            }
         }
         Ok(())
     }
-    async fn send_update_segment_mesage(prod: tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>, msg: Vec<(GameSegmentId, GameReplaySegment)>) -> anyhow::Result<()> {
+    async fn send_update_segment_mesage(
+        prod: tokio::sync::mpsc::Sender<Vec<(GameSegmentId, GameReplaySegment)>>,
+        msg: Vec<(GameSegmentId, GameReplaySegment)>,
+    ) -> anyhow::Result<()> {
         prod.send(msg).await?;
         Ok(())
     }
-    pub async  fn start_streaming(&mut self, msg: &GameId) -> anyhow::Result<()> {
+    pub async fn start_streaming(&mut self, msg: &GameId) -> anyhow::Result<()> {
         use crate::database::tables::GAME_SEGMENT_DB;
         let game_id = msg.clone();
         let mut existing_segments = vec![];
         for item in GAME_SEGMENT_DB.range(GameSegmentId::get_range_for_game(&game_id)) {
             existing_segments.push(item?);
         }
-        existing_segments.sort_by_key(|x|x.0.segment_id);
-        Self::send_update_segment_mesage(self.reply_callback.clone(), existing_segments).await?;
+        existing_segments.sort_by_key(|x| x.0.segment_id);
+        Self::send_update_segment_mesage(
+            self.reply_callback.clone(),
+            existing_segments,
+        )
+        .await?;
 
         let subscriber = GAME_SEGMENT_DB.watch_prefix2(&game_id);
-        log::info!("Start streaming for game{:?}",game_id);
+        log::info!("Start streaming for game{:?}", game_id);
         let reply_callback = self.reply_callback.clone();
         let new_thread = tokio::task::spawn(async move {
             let game_id = game_id.clone();
@@ -248,20 +275,27 @@ impl SubscribedGamesState {
                 while let Some(x) = (&mut subscriber).await {
                     let reply_callback = reply_callback.clone();
                     match x {
-                        typed_sled::Event::Insert { key, value } =>{
-                            log::info!("subscribe: insert new segment {:?} value={:?}", key, value);
-                            if let Err(e) = Self::send_update_segment_mesage(reply_callback, vec![(key, value)]).await {
+                        typed_sled::Event::Insert { key, value } => {
+                            log::info!(
+                                "subscribe: insert new segment {:?} value={:?}",
+                                key,
+                                value
+                            );
+                            if let Err(e) = Self::send_update_segment_mesage(
+                                reply_callback,
+                                vec![(key, value)],
+                            )
+                            .await
+                            {
                                 log::error!("error sending update subscribe segment for {:?}: {:?}", game_id, e);
                             }
-                        },
+                        }
                         typed_sled::Event::Remove { key } => {
                             log::info!("delete wtf?? {:?}", key);
-                        },
+                        }
                     }
                 }
             }
-
-
         });
         let new_state = SingleSubscribedGameState {
             join_handle: new_thread,
@@ -269,17 +303,15 @@ impl SubscribedGamesState {
         self.games_info.insert(*msg, new_state);
         Ok(())
     }
-    
-    pub async  fn stop_streaming(&mut self, game_id: &GameId) -> anyhow::Result<()> {
-        log::info!("STOP streaming for game{:?}",game_id);
-        if let Some(_v) = self.games_info.remove(game_id){
+
+    pub async fn stop_streaming(&mut self, game_id: &GameId) -> anyhow::Result<()> {
+        log::info!("STOP streaming for game{:?}", game_id);
+        if let Some(_v) = self.games_info.remove(game_id) {
             _v.join_handle.abort();
-            log::info!("AVORT OK{:?}",game_id);
+            log::info!("AVORT OK{:?}", game_id);
         }
         Ok(())
     }
-
-
 }
 
 use game::api::user::GuestInfo;
@@ -292,7 +324,6 @@ pub async fn websocket_handle_request(
     use game::api::websocket::*;
     let user_id2 = user_id.clone();
     get_or_create_user_profile(&user_id2.user_id).unwrap();
-
 
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
         .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
@@ -365,7 +396,8 @@ pub async fn websocket_handle_request(
             specific_sync_request::<GetRandomWord>(msg, user_id, random_word2).await
         }
         WebsocketAPIMessageType::SubscribeGamePlz => {
-            let request: <game::api::websocket::SubscribeGamePlz as APIMethod>::Req = bincode::deserialize(&msg.data).context("bincode never fail")?;
+            let request: <game::api::websocket::SubscribeGamePlz as APIMethod>::Req =
+                bincode::deserialize(&msg.data).context("bincode never fail")?;
 
             let response = subscribe_games.accept_message(&request).await?;
             // let response = response.map_err(|e| format!("websocket method error: {e}"));
@@ -376,7 +408,7 @@ pub async fn websocket_handle_request(
                 is_req: false,
                 data: bincode::serialize(&response).context("bincode never fail")?,
             })
-        },
+        }
         _ => {
             anyhow::bail!("Unsupported message from client: {:?}", msg._type);
         }
