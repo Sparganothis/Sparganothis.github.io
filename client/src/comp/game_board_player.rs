@@ -108,29 +108,30 @@ pub fn PlayerGameBoard() -> impl IntoView {
         let reset1 = reset1.clone();
         let resume1 = resume1.clone();
 
-        view! { 
+        view! {
             <Show
-                when=move || {  new_game_id.get().is_some() }
-                fallback=move || view! { 
-                    <GameBoard game_state=state/>
-                }
+                when=move || { new_game_id.get().is_some() }
+                fallback=move || view! { <GameBoard game_state=state/> }
             >
-            {
-                reset1();
-                resume1();
-                move || {
-                    view! {
-                        <Show
-                            when=move || { counter.get() > 3 }
-                            fallback=move || view! { 
-                                <GameBoard game_state=state pre_countdown_text/>
-                            }
-                        >
-                            <PlayerGameBoardSingle state on_reset on_state_change/>
-                        </Show>
+
+                {
+                    reset1();
+                    resume1();
+                    move || {
+                        view! {
+                            <Show
+                                when=move || { counter.get() > 3 }
+                                fallback=move || {
+                                    view! { <GameBoard game_state=state pre_countdown_text/> }
+                                }
+                            >
+
+                                <PlayerGameBoardSingle state on_reset on_state_change/>
+                            </Show>
+                        }
                     }
                 }
-            }
+
             </Show>
         }
     };
@@ -163,7 +164,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
     //         view! { <p>loading game id ...</p> }.into_view()
     //     }
     // };
-    view! { {game_board}}
+    view! { {game_board} }
 }
 
 #[component]

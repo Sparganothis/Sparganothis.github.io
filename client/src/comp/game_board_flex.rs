@@ -32,7 +32,7 @@ pub fn GameBoardFlex() -> impl IntoView {
             </div>
             <div style="border:solid red 1px;height: 75%;flex-direction: row;display: flex;">
 
-                  // HOLD
+                // HOLD
                 <div style="border:solid green 1px;width:25%;height:100%;flex-direction: column;display: flex;">
                     <div style="border:solid red 1px;width:100%;height:10%;">
                         <h3>HOLD</h3>
@@ -68,7 +68,6 @@ pub fn GameBoardFlex() -> impl IntoView {
                 </div>
             </div>
             <div style="border:solid yellow 1px;height:15%;flex-direction: row;display: flex;">
-
             </div>
         </div>
     }

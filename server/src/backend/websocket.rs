@@ -9,11 +9,11 @@ use game::{
     api::{
         game_replay::{GameId, GameSegmentId},
         websocket::{
-            APIMethod, SubscribeGamePlzArgument,
-            WebsocketAPIMessageRaw, WebsocketAPIMessageType,
+            APIMethod, SubscribeGamePlzArgument, WebsocketAPIMessageRaw,
+            WebsocketAPIMessageType,
         },
     },
-    tet::{GameReplaySegment},
+    tet::GameReplaySegment,
 };
 // use serde::Deserialize;
 

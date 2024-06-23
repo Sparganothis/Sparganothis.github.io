@@ -232,10 +232,8 @@ pub fn GameBoard(
     };
 
     let pre_countdown = view! {
-        <Show when=move || {pre_countdown_text.get().len()>0} fallback=|| view! {}>
-            <div class="pre_game_countdown_display">
-                {pre_countdown_text}
-            </div>
+        <Show when=move || { pre_countdown_text.get().len() > 0 } fallback=|| view! {}>
+            <div class="pre_game_countdown_display">{pre_countdown_text}</div>
         </Show>
     };
     
