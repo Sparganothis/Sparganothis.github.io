@@ -29,7 +29,8 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
                             }
                     }
                     GameReplaySegment::GameOver => {
-                        log::info!("subscribe game over!");
+                        log::info!("subscribe game got over!");
+                        state_val.game_over = true;
                         let api2 = api2.clone();
                         queue_microtask(move || {
                             api2.stop_subscribe_to_game(&game_id2);
