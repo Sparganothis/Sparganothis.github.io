@@ -8,3 +8,4 @@ pub fn Game1PPage() -> impl IntoView {
         </div>
     }
 }
+

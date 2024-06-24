@@ -1,11 +1,11 @@
 use game::api::game_replay::{GameId, GameSegmentId};
-use game::api::websocket::{SubscribeGamePlz, SubscribeGamePlzArgument};
 use leptos::*;
 
 use crate::comp::game_board::GameBoard;
-use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::WebsocketAPI;
 use game::random::GameSeed;
 use game::tet::{GameReplaySegment, GameState};
+
 
 #[component]
 pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {

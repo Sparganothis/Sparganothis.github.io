@@ -8,10 +8,11 @@ use leptonic::prelude::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
 
-use crate::comp::game_board_flex::{GameBoardFlex, GameBoardFlexDemoPage};
+use crate::comp::game_board_flex::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
+
 
 #[component]
 pub fn AppRoot() -> impl IntoView {

@@ -1,8 +1,6 @@
 
-use game::tet::GameState;
 use leptos::*;
 
-use crate::comp::game_board::GameBoard;
 
 
 #[component]

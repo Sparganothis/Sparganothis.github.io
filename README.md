@@ -18,11 +18,15 @@ rustup update stable
 rustup target add wasm32-unknown-unknown
 
 cargo install cargo-binstall
+cargo binstall trunk
 cargo binstall wasm-bindgen-cli --no-confirm
 cargo binstall wasm-pack --no-confirm
 cargo binstall cargo-leptos --no-confirm
 cargo binstall leptosfmt --no-confirm
 cargo binstall cargo-watch --no-confirm
+cargo install -f cargo-binutils
+rustup component add llvm-tools-preview
+
 
 bash test.sh
 bash run-server.sh

@@ -1,0 +1,22 @@
+[package]
+name = "leptonic-theme"
+version = { workspace = true }
+edition = "2021"
+rust-version = "1.60"
+authors = ["Lukas Potthast <privat@lukas-potthast.de>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/lpotthast/leptonic-theme"
+description = """
+Theme builder for the Leptonic component library.
+"""
+categories = ["gui"]
+keywords = ["leptos", "components", "component-library", "theming", "css"]
+
+[dependencies]
+anyhow = "1.0.79"
+include_dir = "0.7.3"
+indoc = "2.0.4"
+
+[lints]
+workspace = true

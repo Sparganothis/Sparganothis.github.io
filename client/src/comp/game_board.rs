@@ -1,11 +1,8 @@
-use crate::websocket::demo_comp::call_websocket_api;
-use game::api::websocket::*;
 use game::random::GameSeed;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use crate::style::*;
-use crate::websocket::demo_comp::WebsocketAPI;
-use game::tet::{self, CellValue, GameReplaySegment, GameState};
+use game::tet::{self, CellValue, GameState};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;

@@ -1,12 +1,12 @@
 
-use game::tet::GameState;
+// use game::tet::GameState;
 use leptos::*;
 
-use crate::comp::{game_board::GameBoard, game_board_flex::GameBoardFlex};
+use crate::comp::game_board_flex::GameBoardFlex;
 
 #[component]
 pub fn Homepage()-> impl IntoView{
-    let game_state= create_rw_signal(GameState::empty());
+    // let _game_state= create_rw_signal(GameState::empty());
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
     
 
@@ -36,6 +36,8 @@ pub fn Homepage()-> impl IntoView{
 
     view! { <MenuGridView views/> }
 }
+
+
 #[component]
 pub fn MenuGridView(views:Vec<View>) -> impl IntoView {
     view! {

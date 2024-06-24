@@ -1,27 +1,25 @@
 use crate::{comp::game_board::{key_debounce_ms, GameBoard}, websocket::demo_comp::call_websocket_api};
 use game::api::websocket::*;
-use game::random::GameSeed;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{use_interval, UseIntervalReturn};
-use crate::style::*;
 use crate::websocket::demo_comp::WebsocketAPI;
-use game::tet::{self, CellValue, GameReplaySegment, GameState};
+use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 
 
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
     let api = expect_context::<WebsocketAPI>();
-    let api2 = api.clone();
 
+    let api2 = api.clone();
     let new_game_id = create_resource(
         || (),
         move |_| {
-            let api = api.clone();
+            let api2 = api2.clone();
 
             async move {
-                let r = call_websocket_api::<CreateNewGameId>(api.clone(), ())
+                let r = call_websocket_api::<CreateNewGameId>(api2.clone(), ())
                     .expect("cannot obtain future")
                     .await;
                 r.unwrap()
@@ -29,6 +27,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
         },
     );
 
+    let api2 = api.clone();
     let on_state_change = Callback::<GameState>::new(move |s| {
         // log::info!("we changed state: {}", s.get_debug_info());
 
@@ -74,9 +73,10 @@ pub fn PlayerGameBoard() -> impl IntoView {
     let UseIntervalReturn {
         counter,
         reset,
-        is_active,
+        // is_active,
         pause,
-        resume
+        resume,
+        ..
     }  = use_interval( 1000 );
     pause();
     reset();
@@ -117,6 +117,8 @@ pub fn PlayerGameBoard() -> impl IntoView {
                 {
                     reset1();
                     resume1();
+                    let game_id = new_game_id.get().unwrap();
+                    state.set(tet::GameState::new(&game_id.init_seed, game_id.start_time));
                     move || {
                         view! {
                             <Show
@@ -154,7 +156,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
     //             set_pre_countdown_text.set((3-counter_val).to_string());
     //         }
             
-    //         state.set(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+    //         
 
     //         view! { 
                 

@@ -1,0 +1,41 @@
+{
+    "cSpell.words": [
+        "bindgen",
+        "collapsibles",
+        "datetime",
+        "dotenv",
+        "dotenvy",
+        "focusin",
+        "focusout",
+        "formatdoc",
+        "icondata",
+        "indoc",
+        "itertools",
+        "keydown",
+        "keyup",
+        "leptos",
+        "mousedown",
+        "mouseenter",
+        "mouseup",
+        "noopener",
+        "onclick",
+        "onkeydown",
+        "onmouseup",
+        "onresize",
+        "onscroll",
+        "Stylesheet",
+        "tabindex",
+        "tiptap",
+        "touchend",
+        "touchmove",
+        "touchstart",
+        "uuid"
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./leptonic/Cargo.toml",
+        "./leptonic-theme/Cargo.toml",
+        "./examples/book-ssr/Cargo.toml",
+        "./examples/leptonic-template-csr/Cargo.toml",
+        "./examples/leptonic-template-ssr/Cargo.toml"
+    ]
+}
