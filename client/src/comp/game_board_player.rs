@@ -118,7 +118,10 @@ pub fn PlayerGameBoard() -> impl IntoView {
                     reset1();
                     resume1();
                     let game_id = new_game_id.get().unwrap();
-                    state.set(tet::GameState::new(&game_id.init_seed, game_id.start_time));
+                    state
+                        .set(
+                            tet::GameState::new(&game_id.init_seed, game_id.start_time),
+                        );
                     move || {
                         view! {
                             <Show
