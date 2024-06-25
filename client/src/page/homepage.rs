@@ -16,7 +16,9 @@ pub fn Homepage()-> impl IntoView{
                 view! { <h1>todo</h1> }.into_view()
             },
             8 =>{
-                view! { <GameBoardFlex game_state/> }.into_view()
+                let demo_signal = create_rw_signal("Pnes".to_string());
+
+                view! { <GameBoardFlex game_state pre_countdown_text=demo_signal.read_only()/> }.into_view()
             },
             9 => {
                 view! {

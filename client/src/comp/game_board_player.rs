@@ -1,4 +1,4 @@
-use crate::{comp::game_board::{key_debounce_ms, GameBoard}, websocket::demo_comp::call_websocket_api};
+use crate::{comp::game_board::{key_debounce_ms}, websocket::demo_comp::call_websocket_api};
 use game::api::websocket::*;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
@@ -111,7 +111,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
         view! {
             <Show
                 when=move || { new_game_id.get().is_some() }
-                fallback=move || view! { <GameBoard game_state=state/> }
+                fallback=move || view! { <GameBoardFlex game_state=state/> }
             >
 
                 {
@@ -127,7 +127,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
                             <Show
                                 when=move || { counter.get() > 3 }
                                 fallback=move || {
-                                    view! { <GameBoard game_state=state pre_countdown_text/> }
+                                    view! { <GameBoardFlex game_state=state pre_countdown_text/> }
                                 }
                             >
 
@@ -245,6 +245,7 @@ pub fn PlayerGameBoardSingle(
 
     view! {
         <super::hotkey_reader::HotkeyReader on_action=on_action></super::hotkey_reader::HotkeyReader>
-        <GameBoard game_state=state on_reset_game=on_reset pre_countdown_text/>
+        <GameBoardFlex game_state=state on_reset_game=on_reset pre_countdown_text/>
     }
 }
+use crate::comp::game_board_flex::GameBoardFlex;

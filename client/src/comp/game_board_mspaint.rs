@@ -13,7 +13,7 @@ use leptonic::{
 use leptos::*;
 
 use crate::{
-    comp::{game_board::GameBoard, game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
+    comp::{game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
     websocket::demo_comp::{call_websocket_api, WebsocketAPI},
 };
 
@@ -221,8 +221,13 @@ pub fn MsPaintGameBoard(game_state: RwSignal<GameState>, save_name: ReadSignal<S
         })
     });
 
+    let title = create_memo(
+        move |_| 
+        format!("mspaint.exe | {}", save_name.get())
+    );
+
     view! {
-        <h1>mspaint.exe " | " {save_name}</h1>
-        <GameBoard game_state on_reset_game on_main_cell_click=on_click/>
+        <GameBoardFlex game_state on_reset_game on_main_cell_click=on_click big_title_text={move || title.get()}.into_signal()/>
     }
 }
+use crate::comp::game_board_flex::GameBoardFlex;

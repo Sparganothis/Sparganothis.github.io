@@ -1,4 +1,3 @@
-use crate::comp::game_board::GameBoard;
 use game::tet::{GameReplaySegment, GameState};
 use game::timestamp::get_timestamp_now_ms;
 use leptonic::prelude::*;
@@ -257,6 +256,7 @@ pub fn ReplayGameBoard(
         {update_state_on_slider_change}
         {control_icons}
 
-        <GameBoard on_reset_game=on_reset game_state=game_state/>
+        <GameBoardFlex on_reset_game=on_reset game_state=game_state/>
     }
 }
+use crate::comp::game_board_flex::GameBoardFlex;

@@ -1,7 +1,6 @@
 use game::api::game_replay::{GameId, GameSegmentId};
 use leptos::*;
 
-use crate::comp::game_board::GameBoard;
 use crate::websocket::demo_comp::WebsocketAPI;
 use game::random::GameSeed;
 use game::tet::{GameReplaySegment, GameState};
@@ -44,6 +43,8 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
         <h1>"spectating game"</h1>
-        <GameBoard on_reset_game=on_reset game_state=state/>
+        <GameBoardFlex on_reset_game=on_reset game_state=state/>
     }
 }
+
+use crate::comp::game_board_flex::GameBoardFlex;

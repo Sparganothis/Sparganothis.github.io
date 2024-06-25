@@ -1,7 +1,7 @@
 use game::random::GameSeed;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
-use crate::style::*;
+use crate::{comp::game_board_flex::GameBoardFlex, style::*};
 use game::tet::{self, CellValue, GameState};
 use leptos::*;
 
@@ -187,97 +187,6 @@ pub fn BoardCell(
 
 
 
-#[component]
-pub fn GameBoard(
-    #[prop(into)] game_state: RwSignal<tet::GameState>,
-
-    #[prop(default = Callback::<()>::new(move |_| {}))]
-    #[prop(optional)]
-    on_reset_game: Callback<()>,
-
-    #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
-    #[prop(optional)]
-    on_main_cell_click: Callback<(i8, i8)>,
-
-    #[prop(into)]
-    #[prop(default = create_rw_signal("".to_string()).read_only())]
-    #[prop(optional)]
-    pre_countdown_text: ReadSignal<String>,
-
-) -> impl IntoView {
-    let tet_style = GameBoardTetStyle::new();
-    let bottom_free_percent = 15.0;
-    let cell_width_vmin = (100. - 2. * bottom_free_percent) / BOARD_HEIGHT as f64;
-
-    // let _style = stylist::Style::new(style_str).expect("Failed to create style");
-    let _style_name = default_gameboard_style(tet_style, bottom_free_percent, cell_width_vmin)
-        .get_class_name()
-        .to_owned();
-
-    let hold_board =
-        create_read_slice(game_state, |state: &tet::GameState| state.get_hold_board());
-
-    let next_board =
-        create_read_slice(game_state, |state: &tet::GameState| state.get_next_board());
-
-    let main_board =
-        create_read_slice(game_state, |state: &tet::GameState| state.main_board);
-
-    let gameover = view! {
-        <Show when=move || game_state.get().game_over fallback=|| view! {}>
-            <div class="game_over_display" on:click=move |_| on_reset_game.call(())>
-                you lose
-            </div>
-        </Show>
-    };
-
-    let pre_countdown = view! {
-        <Show when=move || { pre_countdown_text.get().len() > 0 } fallback=|| view! {}>
-            <div class="pre_game_countdown_display">{pre_countdown_text}</div>
-        </Show>
-    };
-    
-
-    // let debug_info = move || game_state.get().get_debug_info();
-
-    view! {
-        <div class=_style_name>
-
-            <div class="main_container">
-                <div class="gameover">{gameover}</div>
-                <div class="pre_game_countdown">{pre_countdown}</div>
-                <div class="side_board_left">
-                    <h3 class="side_board_title">HOLD</h3>
-
-                    <BoardTable board=hold_board/>
-                </div>
-
-                <div class="score_window_left">
-                    <h1 class="side_board_code">
-                        {move || { format!("{:?}", game_state.get().score) }}
-                    </h1>
-                </div>
-
-                <div class="main_board">
-                    <BoardTable board=main_board on_click=on_main_cell_click />
-                </div>
-
-                // <code class="side_board_code">{debug_info}</code>
-                <div class="label_bottom"></div>
-
-                <div class="side_board_right">
-                    <h3 class="side_board_title">NEXT</h3>
-                    <BoardTable board=next_board/>
-                </div>
-            // <div class="score_window_right">
-            // <h3 class="side_board_title">{format!("{:?}", last_action.get())}</h3>
-            // </div>
-            </div>
-        </div>
-    }
-}
-
-
 
 pub fn key_debounce_ms(_action: TetAction) -> i64 {
     match _action {
@@ -285,8 +194,6 @@ pub fn key_debounce_ms(_action: TetAction) -> i64 {
         _ => 16,
     }
 }
-
-
 
 #[component]
 pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
@@ -312,5 +219,5 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
         }
     });
 
-    view! { <GameBoard game_state=state on_reset_game=on_reset/> }
+    view! { <GameBoardFlex game_state=state on_reset_game=on_reset/> }
 }
