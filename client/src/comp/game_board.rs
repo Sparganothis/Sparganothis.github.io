@@ -1,7 +1,7 @@
 use game::random::GameSeed;
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
-use crate::{comp::game_board_flex::GameBoardFlex, style::*};
+use crate::comp::game_board_flex::GameBoardFlex;
 use game::tet::{self, CellValue, GameState};
 use leptos::*;
 
