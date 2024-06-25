@@ -1,4 +1,5 @@
 
+use game::tet::GameState;
 // use game::tet::GameState;
 use leptos::*;
 
@@ -6,7 +7,7 @@ use crate::comp::game_board_flex::GameBoardFlex;
 
 #[component]
 pub fn Homepage()-> impl IntoView{
-    // let _game_state= create_rw_signal(GameState::empty());
+    let game_state= create_rw_signal(GameState::empty());
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
     
 
@@ -15,7 +16,7 @@ pub fn Homepage()-> impl IntoView{
                 view! { <h1>todo</h1> }.into_view()
             },
             8 =>{
-                view! { <GameBoardFlex/> }.into_view()
+                view! { <GameBoardFlex game_state/> }.into_view()
             },
             9 => {
                 view! {

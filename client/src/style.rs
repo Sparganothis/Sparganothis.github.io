@@ -172,6 +172,127 @@ pub fn default_gameboard_style(
 }
 
 
+pub fn flex_gameboard_style(
+    tet_style: GameBoardTetStyle,
+) -> stylist::Style {
+    #[allow(non_upper_case_globals)]
+    let st = stylist::style!(
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        height: 100%;
+
+        display: flex;   
+        flex-direction: column;
+        flex: 0 1 auto;
+    }
+    tr {
+        border-collapse: collapse;
+        padding: 0px;
+        margin: 0 px;
+
+        display: flex;   
+        flex-direction: row;
+        flex: 0 1 auto;
+    }
+
+    td {
+        height: 100%;
+        width: 100%;
+
+        padding: 0px; margin: 0 px;
+        border-collapse: collapse;
+
+        aspect-ratio: 1;
+    }
+
+    .cell, .overflow_cell {
+        height: 100%;
+        width: 100%;
+        display: block;
+        font-size: 0px; line-height: 0px;
+    }
+
+    .c3x4 {
+        height: 33%;
+        width: 25%;
+    }
+
+    .cell {
+        border: 1px gray solid;
+    }
+    .cell.empty {
+        background-color: black;
+    }
+    .cell.ghost {
+        background-color: #555;
+    }
+
+    .overflow_row {
+        height: 0px;
+        padding: 0px;
+        border: 0px;
+        margin: 0px;
+        display: hidden;
+    }
+    .overflow_cell {
+        border-color: 1px transparent;
+        background-color: transparent;
+        width: 0px;
+        height: 0px;
+    }
+    .tet.S.cell {            background-color: ${tet_style.s};     }
+    .tet.T.cell {            background-color: ${tet_style.t};    }
+    .tet.I.cell {            background-color: ${tet_style.i};     }
+    .tet.J.cell {            background-color: ${tet_style.j};     }
+    .tet.L.cell {            background-color: ${tet_style.l};     }
+    .tet.O.cell {            background-color: ${tet_style.o};     }
+    .tet.Z.cell {            background-color: ${tet_style.z};     }
+
+
+    .game_over_display {
+        color: #f00c;
+        font-weight: bold;
+        top: 28vmin;
+        left: 16vmin;
+        width: 40vmin;
+        height: 40vmin;
+        font-size: 12vmin;
+        text-align: center;
+        z-index: 888;
+        position: absolute;
+        background-color: #000c;
+        animation: spin 5s linear 1;
+        border: 1vh #f00c;
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+    }
+
+    
+    .pre_game_countdown_display {
+        color: #fffc;
+        font-weight: bold;
+        top: 28vmin;
+        left: 16vmin;
+        width: 40vmin;
+        height: 40vmin;
+        font-size: 12vmin;
+        text-align: center;
+        z-index: 888;
+        position: absolute;
+        background-color: #000c;
+        // animation: spin 5s linear 1;
+        border: 1vh #f00c;
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+).expect("bad css");
+    st
+}
+
+
 use leptos_struct_table::{ColumnSort, TableClassesProvider};
 
 #[derive(Clone, Copy)]

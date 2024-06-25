@@ -49,6 +49,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
     #[prop(default = Callback::<(i8, i8)>::new(move |_| {}))]
     #[prop(optional)]
     on_click: Callback<(i8, i8)>,
+
 ) -> impl IntoView {
     //
     // log::info!("redraw BoardTable R={} C={}", R, C);
@@ -102,7 +103,7 @@ pub fn BoardTable<const R: usize, const C: usize>(
     //     },
     // );
     view! {
-        <table cellpadding="0" cellspacing="0" border="0">
+        <table cellpadding="0" cellspacing="0" border="0" class="grid">
             <tbody>
                 <For
                     each=do_update
@@ -134,8 +135,10 @@ pub fn BoardRow(
     let iter = move || row_vals.clone().into_iter().enumerate();
     let overflow = row_idx >= BOARD_HEIGHT;
 
+    let tr_cls =( if overflow {"overflow_row"} else {""}).to_string();
+
     view! {
-        <tr>
+        <tr class={tr_cls}>
             // <td>  {{row_idx}} </td>
             <For
                 each=iter
@@ -256,7 +259,7 @@ pub fn GameBoard(
                 </div>
 
                 <div class="main_board">
-                    <BoardTable board=main_board on_click=on_main_cell_click/>
+                    <BoardTable board=main_board on_click=on_main_cell_click />
                 </div>
 
                 // <code class="side_board_code">{debug_info}</code>
