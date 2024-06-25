@@ -34,6 +34,8 @@ pub enum WebsocketAPIMessageType {
 
     StartMatch,
     GetMatchList,
+
+    GetMatchInfo,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -234,4 +236,11 @@ impl APIMethod for GetMatchList {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetMatchList;
     type Req = GetMatchListArg;
     type Resp = Vec<(uuid::Uuid, GameMatch)>;
+}
+
+pub struct GetMatchInfo {}
+impl APIMethod for GetMatchInfo {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetMatchInfo;
+    type Req = uuid::Uuid;
+    type Resp = GameMatch;
 }

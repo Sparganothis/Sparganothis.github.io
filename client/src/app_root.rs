@@ -12,6 +12,7 @@ use crate::comp::game_board_flex::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
+use crate::page::page_match::MatchPage;
 
 
 #[component]
@@ -206,7 +207,7 @@ pub fn AppRoot() -> impl IntoView {
     };
 
     use crate::page::page_1p::Game1PPage;
-    use crate::page::page_2p::Game2PPage;
+    use crate::page::page_2p::Game2LobbyPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
     use crate::page::page_vs_cpu::GameCPUPage;
 
@@ -281,7 +282,7 @@ pub fn AppRoot() -> impl IntoView {
                             <Route path="" view=Homepage/>
                             <Route path="/solo" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
-                            <Route path="/vs_net" view=Game2PPage/>
+                            <Route path="/vs_net" view=Game2LobbyPage/>
                             <Route
                                 path="/replay"
                                 view=crate::page::page_replay_browser::GameReplayBrowserPage
@@ -292,6 +293,10 @@ pub fn AppRoot() -> impl IntoView {
                             <Route
                                 path="/view-game/:game_id"
                                 view=crate::page::page_replay_single::GameReplaySinglePage
+                            />
+                            <Route
+                                path="/match/:match_id"
+                                view=MatchPage
                             />
                             <Route path="/mspaint" view=MsPaintPage/>
                             <Route path="/edit-custom-game/:save_id" view=MsPaintPage/>
@@ -315,7 +320,7 @@ pub fn MainMenu() -> impl IntoView {
         vec![
             ("/", "home"),
             ("/solo", "solo"),
-            ("/vs_cpu", "1v1 cpu"),
+            ("/vs_cpu", "man vs car"),
             ("/vs_net", "1v1 online"),
             ("/replay", "replay"),
             ("/account", "account"),

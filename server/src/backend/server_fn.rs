@@ -340,13 +340,41 @@ pub async fn start_match(_: GameMatchType, _current_user_id: GuestInfo) -> anyho
     }
     if let Some(mut waiting_rx) = _waiting_for_match {
         if let Some(match_info) = waiting_rx.recv().await{
+            create_db_match_entry(&match_info.1)?;
             Ok(match_info)
         } else {
             anyhow::bail!("cannot read from channel");
         }
     } else {
-        _got_new_match.context("never happens")
+        
+        let r = _got_new_match.context("never happens")?;
+
+        create_db_match_entry(&r.1)?;
+ 
+        Ok(r)
     }
+}
+
+fn create_db_match_entry(match_info: &GameMatch) -> anyhow::Result<()> {
+    let gameinfo_0 = GameId {
+        user_id: match_info.users[0],
+        init_seed: match_info.seed,
+        start_time: match_info.time,
+    };
+    let gameinfo_1 = GameId {
+        user_id: match_info.users[1],
+        init_seed: match_info.seed,
+        start_time: match_info.time,
+    };
+
+    
+    GAME_IS_IN_PROGRESS_DB.insert(&gameinfo_0, &true)?;
+    GAME_SEGMENT_COUNT_DB.insert(&gameinfo_0, &0)?;
+
+    GAME_IS_IN_PROGRESS_DB.insert(&gameinfo_1, &true)?;
+    GAME_SEGMENT_COUNT_DB.insert(&gameinfo_1, &0)?;
+
+    Ok(())
 }
 
 
@@ -357,5 +385,11 @@ pub fn get_match_list(_: GetMatchListArg, _current_user_id: GuestInfo) -> anyhow
         v.push((uuid, _match));
     }
     Ok(v)
+}
+
+
+
+pub fn get_match_info(match_id: uuid::Uuid, _current_user_id: GuestInfo) -> anyhow::Result<GameMatch> {
+    GAME_MATCH_DB.get(&match_id)?.context(".not found")
 }
 

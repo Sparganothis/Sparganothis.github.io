@@ -1,5 +1,5 @@
 use crate::{comp::game_board::{key_debounce_ms}, websocket::demo_comp::call_websocket_api};
-use game::api::websocket::*;
+use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{use_interval, UseIntervalReturn};
@@ -27,11 +27,29 @@ pub fn PlayerGameBoard() -> impl IntoView {
         },
     );
 
+    let x = move || match new_game_id.get() {
+        Some(x) => {
+            view!{
+                <PlayerGammeBoardFromId new_game_id=x/> 
+            }.into_view()
+        },
+        _ => {
+            view! {
+
+            }.into_view()
+        }
+    };
+    view!{{x}}
+}
+
+#[component]
+pub fn PlayerGammeBoardFromId(new_game_id: GameId) -> impl IntoView {
+    let api = expect_context::<WebsocketAPI>();
     let api2 = api.clone();
     let on_state_change = Callback::<GameState>::new(move |s| {
         // log::info!("we changed state: {}", s.get_debug_info());
 
-        let game_id = new_game_id.get().unwrap();
+        let game_id = new_game_id;
 
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
@@ -68,7 +86,6 @@ pub fn PlayerGameBoard() -> impl IntoView {
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
         // append_game_segment
-        new_game_id.refetch();
     });
     let UseIntervalReturn {
         counter,
@@ -99,80 +116,29 @@ pub fn PlayerGameBoard() -> impl IntoView {
         }
     });
     
-    let state = create_rw_signal(tet::GameState::empty());
+    let game_id = new_game_id;
+    let state = create_rw_signal(
+        tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
-    let reset1 = reset.clone();
-    let resume1 = resume.clone();
-    let game_board
-     = move || {
-        let reset1 = reset1.clone();
-        let resume1 = resume1.clone();
-
-        view! {
-            <Show
-                when=move || { new_game_id.get().is_some() }
-                fallback=move || view! { <GameBoardFlex game_state=state/> }
-            >
-
-                {
-                    reset1();
-                    resume1();
-                    let game_id = new_game_id.get().unwrap();
-                    state
-                        .set(
-                            tet::GameState::new(&game_id.init_seed, game_id.start_time),
-                        );
-                    move || {
-                        view! {
-                            <Show
-                                when=move || { counter.get() > 3 }
-                                fallback=move || {
-                                    view! {
-                                        <GameBoardFlex game_state=state pre_countdown_text/>
-                                    }
-                                }
-                            >
-
-                                <PlayerGameBoardSingle state on_reset on_state_change/>
-                            </Show>
-                        }
-                    }
+    reset();
+    resume();
+       
+    view! {
+        <Show
+            when=move || { counter.get() > 3 }
+            fallback=move || {
+                view! {
+                    <GameBoardFlex game_state=state pre_countdown_text/>
                 }
+            }
+        >
 
-            </Show>
-        }
-    };
-
-        
-    //     view! {
-
-    //     }
-    //     let counter_val = counter.get();
-    //     log::info!("counter: {counter_val}");
-
-    //     if let Some(game_id) = new_game_id.get() {
-    //         reset();
-    //         resume();
-
-            
-    //         log::info!("got id: {game_id:?}");
-
-    //         if counter_val < 4 {
-    //             set_pre_countdown_text.set((3-counter_val).to_string());
-    //         }
-            
-    //         
-
-    //         view! { 
-                
-    //          }
-    //             .into_view()
-    //     } else {
-    //         view! { <p>loading game id ...</p> }.into_view()
-    //     }
-    // };
-    view! { {game_board} }
+            <PlayerGameBoardSingle state on_reset on_state_change/>
+        </Show>
+    }
 }
+
+      
 
 #[component]
 pub fn PlayerGameBoardSingle(

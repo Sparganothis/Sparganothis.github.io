@@ -419,6 +419,9 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::SubscribedGameUpdateNotification => {
             anyhow::bail!("Unsupported message from client: {:?}", msg._type);
         },
+        WebsocketAPIMessageType::GetMatchInfo => {
+            specific_sync_request::<GetMatchInfo>(msg, user_id, get_match_info).await
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 
