@@ -95,8 +95,7 @@ pub fn GameBoardFlex(
                 </div>
             </div>
 
-            <div style="border:solid purple 1px;height:15%;flex-direction: row;display: flex;">
-            </div>
+            <div style="border:solid purple 1px;height:15%;flex-direction: row;display: flex;"></div>
 
             <div style="border:solid red 1px;height: 75%;flex-direction: row;display: flex;">
 

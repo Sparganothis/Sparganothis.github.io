@@ -252,11 +252,16 @@ pub fn ReplayGameBoard(
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
-        <GameBoardFlex on_reset_game=on_reset game_state=game_state top_bar=view!{
-            {make_slider}
-            {update_state_on_slider_change}
-            {control_icons}
-        }.into_view()/>
+        <GameBoardFlex
+            on_reset_game=on_reset
+            game_state=game_state
+            top_bar=view! {
+                {make_slider}
+                {update_state_on_slider_change}
+                {control_icons}
+            }
+                .into_view()
+        />
     }
 }
 use crate::comp::game_board_flex::GameBoardFlex;
