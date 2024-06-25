@@ -138,7 +138,7 @@ pub fn BoardRow(
     let tr_cls =( if overflow {"overflow_row"} else {""}).to_string();
 
     view! {
-        <tr class={tr_cls}>
+        <tr class=tr_cls>
             // <td>  {{row_idx}} </td>
             <For
                 each=iter

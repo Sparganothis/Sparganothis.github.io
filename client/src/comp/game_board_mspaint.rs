@@ -227,7 +227,12 @@ pub fn MsPaintGameBoard(game_state: RwSignal<GameState>, save_name: ReadSignal<S
     );
 
     view! {
-        <GameBoardFlex game_state on_reset_game on_main_cell_click=on_click big_title_text={move || title.get()}.into_signal()/>
+        <GameBoardFlex
+            game_state
+            on_reset_game
+            on_main_cell_click=on_click
+            big_title_text={ move || title.get() }.into_signal()
+        />
     }
 }
 use crate::comp::game_board_flex::GameBoardFlex;

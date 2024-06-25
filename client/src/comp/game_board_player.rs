@@ -127,7 +127,9 @@ pub fn PlayerGameBoard() -> impl IntoView {
                             <Show
                                 when=move || { counter.get() > 3 }
                                 fallback=move || {
-                                    view! { <GameBoardFlex game_state=state pre_countdown_text/> }
+                                    view! {
+                                        <GameBoardFlex game_state=state pre_countdown_text/>
+                                    }
                                 }
                             >
 

@@ -68,18 +68,24 @@ pub fn GameBoardFlex(
     };
 
     // TODO PUT THIS ON SCREEN
-    let _countdown_view = view  ! {
-                        <div class="gameover">{gameover}</div>
+    let _countdown_view = view! {
+        <div class="gameover">{gameover}</div>
         <div class="pre_game_countdown">{pre_countdown}</div>
     };
 
     // let _style_name = format!("{_style_name} calculate_main_width");
 
     view! {
-        <div class=_style_name style="border:solid purple 1px;height:100%;flex-direction: column;display: flex;         container-type: size;
-        --h-main-width:99.9cqw;   ">
+        <div
+            class=_style_name
+            style="border:solid purple 1px;height:100%;flex-direction: column;display: flex;         container-type: size;
+            --h-main-width:99.9cqw;   "
+        >
 
-            <div id="title-big" style="width: 0px; height: 0px; margin: 0px; position: relative">
+            <div
+                id="title-big"
+                style="width: 0px; height: 0px; margin: 0px; position: relative"
+            >
                 <div style="position: absolute; width: calc(var(--h-main-width)); height:  calc(var(--h-main-width)*0.5); container-type:size;">
                     <h1 style="font-size: 8cqw;">{big_title_text}</h1>
                 </div>
@@ -99,7 +105,6 @@ pub fn GameBoardFlex(
             </div>
 
             <div style="border:solid red 1px;height: 75%;flex-direction: row;display: flex;">
-
 
                 // HOLD
                 <div style="width:25%;height:100%;flex-direction: column;display: flex;">
@@ -130,9 +135,12 @@ pub fn GameBoardFlex(
                 // MAIN
 
                 <div style="width:50%;height:100%;flex-direction: row;display: flex;">
-                    <div style="width:1%;height:100%;flex-direction: column;display: flex;" > </div>
+                    <div style="width:1%;height:100%;flex-direction: column;display: flex;"></div>
 
-                    <div style="width:98%;height:100%;flex-direction: column;display: flex;" class="calculate_table_width">
+                    <div
+                        style="width:98%;height:100%;flex-direction: column;display: flex;"
+                        class="calculate_table_width"
+                    >
 
                         <div style="width: 0px; height: 0px; margin: 0px; position: relative">
                             <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;">
@@ -140,13 +148,11 @@ pub fn GameBoardFlex(
                             </div>
                         </div>
 
-                        <BoardTable board=main_board on_click=on_main_cell_click />
+                        <BoardTable board=main_board on_click=on_main_cell_click/>
                     </div>
 
-                    <div style="width:1%;height:100%;flex-direction: column;display: flex;" > </div>
+                    <div style="width:1%;height:100%;flex-direction: column;display: flex;"></div>
                 </div>
-
-
 
                 // NEXT
                 <div style="width:25%;height:100%;flex-direction: column;display: flex;">
