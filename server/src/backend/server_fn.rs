@@ -279,10 +279,74 @@ pub fn random_word2(_: (), _current_user_id: GuestInfo) -> anyhow::Result<String
     Ok(random_word())
 }
 
+pub struct MatchMakingItem{
+ channel: tokio::sync::mpsc::Sender<(uuid::Uuid, GameMatch)>,
+ player_id: uuid::Uuid,
+}
+
+pub static MATCH_MAKING_QUEUE: Lazy<
+        MatchMakingQueue
+    > = Lazy::new(|| {
+            MatchMakingQueue{
+                v: Arc::new(Mutex::new(vec![]))
+            }
+});
+
+
+use once_cell::sync::Lazy;
+use tokio::sync::Mutex;
+use std::sync::Arc;
+pub struct MatchMakingQueue{
+ v: Arc<Mutex<Vec<MatchMakingItem>>>
+}
 
 pub async fn start_match(_: GameMatchType, _current_user_id: GuestInfo) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
     // Ok(uuid::Uuid::nil(), GameMatch)
-    todo!()
+
+    let mut _waiting_for_match : Option<_> = None;
+    let mut _got_new_match: Option<_> = None;
+    { 
+        let mut q = MATCH_MAKING_QUEUE.v.lock().await;
+        match q.len(){
+            0=>{
+               // creezi chan, te bagi in el
+               let (tx, rx) = tokio::sync::mpsc::channel(1);
+               let new_item = MatchMakingItem {
+                    channel: tx,
+                    player_id: _current_user_id.user_id,
+               };
+               
+               _waiting_for_match = Some(rx);
+               q.push(new_item);
+            },
+            _=>{
+                if let Some(other_player) = q.pop() {
+                    let new_match = GameMatch {
+                        seed: (&mut rand::thread_rng()).gen(),
+                        time: get_timestamp_now_nano(),
+                        users: vec![other_player.player_id, _current_user_id.user_id],
+                        title: format!("1v1 {} vs. {}", other_player.player_id, _current_user_id.user_id),
+                    };
+                    let new_match_id = uuid::Uuid::new_v4();
+                    GAME_MATCH_DB.insert(&new_match_id, &new_match)?;
+                    other_player.channel.send((new_match_id, new_match.clone())).await?;
+                    _got_new_match = Some((new_match_id, new_match));
+                } else {
+                    anyhow::bail!("got items but dissapepard");
+                }
+               // scoti fraer, creez match id, trimit la fraier
+            },
+        } 
+    }
+    if let Some(mut waiting_rx) = _waiting_for_match {
+        if let Some(match_info) = waiting_rx.recv().await{
+            Ok(match_info)
+        } else {
+            anyhow::bail!("cannot read from channel");
+        }
+    } else {
+        _got_new_match.context("never happens")
+    }
 }
 
 
