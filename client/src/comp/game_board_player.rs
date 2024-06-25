@@ -29,9 +29,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
 
     let x = move || match new_game_id.get() {
         Some(x) => {
-            view!{
-                <PlayerGammeBoardFromId new_game_id=x/> 
-            }.into_view()
+            view! { <PlayerGammeBoardFromId new_game_id=x/> }.into_view()
         },
         _ => {
             view! {
@@ -39,7 +37,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
             }.into_view()
         }
     };
-    view!{{x}}
+    view! { {x} }
 }
 
 #[component]
@@ -127,9 +125,7 @@ pub fn PlayerGammeBoardFromId(new_game_id: GameId) -> impl IntoView {
         <Show
             when=move || { counter.get() > 3 }
             fallback=move || {
-                view! {
-                    <GameBoardFlex game_state=state pre_countdown_text/>
-                }
+                view! { <GameBoardFlex game_state=state pre_countdown_text/> }
             }
         >
 

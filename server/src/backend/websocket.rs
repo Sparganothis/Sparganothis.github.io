@@ -411,17 +411,17 @@ pub async fn websocket_handle_request(
             })
         }
         WebsocketAPIMessageType::StartMatch => {
-            specific_async_request::<StartMatch,_,_>(msg, user_id, start_match).await
-        },
+            specific_async_request::<StartMatch, _, _>(msg, user_id, start_match).await
+        }
         WebsocketAPIMessageType::GetMatchList => {
             specific_sync_request::<GetMatchList>(msg, user_id, get_match_list).await
-        },
+        }
         WebsocketAPIMessageType::SubscribedGameUpdateNotification => {
             anyhow::bail!("Unsupported message from client: {:?}", msg._type);
-        },
+        }
         WebsocketAPIMessageType::GetMatchInfo => {
             specific_sync_request::<GetMatchInfo>(msg, user_id, get_match_info).await
-        },
+        }
     }
     .context(format!("specific handler {:?}", msg_type))?;
 
@@ -467,12 +467,12 @@ pub async fn specific_sync_request<T: APIMethod>(
 pub async fn specific_async_request<T, F, Fut>(
     request_msg: WebsocketAPIMessageRaw,
     guest_info: GuestInfo,
-    callback: F
+    callback: F,
 ) -> anyhow::Result<WebsocketAPIMessageRaw>
 where
-    T:APIMethod,
+    T: APIMethod,
     F: FnOnce(T::Req, GuestInfo) -> Fut,
-    Fut: Future<Output=anyhow::Result<T::Resp>>
+    Fut: Future<Output = anyhow::Result<T::Resp>>,
 {
     if !request_msg._type.eq(&T::TYPE) {
         anyhow::bail!("wrong type dispatched");
@@ -483,8 +483,7 @@ where
     let request: T::Req =
         bincode::deserialize(&request_msg.data).context("bincode never fail")?;
 
-    let response: anyhow::Result<T::Resp> =
-        callback(request, guest_info).await;
+    let response: anyhow::Result<T::Resp> = callback(request, guest_info).await;
     let response = response.map_err(|e| format!("websocket method error: {e}"));
 
     Ok(WebsocketAPIMessageRaw {

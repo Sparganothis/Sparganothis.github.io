@@ -114,17 +114,19 @@ pub fn MatchPage() -> impl IntoView {
             log::info!("===> got final effect");
 
             title_sig.set(match_info.1.title);
-            let v0 = view!{
-                <MatchGameBoard 
-                    game_id=g0.0 
-                    is_in_progress=g0.1.is_in_progress 
-                    is_mine=g0.0.user_id.eq(&whoami.user_id)/>
-             }.into_view();
-             let v1 = view!{
-                <MatchGameBoard 
-                    game_id=g1.0 
-                    is_in_progress=g1.1.is_in_progress 
-                    is_mine=g1.0.user_id.eq(&whoami.user_id)/>
+            let v0 = view! {
+                <MatchGameBoard
+                    game_id=g0.0
+                    is_in_progress=g0.1.is_in_progress
+                    is_mine=g0.0.user_id.eq(&whoami.user_id)
+                />
+            }.into_view();
+             let v1 = view! {
+                 <MatchGameBoard
+                     game_id=g1.0
+                     is_in_progress=g1.1.is_in_progress
+                     is_mine=g1.0.user_id.eq(&whoami.user_id)
+                 />
              }.into_view();
 
             if g1.0.user_id.eq(&whoami.user_id) {
@@ -139,12 +141,8 @@ pub fn MatchPage() -> impl IntoView {
     
     view! {
         <h1>{title_sig}</h1>
-        <div class="main_left">
-           {move || left_view.get()}
-        </div>
-        <div class="main_right">
-            {move || right_view.get()}
-        </div>
+        <div class="main_left">{move || left_view.get()}</div>
+        <div class="main_right">{move || right_view.get()}</div>
     }
 }
 
@@ -154,21 +152,14 @@ pub fn MatchGameBoard(game_id: GameId, is_in_progress: bool, is_mine: bool) -> i
 
     match (is_in_progress, is_mine) {
         (false, _) => {
-            view! {
-                // TODO IS FINISH =-== > PUT REPLAY
-                <SpectatorGameBoard game_id/>
-            }.into_view()
+            view! { <SpectatorGameBoard game_id/> }.into_view()
         },
         (true, true) => {
-            view! {
-                <PlayerGammeBoardFromId new_game_id=game_id/>
-            }.into_view()
+            view! { <PlayerGammeBoardFromId new_game_id=game_id/> }.into_view()
         },
 
         (true, false) => {
-            view! {
-                <SpectatorGameBoard game_id/>
-            }.into_view()
+            view! { <SpectatorGameBoard game_id/> }.into_view()
         }
     }
 }

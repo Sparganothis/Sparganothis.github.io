@@ -39,10 +39,8 @@ pub fn AllMatchTable(list_type: GetMatchListArg) -> impl IntoView {
 
             view! {
                 <table id=format!("{list_type:?}")>
-                    <TableContent 
-                    rows 
-                    // row_renderer=CustomTableRowRenderer
-                    />
+                    <TableContent rows/>
+                // row_renderer=CustomTableRowRenderer
                 </table>
             }
             .into_view()

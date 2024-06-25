@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 use crate::random::GameSeed;
@@ -7,8 +6,8 @@ use crate::random::GameSeed;
     Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash,
 )]
 pub struct GameMatch {
-    pub seed :GameSeed,
-    pub time : i64,
+    pub seed: GameSeed,
+    pub time: i64,
     pub users: Vec<uuid::Uuid>,
     pub title: String,
 }
@@ -19,11 +18,12 @@ pub struct GameMatch {
 pub struct UserAndMatchId {
     pub user_id: uuid::Uuid,
     pub match_id: uuid::Uuid,
-
 }
 
 impl UserAndMatchId {
-    pub fn get_range_for_user(user: &uuid::Uuid) -> std::ops::RangeInclusive<UserAndMatchId> {
+    pub fn get_range_for_user(
+        user: &uuid::Uuid,
+    ) -> std::ops::RangeInclusive<UserAndMatchId> {
         let m0 = uuid::uuid!("00000000-0000-0000-0000-000000000000");
         let m1 = uuid::uuid!("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
         let v0 = UserAndMatchId {
@@ -41,7 +41,7 @@ impl UserAndMatchId {
 #[derive(
     Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash,
 )]
-pub struct UserAndMatchResult{
+pub struct UserAndMatchResult {
     pub is_win: bool,
     pub podium_position: u32,
 }
@@ -49,7 +49,7 @@ pub struct UserAndMatchResult{
 #[derive(
     Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash,
 )]
-pub enum GameMatchType{
+pub enum GameMatchType {
     _1v1,
     ManVsCar(String),
     _40lines,

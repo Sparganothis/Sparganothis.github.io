@@ -53,29 +53,42 @@ pub fn Lobby2P() -> impl IntoView {
         }
     });
 
-    view!{
-        <Show 
-                when=move || waiting_for_game.get()
-                fallback=move||{ view!{    }   }>
+    view! {
+        <Show
+            when=move || waiting_for_game.get()
+            fallback=move || {
+                view! {}
+            }
+        >
             <h1>WAITING FOR GAME</h1>
         </Show>
 
-        <Show 
-            when=move || {!waiting_for_game.get() && match_id_signal.get().is_none() }
-            fallback=move||{ view!{    }   }>
-                    <Button
-                        on_click=move |_| obtain_new_match_id.call(())
-                        color=ButtonColor::Primary
-                    >"PLAY"</Button>
-                
+        <Show
+            when=move || { !waiting_for_game.get() && match_id_signal.get().is_none() }
+            fallback=move || {
+                view! {}
+            }
+        >
+            <Button
+                on_click=move |_| obtain_new_match_id.call(())
+                color=ButtonColor::Primary
+            >
+                "PLAY"
+            </Button>
+
         </Show>
 
-        <h1>{move || match_id_signal.with(|s|{
-            match s {
-                Some(x) => format!("{x:?}"),
-                None => "".to_string(),
-            }
-        })}</h1>
+        <h1>
+            {move || {
+                match_id_signal
+                    .with(|s| {
+                        match s {
+                            Some(x) => format!("{x:?}"),
+                            None => "".to_string(),
+                        }
+                    })
+            }}
+        </h1>
     }
 }
 
@@ -83,7 +96,5 @@ pub fn Lobby2P() -> impl IntoView {
 
 #[component]
 pub fn AllGamesMatchList() -> impl IntoView {
-    view!{
-        <AllMatchTable list_type=GetMatchListArg::BestGames/>
-    }
+    view! { <AllMatchTable list_type=GetMatchListArg::BestGames/> }
 }

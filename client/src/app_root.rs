@@ -294,10 +294,7 @@ pub fn AppRoot() -> impl IntoView {
                                 path="/view-game/:game_id"
                                 view=crate::page::page_replay_single::GameReplaySinglePage
                             />
-                            <Route
-                                path="/match/:match_id"
-                                view=MatchPage
-                            />
+                            <Route path="/match/:match_id" view=MatchPage/>
                             <Route path="/mspaint" view=MsPaintPage/>
                             <Route path="/edit-custom-game/:save_id" view=MsPaintPage/>
                             <Route

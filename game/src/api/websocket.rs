@@ -31,7 +31,6 @@ pub enum WebsocketAPIMessageType {
     SubscribeGamePlz,
     SubscribedGameUpdateNotification,
 
-
     StartMatch,
     GetMatchList,
 
@@ -210,7 +209,6 @@ impl APIMethod for SubscribedGameUpdateNotification {
     type Req = Vec<(GameSegmentId, GameReplaySegment)>;
     type Resp = ();
 }
-
 
 pub struct StartMatch {}
 impl APIMethod for StartMatch {
