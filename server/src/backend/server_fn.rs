@@ -33,15 +33,22 @@ pub fn create_new_game_id(
     _: (),
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<GameId> {
-    let who = _current_user_id.user_id;
+
+    for existing_game in GAME_IS_IN_PROGRESS_DB.range(GameId::get_range_for_user(&_current_user_id.user_id)) {
+        let (old_game_id, is_in_progress) = existing_game?;
+        if is_in_progress {
+            GAME_IS_IN_PROGRESS_DB.insert(&old_game_id, &false)?;
+        }
+    }
+    
     let mut rand = rand::thread_rng();
     let g = GameId {
-        user_id: who,
+        user_id: _current_user_id.user_id,
         init_seed: rand.gen(),
         start_time: get_timestamp_now_nano(),
     };
 
-    GAME_IS_IN_PROGRESS_DB.insert(&g, &false)?;
+    GAME_IS_IN_PROGRESS_DB.insert(&g, &true)?;
     GAME_SEGMENT_COUNT_DB.insert(&g, &0)?;
     Ok(g)
 }
