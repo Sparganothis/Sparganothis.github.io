@@ -8,8 +8,7 @@ use game::tet::{GameReplaySegment, GameState};
 
 #[component]
 pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
-    let seed: GameSeed = [0; 32];
-    let state = create_rw_signal(GameState::new(&seed, 0));
+    let state = create_rw_signal(GameState::new(&game_id.init_seed, game_id.start_time));
     let api : WebsocketAPI = expect_context();
     let game_id = game_id.clone();
     let api2 = api.clone();
