@@ -118,12 +118,15 @@ pub fn flex_gameboard_style(
         height: 100%;
         font-size :20cqh;
         text-align: center;
-        z-index: 888;
+        z-index: 999;
         position: absolute;
         background-color: #000c;
         animation: spin 5s linear 1;
         border: 1vh #f00c;
         font-family: "Comic Sans MS", "Comic Sans", cursive;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     
@@ -134,7 +137,7 @@ pub fn flex_gameboard_style(
         height: 100%;
         font-size :20cqh;
         text-align: center;
-        z-index: 888;
+        z-index: 999;
         position: absolute;
         background-color: #000c;
         // animation: spin 5s linear 1;

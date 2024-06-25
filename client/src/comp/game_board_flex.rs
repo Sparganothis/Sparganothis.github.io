@@ -33,10 +33,14 @@ pub fn GameBoardFlex(
     #[prop(optional)]
     pre_countdown_text: ReadSignal<String>,
 
+
     #[prop(into)]
-    #[prop(default = "".to_string().into())]
-    #[prop(optional)]
-    big_title_text: MaybeSignal<String>,
+    #[prop(default = view!{}.into_view())]
+    top_bar: View,
+    // #[prop(into)]
+    // #[prop(default = view!{}.into_view())]
+    // bottom_bar: View,
+
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
 
@@ -83,25 +87,15 @@ pub fn GameBoardFlex(
         >
 
             <div
-                id="title-big"
+                id="top-bar"
                 style="width: 0px; height: 0px; margin: 0px; position: relative"
             >
                 <div style="position: absolute; width: calc(var(--h-main-width)); height:  calc(var(--h-main-width)*0.5); container-type:size;">
-                    <h1 style="font-size: 8cqw;">{big_title_text}</h1>
+                    {top_bar}
                 </div>
             </div>
 
-            <div style="border:solid purple 1px;height:5%;flex-direction: row;display: flex;">
-                <div style="border:solid red 1px;width:15%;height:100%;"></div>
-                <div style="border:solid yellow 1px;width:20%;height:100%;"></div>
-                <div style="border:solid green 1px;width:20%;height:100%;"></div>
-                <div style="border:solid blue 1px;width:20%;height:100%;"></div>
-                <div style="border:solid blue 1px;width:20%;height:100%;"></div>
-            </div>
-            <div style="border:solid purple 1px;height:10%;flex-direction: row;display: flex;">
-                <div style="border:solid red 1px;width:30%;height:100%;"></div>
-                <div style="border:solid yellow 1px;width:40%;height:100%;"></div>
-                <div style="border:solid green 1px;width:30%;height:100%;"></div>
+            <div style="border:solid purple 1px;height:15%;flex-direction: row;display: flex;">
             </div>
 
             <div style="border:solid red 1px;height: 75%;flex-direction: row;display: flex;">
@@ -133,7 +127,6 @@ pub fn GameBoardFlex(
                 </div>
 
                 // MAIN
-
                 <div style="width:50%;height:100%;flex-direction: row;display: flex;">
                     <div style="width:1%;height:100%;flex-direction: column;display: flex;"></div>
 
@@ -142,8 +135,8 @@ pub fn GameBoardFlex(
                         class="calculate_table_width"
                     >
 
-                        <div style="width: 0px; height: 0px; margin: 0px; position: relative">
-                            <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;">
+                        <div style="width: 0px; height: 0px; margin: 0px; position: relative;  z-index: 999;">
+                            <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;   z-index: 999;           ">
                                 {_countdown_view}
                             </div>
                         </div>

@@ -7,3 +7,4 @@
 
 # OS specific files
 .DS_Store
+rustc-ice-*

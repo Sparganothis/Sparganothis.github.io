@@ -231,7 +231,9 @@ pub fn MsPaintGameBoard(game_state: RwSignal<GameState>, save_name: ReadSignal<S
             game_state
             on_reset_game
             on_main_cell_click=on_click
-            big_title_text={ move || title.get() }.into_signal()
+            top_bar=view!{
+                <h1 style="font-size: 8cqw;">{title}</h1>
+            }.into_view()
         />
     }
 }
