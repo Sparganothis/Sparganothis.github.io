@@ -4,6 +4,8 @@ use serde::Serialize;
 use crate::tet::GameReplaySegment;
 use crate::tet::GameState;
 
+use super::game_match::GameMatch;
+use super::game_match::GameMatchType;
 use super::game_replay::GameId;
 use super::game_replay::GameSegmentId;
 
@@ -28,6 +30,10 @@ pub enum WebsocketAPIMessageType {
 
     SubscribeGamePlz,
     SubscribedGameUpdateNotification,
+
+
+    StartMatch,
+    GetMatchList,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -201,4 +207,31 @@ impl APIMethod for SubscribedGameUpdateNotification {
         WebsocketAPIMessageType::SubscribedGameUpdateNotification;
     type Req = Vec<(GameSegmentId, GameReplaySegment)>;
     type Resp = ();
+}
+
+
+pub struct StartMatch {}
+impl APIMethod for StartMatch {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::StartMatch;
+    type Req = GameMatchType;
+    type Resp = (uuid::Uuid, GameMatch);
+}
+
+#[derive(
+    Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
+)]
+pub enum GetMatchListArg {
+    BestGames,
+    RecentGames,
+    MyBestGames,
+    MyRecentGames,
+    BestGamesForPlayer(uuid::Uuid),
+    RecentGamesForPlayer(uuid::Uuid),
+}
+
+pub struct GetMatchList {}
+impl APIMethod for GetMatchList {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetMatchList;
+    type Req = GetMatchListArg;
+    type Resp = Vec<(uuid::Uuid, GameMatch)>;
 }

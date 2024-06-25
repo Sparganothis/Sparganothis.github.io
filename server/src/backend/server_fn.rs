@@ -1,17 +1,15 @@
 use crate::backend::server_info::GIT_VERSION;
-use crate::database::tables::random_word;
-use crate::database::tables::CUSTOM_GAME_BOARD_DB;
-use crate::database::tables::GAME_FULL_DB;
-use crate::database::tables::GAME_IS_IN_PROGRESS_DB;
-use crate::database::tables::GAME_SEGMENT_COUNT_DB;
-use crate::database::tables::GAME_SEGMENT_DB;
+use crate::database::tables::*;
 
 use anyhow::Context;
+use game::api::game_match::GameMatch;
+use game::api::game_match::GameMatchType;
 use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
 use game::api::user::GuestInfo;
 use game::api::user::UserProfile;
 use game::api::websocket::GameSegmentCountReply;
+use game::api::websocket::GetMatchListArg;
 use game::tet::GameReplaySegment;
 use game::tet::GameState;
 use game::timestamp::get_timestamp_now_nano;
@@ -280,3 +278,20 @@ pub fn update_custom_game(
 pub fn random_word2(_: (), _current_user_id: GuestInfo) -> anyhow::Result<String> {
     Ok(random_word())
 }
+
+
+pub async fn start_match(_: GameMatchType, _current_user_id: GuestInfo) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
+    // Ok(uuid::Uuid::nil(), GameMatch)
+    todo!()
+}
+
+
+pub fn get_match_list(_: GetMatchListArg, _current_user_id: GuestInfo) -> anyhow::Result<Vec<(uuid::Uuid, GameMatch)>> {
+    let mut v = vec![];
+    for x in GAME_MATCH_DB.iter() {
+        let (uuid, _match) = x?;
+        v.push((uuid, _match));
+    }
+    Ok(v)
+}
+

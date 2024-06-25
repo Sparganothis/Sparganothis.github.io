@@ -5,6 +5,7 @@ use axum::{
     // Router,
 };
 use axum_extra::TypedHeader;
+use futures::Future;
 use game::{
     api::{
         game_replay::{GameId, GameSegmentId},
@@ -409,9 +410,15 @@ pub async fn websocket_handle_request(
                 data: bincode::serialize(&response).context("bincode never fail")?,
             })
         }
-        _ => {
+        WebsocketAPIMessageType::StartMatch => {
+            specific_async_request::<StartMatch,_,_>(msg, user_id, start_match).await
+        },
+        WebsocketAPIMessageType::GetMatchList => {
+            specific_sync_request::<GetMatchList>(msg, user_id, get_match_list).await
+        },
+        WebsocketAPIMessageType::SubscribedGameUpdateNotification => {
             anyhow::bail!("Unsupported message from client: {:?}", msg._type);
-        }
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 
@@ -444,6 +451,37 @@ pub async fn specific_sync_request<T: APIMethod>(
         tokio::task::spawn_blocking(move || callback(request, guest_info))
             .await
             .context("tokio never fail")?;
+    let response = response.map_err(|e| format!("websocket method error: {e}"));
+
+    Ok(WebsocketAPIMessageRaw {
+        id: request_msg.id,
+        _type: request_msg._type,
+        is_req: false,
+        data: bincode::serialize(&response).context("bincode never fail")?,
+    })
+}
+//   (impl Future<>)+ std::marker::Sync+ std::marker::Send+ 'static,
+pub async fn specific_async_request<T, F, Fut>(
+    request_msg: WebsocketAPIMessageRaw,
+    guest_info: GuestInfo,
+    callback: F
+) -> anyhow::Result<WebsocketAPIMessageRaw>
+where
+    T:APIMethod,
+    F: FnOnce(T::Req, GuestInfo) -> Fut,
+    Fut: Future<Output=anyhow::Result<T::Resp>>
+{
+    if !request_msg._type.eq(&T::TYPE) {
+        anyhow::bail!("wrong type dispatched");
+    }
+    if !request_msg.is_req {
+        anyhow::bail!("message is not request");
+    }
+    let request: T::Req =
+        bincode::deserialize(&request_msg.data).context("bincode never fail")?;
+
+    let response: anyhow::Result<T::Resp> =
+        callback(request, guest_info).await;
     let response = response.map_err(|e| format!("websocket method error: {e}"));
 
     Ok(WebsocketAPIMessageRaw {

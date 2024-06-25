@@ -1,5 +1,5 @@
 use game::{
-    api::game_replay::{GameId, GameSegmentId},
+    api::{game_match::{GameMatch, UserAndMatchId, UserAndMatchResult}, game_replay::{GameId, GameSegmentId}},
     tet::{GameReplaySegment, GameState},
 };
 
@@ -41,8 +41,10 @@ pub static CUSTOM_GAME_BOARD_DB: Lazy<typed_sled::Tree<String, GameState>> =
         typed_sled::Tree::<String, GameState>::open(&TABLES_DB, "custom_game_board_v1")
     });
 
-pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameId, GameState>> = Lazy::new(|| {
-    typed_sled::Tree::<GameId, GameState>::open(&TABLES_DB, "game_full_v2")
+pub static GAME_FULL_DB: Lazy<
+        typed_sled::Tree<GameId, GameState>
+    > = Lazy::new(|| {
+            typed_sled::Tree::<_,_>::open(&TABLES_DB, "game_full_v2")
 });
 
 pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
@@ -66,3 +68,23 @@ pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfi
     USER_PROFILE_DB.insert(uuid, &new).context("cannot write")?;
     Ok(new)
 }
+
+
+
+pub static GAME_MATCH_DB: Lazy<
+        typed_sled::Tree<uuid::Uuid, GameMatch>
+    > = Lazy::new(|| {
+            typed_sled::Tree::<_,_>::open(&TABLES_DB, "game_match_v1")
+});
+
+pub static GAME_MATCH_IS_IN_PROGRESS_DB: Lazy<
+        typed_sled::Tree<uuid::Uuid, bool>
+    > = Lazy::new(|| {
+            typed_sled::Tree::<_,_>::open(&TABLES_DB, "game_match_is_in_progress_v1")
+});
+
+pub static GAME_MATCHES_FOR_USER_DB: Lazy<
+        typed_sled::Tree<UserAndMatchId, UserAndMatchResult>
+    > = Lazy::new(|| {
+            typed_sled::Tree::<_,_>::open(&TABLES_DB, "GAME_MATCHES_FOR_USER_DB_v1")
+});
