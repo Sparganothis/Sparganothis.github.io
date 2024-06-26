@@ -75,7 +75,8 @@ pub fn MsPaintPage() -> impl IntoView {
     });
 
     let on_save = move |_| {
-        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), Callback::new(move |_| {
+        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), Callback::new(move |r| {
+            log::info!("saved {r:?}");
             set_status.set("Save ok".to_string());
         }));
     };
