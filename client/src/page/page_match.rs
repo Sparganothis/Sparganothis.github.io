@@ -5,7 +5,7 @@ use game::api::{game_replay::GameId, websocket::{GetMatchInfo, GetSegmentCount, 
 use leptos::*;
 use leptos_router::use_params_map;
 
-use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{_call_websocket_api, WebsocketAPI}};
+use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{WebsocketAPI, _call_websocket_api, call_api_sync}};
 
 #[component]
 pub fn MatchPage() -> impl IntoView {
@@ -55,50 +55,26 @@ pub fn MatchPage() -> impl IntoView {
                 start_time: match_info.time,
             };
 
-            let api2 = api.clone();
-            spawn_local(async move {
-                if let Ok(fut)=_call_websocket_api::<GetSegmentCount>(api2, gameinfo_0)
-                {
-                    let r = fut.await;
-                    log::info!("{r:?}");
-                    if let Ok(r) = r {
-                        ginfo_0.set(Some((gameinfo_0, r)));
-                        log::info!("===> set ginfo_0 ===>");
-                    }
-                }
-            });
+            call_api_sync::<GetSegmentCount>(gameinfo_0, Callback::new(move |r| {
+                ginfo_0.set(Some((gameinfo_0, r)));
+            }));
 
-            let api2 = api.clone();
-            spawn_local(async move {
-                if let Ok(fut)=_call_websocket_api::<GetSegmentCount>(api2, gameinfo_1)
-                {
-                    let r = fut.await;
-                    log::info!("{r:?}");
-                    if let Ok(r) = r {
-                        ginfo_1.set(Some((gameinfo_1, r)));
-                        log::info!("===> set ginfo_1");
-                    }
-                }
-            });
+
+            call_api_sync::<GetSegmentCount>(gameinfo_1, Callback::new(move |r| {
+                ginfo_1.set(Some((gameinfo_1, r)));
+            }));
+
         }
     });
 
     let api: WebsocketAPI = expect_context();
-    #[allow(unused_variables)]
-    let guest_id = create_resource(
-        || (),
-        move |_| {
-            let api_bis = api.clone();
-            async move {
-                // log::info!("calling websocket api");
-                let r = _call_websocket_api::<WhoAmI>(api_bis, ())
-                    .expect("cannot obtain future")
-                    .await;
-                log::info!("===> whoami OK");
-                r
-            }
-        },
-    );
+
+
+    let guest_id = create_rw_signal(None);
+    call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+        guest_id.set(Some(r));
+    }));
+
 
    let left_view = create_rw_signal(view!{}.into_view());
     let right_view = create_rw_signal(view!{}.into_view()); 
@@ -108,7 +84,7 @@ pub fn MatchPage() -> impl IntoView {
         if let (
             Some(g0), 
             Some(g1), 
-            Some(Ok(whoami)), 
+            Some(whoami), 
             Some(match_info)
         ) = (ginfo_0.get(), ginfo_1.get(), guest_id.get(), match_info.get()) {
             log::info!("===> got final effect");

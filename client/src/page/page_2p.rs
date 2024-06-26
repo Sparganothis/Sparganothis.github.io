@@ -17,13 +17,10 @@ pub fn Game2LobbyPage() -> impl IntoView {
 #[component]
 pub fn Lobby2P() -> impl IntoView {
     use leptonic::prelude::*;
-    let api = expect_context::<WebsocketAPI>();
     let match_id_signal = create_rw_signal(None);
     let waiting_for_game = create_rw_signal(false);
 
-    let api2 = api.clone();
     let obtain_new_match_id: Callback<()> = Callback::new(move |_| {
-        let api2 = api2.clone();
         waiting_for_game.set(true);
         log::info!("waiting for game...");
         call_api_sync::<StartMatch>(GameMatchType::_1v1, Callback::new(move |r| {
