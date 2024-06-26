@@ -7,7 +7,7 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::websocket::demo_comp::{_call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::call_api_sync;
 use game::api::websocket::GetAllGamesArg;
 use leptos::*;
 use leptos_struct_table::*;
@@ -15,24 +15,12 @@ use leptos_struct_table::*;
 
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
-    let api2: WebsocketAPI = expect_context();
-    let all_games = create_resource(
-        || (),
-        move |_| {
-            let api2 = api2.clone();
-            async move {
-                // log::info!("calling websocket api");
-                let r = _call_websocket_api::<GetAllGames>(api2, list_type)
-                    .expect("cannot obtain future")
-                    .await;
-                // log::info!("got back response: {:?}", r);
-                r
-            }
-        },
-    );
-
+    let all_games = create_rw_signal(vec![]);
+    call_api_sync::<GetAllGames>(list_type, Callback::new(move |r| {
+        all_games.set(r);
+    }));
     let table_from_rows = move || {
-        if let Some(Ok(rows)) = all_games.get() {
+        let rows = all_games.get();
             let rows = rows
                 .iter()
                 .map(|r| FullGameReplayTableRow::new(r.clone()))
@@ -45,9 +33,6 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
                 </table>
             }
             .into_view()
-        } else {
-            view! { <p>loading...</p> }.into_view()
-        }
     };
 
     view! { {table_from_rows} }

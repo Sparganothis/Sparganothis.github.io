@@ -5,7 +5,7 @@ use game::{
     api::websocket::GetAllCustomGames, tet::GameState
 };
 
-use crate::websocket::demo_comp::{WebsocketAPI, call_api_sync};
+use crate::websocket::demo_comp::call_api_sync;
 use leptos_struct_table::*;
 
 #[component]
