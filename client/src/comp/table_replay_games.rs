@@ -7,7 +7,7 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::{_call_websocket_api, WebsocketAPI};
 use game::api::websocket::GetAllGamesArg;
 use leptos::*;
 use leptos_struct_table::*;
@@ -21,7 +21,7 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
             let api2 = api2.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<GetAllGames>(api2, list_type)
+                let r = _call_websocket_api::<GetAllGames>(api2, list_type)
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);

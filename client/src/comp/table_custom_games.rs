@@ -5,7 +5,7 @@ use game::{
     api::websocket::GetAllCustomGames, tet::GameState
 };
 
-use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::{_call_websocket_api, WebsocketAPI};
 use leptos_struct_table::*;
 
 #[component]
@@ -17,7 +17,7 @@ pub fn ListAllCustomGames() -> impl IntoView {
             let api2 = api2.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<GetAllCustomGames>(api2, ())
+                let r = _call_websocket_api::<GetAllCustomGames>(api2, ())
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);

@@ -27,6 +27,7 @@ pub struct WebsocketAPI {
     pub ready_signal: RwSignal<bool>,
 
     pub subscribe_game_callbacks: RwSignal<HashMap<GameId, SubscribeSegmentCallback>>,
+    pub error_msgs: RwSignal<Vec<String>>,
 }
 
 type SubscribeSegmentCallback = Callback<Vec<(GameSegmentId, GameReplaySegment)>>;
@@ -40,7 +41,7 @@ impl WebsocketAPI {
             spawn_local(async move {
                 let api = api.clone();
                 let arg = SubscribeGamePlzArgument { game_id, command: game::api::websocket::SubscribeGamePlzCommmand::StartStreaming };
-                if let Ok(fut) = call_websocket_api::<SubscribeGamePlz>(api, arg) {
+                if let Ok(fut) = _call_websocket_api::<SubscribeGamePlz>(api, arg) {
                     if let Ok(_res) = fut.await {
                         log::info!("subscribe OK");
                     }
@@ -64,7 +65,41 @@ impl WebsocketAPI {
    } 
 }
 
-pub fn call_websocket_api<T: APIMethod>(
+pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: Callback<T::Resp, ()>) -> () {
+    let api2: WebsocketAPI = expect_context();
+    let api = api2.clone();
+    let res = create_resource(
+        || (),
+        move |_| {
+            let api2 = api2.clone();
+            let arg2 = arg.clone();
+            async move {
+                // log::info!("calling websocket api");
+                let r = _call_websocket_api::<T>(api2, arg2)
+                    .expect("cannot obtain future")
+                    .await;
+                // log::info!("got back response: {:?}", r);
+                r
+            }
+        },
+    );
+    let api2 = api.clone();
+    create_effect(move |_| {
+            if let Some(x) = res.get() {
+                match x {
+                    Ok(result) => {
+                        f.call(result);
+                    }
+                    Err(err) => {
+                        log::error!("WEBSOCKET SERVER ERROR: {}", err);
+                        api2.error_msgs.update(|x| x.push(err.clone()));
+                    }
+                }
+            }
+    });
+}
+
+pub fn _call_websocket_api<T: APIMethod>(
     api: WebsocketAPI,
     arg: T::Req,
 ) -> anyhow::Result<impl std::future::Future<Output = Result<T::Resp, String>>> {

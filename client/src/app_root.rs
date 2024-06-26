@@ -142,6 +142,7 @@ pub fn AppRoot() -> impl IntoView {
         ready_state_stream: rx.deactivate(),
         ready_signal,
         subscribe_game_callbacks: create_rw_signal(std::collections::HashMap::<_, _>::new()),
+        error_msgs: create_rw_signal(Vec::<_>::new()),
     };
     provide_context(api.clone());
 
@@ -154,7 +155,7 @@ pub fn AppRoot() -> impl IntoView {
                 let api2 = api2.clone();
                 async move {
                     // log::info!("calling websocket api");
-                    let r = call_websocket_api::<WhoAmI>(api2, ())
+                    let r = _call_websocket_api::<WhoAmI>(api2, ())
                         .expect("cannot obtain future")
                         .await;
                     // log::info!("got back response: {:?}", r);
@@ -217,9 +218,11 @@ pub fn AppRoot() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <Meta name="theme-color" content="#e66956"/>
 
+        <Script src="/public/jquery-3.7.1.min.js"/>
+        <Script src="/public/bootstrap.min.js"/>
         <Stylesheet id="bootstrap" href="/public/bootstrap.min.css"/>
         <Stylesheet id="bootstrap-extra" href="/public/bootstrap_extra.css"/>
-        <Script src="/public/bootstrap.min.js"/>
+        
         <leptos_meta::Link
             rel="icon"
             type_="image/x-icon"

@@ -5,7 +5,7 @@ use game::api::{game_replay::GameId, websocket::{GetMatchInfo, GetSegmentCount, 
 use leptos::*;
 use leptos_router::use_params_map;
 
-use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
+use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{_call_websocket_api, WebsocketAPI}};
 
 #[component]
 pub fn MatchPage() -> impl IntoView {
@@ -29,58 +29,59 @@ pub fn MatchPage() -> impl IntoView {
             spawn_local(async move {
                 
                 let api2 = api.clone();
-                let api = api.clone();
-                if let Ok(fut)=call_websocket_api::<GetMatchInfo>(api2, match_uuid)
+                if let Ok(fut)= _call_websocket_api::<GetMatchInfo>(api2, match_uuid)
                 {
                     let r = fut.await;
                     if let Ok(r) = r {
                         match_info.set(Some((match_uuid, r.clone())));
                         log::info!("====> got match info");
-
-                        let match_info=r;
-                        let gameinfo_0 = GameId {
-                            user_id: match_info.users[0],
-                            init_seed: match_info.seed,
-                            start_time: match_info.time,
-                        };
-                        let gameinfo_1 = GameId {
-                            user_id: match_info.users[1],
-                            init_seed: match_info.seed,
-                            start_time: match_info.time,
-                        };
-            
-                        let api2 = api.clone();
-                        spawn_local(async move {
-                            if let Ok(fut)=call_websocket_api::<GetSegmentCount>(api2, gameinfo_0)
-                            {
-                                let r = fut.await;
-                                log::info!("{r:?}");
-                                if let Ok(r) = r {
-                                    ginfo_0.set(Some((gameinfo_0, r)));
-                                    log::info!("===> set ginfo_0 ===>");
-                                }
-                            }
-                        });
-            
-                        let api2 = api.clone();
-                        spawn_local(async move {
-                            if let Ok(fut)=call_websocket_api::<GetSegmentCount>(api2, gameinfo_1)
-                            {
-                                let r = fut.await;
-                                log::info!("{r:?}");
-                                if let Ok(r) = r {
-                                    ginfo_1.set(Some((gameinfo_1, r)));
-                                    log::info!("===> set ginfo_1");
-                                }
-                            }
-                        });
-
                     }
                 }
             });
         }
     });
 
+    let api = expect_context::<WebsocketAPI>();
+    create_effect(move |_| {
+        if let Some((_, match_info)) = match_info.get() {
+            let gameinfo_0 = GameId {
+                user_id: match_info.users[0],
+                init_seed: match_info.seed,
+                start_time: match_info.time,
+            };
+            let gameinfo_1 = GameId {
+                user_id: match_info.users[1],
+                init_seed: match_info.seed,
+                start_time: match_info.time,
+            };
+
+            let api2 = api.clone();
+            spawn_local(async move {
+                if let Ok(fut)=_call_websocket_api::<GetSegmentCount>(api2, gameinfo_0)
+                {
+                    let r = fut.await;
+                    log::info!("{r:?}");
+                    if let Ok(r) = r {
+                        ginfo_0.set(Some((gameinfo_0, r)));
+                        log::info!("===> set ginfo_0 ===>");
+                    }
+                }
+            });
+
+            let api2 = api.clone();
+            spawn_local(async move {
+                if let Ok(fut)=_call_websocket_api::<GetSegmentCount>(api2, gameinfo_1)
+                {
+                    let r = fut.await;
+                    log::info!("{r:?}");
+                    if let Ok(r) = r {
+                        ginfo_1.set(Some((gameinfo_1, r)));
+                        log::info!("===> set ginfo_1");
+                    }
+                }
+            });
+        }
+    });
 
     let api: WebsocketAPI = expect_context();
     #[allow(unused_variables)]
@@ -90,7 +91,7 @@ pub fn MatchPage() -> impl IntoView {
             let api_bis = api.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<WhoAmI>(api_bis, ())
+                let r = _call_websocket_api::<WhoAmI>(api_bis, ())
                     .expect("cannot obtain future")
                     .await;
                 log::info!("===> whoami OK");
@@ -98,7 +99,6 @@ pub fn MatchPage() -> impl IntoView {
             }
         },
     );
-
 
    let left_view = create_rw_signal(view!{}.into_view());
     let right_view = create_rw_signal(view!{}.into_view()); 

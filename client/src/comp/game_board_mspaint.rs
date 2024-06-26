@@ -14,7 +14,7 @@ use leptos::*;
 
 use crate::{
     comp::{game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
-    websocket::demo_comp::{call_websocket_api, WebsocketAPI},
+    websocket::demo_comp::{_call_websocket_api, WebsocketAPI},
 };
 
 #[component]
@@ -35,7 +35,7 @@ pub fn MsPaintPlayPage() ->impl IntoView{
                     set_save_name.set(url_save_name.clone());
                     spawn_local(
                         async move {
-                            if let Ok(ceva) = call_websocket_api::<GetCustomGame>(api2, url_save_name) {
+                            if let Ok(ceva) = _call_websocket_api::<GetCustomGame>(api2, url_save_name) {
                             if let Ok(ceva) = ceva.await {
                                 game_state.set(ceva);
                             }
@@ -45,8 +45,12 @@ pub fn MsPaintPlayPage() ->impl IntoView{
         }
     );
     view! {
-        <h1>"play custom     | " {save_name}</h1>
-        <PlayerGameBoardSingle state=game_state/>
+        <div class="main_left">
+            <PlayerGameBoardSingle state=game_state top_bar=view!{
+                    <h1>"play custom     | " {save_name}</h1>
+                }.into_view()
+            />
+        </div>
     }
 }
 #[component]
@@ -71,7 +75,7 @@ pub fn MsPaintPage() -> impl IntoView {
             let api2 = api2.clone();
             spawn_local(
                     async move {
-                        if let Ok(ceva) = call_websocket_api::<GetCustomGame>(api2, url_save_name) {
+                        if let Ok(ceva) = _call_websocket_api::<GetCustomGame>(api2, url_save_name) {
                            if let Ok(ceva) = ceva.await {
                             game_state.set(ceva);
                            }
@@ -82,7 +86,7 @@ pub fn MsPaintPage() -> impl IntoView {
     
             let api2 = api2.clone();
             spawn_local(async move {
-                if let Ok(ceva) = call_websocket_api::<GetRandomWord>(api2, ()) {
+                if let Ok(ceva) = _call_websocket_api::<GetRandomWord>(api2, ()) {
                     let ceva = ceva.await;
                     if let Ok(ceva) = ceva {
                         set_save_name.set(ceva.clone());
@@ -98,7 +102,7 @@ pub fn MsPaintPage() -> impl IntoView {
     let on_save = move |_| {
         let api = api2.clone();
         spawn_local(async move {
-            if let Ok(ceva) = call_websocket_api::<UpdateCustomGame>(
+            if let Ok(ceva) = _call_websocket_api::<UpdateCustomGame>(
                 api,
                 (save_name.get_untracked(), game_state.get_untracked()),
             ) {

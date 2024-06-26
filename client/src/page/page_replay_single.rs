@@ -8,7 +8,7 @@ use crate::{
     comp::{
         game_board_replay::ReplayGameBoard, table_replay_segments::TableReplaySegments,
     },
-    websocket::demo_comp::{call_websocket_api, WebsocketAPI},
+    websocket::demo_comp::{_call_websocket_api, WebsocketAPI},
 };
 use leptos::*;
 
@@ -34,7 +34,7 @@ pub fn GameReplaySinglePage() -> impl IntoView {
                 }
                 let game_id = game_id.unwrap();
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<GetAllSegments>(api3, game_id)
+                let r = _call_websocket_api::<GetAllSegments>(api3, game_id)
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);

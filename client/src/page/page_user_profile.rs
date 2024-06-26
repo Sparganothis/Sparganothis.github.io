@@ -1,7 +1,7 @@
 use leptos::*;
 
 use crate::comp::table_replay_games::AllGamesTable;
-use crate::websocket::demo_comp::{call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::{_call_websocket_api, WebsocketAPI};
 use game::api::user;
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
 use leptonic::prelude::*;
@@ -18,7 +18,7 @@ pub fn MyAccountPage() -> impl IntoView {
             let api_bis = _api.clone();
             async move {
                 // log::info!("calling websocket api");
-                let r = call_websocket_api::<WhoAmI>(api_bis, ())
+                let r = _call_websocket_api::<WhoAmI>(api_bis, ())
                     .expect("cannot obtain future")
                     .await;
                 // log::info!("got back response: {:?}", r);
@@ -36,7 +36,7 @@ pub fn MyAccountPage() -> impl IntoView {
                 if let Some(Ok(_guest_id)) = _guest_id {
                     // log::info!("calling websocket api");
                     let r: Result<user::UserProfile, String> =
-                        call_websocket_api::<GetProfile>(api2_bis, _guest_id.user_id)
+                        _call_websocket_api::<GetProfile>(api2_bis, _guest_id.user_id)
                             .expect("cannot obtain future")
                             .await;
                     // log::info!("got back response: {:?}", r);
@@ -90,7 +90,7 @@ pub fn UserProfilePage() -> impl IntoView {
                 if let Ok(_guest_id) = _guest_id {
                     // log::info!("calling websocket api");
                     let r: Result<user::UserProfile, String> =
-                        call_websocket_api::<GetProfile>(api2, _guest_id)
+                        _call_websocket_api::<GetProfile>(api2, _guest_id)
                             .expect("cannot obtain future")
                             .await;
                     // log::info!("got back response: {:?}", r);

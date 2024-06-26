@@ -1,4 +1,4 @@
-use crate::{comp::game_board::{key_debounce_ms}, websocket::demo_comp::call_websocket_api};
+use crate::{comp::game_board::{key_debounce_ms}, websocket::demo_comp::_call_websocket_api};
 use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
@@ -19,7 +19,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
             let api2 = api2.clone();
 
             async move {
-                let r = call_websocket_api::<CreateNewGameId>(api2.clone(), ())
+                let r = _call_websocket_api::<CreateNewGameId>(api2.clone(), ())
                     .expect("cannot obtain future")
                     .await;
                 r.unwrap()
@@ -68,7 +68,7 @@ pub fn PlayerGammeBoardFromId(new_game_id: GameId) -> impl IntoView {
                 // log::info!("calling websocket api");
                 let segment_json: String =
                     serde_json::to_string(&segment).expect("json never fail");
-                let _r = call_websocket_api::<AppendGameSegment>(
+                let _r = _call_websocket_api::<AppendGameSegment>(
                     api2.clone(),
                     (game_id, segment_json),
                 )
@@ -154,6 +154,11 @@ pub fn PlayerGameBoardSingle(
     #[prop(optional)]
     pre_countdown_text: ReadSignal<String>,
     
+
+    #[prop(into)]
+    #[prop(default = view!{}.into_view())]
+    top_bar: View,
+
 ) -> impl IntoView {
 
     on_state_change.call(state.get_untracked());
@@ -209,7 +214,7 @@ pub fn PlayerGameBoardSingle(
 
     view! {
         <super::hotkey_reader::HotkeyReader on_action=on_action></super::hotkey_reader::HotkeyReader>
-        <GameBoardFlex game_state=state on_reset_game=on_reset pre_countdown_text/>
+        <GameBoardFlex game_state=state on_reset_game=on_reset pre_countdown_text top_bar/>
     }
 }
 use crate::comp::game_board_flex::GameBoardFlex;

@@ -1,4 +1,4 @@
-use crate::{comp::table_match::AllMatchTable, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
+use crate::{comp::table_match::AllMatchTable, websocket::demo_comp::{_call_websocket_api, WebsocketAPI}};
 use game::api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
@@ -28,7 +28,7 @@ pub fn Lobby2P() -> impl IntoView {
         log::info!("waiting for game...");
         spawn_local(
                 async move {
-                    let r = call_websocket_api::<StartMatch>(api2.clone(), GameMatchType::_1v1)
+                    let r = _call_websocket_api::<StartMatch>(api2.clone(), GameMatchType::_1v1)
                         .expect("cannot obtain future")
                         .await;
                     

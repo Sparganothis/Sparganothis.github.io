@@ -1,17 +1,27 @@
 
-use game::tet::{self, GameState};
+use game::{api::websocket::WhoAmI, tet::{self, GameState}};
 use leptos::*;
 
-use crate::{comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}};
+use crate::{comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync};
 
 
 
 #[component]
 pub fn GameBoardFlexDemoPage() -> impl IntoView {
-    let game_state = create_rw_signal(GameState::empty());
+    let param = create_rw_signal("".to_string());
+    let result = create_rw_signal("".to_string());
+
+    create_effect(move |_| {
+        let _p = param.get();
+        call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+            result.set(format!("{:?}", r));
+        }));
+    });
+    // let game_state = create_rw_signal(GameState::empty());
     view! {
         <div class="main_left">
-            <GameBoardFlex game_state/>
+            // <GameBoardFlex game_state/>
+            {result}
         </div>
     }
 }
