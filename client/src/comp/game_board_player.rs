@@ -8,27 +8,7 @@ use leptos::*;
 
 
 #[component]
-pub fn PlayerGameBoard() -> impl IntoView {
-    let new_game_id = create_rw_signal(None);
-    call_api_sync::<CreateNewGameId>((), Callback::new(move |r| {
-        new_game_id.set(Some(r));
-    }));
-
-    let x = move || match new_game_id.get() {
-        Some(x) => {
-            view! { <PlayerGammeBoardFromId game_id=x/> }.into_view()
-        },
-        _ => {
-            view! {
-
-            }.into_view()
-        }
-    };
-    view! { {x} }
-}
-
-#[component]
-pub fn PlayerGammeBoardFromId(game_id: GameId) -> impl IntoView {
+pub fn PlayerGameBoardFromId(game_id: GameId) -> impl IntoView {
     let on_state_change = Callback::<GameState>::new(move |s| {
 
         let segment: GameReplaySegment = {

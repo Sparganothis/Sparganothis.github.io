@@ -13,6 +13,7 @@ use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
+use crate::page::page_1p::GameSoloLobbyPage;
 
 
 #[component]
@@ -189,9 +190,22 @@ pub fn AppRoot() -> impl IntoView {
     });
 
     let status = move || {
-        let st = ready_state.get().to_string();
+        let st = ready_state.get();
         log::info!("websocket status: {}", st);
-        st
+        match st {
+            ConnectionReadyState::Open => {
+                view! {
+                    <h1 style="color:darkgreen">{st.to_string()}
+                    </h1>
+                }.into_view()
+            },
+            _  => {
+                view! {
+                    <h1 style="color:red">{st.to_string()}
+                    </h1>
+                }.into_view()
+            },
+        }
     };
 
     use crate::page::page_1p::Game1PPage;
@@ -270,7 +284,8 @@ pub fn AppRoot() -> impl IntoView {
                         // all our routes will appear inside <main>
                         <Routes>
                             <Route path="" view=Homepage/>
-                            <Route path="/solo" view=Game1PPage/>
+                            <Route path="/solo" view=GameSoloLobbyPage/>
+                            <Route path="/play-game-solo/:game_id" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
                             <Route path="/vs_net" view=Game2LobbyPage/>
                             <Route
@@ -292,6 +307,8 @@ pub fn AppRoot() -> impl IntoView {
                                 view=MsPaintPlayPage
                             />
                             <Route path="/gamebordflex" view=GameBoardFlexDemoPage/>
+
+
 
                         </Routes>
                     </main>

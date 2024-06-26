@@ -105,7 +105,7 @@ pub fn append_game_segment(
                     }
                 }
                 GameReplaySegment::Update(old_update) => {
-                    if old_update.idx != update_seg.idx - 1 {
+                    if old_update.idx + 1 != update_seg.idx  {
                         anyhow::bail!(
                             "segment idx do not match up - missing/duplicate"
                         );
