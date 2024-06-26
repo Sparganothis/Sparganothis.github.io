@@ -1,12 +1,12 @@
 use game::{
     api::{game_replay::GameId, websocket::GetAllSegments},
-    tet::GameState,
+    tet::{GameReplaySegment, GameState},
 };
 use leptos_router::use_params_map;
 
 use crate::{
     comp::{
-        game_board_replay::ReplayGameBoard, table_replay_segments::TableReplaySegments,
+        game_board_replay::ReplayGameBoardFromSegmments, table_replay_segments::TableReplaySegments,
     },
     websocket::demo_comp::call_api_sync,
 };
@@ -42,7 +42,7 @@ pub fn GameReplaySinglePage() -> impl IntoView {
                 match game_id() {
                     Ok(_game_id) => {
                         view! {
-                            <ReplayGameBoard
+                            <ReplayGameBoardFromSegmments
                                 all_segments=all_segments.into_signal()
                                 slider
                                 game_state
@@ -62,5 +62,28 @@ pub fn GameReplaySinglePage() -> impl IntoView {
                 game_state=game_state.read_only()
             />
         </div>
+    }
+}
+
+
+#[component]
+pub fn GameReplayBoardStandalone(    game_id: GameId) -> impl IntoView{ 
+    let all_segments = create_rw_signal(vec![]);
+    call_api_sync::<GetAllSegments>(game_id , Callback::new(move |r| {
+         all_segments.set(r);
+    }));
+    let all_segments = move || {
+        all_segments.get()
+    };
+
+    let slider = create_rw_signal(0.0);
+    let game_state = create_rw_signal(GameState::new(&[0; 32], 0));
+
+    view!{
+        <ReplayGameBoardFromSegmments
+            all_segments=all_segments.into_signal()
+            slider
+            game_state
+        />
     }
 }

@@ -1,24 +1,33 @@
 
-use game::tet::GameState;
+use game::{api::websocket::{GetAllGames, GetAllGamesArg}, tet::GameState};
 // use game::tet::GameState;
 use leptos::*;
 
-use crate::comp::game_board_flex::GameBoardFlex;
+use crate::{comp::game_board_flex::GameBoardFlex, page::page_replay_single::GameReplayBoardStandalone, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn Homepage()-> impl IntoView{
-    let game_state= create_rw_signal(GameState::empty());
-    let views:Vec<_> = {0..20}.into_iter().map(|x|{
-    
 
+    let best_gameid = create_rw_signal(None);
+    call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, Callback::new(move |v: Vec<_>| {
+            let game_id = v.get(0).clone();
+            if let Some((a, _b)) = game_id {
+                best_gameid.set(Some(*a));
+            }
+    }));
+
+    let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
             0 => {
                 view! { <h1>todo</h1> }.into_view()
             },
             8 =>{
-                let demo_signal = create_rw_signal("TODO".to_string());
-
-                view! { <GameBoardFlex game_state pre_countdown_text=demo_signal.read_only()/> }.into_view()
+                (move || {
+                    match best_gameid.get() {
+                        Some(game_id) => view! { <GameReplayBoardStandalone game_id/> }.into_view(),
+                        None => view!{}.into_view(),
+                    }
+                }).into_view()
             },
             9 => {
                 view! {

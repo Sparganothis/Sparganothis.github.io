@@ -34,6 +34,12 @@ bash run-server.sh
 
 
 # todo
+- SINGLEPLAYER: LINK FOR PRIVATE ROOM + root fs redirects to /play-singleplayer-gamme/:game-id
+- SINGLEPLAYER: WHEN REFRESH REMEMBER IN PROGRESS GAMEM 
+- SINGLEPLAYE$R: TIMER  + 40 LINE WORLD RECCORD + BLIETZ + "PUZZLE MODE"
+
+- HOMEPAGE: SHOW SPECTATE OF LATEST GAME IN HOME PAGE
+
 - change all Get* api message to return None for "not found" -- is not error (custom game / mmspaint on randomm name);
 - https://github.com/goldfire/howler.js/tree/master/examples/sprite
 - rotate SRS

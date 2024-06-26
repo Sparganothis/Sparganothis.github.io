@@ -5,7 +5,7 @@ use leptonic::slider::Slider;
 use leptos::*;
 
 #[component]
-pub fn ReplayGameBoard(
+pub fn ReplayGameBoardFromSegmments(
     all_segments: Signal<Vec<GameReplaySegment>>,
     slider: RwSignal<f64>,
     game_state: RwSignal<GameState>,
