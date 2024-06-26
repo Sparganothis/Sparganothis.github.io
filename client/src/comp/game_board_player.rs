@@ -1,4 +1,4 @@
-use crate::{comp::game_board::{key_debounce_ms}, websocket::demo_comp::_call_websocket_api};
+use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::{_call_websocket_api, call_api_sync}};
 use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
@@ -10,22 +10,10 @@ use leptos::*;
 
 #[component]
 pub fn PlayerGameBoard() -> impl IntoView {
-    let api = expect_context::<WebsocketAPI>();
-
-    let api2 = api.clone();
-    let new_game_id = create_resource(
-        || (),
-        move |_| {
-            let api2 = api2.clone();
-
-            async move {
-                let r = _call_websocket_api::<CreateNewGameId>(api2.clone(), ())
-                    .expect("cannot obtain future")
-                    .await;
-                r.unwrap()
-            }
-        },
-    );
+    let new_game_id = create_rw_signal(None);
+    call_api_sync::<CreateNewGameId>((), Callback::new(move |r| {
+        new_game_id.set(Some(r));
+    }));
 
     let x = move || match new_game_id.get() {
         Some(x) => {

@@ -14,7 +14,7 @@ use leptos::*;
 
 use crate::{
     comp::{game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
-    websocket::demo_comp::{_call_websocket_api, WebsocketAPI},
+    websocket::demo_comp::{WebsocketAPI, _call_websocket_api, call_api_sync},
 };
 
 #[component]
@@ -28,11 +28,15 @@ pub fn MsPaintPlayPage() ->impl IntoView{
     create_effect(
         move |_| {
             let api2 = api2.clone();
-            
             let p = params.with(|params| params.get("save_id").cloned());
             log::info!("readcting to URL papram save_id = {:?}", p);
             if let Some(url_save_name) = p {
                     set_save_name.set(url_save_name.clone());
+
+                    // call_api_sync::<GetCustomGame>(url_save_name, Callback::new(move |r| {
+                    //     game_state.set(r);
+                    // }));
+
                     spawn_local(
                         async move {
                             if let Ok(ceva) = _call_websocket_api::<GetCustomGame>(api2, url_save_name) {

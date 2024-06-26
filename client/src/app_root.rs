@@ -146,23 +146,10 @@ pub fn AppRoot() -> impl IntoView {
     };
     provide_context(api.clone());
 
-    let api2 = api.clone();
     let send_byte_message = move |_| {
-        let api2 = api2.clone();
-        let _res = create_resource(
-            || (),
-            move |_| {
-                let api2 = api2.clone();
-                async move {
-                    // log::info!("calling websocket api");
-                    let r = _call_websocket_api::<WhoAmI>(api2, ())
-                        .expect("cannot obtain future")
-                        .await;
-                    // log::info!("got back response: {:?}", r);
-                    r
-                }
-            },
-        );
+        call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+            log::info!("WHO AMM I? {:?}", r);
+        }));
     };
     let mut recv_bytes_stream = message_bytes.to_stream();
     // let last_message_size = create_rw_signal(0);
@@ -222,7 +209,7 @@ pub fn AppRoot() -> impl IntoView {
         <Script src="/public/bootstrap.min.js"/>
         <Stylesheet id="bootstrap" href="/public/bootstrap.min.css"/>
         <Stylesheet id="bootstrap-extra" href="/public/bootstrap_extra.css"/>
-        
+
         <leptos_meta::Link
             rel="icon"
             type_="image/x-icon"
