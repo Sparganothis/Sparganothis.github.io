@@ -21,11 +21,11 @@ pub fn Game1PPage() -> impl IntoView {
         <div class="main_left">
             {move || {
                 match game_id.get() {
-                    Some(id) => view! { <PlayerGameBoardFromId game_id=id/>}.into_view(),
-                    None => view!{<h1>"bad url"</h1>}.into_view(),
+                    Some(id) => view! { <PlayerGameBoardFromId game_id=id/> }.into_view(),
+                    None => view! { <h1>"bad url"</h1> }.into_view(),
                 }
-                    
             }}
+
         </div>
     }
 }
@@ -43,7 +43,7 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
     
     view! {
         <div class="main_left">
-            <h1 on:click=move |_| {cb.call(())}>PLAY</h1>
+            <h1 on:click=move |_| { cb.call(()) }>PLAY</h1>
         </div>
     }
 }

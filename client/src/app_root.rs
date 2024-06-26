@@ -194,16 +194,10 @@ pub fn AppRoot() -> impl IntoView {
         log::info!("websocket status: {}", st);
         match st {
             ConnectionReadyState::Open => {
-                view! {
-                    <h1 style="color:darkgreen">{st.to_string()}
-                    </h1>
-                }.into_view()
+                view! { <h1 style="color:darkgreen">{st.to_string()}</h1> }.into_view()
             },
             _  => {
-                view! {
-                    <h1 style="color:red">{st.to_string()}
-                    </h1>
-                }.into_view()
+                view! { <h1 style="color:red">{st.to_string()}</h1> }.into_view()
             },
         }
     };
@@ -307,8 +301,6 @@ pub fn AppRoot() -> impl IntoView {
                                 view=MsPaintPlayPage
                             />
                             <Route path="/gamebordflex" view=GameBoardFlexDemoPage/>
-
-
 
                         </Routes>
                     </main>
