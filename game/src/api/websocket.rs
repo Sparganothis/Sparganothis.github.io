@@ -52,12 +52,14 @@ pub trait APIMethod {
         + for<'a> Deserialize<'a>
         + std::marker::Send
         + std::marker::Sync
-        + 'static + Clone;
+        + 'static
+        + Clone;
     type Resp: Serialize
         + for<'a> Deserialize<'a>
         + std::marker::Send
         + std::marker::Sync
-        + 'static + Clone;
+        + 'static
+        + Clone;
 
     fn send(msg: Self::Req, sender: impl Fn(Vec<u8>), id: u32) -> anyhow::Result<u32> {
         let b = WebsocketAPIMessageRaw {

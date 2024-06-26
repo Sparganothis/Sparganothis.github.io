@@ -39,9 +39,9 @@ pub fn MsPaintPlayPage() ->impl IntoView{
     );
     view! {
         <div class="main_left">
-            <PlayerGameBoardSingle state=game_state top_bar=view!{
-                    <h1>"play custom     | " {save_name}</h1>
-                }.into_view()
+            <PlayerGameBoardSingle
+                state=game_state
+                top_bar=view! { <h1>"play custom     | " {save_name}</h1> }.into_view()
             />
         </div>
     }

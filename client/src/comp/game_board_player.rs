@@ -181,7 +181,12 @@ pub fn PlayerGameBoardSingle(
 
     view! {
         <super::hotkey_reader::HotkeyReader on_action=on_action></super::hotkey_reader::HotkeyReader>
-        <GameBoardFlex game_state=state on_reset_game=on_reset pre_countdown_text top_bar/>
+        <GameBoardFlex
+            game_state=state
+            on_reset_game=on_reset
+            pre_countdown_text
+            top_bar
+        />
     }
 }
 use crate::comp::game_board_flex::GameBoardFlex;
