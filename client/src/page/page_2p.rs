@@ -60,6 +60,7 @@ pub fn Lobby2P() -> impl IntoView {
                 view! {}
             }
         >
+
             <h1>WAITING FOR GAME</h1>
         </Show>
 
@@ -69,6 +70,7 @@ pub fn Lobby2P() -> impl IntoView {
                 view! {}
             }
         >
+
             <Button
                 on_click=move |_| obtain_new_match_id.call(())
                 color=ButtonColor::Primary
@@ -88,6 +90,7 @@ pub fn Lobby2P() -> impl IntoView {
                         }
                     })
             }}
+
         </h1>
     }
 }
