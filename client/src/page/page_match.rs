@@ -5,7 +5,7 @@ use game::api::{game_replay::GameId, websocket::{GetMatchInfo, GetSegmentCount, 
 use leptos::*;
 use leptos_router::use_params_map;
 
-use crate::{comp::{game_board_player::{PlayerGameBoard, PlayerGammeBoardFromId}, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
+use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
 
 #[component]
 pub fn MatchPage() -> impl IntoView {

@@ -1,4 +1,4 @@
-use crate::{comp::{game_board_player::PlayerGameBoard, table_match::AllMatchTable}, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
+use crate::{comp::table_match::AllMatchTable, websocket::demo_comp::{call_websocket_api, WebsocketAPI}};
 use game::api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
