@@ -48,11 +48,9 @@ pub fn MsPaintPlayPage() ->impl IntoView{
 }
 
 
-
 #[component]
 pub fn MsPaintPage() -> impl IntoView {
     let (save_name, set_save_name) = create_signal("".to_string());
-
     let (status, set_status) = create_signal("...".to_string());
     
     let params = use_params_map();
@@ -77,7 +75,7 @@ pub fn MsPaintPage() -> impl IntoView {
     });
 
     let on_save = move |_| {
-        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), Callback::new(move |_:()| {
+        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), Callback::new(move |_| {
             set_status.set("Save ok".to_string());
         }));
     };

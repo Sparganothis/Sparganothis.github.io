@@ -5,7 +5,7 @@ use game::api::{game_match::GameMatch, game_replay::GameId, websocket::{GetMatch
 use leptos::*;
 use leptos_router::use_params_map;
 
-use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{WebsocketAPI, call_api_sync}};
+use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn MatchPage() -> impl IntoView {
@@ -22,9 +22,7 @@ pub fn MatchPage() -> impl IntoView {
     let ginfo_1  = create_rw_signal(None);
     
     let match_info = create_rw_signal(None); 
-    let api = expect_context::<WebsocketAPI>();
     create_effect(move |_|{
-        let api = api.clone();
         if let Ok(match_uuid) = url() {
             call_api_sync::<GetMatchInfo>(match_uuid, Callback::new(move |r:GameMatch| {
                 match_info.set(Some((match_uuid, r)));
@@ -32,7 +30,6 @@ pub fn MatchPage() -> impl IntoView {
         }
     });
 
-    let api = expect_context::<WebsocketAPI>();
     create_effect(move |_| {
         if let Some((_, match_info)) = match_info.get() {
             let gameinfo_0 = GameId {
@@ -58,14 +55,10 @@ pub fn MatchPage() -> impl IntoView {
         }
     });
 
-    let api: WebsocketAPI = expect_context();
-
-
     let guest_id = create_rw_signal(None);
     call_api_sync::<WhoAmI>((), Callback::new(move |r| {
         guest_id.set(Some(r));
     }));
-
 
    let left_view = create_rw_signal(view!{}.into_view());
     let right_view = create_rw_signal(view!{}.into_view()); 

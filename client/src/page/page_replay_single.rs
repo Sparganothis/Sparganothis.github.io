@@ -8,51 +8,29 @@ use crate::{
     comp::{
         game_board_replay::ReplayGameBoard, table_replay_segments::TableReplaySegments,
     },
-    websocket::demo_comp::{_call_websocket_api, WebsocketAPI},
+    websocket::demo_comp::call_api_sync,
 };
 use leptos::*;
 
 #[component]
 pub fn GameReplaySinglePage() -> impl IntoView {
     let params = use_params_map();
+    let all_segments = create_rw_signal(vec![]);
 
     let game_id = move || -> Result<GameId, String> {
         let p = params.with(|params| params.get("game_id").cloned());
         let p = p.ok_or("param missing".to_string())?;
         let p = GameId::from_url(p).map_err(|_e| "url corrupted".to_string())?;
+
+        call_api_sync::<GetAllSegments>(p , Callback::new(move |r| {
+            all_segments.set(r);
+        }));
+
         Ok(p)
     };
 
-    let api: WebsocketAPI = expect_context();
-    let all_segments = create_resource(
-        move || game_id(),
-        move |game_id| {
-            let api3 = api.clone();
-            async move {
-                if game_id.is_err() {
-                    return vec![];
-                }
-                let game_id = game_id.unwrap();
-                // log::info!("calling websocket api");
-                let r = _call_websocket_api::<GetAllSegments>(api3, game_id)
-                    .expect("cannot obtain future")
-                    .await;
-                // log::info!("got back response: {:?}", r);
-                if let Ok(all_segments) = r {
-                    all_segments
-                } else {
-                    vec![]
-                }
-            }
-        },
-    );
-
     let all_segments = move || {
-        if let Some(s) = all_segments.get() {
-            s
-        } else {
-            vec![]
-        }
+        all_segments.get()
     };
     let slider = create_rw_signal(0.0);
 
