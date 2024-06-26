@@ -1,9 +1,9 @@
 
-use game::{api::websocket::{GetAllGames, GetAllGamesArg}, tet::GameState};
+use game::api::websocket::{GetAllGames, GetAllGamesArg};
 // use game::tet::GameState;
 use leptos::*;
 
-use crate::{page::page_replay_single::GameReplayBoardStandalone, websocket::demo_comp::call_api_sync};
+use crate::{page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn Homepage()-> impl IntoView{
@@ -24,7 +24,7 @@ pub fn Homepage()-> impl IntoView{
             8 =>{
                 (move || {
                     match best_gameid.get() {
-                        Some(game_id) => view! { <GameReplayBoardStandalone game_id/> }.into_view(),
+                        Some(game_id) => view! { <GameReplayBoardMini game_id/> }.into_view(),
                         None => view!{}.into_view(),
                     }
                 }).into_view()

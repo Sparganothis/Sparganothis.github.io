@@ -9,6 +9,10 @@ pub fn ReplayGameBoardFromSegmments(
     all_segments: Signal<Vec<GameReplaySegment>>,
     slider: RwSignal<f64>,
     game_state: RwSignal<GameState>,
+
+    #[prop(default = false)]
+    hide_controller: bool,
+
 ) -> impl IntoView {
     let status_message = create_rw_signal(String::from("downloading..."));
 
@@ -51,7 +55,7 @@ pub fn ReplayGameBoardFromSegmments(
         all_states
     });
 
-    let update_state_on_slider_change = move || {
+    create_effect(move |_| {
         let slider_val = slider.get() as usize;
         all_states.with(|all_states| {
             if all_states.is_empty() {
@@ -63,58 +67,61 @@ pub fn ReplayGameBoardFromSegmments(
             game_state.set(all_states[slider_val].clone());
             view! { <p>{status_message.get_untracked()}</p> }.into_view()
         })
-    };
+    });
 
     let make_slider = move || {
-        let all_segments = all_segments.get();
-        let maxval = all_segments.len() as f64 - 1.0;
-        view! {
-            <Slider
-                min=0.0
-                max=maxval
-                step=1.0
-                value=slider.read_only()
-                set_value=slider.write_only()
-                value_display=move |v| format!("{v:.0}/{maxval:.0}")
-            />
+        if hide_controller {view!{}.into_view()} else {
+
+            let all_segments = all_segments.get();
+            let maxval = (all_segments.len() as f64 - 1.0).max(1.0);
+            view! {
+                <Slider
+                    min=0.0
+                    max=maxval
+                    step=1.0
+                    value=slider.read_only()
+                    set_value=slider.write_only()
+                    value_display=move |v| format!("{v:.0}/{maxval:.0}")
+                />
+            }
+            .into_view()
         }
-        .into_view()
     };
 
-    let control_icons = {
-        let is_backwards = create_rw_signal(false);
-        let tick = create_rw_signal(0);
-        let do_every_tick = create_rw_signal(4);
+    let is_backwards = create_rw_signal(false);
+    let tick = create_rw_signal(0);
+    let do_every_tick = create_rw_signal(4);
 
-        let leptos_use::utils::Pausable { pause, resume, .. } =
-            leptos_use::use_interval_fn(
-                move || {
-                    tick.set(tick.get_untracked() + 1);
-                    if tick.get_untracked() % do_every_tick.get_untracked() == 0 {
-                        let old_slider = slider.get_untracked();
+    let leptos_use::utils::Pausable { pause, resume, .. } =
+        leptos_use::use_interval_fn(
+            move || {
+                tick.set(tick.get_untracked() + 1);
+                if tick.get_untracked() % do_every_tick.get_untracked() == 0 {
+                    let old_slider = slider.get_untracked();
 
-                        let diff_slider = if is_backwards.get_untracked() {
-                            -1.0
-                        } else {
-                            1.0
-                        };
-                        let mut new_slider = old_slider + diff_slider;
-                        new_slider = new_slider
-                            .max(0.0)
-                            .min(all_states.with_untracked(|w| w.len() as f64 - 1.0));
+                    let diff_slider = if is_backwards.get_untracked() {
+                        -1.0
+                    } else {
+                        1.0
+                    };
+                    let mut new_slider = old_slider + diff_slider;
+                    new_slider = new_slider
+                        .max(0.0)
+                        .min(all_states.with_untracked(|w| w.len() as f64 - 1.0));
 
-                        slider.set(new_slider);
-                    }
-                },
-                25,
-            );
+                    slider.set(new_slider);
+                }
+            },
+            25,
+        );
 
+    let control_icons = if hide_controller {view!{}.into_view()} else {
         let pause1 = pause.clone();
         create_effect(move |_| {
             let _count = all_states.with(|w| w.len());
             let _sl = slider.get();
             if _count > 10 {
-                if _sl < 0.0 || _sl >(( _count  as f64)-1.1) {
+                if _sl >(( _count  as f64)-1.1) {
                     pause1();
                 }
             }
@@ -247,7 +254,7 @@ pub fn ReplayGameBoardFromSegmments(
                 </div>
 
             </div>
-        }
+        }.into_view()
     };
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
@@ -257,7 +264,6 @@ pub fn ReplayGameBoardFromSegmments(
             game_state=game_state
             top_bar=view! {
                 {make_slider}
-                {update_state_on_slider_change}
                 {control_icons}
             }
                 .into_view()

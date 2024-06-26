@@ -1,6 +1,6 @@
 use game::{
     api::{game_replay::GameId, websocket::GetAllSegments},
-    tet::{GameReplaySegment, GameState},
+    tet::GameState,
 };
 use leptos_router::use_params_map;
 
@@ -67,7 +67,7 @@ pub fn GameReplaySinglePage() -> impl IntoView {
 
 
 #[component]
-pub fn GameReplayBoardStandalone(    game_id: GameId) -> impl IntoView{ 
+pub fn GameReplayBoardMini(    game_id: GameId) -> impl IntoView{ 
     let all_segments = create_rw_signal(vec![]);
     call_api_sync::<GetAllSegments>(game_id , Callback::new(move |r| {
          all_segments.set(r);
@@ -84,6 +84,7 @@ pub fn GameReplayBoardStandalone(    game_id: GameId) -> impl IntoView{
             all_segments=all_segments.into_signal()
             slider
             game_state
+            hide_controller=true
         />
     }
 }
