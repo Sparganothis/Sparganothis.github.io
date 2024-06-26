@@ -3,7 +3,7 @@ use game::{api::websocket::{GetAllGames, GetAllGamesArg}, tet::GameState};
 // use game::tet::GameState;
 use leptos::*;
 
-use crate::{comp::game_board_flex::GameBoardFlex, page::page_replay_single::GameReplayBoardStandalone, websocket::demo_comp::call_api_sync};
+use crate::{page::page_replay_single::GameReplayBoardStandalone, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn Homepage()-> impl IntoView{
