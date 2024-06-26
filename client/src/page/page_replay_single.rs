@@ -79,7 +79,7 @@ pub fn GameReplayBoardStandalone(    game_id: GameId) -> impl IntoView{
     let slider = create_rw_signal(0.0);
     let game_state = create_rw_signal(GameState::new(&[0; 32], 0));
 
-    view!{
+    view! {
         <ReplayGameBoardFromSegmments
             all_segments=all_segments.into_signal()
             slider
