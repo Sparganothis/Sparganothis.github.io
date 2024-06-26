@@ -17,7 +17,7 @@ pub fn GameBoardFlexDemoPage() -> impl IntoView {
             result.set(format!("{:?}", r));
         }));
     });
-    // let game_state = create_rw_signal(GameState::empty());
+    let _game_state = create_rw_signal(GameState::empty());
     view! {
         <div class="main_left">
             // <GameBoardFlex game_state/>

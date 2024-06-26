@@ -5,44 +5,31 @@ use game::{
     api::websocket::GetAllCustomGames, tet::GameState
 };
 
-use crate::websocket::demo_comp::{_call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::{WebsocketAPI, call_api_sync};
 use leptos_struct_table::*;
 
 #[component]
 pub fn ListAllCustomGames() -> impl IntoView {
-    let api2: WebsocketAPI = expect_context();
-    let all_games = create_resource(
-        || (),
-        move |_| {
-            let api2 = api2.clone();
-            async move {
-                // log::info!("calling websocket api");
-                let r = _call_websocket_api::<GetAllCustomGames>(api2, ())
-                    .expect("cannot obtain future")
-                    .await;
-                // log::info!("got back response: {:?}", r);
-                r
-            }
-        },
-    );
+    let all_games = create_rw_signal(vec![]);
+
+    call_api_sync::<GetAllCustomGames>((), Callback::new(move |_r| {
+        all_games.set(_r);
+    }));
 
     let table_from_rows = move || {
-        if let Some(Ok(rows)) = all_games.get() {
-            let rows = rows
-                .iter()
-                .map(|r| CustomGameDbRow::new(r.clone()))
-                // .filter(|f| f.num_segments > 0)
-                .collect::<Vec<_>>();
+        let rows = all_games.get();
+        let rows = rows
+            .iter()
+            .map(|r| CustomGameDbRow::new(r.clone()))
+            // .filter(|f| f.num_segments > 0)
+            .collect::<Vec<_>>();
 
-            view! {
-                <table id="get_custom_games">
-                    <TableContent rows row_renderer=CustomTableRowRenderer/>
-                </table>
-            }
-            .into_view()
-        } else {
-            view! { <p>loading...</p> }.into_view()
+        view! {
+            <table id="get_custom_games">
+                <TableContent rows row_renderer=CustomTableRowRenderer/>
+            </table>
         }
+        .into_view()
     };
 
     view! { {table_from_rows} }

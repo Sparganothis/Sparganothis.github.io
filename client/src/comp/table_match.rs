@@ -6,30 +6,19 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::websocket::demo_comp::{_call_websocket_api, WebsocketAPI};
+use crate::websocket::demo_comp::call_api_sync;
 use leptos::*;
 use leptos_struct_table::*;
 
 #[component]
 pub fn AllMatchTable(list_type: GetMatchListArg) -> impl IntoView {
-    let api2: WebsocketAPI = expect_context();
-    let all_games = create_resource(
-        || (),
-        move |_| {
-            let api2 = api2.clone();
-            async move {
-                // log::info!("calling websocket api");
-                let r = _call_websocket_api::<GetMatchList>(api2, list_type)
-                    .expect("cannot obtain future")
-                    .await;
-                // log::info!("got back response: {:?}", r);
-                r
-            }
-        },
-    );
+    let all_games = create_rw_signal(vec![]);
+    call_api_sync::<GetMatchList>(list_type, Callback::new(move |_r| {
+        all_games.set(_r);
+    }));
 
     let table_from_rows = move || {
-        if let Some(Ok(rows)) = all_games.get() {
+        let rows = all_games.get();
             let rows = rows
                 .iter()
                 .map(|r| GameMatchTableRow::new(r.clone()))
@@ -43,9 +32,6 @@ pub fn AllMatchTable(list_type: GetMatchListArg) -> impl IntoView {
                 </table>
             }
             .into_view()
-        } else {
-            view! { <p>loading...</p> }.into_view()
-        }
     };
 
     view! { {table_from_rows} }

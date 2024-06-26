@@ -12,6 +12,7 @@ use game::api::websocket::GetAllGamesArg;
 use leptos::*;
 use leptos_struct_table::*;
 
+
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     let api2: WebsocketAPI = expect_context();
