@@ -155,7 +155,7 @@ pub fn MatchGameBoard(game_id: GameId, is_in_progress: bool, is_mine: bool) -> i
             view! { <SpectatorGameBoard game_id/> }.into_view()
         },
         (true, true) => {
-            view! { <PlayerGammeBoardFromId new_game_id=game_id/> }.into_view()
+            view! { <PlayerGammeBoardFromId game_id=game_id/> }.into_view()
         },
 
         (true, false) => {

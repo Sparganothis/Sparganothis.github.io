@@ -34,7 +34,7 @@ bash run-server.sh
 
 
 # todo
-
+- change all Get* api message to return None for "not found" -- is not error (custom game / mmspaint on randomm name);
 - https://github.com/goldfire/howler.js/tree/master/examples/sprite
 - rotate SRS
 - rotate tests fromm mwiki

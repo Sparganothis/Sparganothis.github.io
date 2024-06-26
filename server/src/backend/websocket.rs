@@ -401,7 +401,6 @@ pub async fn websocket_handle_request(
                 bincode::deserialize(&msg.data).context("bincode never fail")?;
 
             let response = subscribe_games.accept_message(&request).await?;
-            // let response = response.map_err(|e| format!("websocket method error: {e}"));
 
             Ok(WebsocketAPIMessageRaw {
                 id: msg.id,
@@ -454,7 +453,7 @@ pub async fn specific_sync_request<T: APIMethod>(
         tokio::task::spawn_blocking(move || callback(request, guest_info))
             .await
             .context("tokio never fail")?;
-    let response = response.map_err(|e| format!("websocket method error: {e}"));
+    let response = response.map_err(|e| format!("websocket method error ({:?}): {e}", T::TYPE));
 
     Ok(WebsocketAPIMessageRaw {
         id: request_msg.id,
@@ -484,7 +483,7 @@ where
         bincode::deserialize(&request_msg.data).context("bincode never fail")?;
 
     let response: anyhow::Result<T::Resp> = callback(request, guest_info).await;
-    let response = response.map_err(|e| format!("websocket method error: {e}"));
+    let response = response.map_err(|e| format!("websocket method error ({:?}): {e}", T::TYPE));
 
     Ok(WebsocketAPIMessageRaw {
         id: request_msg.id,

@@ -65,35 +65,59 @@ impl WebsocketAPI {
    } 
 }
 
+// pub fn call_api_sync2<T: APIMethod>(arg: T::Req, f: Callback<T::Resp, ()>) -> () {
+//     let api2: WebsocketAPI = expect_context();
+//     let api = api2.clone();
+//     let res = create_resource(
+//         || (),
+//         move |_| {
+//             let api2 = api2.clone();
+//             let arg2 = arg.clone();
+//             async move {
+//                 // log::info!("calling websocket api");
+//                 let r = _call_websocket_api::<T>(api2, arg2)
+//                     .expect("cannot obtain future")
+//                     .await;
+//                 // log::info!("got back response: {:?}", r);
+//                 r
+//             }
+//         },
+//     );
+//     let api2 = api.clone();
+//     create_effect(move |_| {
+//             if let Some(x) = res.get() {
+//                 match x {
+//                     Ok(result) => {
+//                         f.call(result);
+//                     }
+//                     Err(err) => {
+//                         log::error!("WEBSOCKET SERVER ERROR: {}", err);
+//                         api2.error_msgs.update(|x| x.push(err.clone()));
+//                     }
+//                 }
+//             }
+//     });
+// }
+
+
 pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: Callback<T::Resp, ()>) -> () {
     let api2: WebsocketAPI = expect_context();
-    let api = api2.clone();
-    let res = create_resource(
-        || (),
-        move |_| {
-            let api2 = api2.clone();
-            let arg2 = arg.clone();
-            async move {
-                // log::info!("calling websocket api");
-                let r = _call_websocket_api::<T>(api2, arg2)
-                    .expect("cannot obtain future")
-                    .await;
-                // log::info!("got back response: {:?}", r);
-                r
-            }
-        },
-    );
-    let api2 = api.clone();
-    create_effect(move |_| {
-            if let Some(x) = res.get() {
-                match x {
-                    Ok(result) => {
-                        f.call(result);
-                    }
-                    Err(err) => {
-                        log::error!("WEBSOCKET SERVER ERROR: {}", err);
-                        api2.error_msgs.update(|x| x.push(err.clone()));
-                    }
+    spawn_local(async move {
+        let api2 = api2.clone();
+        let api3 = api2.clone();
+        let arg2 = arg.clone();
+            // log::info!("calling websocket api");
+            let r = _call_websocket_api::<T>(api2, arg2)
+                .expect("cannot obtain future")
+                .await;
+
+            match r {
+                Ok(result) => {
+                    f.call(result);
+                }
+                Err(err) => {
+                    log::warn!("WEBSOCKET SERVER ERROR: {}", err);
+                    api3.error_msgs.update(|x| x.push(err.clone()));
                 }
             }
     });

@@ -14,37 +14,26 @@ use leptos::*;
 
 use crate::{
     comp::{game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
-    websocket::demo_comp::{WebsocketAPI, _call_websocket_api, call_api_sync},
+    websocket::demo_comp::call_api_sync,
 };
 
 #[component]
 pub fn MsPaintPlayPage() ->impl IntoView{
-    let api = expect_context::<WebsocketAPI>();
     let game_state = create_rw_signal(GameState::empty());
     let params = use_params_map();
     let (save_name, set_save_name) = create_signal("".to_string());
 
-    let api2 = api.clone();
     create_effect(
         move |_| {
-            let api2 = api2.clone();
             let p = params.with(|params| params.get("save_id").cloned());
             log::info!("readcting to URL papram save_id = {:?}", p);
             if let Some(url_save_name) = p {
                     set_save_name.set(url_save_name.clone());
 
-                    // call_api_sync::<GetCustomGame>(url_save_name, Callback::new(move |r| {
-                    //     game_state.set(r);
-                    // }));
+                    call_api_sync::<GetCustomGame>(url_save_name, Callback::new(move |r| {
+                        game_state.set(r);
+                    }));
 
-                    spawn_local(
-                        async move {
-                            if let Ok(ceva) = _call_websocket_api::<GetCustomGame>(api2, url_save_name) {
-                            if let Ok(ceva) = ceva.await {
-                                game_state.set(ceva);
-                            }
-                        }
-                });
             }
         }
     );
@@ -57,69 +46,41 @@ pub fn MsPaintPlayPage() ->impl IntoView{
         </div>
     }
 }
+
+
+
 #[component]
 pub fn MsPaintPage() -> impl IntoView {
-
-    
-    let api = expect_context::<WebsocketAPI>();
     let (save_name, set_save_name) = create_signal("".to_string());
 
     let (status, set_status) = create_signal("...".to_string());
     
     let params = use_params_map();
-
     let game_state = create_rw_signal(GameState::empty());
 
-    let api2= api.clone();
     create_effect( move |_| {
         let p = params.with(|params| params.get("save_id").cloned());
         log::info!("readcting to URL papram save_id = {:?}", p);
         if let Some(url_save_name) = p {
             set_save_name.set(url_save_name.clone());
-            let api2 = api2.clone();
-            spawn_local(
-                    async move {
-                        if let Ok(ceva) = _call_websocket_api::<GetCustomGame>(api2, url_save_name) {
-                           if let Ok(ceva) = ceva.await {
-                            game_state.set(ceva);
-                           }
-                        }
-            });
+            call_api_sync::<GetCustomGame>(url_save_name, Callback::new(move |r| {
+                game_state.set(r);
+            }));
         } else {
             let navigate = use_navigate();
-    
-            let api2 = api2.clone();
-            spawn_local(async move {
-                if let Ok(ceva) = _call_websocket_api::<GetRandomWord>(api2, ()) {
-                    let ceva = ceva.await;
-                    if let Ok(ceva) = ceva {
-                        set_save_name.set(ceva.clone());
-                        let new_url = format!("/edit-custom-game/{}", ceva);
-                        navigate(&new_url, NavigateOptions::default());
-                    }
-                }
-            });
+            call_api_sync::<GetRandomWord>((), Callback::new(move |r: String| {
+                set_save_name.set(r.clone());
+                let new_url = format!("/edit-custom-game/{}", r);
+                navigate(&new_url, NavigateOptions::default());
+            }));
         }
     });
 
-    let api2 = api.clone();
     let on_save = move |_| {
-        let api = api2.clone();
-        spawn_local(async move {
-            if let Ok(ceva) = _call_websocket_api::<UpdateCustomGame>(
-                api,
-                (save_name.get_untracked(), game_state.get_untracked()),
-            ) {
-                let ceva = ceva.await;
-                if let Ok(_ceva) = ceva {
-                    set_status.set("Save ok".to_string());
-                } else {
-                    set_status.set("SVDB EERR".to_string());
-                }
-            } else {
-                set_status.set("Connect errrr".to_string());
-            }
-        });
+        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), Callback::new(move |r| {
+            
+            set_status.set("Save ok".to_string());
+        }));
     };
     let on_save = leptonic::callback::Consumer::<leptos::ev::MouseEvent>::new(on_save);
 

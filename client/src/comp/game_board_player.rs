@@ -1,9 +1,8 @@
-use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::{_call_websocket_api, call_api_sync}};
+use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sync};
 use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{use_interval, UseIntervalReturn};
-use crate::websocket::demo_comp::WebsocketAPI;
 use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 
@@ -17,7 +16,7 @@ pub fn PlayerGameBoard() -> impl IntoView {
 
     let x = move || match new_game_id.get() {
         Some(x) => {
-            view! { <PlayerGammeBoardFromId new_game_id=x/> }.into_view()
+            view! { <PlayerGammeBoardFromId game_id=x/> }.into_view()
         },
         _ => {
             view! {
@@ -29,13 +28,8 @@ pub fn PlayerGameBoard() -> impl IntoView {
 }
 
 #[component]
-pub fn PlayerGammeBoardFromId(new_game_id: GameId) -> impl IntoView {
-    let api = expect_context::<WebsocketAPI>();
-    let api2 = api.clone();
+pub fn PlayerGammeBoardFromId(game_id: GameId) -> impl IntoView {
     let on_state_change = Callback::<GameState>::new(move |s| {
-        // log::info!("we changed state: {}", s.get_debug_info());
-
-        let game_id = new_game_id;
 
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
@@ -48,26 +42,11 @@ pub fn PlayerGammeBoardFromId(new_game_id: GameId) -> impl IntoView {
                 )
             }
         };
-        // log::info!("segment: {:?}", &segment);
-        spawn_local({
-            let api2 = api2.clone();
 
-            async move {
-                // log::info!("calling websocket api");
-                let segment_json: String =
-                    serde_json::to_string(&segment).expect("json never fail");
-                let _r = _call_websocket_api::<AppendGameSegment>(
-                    api2.clone(),
-                    (game_id, segment_json),
-                )
-                .expect("cannot obtain future")
-                .await;
-                if let Err(e) = _r {
-                    log::warn!("failed to append game segment: {}", e);
-                }
-                // log::info!("got back response: {:?}", r);
-            }
-        });
+        let segment_json: String = serde_json::to_string(&segment).unwrap();
+        call_api_sync::<AppendGameSegment>((game_id, segment_json), Callback::new(move |_r| {
+            log::info!("append OK");
+        }));
     });
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
@@ -102,7 +81,7 @@ pub fn PlayerGammeBoardFromId(new_game_id: GameId) -> impl IntoView {
         }
     });
     
-    let game_id = new_game_id;
+    let game_id = game_id;
     let state = create_rw_signal(
         tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
