@@ -1,11 +1,11 @@
 use std::str::FromStr;
 
 use anyhow::Context;
-use game::api::{game_replay::GameId, websocket::{GetMatchInfo, GetSegmentCount, WhoAmI}};
+use game::api::{game_match::GameMatch, game_replay::GameId, websocket::{GetMatchInfo, GetSegmentCount, WhoAmI}};
 use leptos::*;
 use leptos_router::use_params_map;
 
-use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{WebsocketAPI, _call_websocket_api, call_api_sync}};
+use crate::{comp::{game_board_player::PlayerGammeBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::{WebsocketAPI, call_api_sync}};
 
 #[component]
 pub fn MatchPage() -> impl IntoView {
@@ -26,18 +26,9 @@ pub fn MatchPage() -> impl IntoView {
     create_effect(move |_|{
         let api = api.clone();
         if let Ok(match_uuid) = url() {
-            spawn_local(async move {
-                
-                let api2 = api.clone();
-                if let Ok(fut)= _call_websocket_api::<GetMatchInfo>(api2, match_uuid)
-                {
-                    let r = fut.await;
-                    if let Ok(r) = r {
-                        match_info.set(Some((match_uuid, r.clone())));
-                        log::info!("====> got match info");
-                    }
-                }
-            });
+            call_api_sync::<GetMatchInfo>(match_uuid, Callback::new(move |r:GameMatch| {
+                match_info.set(Some((match_uuid, r)));
+            }));
         }
     });
 
