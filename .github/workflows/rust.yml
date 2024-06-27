@@ -99,7 +99,7 @@ jobs:
       run: cd client && trunk build
 
     - name: Trunk Build Prod
-      run: cd client && trunk build --release --minify --public-url "/" && echo '/* /index.html 200' > dist/_redirects
+      run: cd client && trunk build --release --minify --public-url "/" && echo '/* /index.html 200' > dist/_redirects && cp dist/index.html dist/404.html
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
