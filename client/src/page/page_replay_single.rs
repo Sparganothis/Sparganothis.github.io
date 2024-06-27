@@ -22,9 +22,9 @@ pub fn GameReplaySinglePage() -> impl IntoView {
         let p = p.ok_or("param missing".to_string())?;
         let p = GameId::from_url(p).map_err(|_e| "url corrupted".to_string())?;
 
-        call_api_sync::<GetAllSegments>(p , Callback::new(move |r| {
+        call_api_sync::<GetAllSegments>(p , move |r| {
             all_segments.set(r);
-        }));
+        });
 
         Ok(p)
     };
@@ -69,9 +69,9 @@ pub fn GameReplaySinglePage() -> impl IntoView {
 #[component]
 pub fn GameReplayBoardMini(    game_id: GameId) -> impl IntoView{ 
     let all_segments = create_rw_signal(vec![]);
-    call_api_sync::<GetAllSegments>(game_id , Callback::new(move |r| {
+    call_api_sync::<GetAllSegments>(game_id , move |r| {
          all_segments.set(r);
-    }));
+    });
     let all_segments = move || {
         all_segments.get()
     };

@@ -10,16 +10,16 @@ use leptonic::prelude::*;
 pub fn MyAccountPage() -> impl IntoView {
 
     let guest_id = create_rw_signal(None);
-    call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+    call_api_sync::<WhoAmI>((), move |r| {
         guest_id.set(Some(r));
-    }));
+    });
 
     let user_profile = create_rw_signal(None);
     create_effect(move |_|{
         if let Some(guest_id) = guest_id.get() {
-            call_api_sync::<GetProfile>(guest_id.user_id, Callback::new(move |r| {
+            call_api_sync::<GetProfile>(guest_id.user_id, move |r| {
                 user_profile.set(Some(r));
-            }));
+            });
         }
     });
 
@@ -63,9 +63,9 @@ pub fn UserProfilePage() -> impl IntoView {
     let user_profile = create_rw_signal(None);
     create_effect(move |_|{
         if let Some(guest_id) = user_uuid.get() {
-            call_api_sync::<GetProfile>(guest_id, Callback::new(move |r| {
+            call_api_sync::<GetProfile>(guest_id, move |r| {
                 user_profile.set(Some(r));
-            }));
+            });
         }
     });
 

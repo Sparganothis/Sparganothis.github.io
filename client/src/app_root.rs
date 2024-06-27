@@ -148,9 +148,9 @@ pub fn AppRoot() -> impl IntoView {
     provide_context(api.clone());
 
     let send_byte_message = move |_| {
-        call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+        call_api_sync::<WhoAmI>((), move |r| {
             log::info!("WHO AMM I? {:?}", r);
-        }));
+        });
     };
     let mut recv_bytes_stream = message_bytes.to_stream();
     // let last_message_size = create_rw_signal(0);
@@ -165,7 +165,7 @@ pub fn AppRoot() -> impl IntoView {
             while let Some(Some(c)) = recv_bytes_stream.next().await {
                 // last_message_size.set_untracked(c.len() as i32);
                 // last_message_id.set_untracked(last_message_id.try_get_untracked().unwrap_or(0) % 999);
-                log::debug!("websocket got {} bytes", c.len());
+                // log::debug!("websocket got {} bytes", c.len());
                 match bincode::deserialize::<WebsocketAPIMessageRaw>(&c) {
                     Ok(msg) => {
                         // log::info!("recv message type={:?} len={}", msg._type, c.len(),);

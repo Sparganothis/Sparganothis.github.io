@@ -30,10 +30,9 @@ pub fn MsPaintPlayPage() ->impl IntoView{
             if let Some(url_save_name) = p {
                     set_save_name.set(url_save_name.clone());
 
-                    call_api_sync::<GetCustomGame>(url_save_name, Callback::new(move |r| {
+                    call_api_sync::<GetCustomGame>(url_save_name, move |r| {
                         game_state.set(r);
-                    }));
-
+                    });
             }
         }
     );
@@ -61,24 +60,24 @@ pub fn MsPaintPage() -> impl IntoView {
         log::info!("readcting to URL papram save_id = {:?}", p);
         if let Some(url_save_name) = p {
             set_save_name.set(url_save_name.clone());
-            call_api_sync::<GetCustomGame>(url_save_name, Callback::new(move |r| {
+            call_api_sync::<GetCustomGame>(url_save_name, move |r| {
                 game_state.set(r);
-            }));
+            });
         } else {
             let navigate = use_navigate();
-            call_api_sync::<GetRandomWord>((), Callback::new(move |r: String| {
+            call_api_sync::<GetRandomWord>((), move |r: String| {
                 set_save_name.set(r.clone());
                 let new_url = format!("/edit-custom-game/{}", r);
                 navigate(&new_url, NavigateOptions::default());
-            }));
+            });
         }
     });
 
     let on_save = move |_| {
-        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), Callback::new(move |r| {
+        call_api_sync::<UpdateCustomGame>((save_name.get_untracked(), game_state.get_untracked()), move |r| {
             log::info!("saved {r:?}");
             set_status.set("Save ok".to_string());
-        }));
+        });
     };
     let on_save = leptonic::callback::Consumer::<leptos::ev::MouseEvent>::new(on_save);
 

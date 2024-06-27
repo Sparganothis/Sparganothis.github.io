@@ -9,12 +9,12 @@ use crate::{page::page_replay_single::GameReplayBoardMini, websocket::demo_comp:
 pub fn Homepage()-> impl IntoView{
 
     let best_gameid = create_rw_signal(None);
-    call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, Callback::new(move |v: Vec<_>| {
+    call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, move |v: Vec<_>| {
             let game_id = v.get(0).clone();
             if let Some((a, _b)) = game_id {
                 best_gameid.set(Some(*a));
             }
-    }));
+    });
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{

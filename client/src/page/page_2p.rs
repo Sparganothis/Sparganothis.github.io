@@ -23,10 +23,10 @@ pub fn Lobby2P() -> impl IntoView {
     let obtain_new_match_id: Callback<()> = Callback::new(move |_| {
         waiting_for_game.set(true);
         log::info!("waiting for game...");
-        call_api_sync::<StartMatch>(GameMatchType::_1v1, Callback::new(move |r| {
+        call_api_sync::<StartMatch>(GameMatchType::_1v1, move |r| {
             waiting_for_game.set(false);
             match_id_signal.set(Some(r));
-        }));
+        });
 
     });
 

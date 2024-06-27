@@ -16,9 +16,9 @@ use leptos_struct_table::*;
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     let all_games = create_rw_signal(vec![]);
-    call_api_sync::<GetAllGames>(list_type, Callback::new(move |r| {
+    call_api_sync::<GetAllGames>(list_type, move |r| {
         all_games.set(r);
-    }));
+    });
     let table_from_rows = move || {
         let rows = all_games.get();
             let rows = rows

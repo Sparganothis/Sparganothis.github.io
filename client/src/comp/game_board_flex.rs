@@ -13,9 +13,9 @@ pub fn GameBoardFlexDemoPage() -> impl IntoView {
 
     create_effect(move |_| {
         let _p = param.get();
-        call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+        call_api_sync::<WhoAmI>((), move |r| {
             result.set(format!("{:?}", r));
-        }));
+        });
     });
     let _game_state = create_rw_signal(GameState::empty());
     view! {

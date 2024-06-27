@@ -66,20 +66,18 @@ impl WebsocketAPI {
 }
 
 
-pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: Callback<T::Resp, ()>) -> () {
+pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'static) -> () {
     let api2: WebsocketAPI = expect_context();
     spawn_local(async move {
-        let api2 = api2.clone();
         let api3 = api2.clone();
-        let arg2 = arg.clone();
             // log::info!("calling websocket api");
-            let r = _call_websocket_api::<T>(api2, arg2)
+            let r = _call_websocket_api::<T>(api2, arg)
                 .expect("cannot obtain future")
                 .await;
 
             match r {
                 Ok(result) => {
-                    f.call(result);
+                    f(result);
                 }
                 Err(err) => {
                     log::warn!("WEBSOCKET SERVER ERROR: {}", err);
@@ -123,7 +121,7 @@ pub fn _call_websocket_api<T: APIMethod>(
                 }
             }
         }
-        log::info!("Websocket Request: {:?}", T::TYPE);
+        // log::info!("Websocket Request: {:?}", T::TYPE);
         T::send(arg, move |x| sender(x), id)
             .map_err(|e| format!("send error: {:?}", e))?;
 
@@ -172,7 +170,7 @@ pub async fn accept_reply_message(api: &WebsocketAPI, msg: WebsocketAPIMessageRa
                 if let Err(e) = cell.send(msg) {
                     log::warn!("failed to send message into oneshot: {:?}", e._type);
                 } else {
-                    log::info!("Websocket: {:?} SUCCESS", key.1);
+                    // log::info!("Websocket: {:?} SUCCESS", key.1);
                 }
             } else {
                 log::warn!("failed to unwrap Rc that we just removed from map!");

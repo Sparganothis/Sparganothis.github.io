@@ -35,10 +35,10 @@ pub fn Game1PPage() -> impl IntoView {
 pub fn GameSoloLobbyPage() -> impl IntoView {
     let cb = Callback::new(move |_|{
         let navigate = use_navigate();
-         call_api_sync::<CreateNewGameId>((), Callback::new(move |r:GameId| {
+         call_api_sync::<CreateNewGameId>((), move |r:GameId| {
             let new_url = format!("/play-game-solo/{}", r.to_url());
             navigate(&new_url, NavigateOptions::default());
-         }));        
+         });        
     });
     
     view! {

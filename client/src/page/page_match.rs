@@ -24,9 +24,9 @@ pub fn MatchPage() -> impl IntoView {
     let match_info = create_rw_signal(None); 
     create_effect(move |_|{
         if let Ok(match_uuid) = url() {
-            call_api_sync::<GetMatchInfo>(match_uuid, Callback::new(move |r:GameMatch| {
+            call_api_sync::<GetMatchInfo>(match_uuid, move |r:GameMatch| {
                 match_info.set(Some((match_uuid, r)));
-            }));
+            });
         }
     });
 
@@ -43,22 +43,22 @@ pub fn MatchPage() -> impl IntoView {
                 start_time: match_info.time,
             };
 
-            call_api_sync::<GetSegmentCount>(gameinfo_0, Callback::new(move |r| {
+            call_api_sync::<GetSegmentCount>(gameinfo_0, move |r| {
                 ginfo_0.set(Some((gameinfo_0, r)));
-            }));
+            });
 
 
-            call_api_sync::<GetSegmentCount>(gameinfo_1, Callback::new(move |r| {
+            call_api_sync::<GetSegmentCount>(gameinfo_1, move |r| {
                 ginfo_1.set(Some((gameinfo_1, r)));
-            }));
+            });
 
         }
     });
 
     let guest_id = create_rw_signal(None);
-    call_api_sync::<WhoAmI>((), Callback::new(move |r| {
+    call_api_sync::<WhoAmI>((), move |r| {
         guest_id.set(Some(r));
-    }));
+    });
 
    let left_view = create_rw_signal(view!{}.into_view());
     let right_view = create_rw_signal(view!{}.into_view()); 

@@ -24,9 +24,9 @@ pub fn PlayerGameBoardFromId(game_id: GameId) -> impl IntoView {
         };
 
         let segment_json: String = serde_json::to_string(&segment).unwrap();
-        call_api_sync::<AppendGameSegment>((game_id, segment_json), Callback::new(move |_r| {
-            log::info!("append OK");
-        }));
+        call_api_sync::<AppendGameSegment>((game_id, segment_json), move |_r| {
+            // log::info!("append OK: {:?}", _r);
+        });
     });
 
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {
