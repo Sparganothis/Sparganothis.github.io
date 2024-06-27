@@ -116,6 +116,7 @@ pub struct GameSegmentCountReply {
     pub is_in_progress: bool,
     pub segment_count: u32,
 }
+
 pub struct GetSegmentCount {}
 impl APIMethod for GetSegmentCount {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetSegmentCount;

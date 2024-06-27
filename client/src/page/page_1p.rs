@@ -1,4 +1,4 @@
-use crate::websocket::demo_comp::call_api_sync;
+use crate::{comp::menu_grid_view::MenuGridView, websocket::demo_comp::call_api_sync};
 use game::api::{game_replay::GameId, websocket::CreateNewGameId};
 use leptos::*;
 use leptos_router::{use_navigate, use_params_map, NavigateOptions};
@@ -33,7 +33,8 @@ pub fn Game1PPage() -> impl IntoView {
 
 #[component]
 pub fn GameSoloLobbyPage() -> impl IntoView {
-    let cb = Callback::new(move |_|{
+    
+    let redirect_to_new_game = Callback::new(move |_|{
         let navigate = use_navigate();
          call_api_sync::<CreateNewGameId>((), move |r:GameId| {
             let new_url = format!("/play-game-solo/{}", r.to_url());
@@ -41,11 +42,20 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
          });        
     });
     
-    view! {
-        <div class="main_left">
-            <h1 on:click=move |_| { cb.call(()) }>PLAY</h1>
-        </div>
-    }
+    let play_button = view! {
+            <h1 on:click=move |_| { redirect_to_new_game.call(()) }>PLAY</h1>
+    }.into_view();
+
+
+    let views:Vec<_> = {0..20}.into_iter().map(move |x|{
+        match x{
+            0 => play_button.clone(),
+            _ => view!{            }.into_view()
+            
+        }
+     }).collect();
+
+    view! { <MenuGridView views/> }
 }
 
 

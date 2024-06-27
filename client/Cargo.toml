@@ -67,7 +67,7 @@ uuid = { version = "1.8.0", features = ["v4", "serde"] }
 
 # client only
 leptos-use = {version="0.10.10"}
-leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}
+# leptos_hotkeys = {path="../lib/leptos-hotkeys-0.2.1/leptos_hotkeys"}s
 wasm-bindgen = {version="0.2"}
 console_log = {version="1.0"}
 stylist = {version="0.13.0", features=["parser"]}

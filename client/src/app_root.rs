@@ -10,6 +10,7 @@ use leptos_use::{use_websocket, UseWebsocketReturn};
 
 use crate::comp::game_board_flex::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
+use crate::hotkey_context::provide_hotkeys_context2;
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
@@ -81,12 +82,12 @@ pub fn AppRoot() -> impl IntoView {
         }
     )
     .expect("bad css");
-    use leptos_hotkeys::{provide_hotkeys_context, scopes, HotkeysContext};
+
 
     provide_meta_context();
 
     let main_ref = create_node_ref::<html::Main>();
-    let HotkeysContext { .. } = provide_hotkeys_context(main_ref, false, scopes!());
+    provide_hotkeys_context2(main_ref);
 
     use crate::websocket::demo_comp::*;
     use std::rc::Rc;

@@ -9,6 +9,7 @@ use futures_timer as _;
 
 use leptos::*;
 
+pub mod hotkey_context;
 pub mod app_root;
 pub mod comp;
 mod error_template;

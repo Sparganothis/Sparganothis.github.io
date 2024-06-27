@@ -636,7 +636,6 @@ dependencies = [
  "leptos",
  "leptos-struct-table",
  "leptos-use",
- "leptos_hotkeys",
  "leptos_meta",
  "leptos_router",
  "log",
@@ -2077,15 +2076,6 @@ dependencies = [
  "serde",
  "syn 2.0.68",
  "walkdir",
-]
-
-[[package]]
-name = "leptos_hotkeys"
-version = "0.2.1"
-dependencies = [
- "leptos",
- "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]

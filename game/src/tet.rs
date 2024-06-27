@@ -293,6 +293,12 @@ pub enum TetAction {
 }
 
 impl TetAction {
+    pub fn is_repeating(&self) -> bool {
+        match self {
+            TetAction::MoveLeft | TetAction::MoveRight | TetAction::SoftDrop => true,
+            _ => false,
+        }
+    }
     pub fn random() -> Self {
         use rand::seq::SliceRandom;
         use rand::thread_rng;
