@@ -67,6 +67,10 @@ impl WebsocketAPI {
 
 
 pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'static) -> () {
+    call_api_sync_or_error::<T>(arg, f, move |_|{})
+}
+
+pub fn call_api_sync_or_error<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'static, ferr: impl Fn(String) + Clone+'static) -> () {
     let api2: WebsocketAPI = expect_context();
     spawn_local(async move {
         let api3 = api2.clone();
@@ -82,6 +86,7 @@ pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'sta
                 Err(err) => {
                     log::warn!("WEBSOCKET SERVER ERROR: {}", err);
                     api3.error_msgs.update(|x| x.push(err.clone()));
+                    ferr(err);
                 }
             }
     });

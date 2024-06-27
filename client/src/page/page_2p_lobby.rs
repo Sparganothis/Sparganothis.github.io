@@ -1,4 +1,4 @@
-use crate::{comp::table_match::AllMatchTable, websocket::demo_comp::call_api_sync};
+use crate::{comp::table_match::AllMatchTable, websocket::demo_comp::{call_api_sync, call_api_sync_or_error}};
 use game::api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
@@ -19,13 +19,18 @@ pub fn Lobby2P() -> impl IntoView {
     use leptonic::prelude::*;
     let match_id_signal = create_rw_signal(None);
     let waiting_for_game = create_rw_signal(false);
+    let error_display = create_rw_signal("".to_string());
 
     let obtain_new_match_id: Callback<()> = Callback::new(move |_| {
         waiting_for_game.set(true);
         log::info!("waiting for game...");
-        call_api_sync::<StartMatch>(GameMatchType::_1v1, move |r| {
+
+        call_api_sync_or_error::<StartMatch>(GameMatchType::_1v1, move |r| {
             waiting_for_game.set(false);
             match_id_signal.set(Some(r));
+        }, move |err_str| {
+            waiting_for_game.set(false);
+            error_display.set(err_str);
         });
 
     });
@@ -42,12 +47,17 @@ pub fn Lobby2P() -> impl IntoView {
     view! {
         <Show
             when=move || waiting_for_game.get()
-            fallback=move || {
-                view! {}
-            }
+            fallback=move || {                view! {}            }
         >
 
             <h1>WAITING FOR GAME</h1>
+        </Show>
+
+        <Show
+            when=move|| (error_display.get().len() > 0)
+            fallback=move || {                view! {}            }
+        >
+            <h1 style="color:red">{error_display}</h1>
         </Show>
 
         <Show

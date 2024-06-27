@@ -204,7 +204,7 @@ pub fn AppRoot() -> impl IntoView {
     };
 
     use crate::page::page_1p::Game1PPage;
-    use crate::page::page_2p::Game2LobbyPage;
+    use crate::page::page_2p_lobby::Game2LobbyPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
     use crate::page::page_vs_cpu::GameCPUPage;
 
