@@ -21,7 +21,7 @@ pub async fn server_main() {
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-    let addr = "127.0.0.1:3000".to_string();
+    let addr = "0.0.0.0:3000".to_string();
     log::info!("listening on http://{}", &addr);
 
     // let _conn = db().await.expect("couldn't connect to DB");

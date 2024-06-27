@@ -287,14 +287,15 @@ pub struct MatchMakingItem {
 
 pub static MATCH_MAKING_QUEUE: Lazy<MatchMakingQueue> =
     Lazy::new(|| MatchMakingQueue {
-        v: Arc::new(Mutex::new(vec![])),
+        v: Arc::new(Mutex::new(HashMap::new())),
     });
 
 use once_cell::sync::Lazy;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 pub struct MatchMakingQueue {
-    v: Arc<Mutex<Vec<MatchMakingItem>>>,
+    v: Arc<Mutex<HashMap<uuid::Uuid, MatchMakingItem>>>,
 }
 
 pub async fn start_match(
@@ -307,40 +308,39 @@ pub async fn start_match(
     let mut _got_new_match: Option<_> = None;
     {
         let mut q = MATCH_MAKING_QUEUE.v.lock().await;
-        match q.len() {
-            0 => {
+        if q.is_empty() {
                 // creezi chan, te bagi in el
                 let (tx, rx) = tokio::sync::mpsc::channel(1);
+                let player_id =  _current_user_id.user_id;
                 let new_item = MatchMakingItem {
                     channel: tx,
-                    player_id: _current_user_id.user_id,
+                    player_id ,
                 };
 
                 _waiting_for_match = Some(rx);
-                q.push(new_item);
-            }
-            _ => {
-                if let Some(other_player) = q.pop() {
-                    let new_match = GameMatch {
-                        seed: (&mut rand::thread_rng()).gen(),
-                        time: get_timestamp_now_nano(),
-                        users: vec![other_player.player_id, _current_user_id.user_id],
-                        title: format!(
-                            "1v1 {} vs. {}",
-                            other_player.player_id, _current_user_id.user_id
-                        ),
-                    };
-                    let new_match_id = uuid::Uuid::new_v4();
-                    GAME_MATCH_DB.insert(&new_match_id, &new_match)?;
-                    other_player
-                        .channel
-                        .send((new_match_id, new_match.clone()))
-                        .await?;
-                    _got_new_match = Some((new_match_id, new_match));
-                } else {
-                    anyhow::bail!("got items but dissapepard");
-                }
-                // scoti fraer, creez match id, trimit la fraier
+                q.insert(player_id, new_item);
+        }else {
+            if q.contains_key(&_current_user_id.user_id) {
+                anyhow::bail!("another game is already in matchmaking!");
+            } else {
+                let k = *q.keys().next().unwrap();
+                let other_player = q.remove(&k).unwrap();
+                let new_match = GameMatch {
+                    seed: (&mut rand::thread_rng()).gen(),
+                    time: get_timestamp_now_nano(),
+                    users: vec![other_player.player_id, _current_user_id.user_id],
+                    title: format!(
+                        "1v1 {} vs. {}",
+                        other_player.player_id, _current_user_id.user_id
+                    ),
+                };
+                let new_match_id = uuid::Uuid::new_v4();
+                GAME_MATCH_DB.insert(&new_match_id, &new_match)?;
+                other_player
+                    .channel
+                    .send((new_match_id, new_match.clone()))
+                    .await?;
+                _got_new_match = Some((new_match_id, new_match));
             }
         }
     }
