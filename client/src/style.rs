@@ -121,7 +121,6 @@ pub fn flex_gameboard_style(
         z-index: 999;
         position: absolute;
         background-color: #000c;
-        animation: spin 5s linear 1;
         border: 1vh #f00c;
         font-family: "Comic Sans MS", "Comic Sans", cursive;
         display: flex;
