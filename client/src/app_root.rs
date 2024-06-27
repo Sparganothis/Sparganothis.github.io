@@ -226,7 +226,7 @@ pub fn AppRoot() -> impl IntoView {
         ></leptos_meta::Link>
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
 
-        <Title text="TOTRES"/>
+        <Title text="xanthoides"/>
 
         <Root default_theme=LeptonicTheme::default()>
 
