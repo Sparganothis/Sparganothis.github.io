@@ -101,7 +101,7 @@ pub fn AppRoot() -> impl IntoView {
         open,
         close,
         ..
-    } = use_websocket("ws://localhost:3000/api/ws");
+    } = use_websocket("ws://178.33.106.202:3000/api/ws");
 
     let connected = move || ready_state.get() == ConnectionReadyState::Open;
     let mut ready_state_stream = ready_state.clone().to_stream();
