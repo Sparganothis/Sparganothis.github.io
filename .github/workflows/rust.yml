@@ -99,7 +99,7 @@ jobs:
       run: cd client && trunk build
 
     - name: Trunk Build Prod
-      run: cd client && trunk build --release --public-url "/Sparganothis"
+      run: cd client && trunk build --release --public-url "/"
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
