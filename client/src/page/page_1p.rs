@@ -42,9 +42,7 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
          });        
     });
     
-    let play_button = view! {
-            <h1 on:click=move |_| { redirect_to_new_game.call(()) }>PLAY</h1>
-    }.into_view();
+    let play_button = view! { <h1 on:click=move |_| { redirect_to_new_game.call(()) }>PLAY</h1> }.into_view();
 
 
     let views:Vec<_> = {0..20}.into_iter().map(move |x|{
