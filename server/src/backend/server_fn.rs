@@ -154,8 +154,8 @@ pub fn append_game_segment(
 pub fn get_last_full_game_state(
     game_id: GameId,
     _current_user_id: GuestInfo,
-) -> anyhow::Result<GameState> {
-    Ok(GAME_FULL_DB.get(&game_id)?.context("game not found")?)
+) -> anyhow::Result<Option<GameState>> {
+    Ok(GAME_FULL_DB.get(&game_id)?)
 }
 
 pub fn get_all_segments_for_game(

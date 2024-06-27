@@ -134,7 +134,7 @@ pub struct GetLastFullGameState {}
 impl APIMethod for GetLastFullGameState {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetLastFullGameState;
     type Req = GameId;
-    type Resp = GameState;
+    type Resp = Option<GameState>;
 }
 
 #[derive(

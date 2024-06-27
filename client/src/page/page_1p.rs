@@ -16,12 +16,16 @@ pub fn Game1PPage() -> impl IntoView {
             }
         }
     );
+    let on_reset = Callback::new(move |_|{
+        let navigate = use_navigate();             
+        navigate("/solo", NavigateOptions::default());
+    });
 
     view! {
         <div class="main_left">
             {move || {
                 match game_id.get() {
-                    Some(id) => view! { <PlayerGameBoardFromId game_id=id/> }.into_view(),
+                    Some(id) => view! { <PlayerGameBoardFromId game_id=id on_reset/> }.into_view(),
                     None => view! { <h1>"bad url"</h1> }.into_view(),
                 }
             }}

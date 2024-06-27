@@ -1,7 +1,6 @@
 use game::timestamp::get_timestamp_now_ms;
 use leptos::html::ElementDescriptor;
 use leptos::*;
-use std::collections::HashSet;
 use wasm_bindgen::JsCast;
 
 #[derive(Clone, Copy)]
