@@ -1,3 +1,4 @@
+use crate::comp::hotkey_reader::create_hotkey_reader;
 use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sync};
 use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
@@ -140,7 +141,7 @@ pub fn PlayerGameBoardSingle(
 
     let (get_ts, set_ts) =
         create_signal(std::collections::HashMap::<TetAction, i64>::new());
-    let on_action: Callback<TetAction> = Callback::<TetAction>::new(move |_action| {
+    create_hotkey_reader( move |_action| {
         let timestamp1 = game::timestamp::get_timestamp_now_ms();
         let timestamp0 = *get_ts.get().get(&_action).unwrap_or(&0);
         if (timestamp1 - timestamp0) > key_debounce_ms(_action) {
@@ -161,7 +162,7 @@ pub fn PlayerGameBoardSingle(
     });
 
     view! {
-        <super::hotkey_reader::HotkeyReader on_action=on_action></super::hotkey_reader::HotkeyReader>
+       
         <GameBoardFlex
             game_state=state
             on_reset_game=on_reset

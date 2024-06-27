@@ -19,7 +19,7 @@ where
     pub stop: StopFn,
 }
 
-fn create_hotkey_repeater(action: TetAction, on_action: Callback<TetAction>) -> HotkeyRepeaterFunctions<impl Fn() + Clone, impl Fn() + Clone> {
+fn create_hotkey_repeater(action: TetAction, on_action: impl Fn(TetAction) + Clone + 'static) -> HotkeyRepeaterFunctions<impl Fn() + Clone, impl Fn() + Clone> {
 
     let UseIntervalReturn{ 
         counter: das_counter, reset: das_reset, is_active: das_is_active, pause: das_pause, resume: das_resume }    =  use_interval_with_options( DAS_MS , UseIntervalOptions::default().immediate(false));
@@ -29,12 +29,13 @@ fn create_hotkey_repeater(action: TetAction, on_action: Callback<TetAction>) -> 
     let das_reset2 = das_reset.clone();
     let das_pause2 = das_pause.clone();
     let arr_resume2 = arr_resume.clone();
+    let on_action2 = on_action.clone();
     create_effect(move |_| {
         let counter = das_counter.get();
         if counter > 0 {
             das_reset2();
             das_pause2();
-            on_action.call(action);
+            on_action2(action);
             arr_resume2();
         }
     });
@@ -44,10 +45,11 @@ fn create_hotkey_repeater(action: TetAction, on_action: Callback<TetAction>) -> 
     let das_reset2 = das_reset .clone();
     let arr_pause2 = arr_pause .clone();
     let arr_reset2 = arr_reset .clone();
+    let on_action2 = on_action.clone();
     create_effect(move |_|{
         let counter = arr_counter.get();
         if counter > 0 { 
-            on_action.call(action);
+            on_action2(action);
         }
         if counter > 18461 { // world record of softdrop repeated for 5min
             das_pause2();
@@ -79,8 +81,8 @@ fn create_hotkey_repeater(action: TetAction, on_action: Callback<TetAction>) -> 
     }
 }
 
-#[component]
-pub fn HotkeyReader(#[prop(into)] on_action: Callback<TetAction>) -> impl IntoView {
+
+pub fn create_hotkey_reader(on_action: impl Fn(TetAction) + Clone+'static) {
     let mut control_mapping = HashMap::<String, TetAction>::new();
     control_mapping.insert("arrowup".to_string(),TetAction::RotateRight );
     control_mapping.insert("keyx".to_string(),TetAction::RotateRight );
@@ -121,13 +123,25 @@ pub fn HotkeyReader(#[prop(into)] on_action: Callback<TetAction>) -> impl IntoVi
     let stop_left2 =     stop_left.clone();
     let stop_right2 =    stop_right.clone();
     let stop_softdrop2 = stop_softdrop.clone();
+
+    let last_events_sig = create_rw_signal(vec![]);
+
     create_effect(move |_| {
+        let current_events = events.get();
+        let last_events = last_events_sig.get_untracked();
+        if last_events == current_events {
+            return;
+        }
+        last_events_sig.set_untracked(current_events);
         events.with(|events| {
+            log::info!("NEW EVENTS LISTING FOR....");
             for event in events {
+                
+                log::info!("REACTING TO NEW EVENT: {:?}", event);
                 match event {
                     crate::hotkey_context::KeyPressEvent::KeyDown(key_id) => {
                         if let Some(tet_action) = control_mapping.get(key_id) {
-                            on_action.call(*tet_action);
+                            on_action(*tet_action);
                             if tet_action.is_repeating() {
                                 // magic
                                 match tet_action {

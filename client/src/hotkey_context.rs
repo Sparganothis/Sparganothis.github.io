@@ -9,7 +9,7 @@ pub struct HotkeysContext {
     pub key_events: RwSignal<Vec<KeyPressEvent>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum KeyPressEvent {
     KeyDown(String),
     KeyUp(String)
