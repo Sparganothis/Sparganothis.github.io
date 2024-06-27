@@ -47,15 +47,19 @@ pub fn Lobby2P() -> impl IntoView {
     view! {
         <Show
             when=move || waiting_for_game.get()
-            fallback=move || {                view! {}            }
+            fallback=move || {
+                view! {}
+            }
         >
 
             <h1>WAITING FOR GAME</h1>
         </Show>
 
         <Show
-            when=move|| (error_display.get().len() > 0)
-            fallback=move || {                view! {}            }
+            when=move || (error_display.get().len() > 0)
+            fallback=move || {
+                view! {}
+            }
         >
             <h1 style="color:red">{error_display}</h1>
         </Show>

@@ -309,17 +309,17 @@ pub async fn start_match(
     {
         let mut q = MATCH_MAKING_QUEUE.v.lock().await;
         if q.is_empty() {
-                // creezi chan, te bagi in el
-                let (tx, rx) = tokio::sync::mpsc::channel(1);
-                let player_id =  _current_user_id.user_id;
-                let new_item = MatchMakingItem {
-                    channel: tx,
-                    player_id ,
-                };
+            // creezi chan, te bagi in el
+            let (tx, rx) = tokio::sync::mpsc::channel(1);
+            let player_id = _current_user_id.user_id;
+            let new_item = MatchMakingItem {
+                channel: tx,
+                player_id,
+            };
 
-                _waiting_for_match = Some(rx);
-                q.insert(player_id, new_item);
-        }else {
+            _waiting_for_match = Some(rx);
+            q.insert(player_id, new_item);
+        } else {
             if q.contains_key(&_current_user_id.user_id) {
                 anyhow::bail!("another game is already in matchmaking!");
             } else {

@@ -25,7 +25,10 @@ pub fn Game1PPage() -> impl IntoView {
         <div class="main_left">
             {move || {
                 match game_id.get() {
-                    Some(id) => view! { <PlayerGameBoardFromId game_id=id on_reset/> }.into_view(),
+                    Some(id) => {
+                        view! { <PlayerGameBoardFromId game_id=id on_reset/> }
+                            .into_view()
+                    }
                     None => view! { <h1>"bad url"</h1> }.into_view(),
                 }
             }}

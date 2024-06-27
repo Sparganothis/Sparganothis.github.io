@@ -78,6 +78,7 @@ on_reset: Callback<()>,
                 view! { <GameBoardFlex game_state=state pre_countdown_text/> }
             }
         >
+
             <PlayerGameBoardSingle state on_reset on_state_change/>
         </Show>
     }
