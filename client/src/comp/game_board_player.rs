@@ -162,7 +162,6 @@ pub fn PlayerGameBoardSingle(
     });
 
     view! {
-       
         <GameBoardFlex
             game_state=state
             on_reset_game=on_reset
