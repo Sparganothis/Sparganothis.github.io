@@ -1,6 +1,6 @@
 use futures::StreamExt;
 use leptos::*;
-use leptos_meta::{provide_meta_context, Meta, Script, Stylesheet, Title};
+use leptos_meta::{provide_meta_context, Meta, Script, Title};
 use leptos_router::*;
 // use crate::error_template::ErrorTemplate;
 use game::api::websocket::{WebsocketAPIMessageRaw, WhoAmI};

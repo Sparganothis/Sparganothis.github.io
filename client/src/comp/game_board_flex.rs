@@ -44,10 +44,11 @@ pub fn GameBoardFlex(
                     if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() {
                         let last_slice = current.replay.replay_slices.last().unwrap();
                         let sound = match last_slice.event.action {
-                            tet::TetAction::HardDrop => "dunk",
-                             tet::TetAction::RotateRight | tet::TetAction::RotateLeft| tet::TetAction::MoveRight|tet::TetAction::MoveLeft|tet::TetAction::SoftDrop => "click",
-                            tet::TetAction::Hold =>"poker_chip",
+                            tet::TetAction::HardDrop => "click",
+                            tet::TetAction::MoveRight|tet::TetAction::MoveLeft|tet::TetAction::SoftDrop => "ui_sound",
+                            tet::TetAction::Hold =>"switch",
                             tet::TetAction::Nothing => "click",
+                            tet::TetAction::RotateLeft | tet::TetAction::RotateRight => "click"
                         };
                         crate::audio3::play_audio(sound);                        
                         if current.game_over{
