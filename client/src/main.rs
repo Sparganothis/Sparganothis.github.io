@@ -17,7 +17,7 @@ pub mod page;
 pub mod style;
 pub mod websocket;
 mod demo_matchbox;
-
+pub mod mobile_check;
 
 fn main() {
     console_error_panic_hook::set_once();

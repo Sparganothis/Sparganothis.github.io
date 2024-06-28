@@ -3,10 +3,13 @@ use game::api::websocket::{GetAllGames, GetAllGamesArg};
 // use game::tet::GameState;
 use leptos::*;
 
-use crate::{comp::menu_grid_view::MenuGridView, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
+
+use crate::{comp::menu_grid_view::MenuGridView, mobile_check::is_mobile_phone, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn Homepage()-> impl IntoView{
+    let is_mobile = is_mobile_phone();
+    log::info!("Are yi a mobile phone????{is_mobile}");
 
     let best_gameid = create_rw_signal(None);
     call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, move |v: Vec<_>| {
@@ -20,6 +23,11 @@ pub fn Homepage()-> impl IntoView{
         match x{
             0 => {
                 view! { <h1>todo</h1> }.into_view()
+            },
+            1=>{
+                view!{
+                    <h1>{is_mobile_phone}</h1>
+                }.into_view()
             },
             8 =>{
                 (move || {

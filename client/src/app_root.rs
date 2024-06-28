@@ -216,6 +216,7 @@ pub fn AppRoot() -> impl IntoView {
 
         <Script src="/public/jquery-3.7.1.min.js"/>
         <Script src="/public/bootstrap.min.js"/>
+        <Script src="/public/js/mobile_check.js"/>
         <Stylesheet id="bootstrap" href="/public/bootstrap.min.css"/>
         <Stylesheet id="bootstrap-extra" href="/public/bootstrap_extra.css"/>
 
