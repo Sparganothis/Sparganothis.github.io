@@ -31,9 +31,36 @@ pub fn GameBoardFlex(
     // #[prop(default = view!{}.into_view())]
     // bottom_bar: View,
 
+    #[prop(default = false)]
+    enable_sound: bool
+
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
-
+    if enable_sound{
+        let _stop_sounds = leptos::watch(
+            move|| game_state.get(),
+            move |current, _prev, _| {
+                if let Some(_prev) = _prev {
+                    if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() {
+                        let last_slice = current.replay.replay_slices.last().unwrap();
+                        let sound = match last_slice.event.action {
+                            tet::TetAction::HardDrop => "dunk",
+                             tet::TetAction::RotateRight | tet::TetAction::RotateLeft| tet::TetAction::MoveRight|tet::TetAction::MoveLeft|tet::TetAction::SoftDrop => "click",
+                            tet::TetAction::Hold =>"poker_chip",
+                            tet::TetAction::Nothing => "click",
+                        };
+                        crate::audio3::play_audio(sound);                        
+                        if current.game_over{
+                            crate::audio3::play_audio("game_over");
+                        }
+                    }
+                }
+            },
+            false
+        );
+    
+    }
+    
     let _style_name = flex_gameboard_style(tet_style, )
         .get_class_name()
         .to_owned();

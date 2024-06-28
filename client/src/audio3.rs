@@ -20,7 +20,7 @@ pub fn provide_audio_context() {
 pub fn play_audio(audio_key: &str) {
     let audio_key = audio_key.to_string();
     let context : Audio3Context= leptos::expect_context();
-    queue_microtask(move || {
+    // queue_microtask(move || {
         play_sound_js(context.audio_sounds_js, audio_key);
-    });
+    // });
 }

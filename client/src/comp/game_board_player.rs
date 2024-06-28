@@ -169,6 +169,7 @@ pub fn PlayerGameBoardSingle(
             on_reset_game=on_reset
             pre_countdown_text
             top_bar
+            enable_sound=true
         />
     }
 }
