@@ -26,25 +26,26 @@ pub fn MyAccountPage() -> impl IntoView {
 
     let user_settings = view! {
         <div>
-            <Show when=move|| user_profile.get().is_some() && guest_id.get().is_some()
-                fallback=move || view!{}
-
+            <Show
+                when=move || user_profile.get().is_some() && guest_id.get().is_some()
+                fallback=move || view! {}
             >
 
-            { move || {
-                let user_profile = user_profile.get().unwrap();
-                let guest_id = guest_id.get().unwrap();
-                view!{
-                    <PersonalAccountSettingsForm user_profile guest_id />
-                }
-            }}
-            </Show> 
-            
+                {move || {
+                    let user_profile = user_profile.get().unwrap();
+                    let guest_id = guest_id.get().unwrap();
+                    view! { <PersonalAccountSettingsForm user_profile guest_id/> }
+                }}
+
+            </Show>
+
         </div>
     };
 
     view! {
-        <div class="main_left" style="width:95vmin">{{ user_settings }}</div>
+        <div class="main_left" style="width:95vmin">
+            {{ user_settings }}
+        </div>
     }
 }
 
@@ -144,15 +145,14 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
     let user_link = create_rw_signal(user_link());
     let (value_menu_mmusic , set_value_menu_music) = create_signal(0.0);
     view! {
-
         <Tabs mount=Mount::WhenShown>
             <Tab name="account" label="My Account".into_view()>
-                 <div style="width: 35%; padding: 1vh; margin: 1vh;">
+                <div style="width: 35%; padding: 1vh; margin: 1vh;">
                     <h2>account</h2>
-                    <pre>{ move || signal_str.get().0 }</pre>
+                    <pre>{move || signal_str.get().0}</pre>
 
                     <h2>profile</h2>
-                    <pre>{ move || signal_str.get().1 }</pre>
+                    <pre>{move || signal_str.get().1}</pre>
                 </div>
             </Tab>
 
@@ -165,29 +165,43 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
             <Tab name="sound" label="Sound".into_view()>
                 <table>
                     <tr>
-                        <td>  <Toggle state=state set_state=set_state/> </td>
-                        <td>   <h3> Menu Music  </h3>  </td>
-                        <td>  <h3> {move || (if state.get() {"ON"} else {"OFF"}).to_string()} </h3>  </td>
-                    </tr>
-                    <tr>
-                        <td style="width:20vmin;">     
-                          <Slider 
-                            min=0.0 
-                            max=100.0 
-                            step=1.0
-                            value=value_menu_mmusic
-                            set_value=set_value_menu_music
-                            value_display=move |v| format!("{v:.0}")
-                         /> 
-                        </td>
-                        <td>   <h3> Menu Music Volume </h3>  </td>
                         <td>
-                            {move || format!("{}", value_menu_mmusic.get())}
+                            <Toggle state=state set_state=set_state/>
+                        </td>
+                        <td>
+                            <h3>Menu Music</h3>
+                        </td>
+                        <td>
+                            <h3>
+                                {move || {
+                                    (if state.get() { "ON" } else { "OFF" }).to_string()
+                                }}
+                            </h3>
                         </td>
                     </tr>
                     <tr>
-                        <td>  <Toggle state=state set_state=set_state/> </td>
-                        <td>   <h3> Menu Music </h3> </td>
+                        <td style="width:20vmin;">
+                            <Slider
+                                min=0.0
+                                max=100.0
+                                step=1.0
+                                value=value_menu_mmusic
+                                set_value=set_value_menu_music
+                                value_display=move |v| format!("{v:.0}")
+                            />
+                        </td>
+                        <td>
+                            <h3>Menu Music Volume</h3>
+                        </td>
+                        <td>{move || format!("{}", value_menu_mmusic.get())}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Toggle state=state set_state=set_state/>
+                        </td>
+                        <td>
+                            <h3>Menu Music</h3>
+                        </td>
                     </tr>
                 </table>
             </Tab>
@@ -195,8 +209,12 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
             <Tab name="controls" label="Controls".into_view()>
                 <table>
                     <tr>
-                        <td>  <Toggle state=state set_state=set_state/> </td>
-                        <td>   <h3> I Have ADHD </h3> </td>
+                        <td>
+                            <Toggle state=state set_state=set_state/>
+                        </td>
+                        <td>
+                            <h3>I Have ADHD</h3>
+                        </td>
                     </tr>
                 </table>
             </Tab>

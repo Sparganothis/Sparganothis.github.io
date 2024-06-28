@@ -75,7 +75,13 @@ on_reset: Callback<()>,
         <Show
             when=move || { counter_pre_123.get() > 3 }
             fallback=move || {
-                view! { <GameBoardFlex game_state=state pre_countdown_text enable_sound=true /> }
+                view! {
+                    <GameBoardFlex
+                        game_state=state
+                        pre_countdown_text
+                        enable_sound=true
+                    />
+                }
             }
         >
 
@@ -167,7 +173,7 @@ pub fn PlayerGameBoardSingle(
         <GameBoardFlex
             game_state=state
             on_reset_game=on_reset
-        pre_countdown_text
+            pre_countdown_text
             top_bar
             enable_sound=true
         />
