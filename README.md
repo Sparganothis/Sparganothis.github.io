@@ -34,32 +34,24 @@ bash run-server.sh
 
 
 # todo
-- SINGLEPLAYER: LINK FOR PRIVATE ROOM + root fs redirects to /play-singleplayer-gamme/:game-id
-- SINGLEPLAYER: WHEN REFRESH REMEMBER IN PROGRESS GAMEM 
 - SINGLEPLAYE$R: TIMER  + 40 LINE WORLD RECCORD + BLIETZ + "PUZZLE MODE"
-
-- HOMEPAGE: SHOW SPECTATE OF LATEST GAME IN HOME PAGE
 
 - change all Get* api message to return None for "not found" -- is not error (custom game / mmspaint on randomm name);
 - https://github.com/goldfire/howler.js/tree/master/examples/sprite
-- rotate SRS
 - rotate tests fromm mwiki
   - finesse https://harddrop.com/wiki/0G_60_Hz_SRS_Movement_Finesse
   - SRS https://tetris.fandom.com/wiki/SRS
 
 ### feature = singleplayer
 
-- 40 line singleplayer + timer
-- leaderboard + server replay + world record
+- leaderboard + world record
 - combo + TSPIN + Score
 
-### 1V1 CPPU
 
-- COMBO GARBAGE
 
 ### 1V1 ONLINE
 
-- GARBAGE
+- Combo GARBAGE - bara + send lines
 
 
 ## grafic

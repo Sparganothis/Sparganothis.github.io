@@ -1,4 +1,4 @@
-#![deny(unused_crate_dependencies)]
+// #![deny(unused_crate_dependencies)]
 #![allow(unused_braces)]
 use matchbox_socket as _;
 use serde as _;
@@ -18,6 +18,9 @@ pub mod style;
 pub mod websocket;
 mod demo_matchbox;
 pub mod mobile_check;
+pub mod audio3;
+pub mod demo;
+
 
 fn main() {
     console_error_panic_hook::set_once();

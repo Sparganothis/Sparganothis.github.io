@@ -75,6 +75,33 @@ leptos-struct-table = {version = "0.10.2"}
 # async-channel = "2.3.1"
 # async-broadcast = {path="../lib/async-broadcast-0.7.1"}
 async-broadcast = "0.5.1"
+js-sys = "0.3.69"
+
+[dependencies.web-sys]
+version = "0.3.59"
+features = [
+#   "AudioContext",
+#   "AudioDestinationNode",
+#   "AudioWorklet",
+#   "AudioWorkletNode",
+#   "AudioWorkletNodeOptions",
+#   "Blob",
+#   "BlobPropertyBag",
+#   "Document",
+#   "Event",
+#   "HtmlInputElement",
+#   "HtmlLabelElement",
+#   "Url",
+#   "Window",  
+
+  'AudioContext',
+  'AudioDestinationNode',
+  'AudioNode',
+  'AudioParam',
+  'GainNode',
+  'OscillatorNode',
+  'OscillatorType',
+]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

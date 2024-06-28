@@ -9,7 +9,7 @@ use crate::{comp::menu_grid_view::MenuGridView, mobile_check::is_mobile_phone, p
 #[component]
 pub fn Homepage()-> impl IntoView{
     let is_mobile = is_mobile_phone();
-    log::info!("Are yi a mobile phone????{is_mobile}");
+    log::info!("Are yi a mobile phone???? {is_mobile}");
 
     let best_gameid = create_rw_signal(None);
     call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, move |v: Vec<_>| {

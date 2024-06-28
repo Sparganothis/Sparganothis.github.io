@@ -8,7 +8,8 @@ use leptonic::prelude::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
 
-use crate::comp::game_board_flex::GameBoardFlexDemoPage;
+use crate::audio3::provide_audio_context;
+use crate::demo::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::hotkey_context::provide_hotkeys_context2;
 use crate::page::homepage::Homepage;
@@ -85,6 +86,8 @@ pub fn AppRoot() -> impl IntoView {
 
 
     provide_meta_context();
+
+    provide_audio_context();
 
     let main_ref = create_node_ref::<html::Main>();
     provide_hotkeys_context2(main_ref);
@@ -214,12 +217,10 @@ pub fn AppRoot() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <Meta name="theme-color" content="#e66956"/>
 
-        <Script src="/public/jquery-3.7.1.min.js"/>
-        <Script src="/public/bootstrap.min.js"/>
-        <Script src="/public/js/mobile_check.js"/>
-        <Stylesheet id="bootstrap" href="/public/bootstrap.min.css"/>
-        <Stylesheet id="bootstrap-extra" href="/public/bootstrap_extra.css"/>
 
+        <Script src="/public/js/mobile_check.js"/>
+        <Script src="/public/js/audio.js"/>
+        
         <leptos_meta::Link
             rel="icon"
             type_="image/x-icon"
@@ -302,7 +303,7 @@ pub fn AppRoot() -> impl IntoView {
                                 path="/play-custom-game/:save_id"
                                 view=MsPaintPlayPage
                             />
-                            <Route path="/gamebordflex" view=GameBoardFlexDemoPage/>
+                            <Route path="/demo" view=GameBoardFlexDemoPage/>
 
                         </Routes>
                     </main>
@@ -323,7 +324,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/replay", "replay"),
             ("/account", "account"),
             ("/mspaint", "mspaint"),
-            ("/gamebordflex", "gamebordflex"),
+            ("/demo", "DEMO"),
         ]
     };
     // let git_version = create_resource(

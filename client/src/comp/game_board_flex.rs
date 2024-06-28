@@ -7,26 +7,6 @@ use crate::{comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoar
 
 
 #[component]
-pub fn GameBoardFlexDemoPage() -> impl IntoView {
-    let param = create_rw_signal("".to_string());
-    let result = create_rw_signal("".to_string());
-
-    create_effect(move |_| {
-        let _p = param.get();
-        call_api_sync::<WhoAmI>((), move |r| {
-            result.set(format!("{:?}", r));
-        });
-    });
-    let _game_state = create_rw_signal(GameState::empty());
-    view! {
-        <div class="main_left">
-            // <GameBoardFlex game_state/>
-            {result}
-        </div>
-    }
-}
-
-#[component]
 pub fn GameBoardFlex(
     #[prop(into)] game_state: RwSignal<tet::GameState>,
 
