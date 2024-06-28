@@ -25,9 +25,7 @@ pub fn Homepage()-> impl IntoView{
                 view! { <h1>todo</h1> }.into_view()
             },
             1=>{
-                view!{
-                    <h1>{is_mobile_phone}</h1>
-                }.into_view()
+                view! { <h1>{is_mobile_phone}</h1> }.into_view()
             },
             8 =>{
                 (move || {

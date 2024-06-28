@@ -61,6 +61,7 @@ pub fn Lobby2P() -> impl IntoView {
                 view! {}
             }
         >
+
             <h1 style="color:red">{error_display}</h1>
         </Show>
 
