@@ -2,7 +2,7 @@
 use game::{api::websocket::WhoAmI, tet::{self, GameState}};
 use leptos::*;
 
-use crate::{audio3::play_audio, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync};
+use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync};
 
 
 
@@ -22,7 +22,6 @@ pub fn GameBoardFlex(
     #[prop(default = create_rw_signal("".to_string()).read_only())]
     #[prop(optional)]
     pre_countdown_text: ReadSignal<String>,
-
 
     #[prop(into)]
     #[prop(default = view!{}.into_view())]
@@ -52,9 +51,12 @@ pub fn GameBoardFlex(
                             
                             tet::TetAction::Nothing => panic!("no sound for nothing"),
                         };
-                        crate::audio3::play_audio(sound);                        
+                        crate::audio3::play_sound(sound);                        
                         if current.game_over{
-                            crate::audio3::play_audio("game_over");
+                            crate::audio3::play_sound("game_over");
+                        }
+                        if current.total_lines != _prev.total_lines {
+                            crate::audio3::play_sound("clear_line");
                         }
                     }
                 }
@@ -66,7 +68,7 @@ pub fn GameBoardFlex(
             move || pre_countdown_text.get(),
             move |ccurrent, _prev, _| {
                 if ccurrent.len() > 0 {
-                    play_audio("pre_123")
+                    play_sound("pre_123")
                 }
             },
             false

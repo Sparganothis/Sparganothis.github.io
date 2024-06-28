@@ -41,11 +41,11 @@ pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegme
 
 pub static CUSTOM_GAME_BOARD_DB: Lazy<typed_sled::Tree<String, GameState>> =
     Lazy::new(|| {
-        typed_sled::Tree::<String, GameState>::open(&TABLES_DB, "custom_game_board_v1")
+        typed_sled::Tree::<String, GameState>::open(&TABLES_DB, "custom_game_board_v3")
     });
 
 pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameId, GameState>> =
-    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_full_v2"));
+    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_full_v3"));
 
 pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
     Ok(USER_PROFILE_DB

@@ -343,6 +343,7 @@ pub struct GameState {
     pub seed: GameSeed,
     pub init_seed: GameSeed,
     pub start_time: i64,
+    pub total_lines: i64,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -427,6 +428,7 @@ impl GameState {
             init_seed: *seed,
             replay: GameReplay::empty(seed, start_time),
             start_time,
+            total_lines: 0,
         };
         new_state.refill_nextpcs(start_time);
         let _ = new_state.put_next_piece(start_time);
@@ -492,6 +494,7 @@ impl GameState {
             self.is_t_spin = false;
         }
         self.score += (score + score2 + score3) as i64;
+        self.total_lines += lines;
     }
 
     fn can_clear_line(&self) -> Option<i8> {
