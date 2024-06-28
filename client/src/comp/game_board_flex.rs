@@ -2,7 +2,7 @@
 use game::{api::websocket::WhoAmI, tet::{self, GameState}};
 use leptos::*;
 
-use crate::{comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync};
+use crate::{audio3::play_audio, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync};
 
 
 
@@ -44,17 +44,29 @@ pub fn GameBoardFlex(
                     if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() {
                         let last_slice = current.replay.replay_slices.last().unwrap();
                         let sound = match last_slice.event.action {
-                            tet::TetAction::HardDrop => "click",
-                            tet::TetAction::MoveRight|tet::TetAction::MoveLeft|tet::TetAction::SoftDrop => "ui_sound",
-                            tet::TetAction::Hold =>"switch",
-                            tet::TetAction::Nothing => "click",
-                            tet::TetAction::RotateLeft | tet::TetAction::RotateRight => "click"
+                            tet::TetAction::HardDrop => "hard_drop",
+                            tet::TetAction::MoveRight|tet::TetAction::MoveLeft => "move", 
+                            tet::TetAction::SoftDrop => "soft_drop",
+                            tet::TetAction::Hold =>"hold",
+                            tet::TetAction::RotateLeft | tet::TetAction::RotateRight => "rotate",
+                            
+                            tet::TetAction::Nothing => panic!("no sound for nothing"),
                         };
                         crate::audio3::play_audio(sound);                        
                         if current.game_over{
                             crate::audio3::play_audio("game_over");
                         }
                     }
+                }
+            },
+            false
+        );
+
+        let _stop_sounds = watch ( 
+            move || pre_countdown_text.get(),
+            move |ccurrent, _prev, _| {
+                if ccurrent.len() > 0 {
+                    play_audio("pre_123")
                 }
             },
             false
