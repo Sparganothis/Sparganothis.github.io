@@ -2,7 +2,7 @@ use leptos::*;
 
 use crate::comp::table_replay_games::AllGamesTable;
 use crate::websocket::demo_comp::call_api_sync;
-use game::api::user;
+use game::api::user::{self, GuestInfo};
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
 use leptonic::prelude::*;
 
@@ -23,28 +23,28 @@ pub fn MyAccountPage() -> impl IntoView {
         }
     });
 
-    let user_link = move || {
-        if let (Some(g_id), Some(profile)) =
-            (guest_id.get(), user_profile.get())
-        {
-            view! {
-                <a href=format!("/user/{}", g_id.user_id)>
-                    <UserProfileView _user_id=g_id.user_id p=profile/>
-                </a>
-            }
-            .into_view()
-        } else {
-            view! { <p>-</p> }.into_view()
-        }
+
+    let user_settings = view! {
+        <div>
+            <Show when=move|| user_profile.get().is_some() && guest_id.get().is_some()
+                fallback=move || view!{}
+
+            >
+
+            { move || {
+                let user_profile = user_profile.get().unwrap();
+                let guest_id = guest_id.get().unwrap();
+                view!{
+                    <PersonalAccountSettingsForm user_profile guest_id />
+                }
+            }}
+            </Show> 
+            
+        </div>
     };
 
     view! {
-        <h2>account</h2>
-        <pre>{{ move || format!("guest_info: {:?}", guest_id.get()) }}</pre>
-
-        <h2>profile</h2>
-        <pre>{{ move || format!("user_profile: {:?}", user_profile.get()) }}</pre>
-        <h3>{{ user_link }}</h3>
+        <div class="main_left" style="width:95vmin">{{ user_settings }}</div>
     }
 }
 
@@ -114,3 +114,99 @@ pub fn UserProfileView(_user_id: uuid::Uuid, p: user::UserProfile) -> impl IntoV
         </div>
     }
 }
+
+#[component]
+pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView {
+    use leptonic::prelude::*;
+
+    let (checked, set_checked) = create_signal(false);
+
+    let (state, set_state) = create_signal(false);
+    let (hsv, set_hsv) = create_signal(HSV::new());
+
+    let user_info_str=  format!("user_profile: {:#?}", user_profile);
+    let guest_id_str = format!("guest_info: {:#?}", guest_id);
+    let signal_str = create_rw_signal((guest_id_str, user_info_str));
+
+
+    let guest_id2=guest_id.clone();
+    let user_profile2=user_profile.clone();
+    let user_link = move || {
+        let guest_id2=guest_id2.clone();
+        let user_profile2=user_profile2.clone();
+        view! {
+            <a href=format!("/user/{}", guest_id2.user_id)>
+                <UserProfileView _user_id=guest_id2.user_id p=user_profile2/>
+            </a>
+        }
+        .into_view()
+    };
+    let user_link = create_rw_signal(user_link());
+    let (value_menu_mmusic , set_value_menu_music) = create_signal(0.0);
+    view! {
+
+        <Tabs mount=Mount::WhenShown>
+            <Tab name="account" label="My Account".into_view()>
+                 <div style="width: 35%; padding: 1vh; margin: 1vh;">
+                    <h2>account</h2>
+                    <pre>{ move || signal_str.get().0 }</pre>
+
+                    <h2>profile</h2>
+                    <pre>{ move || signal_str.get().1 }</pre>
+                </div>
+            </Tab>
+
+            <Tab name="profile" label="Game Profile".into_view()>
+                <div style="width: 100%; padding: 1vh; margin: 1vh;">
+                    {move || user_link.get()}
+                </div>
+            </Tab>
+
+            <Tab name="sound" label="Sound".into_view()>
+                <table>
+                    <tr>
+                        <td>  <Toggle state=state set_state=set_state/> </td>
+                        <td>   <h3> Menu Music  </h3>  </td>
+                        <td>  <h3> {move || (if state.get() {"ON"} else {"OFF"}).to_string()} </h3>  </td>
+                    </tr>
+                    <tr>
+                        <td style="width:20vmin;">     
+                          <Slider 
+                            min=0.0 
+                            max=100.0 
+                            step=1.0
+                            value=value_menu_mmusic
+                            set_value=set_value_menu_music
+                            value_display=move |v| format!("{v:.0}")
+                         /> 
+                        </td>
+                        <td>   <h3> Menu Music Volume </h3>  </td>
+                        <td>
+                            {move || format!("{}", value_menu_mmusic.get())}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>  <Toggle state=state set_state=set_state/> </td>
+                        <td>   <h3> Menu Music </h3> </td>
+                    </tr>
+                </table>
+            </Tab>
+
+            <Tab name="controls" label="Controls".into_view()>
+                <table>
+                    <tr>
+                        <td>  <Toggle state=state set_state=set_state/> </td>
+                        <td>   <h3> I Have ADHD </h3> </td>
+                    </tr>
+                </table>
+            </Tab>
+
+            <Tab name="theme" label="Themes".into_view()>
+                <div style="width:50%; height: 20%">
+                    <ColorPicker hsv=hsv set_hsv=set_hsv/>
+                </div>
+            </Tab>
+        </Tabs>
+    }
+}
+   

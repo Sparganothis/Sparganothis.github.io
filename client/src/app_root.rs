@@ -80,6 +80,7 @@ pub fn AppRoot() -> impl IntoView {
             margin: 10px;
             border: 8px dashed black;
             padding: 15px;
+            // width: 50%;
         }
     )
     .expect("bad css");
