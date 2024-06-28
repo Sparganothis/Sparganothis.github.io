@@ -119,7 +119,7 @@ pub fn UserProfileView(_user_id: uuid::Uuid, p: user::UserProfile) -> impl IntoV
 pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView {
     use leptonic::prelude::*;
 
-    let (checked, set_checked) = create_signal(false);
+    // let (checked, set_checked) = create_signal(false);
 
     let (state, set_state) = create_signal(false);
     let (hsv, set_hsv) = create_signal(HSV::new());
