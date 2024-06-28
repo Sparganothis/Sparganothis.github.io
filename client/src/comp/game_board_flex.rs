@@ -1,8 +1,8 @@
 
-use game::tet;
+use game::tet::{self};
 use leptos::*;
 
-use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}};
+use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, };
 
 
 

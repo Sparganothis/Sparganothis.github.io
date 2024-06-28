@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use game::tet::TetAction;
 use leptos::*;
-use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
+use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 
 use crate::hotkey_context::HotkeysContext;
 
