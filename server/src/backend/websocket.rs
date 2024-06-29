@@ -421,6 +421,20 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::GetMatchInfo => {
             specific_sync_request::<GetMatchInfo>(msg, user_id, get_match_info).await
         }
+        WebsocketAPIMessageType::GetUserSetting => {
+            specific_sync_request::<GetUserSetting>(
+                msg, 
+                user_id, 
+                get_user_setting,
+            ).await
+        },
+        WebsocketAPIMessageType::SetUserSetting => {
+            specific_sync_request::<SetUserSetting>(
+                msg, 
+                user_id,
+                 set_user_setting,
+                ).await
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

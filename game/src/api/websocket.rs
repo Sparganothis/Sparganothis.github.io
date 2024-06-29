@@ -8,6 +8,7 @@ use super::game_match::GameMatch;
 use super::game_match::GameMatchType;
 use super::game_replay::GameId;
 use super::game_replay::GameSegmentId;
+use super::user_settings::UserSettingType;
 
 #[derive(
     Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
@@ -35,6 +36,9 @@ pub enum WebsocketAPIMessageType {
     GetMatchList,
 
     GetMatchInfo,
+    
+    GetUserSetting,
+    SetUserSetting
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -244,4 +248,20 @@ impl APIMethod for GetMatchInfo {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetMatchInfo;
     type Req = uuid::Uuid;
     type Resp = GameMatch;
+}
+
+
+pub struct GetUserSetting {}
+impl APIMethod for GetUserSetting {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetUserSetting;
+    type Req = UserSettingType;
+    type Resp = Vec<u8>;
+}
+
+
+pub struct SetUserSetting {}
+impl APIMethod for SetUserSetting {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::SetUserSetting;
+    type Req = (UserSettingType, Vec<u8>);
+    type Resp = ();
 }

@@ -8,12 +8,14 @@ use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
 use game::api::user::GuestInfo;
 use game::api::user::UserProfile;
+use game::api::user_settings::UserSettingType;
 use game::api::websocket::GameSegmentCountReply;
 use game::api::websocket::GetMatchListArg;
 use game::tet::GameReplaySegment;
 use game::tet::GameState;
 use game::timestamp::get_timestamp_now_nano;
 use rand::Rng;
+
 
 pub fn get_profile(
     user_id: uuid::Uuid,
@@ -398,4 +400,18 @@ pub fn get_match_info(
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<GameMatch> {
     GAME_MATCH_DB.get(&match_id)?.context(".not found")
+}
+
+pub fn get_user_setting(
+    setting_name: UserSettingType,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<Vec<u8>> {
+todo!()
+}
+
+pub fn set_user_setting(
+    (setting_name, setting_val):(UserSettingType, Vec<u8>), 
+    _current_user_id: GuestInfo,
+ ) -> anyhow::Result<()> {
+    todo!()
 }
