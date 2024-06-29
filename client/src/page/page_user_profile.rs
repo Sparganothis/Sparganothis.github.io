@@ -176,6 +176,7 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
                                 {move || {
                                     (if state.get() { "ON" } else { "OFF" }).to_string()
                                 }}
+
                             </h3>
                         </td>
                     </tr>
