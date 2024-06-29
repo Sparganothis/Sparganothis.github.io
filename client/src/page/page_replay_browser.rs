@@ -17,7 +17,7 @@ pub fn GameReplayBrowserPage() -> impl IntoView {
         </div>
         <div class="main_left">
 
-            <Tabs mount=Mount::WhenShown>
+            <Tabs mount=Mount::Once>
 
                 <Tab name="tab-best-games" label="Best Games".into_view()>
                     <AllGamesTable list_type=GetAllGamesArg::BestGames/>

@@ -135,16 +135,43 @@ pub fn TabSelectors(
 ) -> impl IntoView {
     let navigate = leptos_router::use_navigate();
     let location = leptos_router::use_location();
-    let current_hash = (&location.hash.get_untracked()[1..]).to_string();
     let current_path = location.pathname.get_untracked();
 
-    tabs.with_untracked(|tabs| {
-        for tab in tabs.iter() {
-            if current_hash == tab.name.clone() {
-                set_history.update(|history| history.push(tab.name.clone()));
+    let update_tabs = move |current_hash| {
+        tabs.with_untracked(|tabs| {
+            let mut found_tab = false;
+            for tab in tabs.iter() {
+                if current_hash == tab.name.clone() {
+                    set_history.update(|history| history.push(tab.name.clone()));
+                    found_tab = true;
+                    break;
+                }
             }
-        }
+            if !found_tab {
+                if let Some(first_tab) = tabs.first() {
+                    set_history.update(|history| history.push(first_tab.name.clone()));
+                }
+            }
+        });
+    };
+
+    let stop_watch =    leptos::watch (
+            move || location.hash.get(),
+            move |current_hash, _prev_hash, _| {
+                let current_hash = if current_hash.len() > 1 {(&current_hash[1..]).to_string()} else {"".to_string()};
+    
+                update_tabs(current_hash);
+            },
+            false,
+        );
+    leptos::on_cleanup(move || {
+        stop_watch();
     });
+
+    // do immmediate: false on watch() becacuse panicc bug
+    let current_hash = location.hash.get_untracked();
+    let current_hash = if current_hash.len() > 1 {(&current_hash[1..]).to_string()} else {"".to_string()};
+    update_tabs(current_hash);
 
     view! {
         <leptonic-tab-selectors role="tablist">

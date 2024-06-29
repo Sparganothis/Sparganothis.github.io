@@ -87,7 +87,7 @@ pub fn MsPaintPage() -> impl IntoView {
         </div>
         <div class="main_right">
 
-            <Tabs mount=Mount::WhenShown>
+            <Tabs mount=Mount::Once>
 
                 <Tab name="current-cusxtom-game" label="Edit Custom Game".into_view()>
                     <NextPeaceSelector game_state/>

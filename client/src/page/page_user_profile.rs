@@ -88,7 +88,7 @@ pub fn UserProfileView(_user_id: uuid::Uuid, p: user::UserProfile) -> impl IntoV
             <h1>{{ &p.display_name }}</h1>
             <h3>user_id: {{ format!("{:?}", _user_id) }}</h3>
 
-            <Tabs mount=Mount::WhenShown>
+            <Tabs mount=Mount::Once>
                 <Tab
                     name="tab-best-user-games"
                     label="Best Games from $User".into_view()
@@ -145,7 +145,7 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
     let user_link = create_rw_signal(user_link());
     let (value_menu_mmusic , set_value_menu_music) = create_signal(0.0);
     view! {
-        <Tabs mount=Mount::WhenShown>
+        <Tabs mount=Mount::Once>
             <Tab name="account" label="My Account".into_view()>
                 <div style="width: 100%; padding: 1vh; margin: 1vh;">
                     <h2>account</h2>
