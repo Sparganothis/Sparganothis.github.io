@@ -22,6 +22,7 @@ leptonic-theme = { version = "0.5", path = "../leptonic-theme" }
 leptos-tiptap-build = { version = "0.2.6", optional = true }
 
 [dependencies]
+log = "0.4"
 cfg-if = "1.0.0"
 indexmap = "2.2.2"
 indoc = "2.0.4"

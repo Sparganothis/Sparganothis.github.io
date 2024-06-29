@@ -133,6 +133,19 @@ pub fn TabSelectors(
     history: ReadSignal<TabHistory>,
     set_history: WriteSignal<TabHistory>,
 ) -> impl IntoView {
+    let navigate = leptos_router::use_navigate();
+    let location = leptos_router::use_location();
+    let current_hash = (&location.hash.get_untracked()[1..]).to_string();
+    let current_path = location.pathname.get_untracked();
+
+    tabs.with_untracked(|tabs| {
+        for tab in tabs.iter() {
+            if current_hash == tab.name.clone() {
+                set_history.update(|history| history.push(tab.name.clone()));
+            }
+        }
+    });
+
     view! {
         <leptonic-tab-selectors role="tablist">
             <For
@@ -141,10 +154,21 @@ pub fn TabSelectors(
                 children=move |tab| {
                     let n1 = tab.name.clone();
                     let n2 = tab.name.clone();
+                    let n3 = tab.name.clone();
+                    let navigate2 = navigate.clone();
+                    let current_path = current_path.clone();
                     view! {
                         <TabSelector
                             is_active=move || history.get().get_active() == Some(&n1.clone())
-                            set_active=move || set_history.update(|history| history.push(n2.clone()))
+                            set_active=move || {
+                                set_history.update(|history| history.push(n2.clone()));
+
+                                let new_url = format!("{}#{}", current_path, n3);
+                                navigate2(
+                                    &new_url,
+                                    leptos_router::NavigateOptions::default() 
+                                );
+                            }
                             name=tab.name.clone()
                             label=tab.label.clone() />
                     }

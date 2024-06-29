@@ -1,3 +1,4 @@
+use leptos::queue_microtask;
 //use leptos::{provide_context, queue_microtask};
 use wasm_bindgen::prelude::*;
 
@@ -21,14 +22,14 @@ pub fn provide_audio_context() {
 pub fn play_sound(audio_key: &str) {
     let audio_key = audio_key.to_string();
     let context : Audio3Context= leptos::expect_context();
-    // queue_microtask(move || {
+    queue_microtask(move || {
         play_sound_js(context.audio_sounds_js, audio_key);
-    // });
+    });
 }
 pub fn stop_sound(audio_key: &str) {
     let audio_key = audio_key.to_string();
     let context : Audio3Context= leptos::expect_context();
-    // queue_microtask(move || {
+    queue_microtask(move || {
         stop_sound_js(context.audio_sounds_js, audio_key);
-    // });
+    });
 }

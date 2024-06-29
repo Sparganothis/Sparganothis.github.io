@@ -147,7 +147,7 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
     view! {
         <Tabs mount=Mount::WhenShown>
             <Tab name="account" label="My Account".into_view()>
-                <div style="width: 35%; padding: 1vh; margin: 1vh;">
+                <div style="width: 100%; padding: 1vh; margin: 1vh;">
                     <h2>account</h2>
                     <pre>{move || signal_str.get().0}</pre>
 

@@ -1926,6 +1926,7 @@ dependencies = [
  "leptos-use",
  "leptos_meta",
  "leptos_router",
+ "log",
  "serde",
  "serde-wasm-bindgen",
  "serde_json",

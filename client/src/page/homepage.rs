@@ -19,11 +19,11 @@ pub fn Homepage()-> impl IntoView{
             }
     });
 
-    
-    crate::audio3::play_sound("mmenu_mmusicc");
-    on_cleanup(move || {
-        crate::audio3::stop_sound("mmenu_mmusicc")
-    });
+    // NO
+    // crate::audio3::play_sound("mmenu_mmusicc");
+    // on_cleanup(move || {
+    //     crate::audio3::stop_sound("mmenu_mmusicc")
+    // });
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
