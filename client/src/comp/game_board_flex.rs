@@ -1,5 +1,5 @@
 
-use game::tet::{self, GameState};
+use game::tet;
 use leptos::*;
 
 use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}};
