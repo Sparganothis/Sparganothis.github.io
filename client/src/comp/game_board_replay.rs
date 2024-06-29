@@ -26,7 +26,7 @@ pub fn ReplayGameBoardFromSegmments(
                 GameState::new(&_replay.init_seed, _replay.start_time)
             }
             _ => {
-                log::error!("got no init segment");
+                log::info!("got no init segment");
                 return vec![];
             }
         };

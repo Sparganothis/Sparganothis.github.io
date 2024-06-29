@@ -219,8 +219,8 @@ pub fn AppRoot() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <Meta name="theme-color" content="#e66956"/>
 
-        <Script src="/public/js/mobile_check.js"/>
-        <Script src="/public/js/audio.js"/>
+        <Script type_="module" src="/public/js/mobile_check.js"/>
+        <Script type_="module" src="/public/js/audio.js"/>
 
         <leptos_meta::Link
             rel="icon"
