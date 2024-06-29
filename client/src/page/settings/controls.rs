@@ -2,7 +2,7 @@ use game::api::user::{self, GuestInfo};
 use leptonic::toggle::Toggle;
 use leptos::*;
 
-
+#[allow(unused_variables)]
 #[component ]
 pub fn ControlsSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView
 {

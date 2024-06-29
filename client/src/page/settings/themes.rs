@@ -3,7 +3,7 @@ use leptonic::{color::HSV, color_picker::ColorPicker};
 use leptos::*;
 
 
-
+#[allow(unused_variables)]
 #[component]
 pub fn ThemeSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView {
     
