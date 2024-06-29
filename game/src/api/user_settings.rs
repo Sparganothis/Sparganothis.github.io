@@ -16,7 +16,7 @@ pub enum SoundSettingType {
     DisableAllSounds,
     DisableMenuMusic,
     MenuMusicVolume,
-    MenuSoundsVolume,
+    AllSoundsVolume,
 }
 
 #[derive(

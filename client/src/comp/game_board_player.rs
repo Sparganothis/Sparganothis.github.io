@@ -157,7 +157,6 @@ pub fn PlayerGameBoardSingle(
                 m.insert(_action, timestamp1);
             });
             state.update(|state| {
-                log::info!("press action: {:?}", _action);
                 if state
                     .apply_action_if_works(_action, get_timestamp_now_nano())
                     .is_ok()

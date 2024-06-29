@@ -134,10 +134,10 @@ pub fn create_hotkey_reader(on_action: impl Fn(TetAction) + Clone+'static) {
         }
         last_events_sig.set_untracked(current_events);
         events.with(|events| {
-            log::info!("NEW EVENTS LISTING FOR....");
+            // log::info!("NEW EVENTS LISTING FOR....");
             for event in events {
                 
-                log::info!("REACTING TO NEW EVENT: {:?}", event);
+                // log::info!("REACTING TO NEW EVENT: {:?}", event);
                 match event {
                     crate::hotkey_context::KeyPressEvent::KeyDown(key_id) => {
                         if let Some(tet_action) = control_mapping.get(key_id) {

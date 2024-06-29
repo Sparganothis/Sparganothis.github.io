@@ -62,7 +62,7 @@ where
         }
         events_signal.set(v.clone());
 
-        log::info!("keys: {:?} time={:?}ms", v, get_timestamp_now_ms() - _last_pressed_time.get_untracked());
+        // log::info!("keys: {:?} time={:?}ms", v, get_timestamp_now_ms() - _last_pressed_time.get_untracked());
         _last_pressed_time.set_untracked(get_timestamp_now_ms());
         last_dedup_keys.set_untracked(new_keys);
     });

@@ -534,7 +534,7 @@ impl GameState {
 
     fn refill_nextpcs(&mut self, event_time: i64) {
         while self.next_pcs.len() < 6 {
-            log::info!("next refill");
+            // log::info!("next refill");
             let (new_pcs2, new_seed) = shuffle_tets(&self.seed, event_time);
             for n in new_pcs2 {
                 self.next_pcs.push_back(n);
@@ -752,7 +752,7 @@ impl GameState {
 
     fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
         if self.game_over {
-            log::warn!("gamem over cannot try_action");
+            // log::warn!("gamem over cannot try_action");
             anyhow::bail!("game over");
         }
         let mut new = self.clone();
@@ -857,7 +857,7 @@ impl GameState {
             Ok(())
         } else {
             let e = r.unwrap_err();
-            log::warn!("user action {:?} failed: {:?}", action, e);
+            // log::warn!("user action {:?} failed: {:?}", action, e);
             Err(e)
         }
     }

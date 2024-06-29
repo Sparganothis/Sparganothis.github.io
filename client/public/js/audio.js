@@ -45,20 +45,22 @@ export function init_audio_js() {
     return result;
 }
 
-export function play_sound_js(sound_items, sound_name) {
-    if (sound_name in sound_items) {
+const ALL_INIT_AUDIO_STUFF = init_audio_js();
 
-        var _play_id = sound_items[sound_name].play();
+export function play_sound_js(sound_name) {
+    if (sound_name in ALL_INIT_AUDIO_STUFF) {
+
+    var _play_id = ALL_INIT_AUDIO_STUFF[sound_name].play();
     } else {
         console.error("SOUND DOES NOT EXIST!!!! : ----- >>> " + sound_name);
     }
     // sound_items[sound_name].volume(sound_volume, play_id);
 }
 
-export function stop_sound_js(sound_items, sound_name) {
-    if (sound_name in sound_items) {
+export function stop_sound_js(sound_name) {
+    if (sound_name in ALL_INIT_AUDIO_STUFF) {
 
-        var _play_id = sound_items[sound_name].stop();
+    var _play_id = ALL_INIT_AUDIO_STUFF[sound_name].stop();
     } else {
         console.error("SOUND DOES NOT EXIST!!!! : ----- >>> " + sound_name);
     }

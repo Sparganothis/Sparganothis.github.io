@@ -91,7 +91,6 @@ pub fn AppRoot() -> impl IntoView {
 
     provide_audio_context();
 
-    provide_user_setting();
 
     let main_ref = create_node_ref::<html::Main>();
     provide_hotkeys_context2(main_ref);
@@ -210,6 +209,8 @@ pub fn AppRoot() -> impl IntoView {
             },
         }
     };
+
+    provide_user_setting();
 
     use crate::page::page_1p::Game1PPage;
     use crate::page::page_2p_lobby::Game2LobbyPage;
