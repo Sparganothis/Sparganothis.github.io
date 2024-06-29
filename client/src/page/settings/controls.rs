@@ -11,14 +11,14 @@ pub fn ControlsSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo)
 
     view! {
         <table>
-        <tr>
-            <td>
-                <Toggle state=state set_state=set_state/>
-            </td>
-            <td>
-                <h3>I Have ADHD</h3>
-            </td>
-        </tr>
-    </table>
+            <tr>
+                <td>
+                    <Toggle state=state set_state=set_state/>
+                </td>
+                <td>
+                    <h3>I Have ADHD</h3>
+                </td>
+            </tr>
+        </table>
     }
 }

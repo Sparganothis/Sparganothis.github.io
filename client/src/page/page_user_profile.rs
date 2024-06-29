@@ -143,21 +143,18 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
     let user_link_tab = create_rw_signal(user_link());
 
 
-    let my_account_tab = create_rw_signal(view! {
-        <MyAccountTab user_profile=user_profile.clone() guest_id=guest_id.clone() />
+    let my_account_tab = create_rw_signal(view! { <MyAccountTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
+
+    let seound_settings_tab = create_rw_signal(view! { <SoundSettingsTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
+
+    let control_settings_tab = create_rw_signal(view! {
+        <ControlsSettingsTab
+            user_profile=user_profile.clone()
+            guest_id=guest_id.clone()
+        />
     });
 
-    let seound_settings_tab = create_rw_signal(view!{
-        <SoundSettingsTab  user_profile=user_profile.clone() guest_id=guest_id.clone()/>
-    });
-
-    let control_settings_tab = create_rw_signal(view!{
-        <ControlsSettingsTab  user_profile=user_profile.clone() guest_id=guest_id.clone()/>
-    });
-
-    let theme_settings = create_rw_signal(view!{
-        <ThemeSettingsTab  user_profile=user_profile.clone() guest_id=guest_id.clone()/>
-    });
+    let theme_settings = create_rw_signal(view! { <ThemeSettingsTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
     
     
 
@@ -172,7 +169,7 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
             </Tab>
 
             <Tab name="sound" label="Sound".into_view()>
-               {seound_settings_tab.get_untracked()}
+                {seound_settings_tab.get_untracked()}
             </Tab>
 
             <Tab name="controls" label="Controls".into_view()>
@@ -195,14 +192,14 @@ pub fn MyAccountTab(user_profile: user::UserProfile, guest_id: GuestInfo) -> imp
     let guest_id_str = format!("guest_info: {:#?}", guest_id);
     let signal_str = create_rw_signal((guest_id_str, user_info_str));
 
-    view!{
+    view! {
         <div style="width: 100%; padding: 1vh; margin: 1vh;">
-        <h2>account</h2>
-        <pre>{move || signal_str.get().0}</pre>
+            <h2>account</h2>
+            <pre>{move || signal_str.get().0}</pre>
 
-        <h2>profile</h2>
-        <pre>{move || signal_str.get().1}</pre>
-    </div>
+            <h2>profile</h2>
+            <pre>{move || signal_str.get().1}</pre>
+        </div>
     }
 
 }
