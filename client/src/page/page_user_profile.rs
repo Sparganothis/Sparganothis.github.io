@@ -1,6 +1,9 @@
 use leptos::*;
 
 use crate::comp::table_replay_games::AllGamesTable;
+use crate::page::settings::sound::SoundSettingsTab;
+use crate::page::settings::themes::ThemeSettingsTab;
+use crate::page::settings::controls::ControlsSettingsTab;
 use crate::websocket::demo_comp::call_api_sync;
 use game::api::user::{self, GuestInfo};
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
@@ -122,13 +125,6 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
 
     // let (checked, set_checked) = create_signal(false);
 
-    let (state, set_state) = create_signal(false);
-    let (hsv, set_hsv) = create_signal(HSV::new());
-
-    let user_info_str=  format!("user_profile: {:#?}", user_profile);
-    let guest_id_str = format!("guest_info: {:#?}", guest_id);
-    let signal_str = create_rw_signal((guest_id_str, user_info_str));
-
 
     let guest_id2=guest_id.clone();
     let user_profile2=user_profile.clone();
@@ -136,96 +132,77 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
         let guest_id2=guest_id2.clone();
         let user_profile2=user_profile2.clone();
         view! {
-            <a href=format!("/user/{}", guest_id2.user_id)>
-                <UserProfileView _user_id=guest_id2.user_id p=user_profile2/>
-            </a>
+            <div style="width: 100%; padding: 1vh; margin: 1vh;">
+                <a href=format!("/user/{}", guest_id2.user_id)>
+                    <UserProfileView _user_id=guest_id2.user_id p=user_profile2/>
+                </a>
+            </div>
         }
         .into_view()
     };
-    let user_link = create_rw_signal(user_link());
-    let (value_menu_mmusic , set_value_menu_music) = create_signal(0.0);
+    let user_link_tab = create_rw_signal(user_link());
+
+
+    let my_account_tab = create_rw_signal(view! {
+        <MyAccountTab user_profile=user_profile.clone() guest_id=guest_id.clone() />
+    });
+
+    let seound_settings_tab = create_rw_signal(view!{
+        <SoundSettingsTab  user_profile=user_profile.clone() guest_id=guest_id.clone()/>
+    });
+
+    let control_settings_tab = create_rw_signal(view!{
+        <ControlsSettingsTab  user_profile=user_profile.clone() guest_id=guest_id.clone()/>
+    });
+
+    let theme_settings = create_rw_signal(view!{
+        <ThemeSettingsTab  user_profile=user_profile.clone() guest_id=guest_id.clone()/>
+    });
+    
+    
+
     view! {
         <Tabs mount=Mount::Once>
             <Tab name="account" label="My Account".into_view()>
-                <div style="width: 100%; padding: 1vh; margin: 1vh;">
-                    <h2>account</h2>
-                    <pre>{move || signal_str.get().0}</pre>
-
-                    <h2>profile</h2>
-                    <pre>{move || signal_str.get().1}</pre>
-                </div>
+                {my_account_tab.get_untracked()}
             </Tab>
 
             <Tab name="profile" label="Game Profile".into_view()>
-                <div style="width: 100%; padding: 1vh; margin: 1vh;">
-                    {move || user_link.get()}
-                </div>
+                {user_link_tab.get_untracked()}
             </Tab>
 
             <Tab name="sound" label="Sound".into_view()>
-                <table>
-                    <tr>
-                        <td>
-                            <Toggle state=state set_state=set_state/>
-                        </td>
-                        <td>
-                            <h3>Menu Music</h3>
-                        </td>
-                        <td>
-                            <h3>
-                                {move || {
-                                    (if state.get() { "ON" } else { "OFF" }).to_string()
-                                }}
-
-                            </h3>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width:20vmin;">
-                            <Slider
-                                min=0.0
-                                max=100.0
-                                step=1.0
-                                value=value_menu_mmusic
-                                set_value=set_value_menu_music
-                                value_display=move |v| format!("{v:.0}")
-                            />
-                        </td>
-                        <td>
-                            <h3>Menu Music Volume</h3>
-                        </td>
-                        <td>{move || format!("{}", value_menu_mmusic.get())}</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Toggle state=state set_state=set_state/>
-                        </td>
-                        <td>
-                            <h3>Menu Music</h3>
-                        </td>
-                    </tr>
-                </table>
+               {seound_settings_tab.get_untracked()}
             </Tab>
 
             <Tab name="controls" label="Controls".into_view()>
-                <table>
-                    <tr>
-                        <td>
-                            <Toggle state=state set_state=set_state/>
-                        </td>
-                        <td>
-                            <h3>I Have ADHD</h3>
-                        </td>
-                    </tr>
-                </table>
+                {control_settings_tab.get_untracked()}
             </Tab>
 
             <Tab name="theme" label="Themes".into_view()>
-                <div style="width:50%; height: 20%">
-                    <ColorPicker hsv=hsv set_hsv=set_hsv/>
-                </div>
+                {theme_settings.get_untracked()}
+
             </Tab>
         </Tabs>
     }
 }
    
+   
+#[component]
+pub fn MyAccountTab(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView {
+
+    let user_info_str=  format!("user_profile: {:#?}", user_profile);
+    let guest_id_str = format!("guest_info: {:#?}", guest_id);
+    let signal_str = create_rw_signal((guest_id_str, user_info_str));
+
+    view!{
+        <div style="width: 100%; padding: 1vh; margin: 1vh;">
+        <h2>account</h2>
+        <pre>{move || signal_str.get().0}</pre>
+
+        <h2>profile</h2>
+        <pre>{move || signal_str.get().1}</pre>
+    </div>
+    }
+
+}

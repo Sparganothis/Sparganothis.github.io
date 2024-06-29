@@ -7,3 +7,4 @@ pub mod page_vs_cpu;
 pub mod page_spectate;
 pub mod homepage;
 pub mod page_match;
+pub mod settings;
