@@ -406,12 +406,38 @@ pub fn get_user_setting(
     setting_name: UserSettingType,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<Vec<u8>> {
-todo!()
+    match  USER_SETTING_DB.get(&(_current_user_id.user_id,setting_name))?{
+        Some(s) => Ok(s),
+        None => Ok(vec![]),
+    }
+
+    // match setting_name{
+    //     UserSettingType::SoundSetting(s) => match s {
+    //         game::api::user_settings::SoundSettingType::DisableAllSounds => todo!(),
+    //         game::api::user_settings::SoundSettingType::DisableMenuMusic => todo!(),
+    //         game::api::user_settings::SoundSettingType::MenuMusicVolume => todo!(),
+    //         game::api::user_settings::SoundSettingType::MenuSoundsVolume => todo!(),
+    //     },
+    //     UserSettingType::ControlSetting(s) => match s {
+    //         game::api::user_settings::ControlSettingType::IHaveADHD => todo!(),
+    //     },
+    //     UserSettingType::ThemeSetting(s) => match s {
+    //         game::api::user_settings::ThemeSettingType::BackgroundColor => todo!(),
+    //     },
+    // }
 }
 
 pub fn set_user_setting(
     (setting_name, setting_val):(UserSettingType, Vec<u8>), 
     _current_user_id: GuestInfo,
  ) -> anyhow::Result<()> {
-    todo!()
+
+
+
+    if setting_val.len()>100{
+        anyhow::bail!("too many bytes pls!");
+    }
+    USER_SETTING_DB.insert(&(_current_user_id.user_id,setting_name), &setting_val)?;
+
+    Ok(())
 }

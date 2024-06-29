@@ -1,10 +1,11 @@
 use game::{
     api::{
         game_match::{GameMatch, UserAndMatchId, UserAndMatchResult},
-        game_replay::{GameId, GameSegmentId},
+        game_replay::{GameId, GameSegmentId}, user_settings::UserSettingType,
     },
     tet::{GameReplaySegment, GameState},
 };
+use uuid::Uuid;
 
 use super::config::SERVER_DATA_PATH;
 use anyhow::Context;
@@ -83,4 +84,14 @@ pub static GAME_MATCHES_FOR_USER_DB: Lazy<
     typed_sled::Tree<UserAndMatchId, UserAndMatchResult>,
 > = Lazy::new(|| {
     typed_sled::Tree::<_, _>::open(&TABLES_DB, "GAME_MATCHES_FOR_USER_DB_v1")
+});
+
+
+pub static USER_SETTING_DB: Lazy<
+    typed_sled::Tree<
+        (uuid::Uuid, UserSettingType), 
+        Vec<u8>,
+    >
+> = Lazy::new(|| {
+    typed_sled::Tree::<_, _>::open(&TABLES_DB, "SETTINGS_FOR_USER_DB_v1")
 });
