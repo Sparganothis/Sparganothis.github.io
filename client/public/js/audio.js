@@ -1,17 +1,17 @@
 export function init_audio_js() {
     var files = {
         // "acccess_denied": "249300__suntemple__access-denied.wav.mp3",
-        "game_over": ['effects/brass-144755.mp3', 0.5, false],
+        "game_over": ['effects/brass-144755.mp3', 0.9, false],
         // "poker_chip": "476818__victorium183__menuaccept.wav.mp3",
         // "swipe": "movement-swipe-whoosh-3-186577.mp3",
-        "pre_123": ["effects/476818__victorium183__menuaccept.wav.mp3", 0.3, false],
-        "soft_drop": ["effects/384187__malle99__click-tick.wav.mp3", 0.1, false]
-        ,
+        "pre_123": ["effects/476818__victorium183__menuaccept.wav.mp3", 0.25, false],
+        "soft_drop": ["effects/384187__malle99__click-tick.wav.mp3", 0.15, false]  ,
         "move": ["effects/577020__nezuai__ui-sound-1.wav.mp3", 0.5, false],
-        "rotate": ["effects/577020__nezuai__ui-sound-1.wav.mp3", 0.5, false],
+        "rotate": ["effects/movement-swipe-whoosh-3-186577-edit.mp3", 0.3, false],
         "hold": ["effects/switch-light-04-82204.mp3", 0.5, false],
-        "hard_drop": ["effects/kick-183936.mp3", 0.5, false],
-        "clear_line": ["effects/721159__nfrae__drunkard.wav.mp3", 0.5, false],
+
+        "hard_drop": ["effects/kick-183936.mp3", 0.20, false],
+        "clear_line": ["effects/721159__nfrae__drunkard.wav.mp3", 0.25, false],
 
         "mmenu_mmusicc": ["music/Limosine.mp3", 0.5, true],
 
