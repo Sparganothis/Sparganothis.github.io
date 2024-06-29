@@ -16,7 +16,6 @@ use game::tet::GameState;
 use game::timestamp::get_timestamp_now_nano;
 use rand::Rng;
 
-
 pub fn get_profile(
     user_id: uuid::Uuid,
     _current_user_id: GuestInfo,
@@ -406,7 +405,7 @@ pub fn get_user_setting(
     setting_name: UserSettingType,
     _current_user_id: GuestInfo,
 ) -> anyhow::Result<Vec<u8>> {
-    match  USER_SETTING_DB.get(&(_current_user_id.user_id,setting_name))?{
+    match USER_SETTING_DB.get(&(_current_user_id.user_id, setting_name))? {
         Some(s) => Ok(s),
         None => Ok(vec![]),
     }
@@ -428,16 +427,13 @@ pub fn get_user_setting(
 }
 
 pub fn set_user_setting(
-    (setting_name, setting_val):(UserSettingType, Vec<u8>), 
+    (setting_name, setting_val): (UserSettingType, Vec<u8>),
     _current_user_id: GuestInfo,
- ) -> anyhow::Result<()> {
-
-
-
-    if setting_val.len()>100{
+) -> anyhow::Result<()> {
+    if setting_val.len() > 100 {
         anyhow::bail!("too many bytes pls!");
     }
-    USER_SETTING_DB.insert(&(_current_user_id.user_id,setting_name), &setting_val)?;
+    USER_SETTING_DB.insert(&(_current_user_id.user_id, setting_name), &setting_val)?;
 
     Ok(())
 }

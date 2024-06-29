@@ -36,9 +36,9 @@ pub enum WebsocketAPIMessageType {
     GetMatchList,
 
     GetMatchInfo,
-    
+
     GetUserSetting,
-    SetUserSetting
+    SetUserSetting,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -250,14 +250,12 @@ impl APIMethod for GetMatchInfo {
     type Resp = GameMatch;
 }
 
-
 pub struct GetUserSetting {}
 impl APIMethod for GetUserSetting {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetUserSetting;
     type Req = UserSettingType;
     type Resp = Vec<u8>;
 }
-
 
 pub struct SetUserSetting {}
 impl APIMethod for SetUserSetting {
