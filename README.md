@@ -34,14 +34,25 @@ bash run-server.sh
 
 
 # todo
+
+## audio
+
 - real time update volume [global method Howler.volume(,...)](https://github.com/goldfire/howler.js?tab=readme-ov-file#global-methods)
 - stop/restart real time sound [gloabl method Howler.sstop()](https://github.com/goldfire/howler.js?tab=readme-ov-file#stop)
 - real timem update menu music volume (store numericc play ID for menu music in javascript, then update fromm differetn fn)
 - different sound nfor pre-game 3, 2, 1, GO
-- 
+- winamp
+- remmember in private storeage all winamp history and user ignore / skpi soundtrack
+- when song changes, put notiifcation in corner like nfss
+- different cocmbo audio for 1Line Clear, 2 Line, 3 LIne, Spin
+- menu option to disable soft/auto-soft-drop sound
+- eacch different menu option sound has itws own slider
+- option for decreasing volume for repeating sound
 
+## SINGLEPLAYER
 
-- SINGLEPLAYE$R: TIMER  + 40 LINE WORLD RECCORD + BLIETZ + "PUZZLE MODE"
+- fix mspaint.exe (cclick pls)
+- SINGLEPLAYE$R: TIMER  + 40 LINE WORLD RECCORD + BLIETZ + "PUZZLE MODE" + TUTORIAL MODE
 
 - change all Get* api message to return None for "not found" -- is not error (custom game / mmspaint on randomm name);
 - https://github.com/goldfire/howler.js/tree/master/examples/sprite
