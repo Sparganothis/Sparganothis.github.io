@@ -1,8 +1,8 @@
 
-use game::{api::websocket::WhoAmI, tet::{self, GameState}};
+use game::tet::{self, GameState};
 use leptos::*;
 
-use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync};
+use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}};
 
 
 

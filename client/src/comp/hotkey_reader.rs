@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use game::tet::TetAction;
 use leptos::*;
-use leptos_use::{use_interval, use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
+use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 
 use crate::hotkey_context::HotkeysContext;
 
@@ -22,8 +22,8 @@ where
 fn create_hotkey_repeater(action: TetAction, on_action: impl Fn(TetAction) + Clone + 'static) -> HotkeyRepeaterFunctions<impl Fn() + Clone, impl Fn() + Clone> {
 
     let UseIntervalReturn{ 
-        counter: das_counter, reset: das_reset, is_active: das_is_active, pause: das_pause, resume: das_resume }    =  use_interval_with_options( DAS_MS , UseIntervalOptions::default().immediate(false));
-    let UseIntervalReturn{ counter: arr_counter, reset: arr_reset, is_active: arr_is_active, pause: arr_pause, resume: arr_resume }    = use_interval_with_options(ARR_MS,UseIntervalOptions::default().immediate(false));
+        counter: das_counter, reset: das_reset, is_active: _das_is_active, pause: das_pause, resume: das_resume }    =  use_interval_with_options( DAS_MS , UseIntervalOptions::default().immediate(false));
+    let UseIntervalReturn{ counter: arr_counter, reset: arr_reset, is_active: _arr_is_active, pause: arr_pause, resume: arr_resume }    = use_interval_with_options(ARR_MS,UseIntervalOptions::default().immediate(false));
 
     // when das counter changes, reset and pause it and ccall fisrt repeat acction. Also start repeat arr counter
     let das_reset2 = das_reset.clone();

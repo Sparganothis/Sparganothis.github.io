@@ -3,7 +3,7 @@ use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sy
 use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
-use leptos_use::{use_interval, use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
+use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 
