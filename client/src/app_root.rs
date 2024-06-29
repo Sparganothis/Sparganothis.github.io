@@ -16,6 +16,7 @@ use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
 use crate::page::page_1p::GameSoloLobbyPage;
+use crate::page::settings::server_api::provide_user_setting;
 
 
 #[component]
@@ -89,6 +90,8 @@ pub fn AppRoot() -> impl IntoView {
     provide_meta_context();
 
     provide_audio_context();
+
+    provide_user_setting();
 
     let main_ref = create_node_ref::<html::Main>();
     provide_hotkeys_context2(main_ref);
