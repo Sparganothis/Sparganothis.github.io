@@ -13,8 +13,8 @@ pub enum UserSettingType {
     Copy, Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash,
 )]
 pub enum SoundSettingType {
-    DisableAllSounds,
-    DisableMenuMusic,
+    EnableAllSounds,
+    EnableMenuMusic,
     MenuMusicVolume,
     AllSoundsVolume,
 }

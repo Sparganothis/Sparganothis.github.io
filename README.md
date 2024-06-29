@@ -34,6 +34,13 @@ bash run-server.sh
 
 
 # todo
+- real time update volume [global method Howler.volume(,...)](https://github.com/goldfire/howler.js?tab=readme-ov-file#global-methods)
+- stop/restart real time sound [gloabl method Howler.sstop()](https://github.com/goldfire/howler.js?tab=readme-ov-file#stop)
+- real timem update menu music volume (store numericc play ID for menu music in javascript, then update fromm differetn fn)
+- different sound nfor pre-game 3, 2, 1, GO
+- 
+
+
 - SINGLEPLAYE$R: TIMER  + 40 LINE WORLD RECCORD + BLIETZ + "PUZZLE MODE"
 
 - change all Get* api message to return None for "not found" -- is not error (custom game / mmspaint on randomm name);

@@ -11,8 +11,8 @@ use crate::websocket::demo_comp::call_api_sync_or_error;
     Copy, Debug, Clone,
 )]
 pub struct UserSettingSignals{
-    pub sound_disabled: RwSignal<bool>,
-    pub sound_menu_music_disabled: RwSignal<bool>,
+    pub sound_enabled: RwSignal<bool>,
+    pub sound_menu_music_enabled: RwSignal<bool>,
     pub sound_all_sounds_volume: RwSignal<f64>,
     pub sound_menu_music_volume: RwSignal<f64>,
 
@@ -77,14 +77,14 @@ pub fn provide_user_setting(){
     let sound_disabled =
             generic_usersetting_websocket_reactor(
         UserSettingType::SoundSetting(
-                SoundSettingType::DisableAllSounds
+                SoundSettingType::EnableAllSounds
             ),
             false, 
         );
 
     let sound_menu_music_disabled =     generic_usersetting_websocket_reactor(
         UserSettingType::SoundSetting(
-                SoundSettingType::DisableMenuMusic
+                SoundSettingType::EnableMenuMusic
             ),
             false, 
         );
@@ -101,10 +101,10 @@ pub fn provide_user_setting(){
         );
 
     leptos::provide_context(UserSettingSignals{
-        sound_disabled,
+        sound_enabled: sound_disabled,
         sound_all_sounds_volume,
         sound_menu_music_volume,
-        sound_menu_music_disabled,
+        sound_menu_music_enabled: sound_menu_music_disabled,
         control_i_have_adhd,
     });
 }

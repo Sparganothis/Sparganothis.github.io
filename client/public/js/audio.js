@@ -1,4 +1,5 @@
 export function init_audio_js() {
+    console.log("INIT AUDIO JS ");
     var files = {
         // "acccess_denied": "249300__suntemple__access-denied.wav.mp3",
         "game_over": ['effects/brass-144755.mp3', 0.9, false],
@@ -7,7 +8,7 @@ export function init_audio_js() {
         "pre_123": ["effects/476818__victorium183__menuaccept.wav.mp3", 0.25, false],
         "soft_drop": ["effects/384187__malle99__click-tick.wav.mp3", 0.15, false]  ,
         "move": ["effects/577020__nezuai__ui-sound-1.wav.mp3", 0.5, false],
-        "rotate": ["effects/movement-swipe-whoosh-3-186577-edit.mp3", 0.3, false],
+        "rotate": ["effects/movement-swipe-whoosh-3-186577-edit.mp3", 0.2, false],
         "hold": ["effects/switch-light-04-82204.mp3", 0.5, false],
 
         "hard_drop": ["effects/kick-183936.mp3", 0.20, false],
@@ -47,14 +48,16 @@ export function init_audio_js() {
 
 const ALL_INIT_AUDIO_STUFF = init_audio_js();
 
-export function play_sound_js(sound_name) {
+export function play_sound_js(sound_name, volume) {
+    var old_volume = ALL_INIT_AUDIO_STUFF[sound_name].volume();
+
     if (sound_name in ALL_INIT_AUDIO_STUFF) {
 
     var _play_id = ALL_INIT_AUDIO_STUFF[sound_name].play();
     } else {
         console.error("SOUND DOES NOT EXIST!!!! : ----- >>> " + sound_name);
     }
-    // sound_items[sound_name].volume(sound_volume, play_id);
+    ALL_INIT_AUDIO_STUFF[sound_name].volume(old_volume * volume* 0.01, _play_id);
 }
 
 export function stop_sound_js(sound_name) {
@@ -64,5 +67,4 @@ export function stop_sound_js(sound_name) {
     } else {
         console.error("SOUND DOES NOT EXIST!!!! : ----- >>> " + sound_name);
     }
-    // sound_items[sound_name].volume(sound_volume, play_id);
 }
