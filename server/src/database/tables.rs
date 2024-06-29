@@ -5,7 +5,6 @@ use game::{
     },
     tet::{GameReplaySegment, GameState},
 };
-use uuid::Uuid;
 
 use super::config::SERVER_DATA_PATH;
 use anyhow::Context;
