@@ -173,7 +173,7 @@ pub fn create_volume_control_to_js_reactor(user_setting_signal:UserSettingSignal
         move || (
             user_setting_signal.sound_enabled.get()
         ),
-        move |(enabled), _, _| {
+        move |enabled, _, _| {
             if !enabled{
                 stop_all_sound_js();
             }
@@ -187,8 +187,7 @@ pub fn create_volume_control_to_js_reactor(user_setting_signal:UserSettingSignal
             
             user_setting_signal.sound_all_sounds_volume.get()
         ),
-        move |(volume), _, _| {
-            log::warn!("xxxxxxxxxxxx volumme: {}",volume);
+        move |volume, _, _| {
             change_global_volume_js(*volume);
             
         }, 
@@ -203,7 +202,7 @@ pub fn create_volume_control_to_js_reactor(user_setting_signal:UserSettingSignal
             
             user_setting_signal.sound_menu_music_volume.get()
         ),
-        move |(volume), _, _| {
+        move |volume, _, _| {
             change_sound_volume_js("mmenu_mmusicc".to_string(),*volume);
             
         }, 
@@ -216,7 +215,7 @@ pub fn create_volume_control_to_js_reactor(user_setting_signal:UserSettingSignal
         move || (
             user_setting_signal.sound_menu_music_enabled.get()
         ),
-        move |(enabled), _, _| {
+        move |enabled, _, _| {
             if !enabled{
                 stop_sound_js("mmenu_mmusicc".to_string());
             }

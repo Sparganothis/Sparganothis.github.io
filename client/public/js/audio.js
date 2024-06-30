@@ -73,7 +73,6 @@ export function stop_sound_js(sound_name) {
 }
 
 export function change_global_volume_js(volume){
-    console.log("XXXXXXXXX change_global_volume_js:" + volume);
     Howler.volume(volume*0.01);   
 }
 
@@ -84,5 +83,5 @@ export function change_sound_volume_js(sound_name, volume){
 }
 
 export function stop_all_sound_js(){
-    Howler.stop();   
+    Howler.stop(); 
 }
