@@ -66,7 +66,7 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
         match x{
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),
-            7 => play_button.clone(),
+            6 => play_button.clone(),
             _ => view!{            }.into_view()
             
         }

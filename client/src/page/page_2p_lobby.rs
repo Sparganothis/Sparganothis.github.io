@@ -49,7 +49,7 @@ pub fn Lobby2P() -> impl IntoView {
         match x{
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),
-            7=>view! {
+            6=>view! {
                 <Show
                     when=move || waiting_for_game.get()
                     fallback=move || {
@@ -60,15 +60,7 @@ pub fn Lobby2P() -> impl IntoView {
                     <h1>WAITING FOR GAME</h1>
                 </Show>
 
-                <Show
-                    when=move || (error_display.get().len() > 0)
-                    fallback=move || {
-                        view! {}
-                    }
-                >
-
-                    <h1 style="color:red">Just waiting for game</h1>
-                </Show>
+             
 
                 <Show
                     when=move || {
@@ -88,6 +80,22 @@ pub fn Lobby2P() -> impl IntoView {
                         </h3>
                     </div>
                 </Show>
+
+                <Show
+                when=move || (error_display.get().len() > 0)
+                fallback=move || {
+                    view! {}
+                }
+            >
+
+            
+                <div style="width:100%;height:100%; container-type: size;">
+                    <h3 style="font-size:70cqh; text-align: center;">
+                        WAITING
+                    </h3>
+                </div>
+            </Show>
+
 
                 <h1>
                     {move || {
