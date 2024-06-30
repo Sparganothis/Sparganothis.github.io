@@ -46,6 +46,7 @@ export function init_audio_js() {
     return result;
 }
 
+const MUSIC_PLAY_ID = {};
 const ALL_INIT_AUDIO_STUFF = init_audio_js();
 
 export function play_sound_js(sound_name, volume) {
@@ -58,6 +59,8 @@ export function play_sound_js(sound_name, volume) {
         console.error("SOUND DOES NOT EXIST!!!! : ----- >>> " + sound_name);
     }
     ALL_INIT_AUDIO_STUFF[sound_name].volume(old_volume * volume* 0.01, _play_id);
+    MUSIC_PLAY_ID[sound_name]=_play_id;
+   // return _play_id;
 }
 
 export function stop_sound_js(sound_name) {
@@ -67,4 +70,19 @@ export function stop_sound_js(sound_name) {
     } else {
         console.error("SOUND DOES NOT EXIST!!!! : ----- >>> " + sound_name);
     }
+}
+
+export function change_global_volume_js(volume){
+    console.log("XXXXXXXXX change_global_volume_js:" + volume);
+    Howler.volume(volume*0.01);   
+}
+
+export function change_sound_volume_js(sound_name, volume){
+    if ((sound_name in MUSIC_PLAY_ID) && (sound_name in ALL_INIT_AUDIO_STUFF)){
+        ALL_INIT_AUDIO_STUFF[sound_name].volume(volume* 0.01, MUSIC_PLAY_ID[sound_name]);
+    }   
+}
+
+export function stop_all_sound_js(){
+    Howler.stop();   
 }

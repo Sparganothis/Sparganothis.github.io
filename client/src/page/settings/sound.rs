@@ -2,6 +2,8 @@ use game::api::user::{self, GuestInfo};
 use leptonic::{slider::Slider, toggle::Toggle};
 use leptos::*;
 
+use crate::audio3::{change_global_volume_js, change_sound_volume_js, play_sound_js, stop_all_sound_js, stop_sound_js};
+
 use super::server_api::UserSettingSignals;
 
 
@@ -11,10 +13,7 @@ pub fn SoundSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) ->
 
     let user_setting_signal = expect_context::<UserSettingSignals>();
     let has_cchanged_menu = create_rw_signal(false);
-
-    let _ = leptos::watch(move || (user_setting_signal.sound_menu_music_enabled.track(),user_setting_signal.sound_menu_music_volume.track()), move |_, _, _| {
-        has_cchanged_menu.set(true);
-    }, false);
+    create_volume_control_to_js_reactor(user_setting_signal);
     
     view! {
         <table>
@@ -168,3 +167,71 @@ pub fn SoundSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) ->
 }
 
 
+pub fn create_volume_control_to_js_reactor(user_setting_signal:UserSettingSignals){
+    
+    let _ = leptos::watch(
+        move || (
+            user_setting_signal.sound_enabled.get()
+        ),
+        move |(enabled), _, _| {
+            if !enabled{
+                stop_all_sound_js();
+            }
+            
+        }, 
+        false
+    );
+
+    let _ = leptos::watch(
+        move || (
+            
+            user_setting_signal.sound_all_sounds_volume.get()
+        ),
+        move |(volume), _, _| {
+            log::warn!("xxxxxxxxxxxx volumme: {}",volume);
+            change_global_volume_js(*volume);
+            
+        }, 
+        false
+    );
+
+
+
+
+    let _ = leptos::watch(
+        move || (
+            
+            user_setting_signal.sound_menu_music_volume.get()
+        ),
+        move |(volume), _, _| {
+            change_sound_volume_js("mmenu_mmusicc".to_string(),*volume);
+            
+        }, 
+        false
+    );
+
+
+            
+    let _ = leptos::watch(
+        move || (
+            user_setting_signal.sound_menu_music_enabled.get()
+        ),
+        move |(enabled), _, _| {
+            if !enabled{
+                stop_sound_js("mmenu_mmusicc".to_string());
+            }
+            else {
+                play_sound_js(
+                    "mmenu_mmusicc".to_string(), 
+                
+                    user_setting_signal.sound_menu_music_volume.get_untracked()
+                );
+            }
+            
+        }, 
+        false
+    );
+
+
+    
+}

@@ -10,6 +10,10 @@ extern "C" {
     // pub fn init_audio_js() -> JsValue;
     pub fn play_sound_js(sound_name:String, volume: f64) -> JsValue;
     pub fn stop_sound_js(sound_name:String) -> JsValue;
+    pub fn change_global_volume_js(volume: f64) -> JsValue;
+    pub fn stop_all_sound_js() -> JsValue;
+    pub fn change_sound_volume_js(sound_name: String, volume: f64) -> JsValue;
+
 }
 
 #[derive(Debug, Clone, PartialEq)]
