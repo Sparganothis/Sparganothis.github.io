@@ -84,6 +84,7 @@ pub fn SoundSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) ->
                                 user_setting_signal.sound_all_sounds_volume.get(),
                             )
                         }}
+
                     </td>
                 </tr>
 
@@ -144,6 +145,7 @@ pub fn SoundSettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) ->
                                     user_setting_signal.sound_menu_music_volume.get(),
                                 )
                             }}
+
                         </td>
                     </tr>
                 </Show>
