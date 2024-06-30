@@ -4,7 +4,6 @@ use leptos::*;
 use leptos::{create_rw_signal, RwSignal};
 use serde::{Deserialize, Serialize};
 
-use crate::audio3::{change_global_volume_js, change_sound_volume_js, stop_all_sound_js};
 use crate::websocket::demo_comp::call_api_sync_or_error;
 
 
