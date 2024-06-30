@@ -4,7 +4,7 @@ use game::api::websocket::{GetAllGames, GetAllGamesArg};
 use leptos::*;
 
 
-use crate::{comp::menu_grid_view::MenuGridView, mobile_check::is_mobile_phone, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
+use crate::{comp::{game_board_flex::GameBoardFlexPropsBuilder_Error_Repeated_field_game_state, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn Homepage()-> impl IntoView{
@@ -19,7 +19,7 @@ pub fn Homepage()-> impl IntoView{
             }
     });
 
-
+    let new_url =format!("/mspaint");
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
             0 => {
@@ -40,6 +40,27 @@ pub fn Homepage()-> impl IntoView{
                 view! {
                     <a href="/solo">
                         <h3>"SOLO"</h3>
+                    </a>
+                }.into_view()
+            },
+            10 => {
+                view! {
+                    <a href="/vs_net">
+                        <h3>"1v1"</h3>
+                    </a>
+                }.into_view()
+            },
+            11 => {
+                view! {
+                    <a href="/vs_cpu">
+                        <h3>"man vs car"</h3>
+                    </a>
+                }.into_view()
+            },
+            12 => {
+                view! {
+                    <a href=new_url.clone()>
+                        <h3>"mspaint"</h3>
                     </a>
                 }.into_view()
             },

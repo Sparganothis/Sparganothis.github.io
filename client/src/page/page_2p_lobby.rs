@@ -15,7 +15,6 @@ pub fn Game2LobbyPage() -> impl IntoView {
 #[component]
 pub fn Lobby2P() -> impl IntoView {
     let seed: GameSeed = [0; 32];
-    use leptonic::prelude::*;
     let match_id_signal = create_rw_signal(None);
     let waiting_for_game = create_rw_signal(false);
     let error_display = create_rw_signal("".to_string());
