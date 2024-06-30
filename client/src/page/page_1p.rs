@@ -49,20 +49,22 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
          });        
     });
     
-    let play_button = view! { 
-            <div style="width:100%;height:100%; container-type: size;">
-            <h3 style="font-size:80cqh; text-align: center;" on:click=move |_| { redirect_to_new_game.call(()) }>PLAY</h3>
-            </div>
-        }
+    let play_button = view! {
+        <div style="width:100%;height:100%; container-type: size;">
+            <h3
+                style="font-size:80cqh; text-align: center;"
+                on:click=move |_| { redirect_to_new_game.call(()) }
+            >
+                PLAY
+            </h3>
+        </div>
+    }
         .into_view();
 
 
     let views:Vec<_> = {0..20}.into_iter().map(move |x|{
         match x{
-            8 =>view! { 
-                <RandomOpponentGameBoard 
-                seed=seed/> 
-            }
+            8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),
             7 => play_button.clone(),
             _ => view!{            }.into_view()

@@ -5,7 +5,7 @@ use leptos_router::{use_navigate, NavigateOptions};
 #[component]
 pub fn Game2LobbyPage() -> impl IntoView {
     view! {
-      <Lobby2P/>
+        <Lobby2P/>
         <div class="main_right">
             <AllGamesMatchList/>
         </div>
@@ -47,56 +47,61 @@ pub fn Lobby2P() -> impl IntoView {
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
-            8 =>view! { 
-                <RandomOpponentGameBoard 
-                seed=seed/> 
-            }
+            8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),
             7=>view! {
-                    <Show
-                        when=move || waiting_for_game.get()
-                        fallback=move || {
-                            view! {}
-                        }
-                    >
-            
-                        <h1>WAITING FOR GAME</h1>
-                    </Show>
-            
-                    <Show
-                        when=move || (error_display.get().len() > 0)
-                        fallback=move || {
-                            view! {}
-                        }
-                    >
-            
-                        <h1 style="color:red">Just waiting for game</h1>
-                    </Show>
-            
-                    <Show
-                        when=move || { !waiting_for_game.get() && match_id_signal.get().is_none() }
-                        fallback=move || {
-                            view! {}
-                        }
-                    >
-                     <div style="width:100%;height:100%; container-type: size;">
-                         <h3 style="font-size:80cqh; text-align: center;" on:click=move |_| { obtain_new_match_id.call(()) }>PLAY</h3>
+                <Show
+                    when=move || waiting_for_game.get()
+                    fallback=move || {
+                        view! {}
+                    }
+                >
+
+                    <h1>WAITING FOR GAME</h1>
+                </Show>
+
+                <Show
+                    when=move || (error_display.get().len() > 0)
+                    fallback=move || {
+                        view! {}
+                    }
+                >
+
+                    <h1 style="color:red">Just waiting for game</h1>
+                </Show>
+
+                <Show
+                    when=move || {
+                        !waiting_for_game.get() && match_id_signal.get().is_none()
+                    }
+                    fallback=move || {
+                        view! {}
+                    }
+                >
+
+                    <div style="width:100%;height:100%; container-type: size;">
+                        <h3
+                            style="font-size:80cqh; text-align: center;"
+                            on:click=move |_| { obtain_new_match_id.call(()) }
+                        >
+                            PLAY
+                        </h3>
                     </div>
-                    </Show>
-            
-                    <h1>
-                        {move || {
-                            match_id_signal
-                                .with(|s| {
-                                    match s {
-                                        Some(x) => format!("{x:?}"),
-                                        None => "".to_string(),
-                                    }
-                                })
-                        }}
-            
-                    </h1>
-                }.into_view(),
+                </Show>
+
+                <h1>
+                    {move || {
+                        match_id_signal
+                            .with(|s| {
+                                match s {
+                                    Some(x) => format!("{x:?}"),
+                                    None => "".to_string(),
+                                }
+                            })
+                    }}
+
+                </h1>
+            }.into_view(),
             _ => {                view!{                }.into_view()            }
         }
      }).collect();
