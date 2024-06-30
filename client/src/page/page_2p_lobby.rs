@@ -60,12 +60,11 @@ pub fn Lobby2P() -> impl IntoView {
                     <h1>WAITING FOR GAME</h1>
                 </Show>
 
-             
-
                 <Show
                     when=move || {
                         !waiting_for_game.get() && match_id_signal.get().is_none()
                     }
+
                     fallback=move || {
                         view! {}
                     }
@@ -82,20 +81,16 @@ pub fn Lobby2P() -> impl IntoView {
                 </Show>
 
                 <Show
-                when=move || (error_display.get().len() > 0)
-                fallback=move || {
-                    view! {}
-                }
-            >
+                    when=move || (error_display.get().len() > 0)
+                    fallback=move || {
+                        view! {}
+                    }
+                >
 
-            
-                <div style="width:100%;height:100%; container-type: size;">
-                    <h3 style="font-size:70cqh; text-align: center;">
-                        WAITING
-                    </h3>
-                </div>
-            </Show>
-
+                    <div style="width:100%;height:100%; container-type: size;">
+                        <h3 style="font-size:70cqh; text-align: center;">WAITING</h3>
+                    </div>
+                </Show>
 
                 <h1>
                     {move || {
