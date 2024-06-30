@@ -23,7 +23,7 @@ pub fn GameCPUPage() -> impl IntoView {
             5 =>             youtube_video.clone(),
 
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }.into_view(),
-            _ => {                view!{                }.into_view()            }
+            _ => {                view!{                }.into_view()            },
         }
      }).collect();
 

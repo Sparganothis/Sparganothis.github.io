@@ -1,5 +1,5 @@
-use crate::{comp::menu_grid_view::MenuGridView, websocket::demo_comp::call_api_sync};
-use game::api::{game_replay::GameId, websocket::CreateNewGameId};
+use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, websocket::demo_comp::call_api_sync};
+use game::{api::{game_replay::GameId, websocket::CreateNewGameId}, random::GameSeed};
 use leptos::*;
 use leptos_router::{use_navigate, use_params_map, NavigateOptions};
 use crate::comp::game_board_player::PlayerGameBoardFromId;
@@ -40,7 +40,7 @@ pub fn Game1PPage() -> impl IntoView {
 
 #[component]
 pub fn GameSoloLobbyPage() -> impl IntoView {
-    
+    let seed: GameSeed = [0; 32];
     let redirect_to_new_game = Callback::new(move |_|{
         let navigate = use_navigate();
          call_api_sync::<CreateNewGameId>((), move |r:GameId| {
@@ -49,12 +49,22 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
          });        
     });
     
-    let play_button = view! { <h1 on:click=move |_| { redirect_to_new_game.call(()) }>PLAY</h1> }.into_view();
+    let play_button = view! { 
+            <div style="width:100%;height:100%; container-type: size;">
+            <h3 style="font-size:80cqh; text-align: center;" on:click=move |_| { redirect_to_new_game.call(()) }>PLAY</h3>
+            </div>
+        }
+        .into_view();
 
 
     let views:Vec<_> = {0..20}.into_iter().map(move |x|{
         match x{
-            0 => play_button.clone(),
+            8 =>view! { 
+                <RandomOpponentGameBoard 
+                seed=seed/> 
+            }
+            .into_view(),
+            7 => play_button.clone(),
             _ => view!{            }.into_view()
             
         }

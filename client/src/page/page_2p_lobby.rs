@@ -70,7 +70,7 @@ pub fn Lobby2P() -> impl IntoView {
                         }
                     >
             
-                        <h1 style="color:red">{error_display}</h1>
+                        <h1 style="color:red">Just waiting for game</h1>
                     </Show>
             
                     <Show
@@ -79,9 +79,9 @@ pub fn Lobby2P() -> impl IntoView {
                             view! {}
                         }
                     >
-            
-                     <h1 on:click=move |_| { obtain_new_match_id.call(()) }>PLAY</h1>
-            
+                     <div style="width:100%;height:100%; container-type: size;">
+                         <h3 style="font-size:80cqh; text-align: center;" on:click=move |_| { obtain_new_match_id.call(()) }>PLAY</h3>
+                    </div>
                     </Show>
             
                     <h1>

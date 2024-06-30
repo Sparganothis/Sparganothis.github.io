@@ -36,34 +36,7 @@ pub fn Homepage()-> impl IntoView{
                     }
                 }).into_view()
             },
-            9 => {
-                view! {
-                    <a href="/solo">
-                        <h3>"SOLO"</h3>
-                    </a>
-                }.into_view()
-            },
-            10 => {
-                view! {
-                    <a href="/vs_net">
-                        <h3>"1v1"</h3>
-                    </a>
-                }.into_view()
-            },
-            11 => {
-                view! {
-                    <a href="/vs_cpu">
-                        <h3>"man vs car"</h3>
-                    </a>
-                }.into_view()
-            },
-            12 => {
-                view! {
-                    <a href=new_url.clone()>
-                        <h3>"mspaint"</h3>
-                    </a>
-                }.into_view()
-            },
+
             _ => {
                 view!{
 
