@@ -266,11 +266,14 @@ pub fn ReplayGameBoardFromSegmments(
         <GameBoardFlex
             on_reset_game=on_reset
             game_state=game_state
-            top_bar=top_bar_override.unwrap_or(view! {
-                {make_slider}
-                {control_icons}
-            }
-                .into_view())
+            top_bar=top_bar_override
+                .unwrap_or(
+                    view! {
+                        {make_slider}
+                        {control_icons}
+                    }
+                        .into_view(),
+                )
             player_id
         />
     }

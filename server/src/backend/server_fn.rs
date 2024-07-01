@@ -80,10 +80,14 @@ pub fn append_bot_game_segment(
     let bot_name = get_bot_from_id(id.user_id)?;
     // cchecck that the game id is listed for a mamtcch  vs. this bot
     // and the other player in the mamtch is "who"
-    
-    let match_id = GAME_MATCH_FOR_GAME_ID_DB.get(&id)?.context("no mmatch found for ur game")?;
-    let match_info = GAME_MATCH_DB.get(&match_id)?.context("no mmatchc found for ur game")?;
-    
+
+    let match_id = GAME_MATCH_FOR_GAME_ID_DB
+        .get(&id)?
+        .context("no mmatch found for ur game")?;
+    let match_info = GAME_MATCH_DB
+        .get(&match_id)?
+        .context("no mmatchc found for ur game")?;
+
     match match_info.type_ {
         GameMatchType::ManVsCar(match_bot_name) => {
             if match_bot_name != bot_name {
@@ -92,15 +96,18 @@ pub fn append_bot_game_segment(
             if who != match_info.users[0] && who != match_info.users[1] {
                 anyhow::bail!("no impersonating the bots plz");
             }
-        },
-        _ => anyhow::bail!("wrong match type for this game!")
+        }
+        _ => anyhow::bail!("wrong match type for this game!"),
     }
-    
+
     do_append_game_segment(id, new_segment, _current_user_id)
 }
 
-fn do_append_game_segment(id: GameId, new_segment: GameReplaySegment, _current_user_id: GuestInfo)-> anyhow::Result<()> {
-
+fn do_append_game_segment(
+    id: GameId,
+    new_segment: GameReplaySegment,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<()> {
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
         .context("game segment count not found!")?;
@@ -433,7 +440,10 @@ async fn start_new_1v1_match(
     }
 }
 
-fn create_db_match_entry(match_id: uuid::Uuid, match_info: &GameMatch) -> anyhow::Result<()> {
+fn create_db_match_entry(
+    match_id: uuid::Uuid,
+    match_info: &GameMatch,
+) -> anyhow::Result<()> {
     let gameinfo_0 = GameId {
         user_id: match_info.users[0],
         init_seed: match_info.seed,

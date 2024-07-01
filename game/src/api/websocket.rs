@@ -115,7 +115,6 @@ impl APIMethod for AppendGameSegment {
     type Resp = ();
 }
 
-
 pub struct AppendBotGameSegment {}
 impl APIMethod for AppendBotGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendBotGameSegment;

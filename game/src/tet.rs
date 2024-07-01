@@ -143,7 +143,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                 let cc = self.v[i][j];
                 match cc {
                     CellValue::Piece(_) => return i as i32,
-                    CellValue::Garbage =>return i as i32,
+                    CellValue::Garbage => return i as i32,
                     CellValue::Empty => continue,
                     CellValue::Ghost => continue,
                 };

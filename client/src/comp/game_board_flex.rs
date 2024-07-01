@@ -138,6 +138,7 @@ pub fn GameBoardFlex(
             } else {
                 "".to_string()
             }}
+
         </h3>
     }};
 

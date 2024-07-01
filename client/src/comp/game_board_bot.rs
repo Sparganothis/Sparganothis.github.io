@@ -166,16 +166,7 @@ pub fn BotGameBoardSingle(
         BOT_MOVE_INTERVAL,
     );
 
-    let top_bar = view! {
-        "active bot"
-    }.into_view();
+    let top_bar = view! { "active bot" }.into_view();
 
-    view! {
-        <GameBoardFlex
-            game_state=state
-            top_bar
-            enable_sound=true
-            player_id=bot_id
-        />
-    }
+    view! { <GameBoardFlex game_state=state top_bar enable_sound=true player_id=bot_id/> }
 }
