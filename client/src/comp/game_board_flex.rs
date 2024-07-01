@@ -125,19 +125,21 @@ pub fn GameBoardFlex(
         });
     }
 
-    let profile_view = {  move || view!{
+    let profile_view = {  move || view! {
         <div style="height: 20%; width: 10cqh;"></div>
 
-        <p  style="font-size: 15cqh; height: 20%;" >
+        <p style="font-size: 15cqh; height: 20%;">
             {format!("{:?}", player_id)}
-            <a href={format!("/user/{:?}", player_id)}>(view)</a>
+            <a href=format!("/user/{:?}", player_id)>(view)</a>
         </p>
 
-        <h3 style="font-size: 35cqh; height: 40%;">{
-            if user_profile.get().is_some() {
+        <h3 style="font-size: 35cqh; height: 40%;">
+            {if user_profile.get().is_some() {
                 user_profile.get().unwrap().display_name
-            } else {"".to_string()} 
-        }</h3>
+            } else {
+                "".to_string()
+            }}
+        </h3>
     }};
 
     view! {

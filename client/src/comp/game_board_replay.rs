@@ -267,7 +267,8 @@ pub fn ReplayGameBoardFromSegmments(
             top_bar=view! {
                 {make_slider}
                 {control_icons}
-            }.into_view()
+            }
+                .into_view()
             player_id
         />
     }

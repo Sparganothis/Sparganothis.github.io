@@ -39,7 +39,7 @@ pub fn MsPaintPlayPage() ->impl IntoView{
         <div class="main_left">
             <PlayerGameBoardSingle
                 state=game_state
-                top_bar=view! { <h1>"play custom     | " {save_name}</h1>  }.into_view()
+                top_bar=view! { <h1>"play custom     | " {save_name}</h1> }.into_view()
                 player_id=get_bot_id("random").unwrap()
             />
         </div>
@@ -198,7 +198,7 @@ pub fn MsPaintGameBoard(game_state: RwSignal<GameState>, save_name: ReadSignal<S
             on_reset_game
             on_main_cell_click=on_click
             top_bar=view! { <h1 style="font-size: 8cqw;">{title}</h1> }.into_view()
-            
+
             player_id=get_bot_id("random").unwrap()
         />
     }

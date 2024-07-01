@@ -26,13 +26,13 @@ pub fn get_bot_id(bot_name: &str) -> anyhow::Result<uuid::Uuid> {
     })
 }
 
-pub fn get_bot_from_id(bot_id: uuid::Uuid) 
--> anyhow::Result<String> {
+pub fn get_bot_from_id(bot_id: uuid::Uuid) -> anyhow::Result<String> {
     Ok(if bot_id == uuid::Uuid::from_u128(0) {
         "random"
-    } else if bot_id ==  uuid::Uuid::from_u128(1) {
+    } else if bot_id == uuid::Uuid::from_u128(1) {
         "wordpress"
-    }else {
+    } else {
         anyhow::bail!("bot id not found.")
-    }.to_string())
+    }
+    .to_string())
 }

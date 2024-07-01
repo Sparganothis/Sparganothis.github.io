@@ -87,9 +87,11 @@ on_reset: Callback<()>,
         >
 
             <PlayerGameBoardSingle
-             state on_reset 
-             on_state_change  
-              player_id=game_id.user_id />
+                state
+                on_reset
+                on_state_change
+                player_id=game_id.user_id
+            />
         </Show>
     }
 }

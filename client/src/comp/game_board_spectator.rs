@@ -41,7 +41,8 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
         <GameBoardFlex
-            on_reset_game=on_reset player_id=game_id.user_id
+            on_reset_game=on_reset
+            player_id=game_id.user_id
             game_state=state
             top_bar=view! { <h5>"spectating game"</h5> }.into_view()
         />
