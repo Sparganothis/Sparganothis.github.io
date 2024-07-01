@@ -385,7 +385,6 @@ pub enum GameOverReason {
     Win,
 }
 
-
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameReplaySegment {
     Init(GameReplay),

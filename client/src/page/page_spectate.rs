@@ -27,7 +27,5 @@ pub fn SpectateGamePage() -> impl IntoView {
         }
     };
 
-    view! {
-        <div class="main_left">{left_board}</div>
-    }
+    view! { <div class="main_left">{left_board}</div> }
 }
