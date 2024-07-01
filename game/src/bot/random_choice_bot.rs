@@ -1,7 +1,4 @@
-use crate::{
-    tet::{GameState, Tet, TetAction},
-    timestamp::get_timestamp_now_ms,
-};
+use crate::tet::{GameState, TetAction};
 
 use super::TetBot;
 

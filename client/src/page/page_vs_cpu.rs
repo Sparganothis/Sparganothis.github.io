@@ -51,7 +51,7 @@ pub fn GameCPUPage() -> impl IntoView {
                     on:click=move |_| { obtain_new_match_id.call(bot_name.clone()) }
                 >
                     PLAY vs. BOT:
-                    {bot_name2.clone()}
+                    <b>{bot_name2.clone()}</b>
                 </h3>
             </div>
         }

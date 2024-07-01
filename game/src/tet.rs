@@ -139,7 +139,7 @@ pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     pub fn get_height(&self) -> i32 {
         for i in (0..R).rev() {
-            for j in (0..C) {
+            for j in 0..C {
                 let cc = self.v[i][j];
                 match cc {
                     CellValue::Piece(_) => return i as i32,

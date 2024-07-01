@@ -1,7 +1,7 @@
 /// https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/
 /// https://leeyiyuan.github.io/tetrisai/
 /// Zis Bot uses 4 nummbers to evaluate game states.
-use crate::tet::{BoardMatrix, GameState, TetAction};
+use crate::tet::{BoardMatrix, GameState};
 
 use super::TetBot;
 
