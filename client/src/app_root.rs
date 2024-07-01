@@ -16,7 +16,7 @@ use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
 use crate::page::page_1p::GameSoloLobbyPage;
-use crate::page::settings::server_api::{provide_user_setting, UserSettingSignals};
+use crate::page::settings::server_api::provide_user_setting;
 
 
 #[component]

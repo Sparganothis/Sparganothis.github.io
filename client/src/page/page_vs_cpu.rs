@@ -1,7 +1,7 @@
 use game::{api::{game_match::GameMatchType, websocket::StartMatch}, random::GameSeed};
 use leptos_router::{use_navigate, NavigateOptions};
 
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, websocket::demo_comp::{call_api_sync, call_api_sync_or_error}};
+use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, websocket::demo_comp:: call_api_sync_or_error};
 use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {

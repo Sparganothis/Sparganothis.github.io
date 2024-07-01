@@ -1,4 +1,3 @@
-
 use random_choice_bot::RandomChoiceBot;
 use wordpress_blog_bot::WordpressBlogBot;
 
