@@ -429,6 +429,14 @@ pub async fn websocket_handle_request(
             specific_sync_request::<SetUserSetting>(msg, user_id, set_user_setting)
                 .await
         }
+        WebsocketAPIMessageType::AppendBotGameSegment => {
+            specific_sync_request::<AppendBotGameSegment>(
+                msg,
+                user_id,
+                append_bot_game_segment,
+            )
+            .await
+        }
     }
     .context(format!("specific handler {:?}", msg_type))?;
 

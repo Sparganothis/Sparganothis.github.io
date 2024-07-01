@@ -39,6 +39,8 @@ pub enum WebsocketAPIMessageType {
 
     GetUserSetting,
     SetUserSetting,
+
+    AppendBotGameSegment,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -109,6 +111,14 @@ impl APIMethod for CreateNewGameId {
 pub struct AppendGameSegment {}
 impl APIMethod for AppendGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendGameSegment;
+    type Req = (GameId, String);
+    type Resp = ();
+}
+
+
+pub struct AppendBotGameSegment {}
+impl APIMethod for AppendBotGameSegment {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendBotGameSegment;
     type Req = (GameId, String);
     type Resp = ();
 }

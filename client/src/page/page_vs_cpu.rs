@@ -24,15 +24,14 @@ pub fn GameCPUPage() -> impl IntoView {
 
     let match_id_signal = create_rw_signal(None);
 
-    let obtain_new_match_id: Callback<()> = Callback::new(move |_| {
-        call_api_sync_or_error::<StartMatch>(GameMatchType::ManVsCar("random".to_string()), move |r| {
+    let obtain_new_match_id: Callback<String> = Callback::new(move |bot_name| {
+        call_api_sync_or_error::<StartMatch>(GameMatchType::ManVsCar(bot_name), move |r| {
             match_id_signal.set(Some(r));
             
         }, move |err_str| {
             error_display.set(err_str);
         });
     });
-
     
     create_effect(move |_| {
         if let Some(newgame) = match_id_signal.get() {
@@ -43,24 +42,26 @@ pub fn GameCPUPage() -> impl IntoView {
         }
     });
 
-    let play_button = view! {
+    let play_button = move |bot_name: String|{ 
+        let bot_name2 = bot_name.clone();
+        view! {
         <div style="width:100%;height:100%; container-type: size;">
             <h3
-                style="font-size:80cqh; text-align: center;"
-                on:click=move |_| { obtain_new_match_id.call(()) }
+                style="font-size:40cqh; text-align: center;"
+                on:click=move |_| { obtain_new_match_id.call(bot_name.clone()) }
             >
-                PLAY
+                PLAY vs. BOT:  {bot_name2.clone()}
             </h3>
         </div>
     }
-        .into_view();
-
+        .into_view()};
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
             5 =>             youtube_video.clone(),
 
-            6 => play_button.clone(),
+            6 => play_button("random".to_string()).clone(),
+            7 => play_button("wordpress".to_string()).clone(),
             7 => view! { {move || error_display.get()} }.into_view(),
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }.into_view(),
             _ => {                view!{                }.into_view()            },

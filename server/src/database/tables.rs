@@ -73,7 +73,10 @@ pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfi
 // ===
 
 pub static GAME_MATCH_DB: Lazy<typed_sled::Tree<uuid::Uuid, GameMatch>> =
-    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_v2"));
+    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_v4"));
+
+pub static GAME_MATCH_FOR_GAME_ID_DB: Lazy<typed_sled::Tree<GameId, uuid::Uuid>> =
+    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_for_game_id_v2"));
 
 pub static GAME_MATCH_IS_IN_PROGRESS_DB: Lazy<typed_sled::Tree<uuid::Uuid, bool>> =
     Lazy::new(|| {

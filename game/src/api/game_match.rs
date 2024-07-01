@@ -10,6 +10,7 @@ pub struct GameMatch {
     pub time: i64,
     pub users: Vec<uuid::Uuid>,
     pub title: String,
+    pub type_: GameMatchType,
 }
 
 #[derive(

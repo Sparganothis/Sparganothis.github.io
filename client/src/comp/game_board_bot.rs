@@ -1,7 +1,5 @@
-use crate::comp::hotkey_reader::create_hotkey_reader;
-use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sync};
+use crate::websocket::demo_comp::call_api_sync;
 use game::api::{game_replay::GameId, websocket::*};
-use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use game::tet::{self, GameReplaySegment, GameState};
@@ -10,13 +8,11 @@ use crate::comp::game_board_flex::GameBoardFlex;
 
 
 #[component]
-pub fn PlayerGameBoardFromId(
+pub fn BotGameBoard(
     game_id: GameId,
-    #[prop(default = Callback::<()>::new(move |_| {}))]
-    #[prop(optional)]
-    on_reset: Callback<()>,
+    bot_name: String,
 ) -> impl IntoView {
-    let on_state_change = Callback::<GameState>::new(move |s| {
+     let on_state_change = Callback::<GameState>::new(move |s| {
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
@@ -30,7 +26,7 @@ pub fn PlayerGameBoardFromId(
         };
 
         let segment_json: String = serde_json::to_string(&segment).unwrap();
-        call_api_sync::<AppendGameSegment>((game_id, segment_json), move |_r| {
+        call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {
             // log::info!("append OK: {:?}", _r);
         });
     });
@@ -89,103 +85,74 @@ pub fn PlayerGameBoardFromId(
             }
         >
 
-            <PlayerGameBoardSingle
+            <BotGameBoardSingle
                 state
-                on_reset
                 on_state_change
-                player_id=game_id.user_id
+                bot_id=game_id.user_id
+                bot_name=bot_name.clone()
             />
         </Show>
     }
 }
 
 
-#[component]
-pub fn PlayerGameBoardSingle(
-    state: RwSignal<GameState>,
 
-    #[prop(default = Callback::<()>::new(move |_| {}))]
-    #[prop(optional)]
-    on_reset: Callback<()>,
+#[component]
+pub fn BotGameBoardSingle(
+    state: RwSignal<GameState>,
 
     #[prop(default = Callback::<GameState>::new(move |_| {}))]
     #[prop(optional)]
     on_state_change: Callback<GameState>,
 
-    
-    #[prop(into)]
-    #[prop(default = create_signal("".to_string()).0)]
-    #[prop(optional)]
-    pre_countdown_text: ReadSignal<String>,
-    
-
-    #[prop(into)]
-    #[prop(default = view!{}.into_view())]
-    top_bar: View,
-
-    player_id: uuid::Uuid,
+    bot_id: uuid::Uuid,
+    bot_name: String,
 
 ) -> impl IntoView {
 
     on_state_change.call(state.get_untracked());
 
+    let bot_name2 = bot_name.clone();
     let leptos_use::utils::Pausable {
         pause: _timer_pause,
         resume: _timer_resume,
         is_active: _,
     } = leptos_use::use_interval_fn(
         move || {
+            let bot_name2 = bot_name2.clone();
             state.update(move |state| {
                 if !state.game_over {
-                    if state
+
+                    let bot = game::bot::get_bot(&bot_name2).unwrap();
+                    if let Ok(action) =  bot.as_ref().choose_move(state) {
+
+                        if state
                         .apply_action_if_works(
-                            TetAction::SoftDrop,
+                            action,
                             get_timestamp_now_nano(),
                         )
-                        .is_ok()
-                    {
-                        on_state_change.call(state.clone());
+                            .is_ok()
+                        {
+                            on_state_change.call(state.clone());
+                        }
                     }
+
                 }
             })
         },
-        1000,
+        100,
     );
 
-    let reset_timer = move || {
-        _timer_pause();
-        _timer_resume();
-    };
-
-    let (get_ts, set_ts) =
-        create_signal(std::collections::HashMap::<TetAction, i64>::new());
-    create_hotkey_reader( move |_action| {
-        let timestamp1 = game::timestamp::get_timestamp_now_ms();
-        let timestamp0 = *get_ts.get().get(&_action).unwrap_or(&0);
-        if (timestamp1 - timestamp0) > key_debounce_ms(_action) {
-            set_ts.update(move |m| {
-                m.insert(_action, timestamp1);
-            });
-            state.update(|state| {
-                if state
-                    .apply_action_if_works(_action, get_timestamp_now_nano())
-                    .is_ok()
-                {
-                    on_state_change.call(state.clone());
-                    reset_timer();
-                }
-            })
-        }
-    });
+    let top_bar = view! {
+        "active bot"
+    }.into_view();
 
     view! {
         <GameBoardFlex
             game_state=state
-            on_reset_game=on_reset
-            pre_countdown_text
             top_bar
             enable_sound=true
-            player_id
+            player_id=bot_id
         />
     }
 }

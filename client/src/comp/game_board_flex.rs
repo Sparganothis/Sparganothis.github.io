@@ -1,7 +1,6 @@
 
 use game::{api::{user::UserProfile, websocket::GetProfile}, bot::get_bot_from_id, tet};
 use leptos::*;
-use svg::view;
 
 use crate::{audio3::play_sound_effect, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync, };
 

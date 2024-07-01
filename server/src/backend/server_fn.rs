@@ -11,6 +11,7 @@ use game::api::user::UserProfile;
 use game::api::user_settings::UserSettingType;
 use game::api::websocket::GameSegmentCountReply;
 use game::api::websocket::GetMatchListArg;
+use game::bot::get_bot_from_id;
 use game::bot::get_bot_id;
 use game::tet::GameReplaySegment;
 use game::tet::GameState;
@@ -65,6 +66,40 @@ pub fn append_game_segment(
     if !who.eq(&id.user_id) {
         anyhow::bail!("no impersonate plz");
     }
+    do_append_game_segment(id, new_segment, _current_user_id)
+}
+
+pub fn append_bot_game_segment(
+    (id, segment_json): (GameId, String),
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<()> {
+    let new_segment: GameReplaySegment =
+        serde_json::from_str(&segment_json).expect("json never fail");
+
+    let who = _current_user_id.user_id;
+    let bot_name = get_bot_from_id(id.user_id)?;
+    // cchecck that the game id is listed for a mamtcch  vs. this bot
+    // and the other player in the mamtch is "who"
+    
+    let match_id = GAME_MATCH_FOR_GAME_ID_DB.get(&id)?.context("no mmatch found for ur game")?;
+    let match_info = GAME_MATCH_DB.get(&match_id)?.context("no mmatchc found for ur game")?;
+    
+    match match_info.type_ {
+        GameMatchType::ManVsCar(match_bot_name) => {
+            if match_bot_name != bot_name {
+                anyhow::bail!("wrong bot type for this matcch");
+            }
+            if who != match_info.users[0] && who != match_info.users[1] {
+                anyhow::bail!("no impersonating the bots plz");
+            }
+        },
+        _ => anyhow::bail!("wrong match type for this game!")
+    }
+    
+    do_append_game_segment(id, new_segment, _current_user_id)
+}
+
+fn do_append_game_segment(id: GameId, new_segment: GameReplaySegment, _current_user_id: GuestInfo)-> anyhow::Result<()> {
 
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
@@ -326,13 +361,14 @@ async fn start_new_man_vs_car_match(
     let new_match = GameMatch {
         seed: (&mut rand::thread_rng()).gen(),
         time: get_timestamp_now_nano(),
-        users: vec![bot_player_id, _current_user_id.user_id],
+        users: vec![_current_user_id.user_id, bot_player_id],
         title: format!("1v1 {} vs. {}", bot_player_id, _current_user_id.user_id),
+        type_: GameMatchType::ManVsCar(bot_type),
     };
     let new_match_id = uuid::Uuid::new_v4();
     GAME_MATCH_DB.insert(&new_match_id, &new_match)?;
 
-    create_db_match_entry(&new_match)?;
+    create_db_match_entry(new_match_id, &new_match)?;
 
     Ok((new_match_id, new_match))
 }
@@ -369,6 +405,7 @@ async fn start_new_1v1_match(
                         "1v1 {} vs. {}",
                         other_player.player_id, _current_user_id.user_id
                     ),
+                    type_: GameMatchType::_1v1,
                 };
                 let new_match_id = uuid::Uuid::new_v4();
                 GAME_MATCH_DB.insert(&new_match_id, &new_match)?;
@@ -382,7 +419,7 @@ async fn start_new_1v1_match(
     }
     if let Some(mut waiting_rx) = _waiting_for_match {
         if let Some(match_info) = waiting_rx.recv().await {
-            create_db_match_entry(&match_info.1)?;
+            create_db_match_entry(match_info.0, &match_info.1)?;
             Ok(match_info)
         } else {
             anyhow::bail!("cannot read from channel");
@@ -390,13 +427,13 @@ async fn start_new_1v1_match(
     } else {
         let r = _got_new_match.context("never happens")?;
 
-        create_db_match_entry(&r.1)?;
+        create_db_match_entry(r.0, &r.1)?;
 
         Ok(r)
     }
 }
 
-fn create_db_match_entry(match_info: &GameMatch) -> anyhow::Result<()> {
+fn create_db_match_entry(match_id: uuid::Uuid, match_info: &GameMatch) -> anyhow::Result<()> {
     let gameinfo_0 = GameId {
         user_id: match_info.users[0],
         init_seed: match_info.seed,
@@ -410,9 +447,11 @@ fn create_db_match_entry(match_info: &GameMatch) -> anyhow::Result<()> {
 
     GAME_IS_IN_PROGRESS_DB.insert(&gameinfo_0, &true)?;
     GAME_SEGMENT_COUNT_DB.insert(&gameinfo_0, &0)?;
+    GAME_MATCH_FOR_GAME_ID_DB.insert(&gameinfo_0, &match_id)?;
 
     GAME_IS_IN_PROGRESS_DB.insert(&gameinfo_1, &true)?;
     GAME_SEGMENT_COUNT_DB.insert(&gameinfo_1, &0)?;
+    GAME_MATCH_FOR_GAME_ID_DB.insert(&gameinfo_1, &match_id)?;
 
     Ok(())
 }
