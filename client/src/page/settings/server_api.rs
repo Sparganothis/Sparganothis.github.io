@@ -11,7 +11,7 @@ use crate::websocket::demo_comp::call_api_sync_or_error;
     Copy, Debug, Clone,
 )]
 pub struct UserSettingSignals{
-    pub sound_enabled: RwSignal<bool>,
+    pub all_sound_enabled: RwSignal<bool>,
     pub sound_menu_music_enabled: RwSignal<bool>,
     pub sound_all_sounds_volume: RwSignal<f64>,
     pub sound_menu_music_volume: RwSignal<f64>,
@@ -101,7 +101,7 @@ pub fn provide_user_setting(){
         );
 
     let signals =    UserSettingSignals{
-        sound_enabled: sound_disabled,
+        all_sound_enabled: sound_disabled,
         sound_all_sounds_volume,
         sound_menu_music_volume,
         sound_menu_music_enabled: sound_menu_music_disabled,

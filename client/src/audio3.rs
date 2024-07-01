@@ -26,32 +26,21 @@ pub fn provide_audio_context() {
     leptos::provide_context(Audio3Context{});
 }
 
-pub fn play_sound(audio_key: &str) {
+pub fn play_sound_effect(audio_key: &str) {
     let user_setting_signal = expect_context::<UserSettingSignals>();
 
     let is_enabled = if audio_key != "mmenu_mmusicc" {
-        user_setting_signal.sound_enabled.get_untracked()
+        user_setting_signal.all_sound_enabled.get_untracked()
     } else {
         user_setting_signal.sound_menu_music_enabled.get_untracked()
     };
     if !is_enabled {
         return;
     }
-    let volume = if audio_key != "mmenu_mmusicc" {
-        user_setting_signal.sound_all_sounds_volume.get_untracked()
-    } else {
-        user_setting_signal.sound_menu_music_volume.get_untracked()
-    };
-    if volume <1.0{
-        return;
-    }
-
-    log::info!("volume: {}", volume);
-
     let audio_key = audio_key.to_string();
     let _context : Audio3Context= leptos::expect_context();
     queue_microtask(move || {
-        play_sound_js( audio_key, volume);
+        play_sound_js( audio_key, 100.0);
     });
 }
 

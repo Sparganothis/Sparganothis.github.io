@@ -218,7 +218,7 @@ pub fn AppRoot() -> impl IntoView {
         let user_setting_signals: UserSettingSignals= expect_context();
         let _must_use = watch(move || user_setting_signals.sound_menu_music_enabled.get(), move |is_enable,_,_| {
             if *is_enable {
-                crate::audio3::play_sound("mmenu_mmusicc");
+                crate::audio3::play_sound_effect("mmenu_mmusicc");
             } else {
                 crate::audio3::stop_sound("mmenu_mmusicc");
             }

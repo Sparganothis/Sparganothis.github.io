@@ -2,7 +2,7 @@
 use game::tet::{self};
 use leptos::*;
 
-use crate::{audio3::play_sound, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, };
+use crate::{audio3::play_sound_effect, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, };
 
 
 
@@ -51,12 +51,12 @@ pub fn GameBoardFlex(
                             
                             tet::TetAction::Nothing => panic!("no sound for nothing"),
                         };
-                        crate::audio3::play_sound(sound);                        
+                        crate::audio3::play_sound_effect(sound);                        
                         if current.game_over{
-                            crate::audio3::play_sound("game_over");
+                            crate::audio3::play_sound_effect("game_over");
                         }
                         if current.total_lines != _prev.total_lines {
-                            crate::audio3::play_sound("clear_line");
+                            crate::audio3::play_sound_effect("clear_line");
                         }
                     }
                 }
@@ -68,7 +68,7 @@ pub fn GameBoardFlex(
             move || pre_countdown_text.get(),
             move |ccurrent, _prev, _| {
                 if ccurrent.len() > 0 {
-                    play_sound("pre_123")
+                    play_sound_effect("pre_123")
                 }
             },
             false
