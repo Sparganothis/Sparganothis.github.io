@@ -1,6 +1,7 @@
 use game::{bot::get_bot_id, random::GameSeed};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
+use crate::comp::game_board_bot::BotGameBoardSingle;
 use crate::comp::game_board_flex::GameBoardFlex;
 use game::tet::{self, CellValue, GameState};
 use leptos::*;
@@ -198,37 +199,13 @@ pub fn key_debounce_ms(_action: TetAction) -> i64 {
 #[component]
 pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
     let state = create_rw_signal(tet::GameState::new(&seed, get_timestamp_now_nano()));
-    let leptos_use::utils::Pausable {
-        pause: _,
-        resume: _,
-        is_active: _,
-    } = leptos_use::use_interval_fn(
-        move || {
-            state.update(move |state| {
-                let bot = game::bot::get_bot("random").unwrap();
-                if let Ok(actions) =  bot.as_ref().choose_move(state) {
-                    for action in actions {
-                        let _ = state
-                            .apply_action_if_works(action, get_timestamp_now_nano());
-                    }
-                }
-            })
-        },
-        1000,
-    );
-
-    let on_reset: Callback<()> = Callback::<()>::new(move |_| {
-        if state.get().game_over {
-            state.set(GameState::new(&seed, get_timestamp_now_nano()));
-        }
-    });
 
     view! {
-        <GameBoardFlex
-            game_state=state
-            on_reset_game=on_reset
-            player_id=get_bot_id("random").unwrap()
-            top_bar=view! { "simulate bot" }.into_view()
+        <BotGameBoardSingle
+            state=state
+            bot_name="wordpress".to_string()
+            bot_id=get_bot_id("wordpress").unwrap()
+            // top_bar_override=view! { "simulate bot" }.into_view()
         />
     }
 }
