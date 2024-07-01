@@ -274,6 +274,7 @@ pub fn ReplayGameBoardFromSegmments(
                     }
                         .into_view(),
                 )
+
             player_id
         />
     }

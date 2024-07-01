@@ -205,7 +205,6 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
             state=state
             bot_name="wordpress".to_string()
             bot_id=get_bot_id("wordpress").unwrap()
-            // top_bar_override=view! { "simulate bot" }.into_view()
         />
     }
 }
