@@ -5,7 +5,7 @@ use super::TetBot;
 pub struct RandomChoiceBot;
 
 
-fn get_all_move_chains() -> Vec<Vec<TetAction>> {
+pub fn get_all_move_chains() -> Vec<Vec<TetAction>> {
     let rotate_actions = vec![
         vec![],
         vec![TetAction::RotateLeft],
@@ -36,7 +36,12 @@ fn get_all_move_chains() -> Vec<Vec<TetAction>> {
     all_action_chains
 }
 
-fn get_best_board(game_state: &GameState, action_chain: &Vec<TetAction>) -> anyhow::Result<f64>
+pub fn get_action_chain_score<F>(
+    game_state: &GameState, 
+    action_chain: &Vec<TetAction>, 
+    f: F
+) -> anyhow::Result<f64>
+where F: Fn(&GameState, &GameState) -> anyhow::Result<f64>
 {
     let old_state = game_state;
     let mut state = game_state.clone();
@@ -50,11 +55,35 @@ fn get_best_board(game_state: &GameState, action_chain: &Vec<TetAction>) -> anyh
 
     if let Some(c_pcsc) = state.current_pcs {
         state.main_board.delete_piece(&c_pcsc)?;
-        let score = get_score_for_board(old_state, &state)?;
+        let score = f(old_state, &state)?;
         return Ok(score);
     }
     anyhow::bail!("error in generating board");
 
+}
+
+pub fn get_best_move_for_score_fn<F>(game_state: &GameState, f:F) ->  anyhow::Result<Vec<crate::tet::TetAction>>
+where F: Fn(&GameState, &GameState) -> anyhow::Result<f64>
+ {
+    let mut all_action_chains = get_all_move_chains();
+
+    use rand::seq::SliceRandom;
+    use rand::thread_rng;
+    let mut rng = thread_rng();
+    all_action_chains.shuffle(&mut  rng);
+
+    let mut best_action_chain = vec![TetAction::SoftDrop];
+    let mut best_acction_score = f64::MIN;
+    for act in all_action_chains {
+        if let Ok(sccore) = get_action_chain_score(game_state, &act, &f) {
+            if sccore > best_acction_score {
+                best_acction_score =  sccore;
+                best_action_chain = act.clone();
+            }
+        }
+    }
+
+    Ok(best_action_chain)
 }
 
 fn get_score_for_board(old_state: &GameState, new_state: &GameState) -> anyhow::Result<f64> {
@@ -71,24 +100,6 @@ impl TetBot for RandomChoiceBot {
         &self,
         game_state: &crate::tet::GameState,
     ) -> anyhow::Result<Vec<crate::tet::TetAction>> {
-        let mut all_action_chains = get_all_move_chains();
-
-        use rand::seq::SliceRandom;
-        use rand::thread_rng;
-        let mut rng = thread_rng();
-        all_action_chains.shuffle(&mut  rng);
-
-        let mut best_action_chain = vec![TetAction::SoftDrop];
-        let mut best_acction_score = f64::MIN;
-        for act in all_action_chains {
-            if let Ok(sccore) = get_best_board(game_state, &act) {
-                if sccore > best_acction_score {
-                    best_acction_score =  sccore;
-                    best_action_chain = act.clone();
-                }
-            }
-        }
-
-        Ok(best_action_chain)
+        get_best_move_for_score_fn(game_state, get_score_for_board)
     }
 }

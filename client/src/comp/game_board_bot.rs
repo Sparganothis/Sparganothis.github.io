@@ -9,7 +9,7 @@ use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
-pub const BOT_MOVE_INTERVAL: u64 = 300;
+pub const BOT_MOVE_INTERVAL: u64 = 150;
 
 #[component]
 pub fn BotGameBoard(
