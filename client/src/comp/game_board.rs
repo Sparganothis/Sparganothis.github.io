@@ -227,6 +227,7 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
             game_state=state
             on_reset_game=on_reset
             player_id=get_bot_id("random").unwrap()
+            top_bar=view!{"simulate bot"}.into_view()
         />
     }
 }

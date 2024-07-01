@@ -15,6 +15,8 @@ pub fn ReplayGameBoardFromSegmments(
 
     player_id: uuid::Uuid,
 
+    top_bar_override: Option<View>,
+
 ) -> impl IntoView {
     let status_message = create_rw_signal(String::from("downloading..."));
 
@@ -264,11 +266,11 @@ pub fn ReplayGameBoardFromSegmments(
         <GameBoardFlex
             on_reset_game=on_reset
             game_state=game_state
-            top_bar=view! {
+            top_bar=top_bar_override.unwrap_or(view! {
                 {make_slider}
                 {control_icons}
             }
-                .into_view()
+                .into_view())
             player_id
         />
     }

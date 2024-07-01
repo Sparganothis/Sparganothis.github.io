@@ -8,6 +8,8 @@ use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
+pub const PRE_123_INTERVAL: u64 = 333;
+pub const AUTO_SOFTDROP_INTERVAL: u64 = 1000;
 
 #[component]
 pub fn PlayerGameBoardFromId(
@@ -40,7 +42,7 @@ pub fn PlayerGameBoardFromId(
         pause: pause_pre_123,
         resume: resume_pre_123,
         ..
-    }  = use_interval_with_options( 1000, UseIntervalOptions::default().immediate(false) );
+    }  = use_interval_with_options( PRE_123_INTERVAL, UseIntervalOptions::default().immediate(false) );
 
         
     let (pre_countdown_text, set_countdown_text) = create_signal("".to_string());
@@ -149,7 +151,7 @@ pub fn PlayerGameBoardSingle(
                 }
             })
         },
-        1000,
+        AUTO_SOFTDROP_INTERVAL,
     );
 
     let reset_timer = move || {

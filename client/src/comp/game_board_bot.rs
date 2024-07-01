@@ -1,3 +1,4 @@
+use crate::comp::game_board_player::PRE_123_INTERVAL;
 use crate::websocket::demo_comp::call_api_sync;
 use game::api::{game_replay::GameId, websocket::*};
 use game::timestamp::get_timestamp_now_nano;
@@ -6,6 +7,7 @@ use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
+pub const BOT_MOVE_INTERVAL: u64 = 100;
 
 #[component]
 pub fn BotGameBoard(
@@ -36,7 +38,7 @@ pub fn BotGameBoard(
         pause: pause_pre_123,
         resume: resume_pre_123,
         ..
-    }  = use_interval_with_options( 1000, UseIntervalOptions::default().immediate(false) );
+    }  = use_interval_with_options( PRE_123_INTERVAL, UseIntervalOptions::default().immediate(false) );
 
         
     let (pre_countdown_text, set_countdown_text) = create_signal("".to_string());
@@ -140,7 +142,7 @@ pub fn BotGameBoardSingle(
                 }
             })
         },
-        100,
+        BOT_MOVE_INTERVAL,
     );
 
     let top_bar = view! {
