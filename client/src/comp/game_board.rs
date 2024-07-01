@@ -206,10 +206,11 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
         move || {
             state.update(move |state| {
                 let bot = game::bot::get_bot("random").unwrap();
-                let action = bot.as_ref().choose_move(state);
-                if let Ok(action) = action {
-                    let _ = state
-                        .apply_action_if_works(action, get_timestamp_now_nano());
+                if let Ok(actions) =  bot.as_ref().choose_move(state) {
+                    for action in actions {
+                        let _ = state
+                            .apply_action_if_works(action, get_timestamp_now_nano());
+                    }
                 }
             })
         },

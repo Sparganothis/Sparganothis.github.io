@@ -7,7 +7,7 @@ pub mod random_choice_bot;
 pub mod wordpress_blog_bot;
 
 pub trait TetBot {
-    fn choose_move(&self, game_state: &GameState) -> anyhow::Result<TetAction>;
+    fn choose_move(&self, game_state: &GameState) -> anyhow::Result<Vec<TetAction>>;
 }
 
 pub fn get_bot(bot_name: &str) -> anyhow::Result<Box<dyn TetBot>> {

@@ -11,7 +11,7 @@ impl TetBot for WordpressBlogBot {
     fn choose_move(
         &self,
         _: &crate::tet::GameState,
-    ) -> anyhow::Result<crate::tet::TetAction> {
-        Ok(TetAction::random())
+    ) -> anyhow::Result<Vec<crate::tet::TetAction>> {
+        Ok(vec![TetAction::random()])
     }
 }

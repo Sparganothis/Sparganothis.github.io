@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::comp::game_board_player::PRE_123_INTERVAL;
 use crate::websocket::demo_comp::call_api_sync;
 use game::api::{game_replay::GameId, websocket::*};
@@ -113,6 +115,7 @@ pub fn BotGameBoardSingle(
 ) -> impl IntoView {
 
     on_state_change.call(state.get_untracked());
+    let extra_moves = create_rw_signal(VecDeque::new()); 
 
     let bot_name2 = bot_name.clone();
     let leptos_use::utils::Pausable {
@@ -125,20 +128,29 @@ pub fn BotGameBoardSingle(
             state.update(move |state| {
                 if !state.game_over {
 
-                    let bot = game::bot::get_bot(&bot_name2).unwrap();
-                    if let Ok(action) =  bot.as_ref().choose_move(state) {
-
-                        if state
-                        .apply_action_if_works(
-                            action,
-                            get_timestamp_now_nano(),
-                        )
-                            .is_ok()
-                        {
-                            on_state_change.call(state.clone());
+                    if extra_moves.get_untracked().is_empty() {
+                        let bot = game::bot::get_bot(&bot_name2).unwrap();
+                        if let Ok(action) =  bot.as_ref().choose_move(state) {
+                            extra_moves.update_untracked(move |extra_moves| {
+                                for act in action {
+                                    extra_moves.push_back(act);
+                                }
+                            });
                         }
                     }
 
+                    extra_moves.update_untracked(move |extra_moves| {
+                        if let Some(the_move) = extra_moves.pop_front() {
+                            if state                            .apply_action_if_works(
+                                the_move,
+                                get_timestamp_now_nano(),
+                            )
+                                .is_ok()
+                            {
+                                on_state_change.call(state.clone());
+                            }
+                        }
+                    });
                 }
             })
         },

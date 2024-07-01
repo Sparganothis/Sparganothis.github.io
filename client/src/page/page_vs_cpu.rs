@@ -62,7 +62,7 @@ pub fn GameCPUPage() -> impl IntoView {
 
             6 => play_button("random".to_string()).clone(),
             7 => play_button("wordpress".to_string()).clone(),
-            7 => view! { {move || error_display.get()} }.into_view(),
+            9 => view! { {move || error_display.get()} }.into_view(),
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }.into_view(),
             _ => {                view!{                }.into_view()            },
         }
