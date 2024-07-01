@@ -44,11 +44,19 @@ pub fn AppRoot() -> impl IntoView {
             height: 97vmin;
             border: 1vmin solid green;
         }
+        main > div.main_mid {
+            position: absolute;
+            top: 0vmin;
+            width: 36.1vmin;
+            left: 73.0vmin;
+            height: 97vmin;
+            border: 1vmin solid black;
+        }
         main > div.main_right {
             position: absolute;
             top: 0vmin;
             width: 71.1vmin;
-            left: 72.85vmin;
+            left: 110.0vmin;
             height: 97vmin;
             border: 1vmin solid blue;
         }

@@ -80,12 +80,16 @@ on_reset: Callback<()>,
                         game_state=state
                         pre_countdown_text
                         enable_sound=true
+                        player_id=game_id.user_id
                     />
                 }
             }
         >
 
-            <PlayerGameBoardSingle state on_reset on_state_change/>
+            <PlayerGameBoardSingle
+             state on_reset 
+             on_state_change  
+              player_id=game_id.user_id />
         </Show>
     }
 }
@@ -114,6 +118,8 @@ pub fn PlayerGameBoardSingle(
     #[prop(into)]
     #[prop(default = view!{}.into_view())]
     top_bar: View,
+
+    player_id: uuid::Uuid,
 
 ) -> impl IntoView {
 
@@ -175,6 +181,7 @@ pub fn PlayerGameBoardSingle(
             pre_countdown_text
             top_bar
             enable_sound=true
+            player_id
         />
     }
 }

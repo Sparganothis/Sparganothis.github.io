@@ -46,6 +46,7 @@ pub fn GameReplaySinglePage() -> impl IntoView {
                                 all_segments=all_segments.into_signal()
                                 slider
                                 game_state
+                                player_id=_game_id.user_id
                             />
                         }
                             .into_view()
@@ -85,6 +86,7 @@ pub fn GameReplayBoardMini(    game_id: GameId) -> impl IntoView{
             slider
             game_state
             hide_controller=true
+            player_id=game_id.user_id
         />
     }
 }

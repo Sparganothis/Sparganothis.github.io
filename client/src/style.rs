@@ -32,15 +32,15 @@ pub fn flex_gameboard_style(
         border-collapse: collapse;
         width: 100%;
         height: 100%;
-        
-        background-color: gray;
- 
-
         display: flex;   
         flex-direction: column;
         flex: 0 1 auto;
 
         container-type: size;
+    }
+
+    tbody {
+        background-color: gray;
     }
 
     .calculate_table_width {

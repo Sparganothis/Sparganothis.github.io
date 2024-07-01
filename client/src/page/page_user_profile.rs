@@ -1,3 +1,4 @@
+use game::bot::get_bot_from_id;
 use leptos::*;
 
 use crate::comp::table_replay_games::AllGamesTable;
@@ -5,7 +6,7 @@ use crate::page::settings::sound::SoundSettingsTab;
 use crate::page::settings::themes::ThemeSettingsTab;
 use crate::page::settings::controls::ControlsSettingsTab;
 use crate::websocket::demo_comp::call_api_sync;
-use game::api::user::{self, GuestInfo};
+use game::api::user::{self, GuestInfo, UserProfile};
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
 use leptonic::prelude::*;
 
@@ -67,9 +68,16 @@ pub fn UserProfilePage() -> impl IntoView {
     let user_profile = create_rw_signal(None);
     create_effect(move |_|{
         if let Some(guest_id) = user_uuid.get() {
-            call_api_sync::<GetProfile>(guest_id, move |r| {
-                user_profile.set(Some(r));
-            });
+
+            if let Ok(bot_name) = get_bot_from_id(guest_id) {
+                user_profile.set(Some(UserProfile { 
+                    display_name: format!("BOT {}", bot_name) }));
+            } else {
+
+                call_api_sync::<GetProfile>(guest_id, move |r| {
+                    user_profile.set(Some(r));
+                });
+            }
         }
     });
 

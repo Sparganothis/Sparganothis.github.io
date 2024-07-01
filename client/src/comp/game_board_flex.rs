@@ -1,8 +1,9 @@
 
-use game::tet::{self};
+use game::{api::{user::UserProfile, websocket::GetProfile}, bot::get_bot_from_id, tet};
 use leptos::*;
+use svg::view;
 
-use crate::{audio3::play_sound_effect, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, };
+use crate::{audio3::play_sound_effect, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync, };
 
 
 
@@ -31,7 +32,9 @@ pub fn GameBoardFlex(
     // bottom_bar: View,
 
     #[prop(default = false)]
-    enable_sound: bool
+    enable_sound: bool,
+
+    player_id: uuid::Uuid,
 
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
@@ -109,7 +112,33 @@ pub fn GameBoardFlex(
         <div class="pre_game_countdown">{pre_countdown}</div>
     };
 
-    // let _style_name = format!("{_style_name} calculate_main_width");
+    let user_profile = create_rw_signal(None);
+
+    if let Ok(bot_name) = get_bot_from_id(player_id) {
+        user_profile.set(Some(UserProfile { 
+            display_name: format!("BOT {}", bot_name) }));
+    } else {
+        create_effect(move |_|{
+            call_api_sync::<GetProfile>(player_id, move |r| {
+                user_profile.set(Some(r));
+            });
+        });
+    }
+
+    let profile_view = {  move || view!{
+        <div style="height: 20%; width: 10cqh;"></div>
+
+        <p  style="font-size: 15cqh; height: 20%;" >
+            {format!("{:?}", player_id)}
+            <a href={format!("/user/{:?}", player_id)}>(view)</a>
+        </p>
+
+        <h3 style="font-size: 35cqh; height: 40%;">{
+            if user_profile.get().is_some() {
+                user_profile.get().unwrap().display_name
+            } else {"".to_string()} 
+        }</h3>
+    }};
 
     view! {
         <div
@@ -159,10 +188,10 @@ pub fn GameBoardFlex(
 
                 // MAIN
                 <div style="width:50%;height:100%;flex-direction: row;display: flex;">
-                    <div style="width:1%;height:100%;flex-direction: column;display: flex;"></div>
+                    <div style="width:3%;height:100%;flex-direction: column;display: flex;"></div>
 
                     <div
-                        style="width:98%;height:100%;flex-direction: column;display: flex;"
+                        style="width:95%;height:100%;flex-direction: column;display: flex;"
                         class="calculate_table_width"
                     >
 
@@ -175,7 +204,7 @@ pub fn GameBoardFlex(
                         <BoardTable board=main_board on_click=on_main_cell_click/>
                     </div>
 
-                    <div style="width:1%;height:100%;flex-direction: column;display: flex;"></div>
+                    <div style="width:2%;height:100%;flex-direction: column;display: flex;"></div>
                 </div>
 
                 // NEXT
@@ -195,7 +224,10 @@ pub fn GameBoardFlex(
                     <div style="width:100%;height:15%;"></div>
                 </div>
             </div>
-            <div style="border:solid yellow 1px;height:15%;flex-direction: row;display: flex;"></div>
+            // PLAYER ID
+            <div style="border:solid yellow 1px;height:15%;flex-direction: column;display: flex;container-type: size;">
+                {profile_view}
+            </div>
         </div>
     }
 }

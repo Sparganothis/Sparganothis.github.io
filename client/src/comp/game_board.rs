@@ -1,4 +1,4 @@
-use game::random::GameSeed;
+use game::{bot::get_bot_id, random::GameSeed};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use crate::comp::game_board_flex::GameBoardFlex;
@@ -222,5 +222,9 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
         }
     });
 
-    view! { <GameBoardFlex game_state=state on_reset_game=on_reset/> }
+    view! { <GameBoardFlex 
+        game_state=state 
+        on_reset_game=on_reset
+        player_id=get_bot_id("random").unwrap()
+        /> }
 }
