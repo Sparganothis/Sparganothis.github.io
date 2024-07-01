@@ -95,8 +95,9 @@ pub fn ToggleSettingRow(signal: RwSignal<bool>, title: String, on_label: String,
                 <h3>
 
                     {move || {
-                        (if signal.get() { on_label.clone() } else { off_label.clone() })
-                    }}
+                            if signal.get() { on_label.clone() } else { off_label.clone() }
+                        }
+                    }
 
                 </h3>
             </td>
