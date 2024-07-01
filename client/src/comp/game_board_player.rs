@@ -23,7 +23,7 @@ pub fn PlayerGameBoardFromId(
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
             } else if s.game_over {
-                GameReplaySegment::GameOver
+                GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
             } else {
                 GameReplaySegment::Update(
                     s.replay.replay_slices.last().unwrap().clone(),

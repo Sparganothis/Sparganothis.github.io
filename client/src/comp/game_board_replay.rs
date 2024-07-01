@@ -48,7 +48,7 @@ pub fn ReplayGameBoardFromSegmments(
                         return vec![];
                     }
                 }
-                GameReplaySegment::GameOver => {
+                GameReplaySegment::GameOver(_) => {
                     current_state.game_over = true;
                 }
             }

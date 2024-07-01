@@ -102,7 +102,7 @@ impl GameSegmentTableRow {
                 state,
                 update_slice: Some(_update),
             },
-            GameReplaySegment::GameOver => Self {
+            GameReplaySegment::GameOver(_) => Self {
                 _type: "game_over".to_owned(),
                 idx: "".to_owned(),
                 action: "".to_owned(),

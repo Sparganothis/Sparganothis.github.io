@@ -2,8 +2,7 @@ use game::{bot::get_bot_id, random::GameSeed};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use crate::comp::game_board_bot::BotGameBoardSingle;
-use crate::comp::game_board_flex::GameBoardFlex;
-use game::tet::{self, CellValue, GameState};
+use game::tet::{self, CellValue};
 use leptos::*;
 
 const BOARD_HEIGHT: usize = 20;

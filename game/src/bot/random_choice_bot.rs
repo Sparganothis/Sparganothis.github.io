@@ -52,7 +52,7 @@ where
     let old_state = game_state;
     let mut state = game_state.clone();
     for action in action_chain {
-        let _ = state.apply_action_if_works(*action, 0);
+        let _ = state.apply_action_if_works(*action, 0)?;
     }
 
     if state.game_over {

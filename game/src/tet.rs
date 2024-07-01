@@ -378,10 +378,19 @@ impl GameReplay {
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GameOverReason {
+    Knockout,
+    Disconnect,
+    Abandon,
+    Win,
+}
+
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameReplaySegment {
     Init(GameReplay),
     Update(GameReplaySlice),
-    GameOver,
+    GameOver(GameOverReason),
 }
 
 // impl GameReplaySegment {

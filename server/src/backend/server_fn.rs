@@ -155,19 +155,19 @@ fn do_append_game_segment(
                         );
                     }
                 }
-                GameReplaySegment::GameOver => {
+                GameReplaySegment::GameOver(_) => {
                     anyhow::bail!("already have old segmnet for game over");
                 }
             }
         }
-        GameReplaySegment::GameOver => {
+        GameReplaySegment::GameOver(_) => {
             log::info!("append segment game over");
         }
     };
     let game_in_progress = match &new_segment {
         GameReplaySegment::Init(_) => true,
         GameReplaySegment::Update(_) => true,
-        GameReplaySegment::GameOver => false,
+        GameReplaySegment::GameOver(_) => false,
     };
     GAME_IS_IN_PROGRESS_DB.insert(&id, &game_in_progress)?;
     GAME_SEGMENT_DB.insert(&new_segment_id, &new_segment)?;
@@ -182,7 +182,7 @@ fn do_append_game_segment(
             last_state.accept_replay_slice(&slice)?;
             last_state
         }
-        GameReplaySegment::GameOver => {
+        GameReplaySegment::GameOver(_) => {
             let last_state = last_state.context("no last state found")?;
             if !last_state.game_over {
                 anyhow::bail!("got game over but reconstructed state is not game over")
@@ -217,7 +217,7 @@ pub fn get_all_segments_for_game(
     r.sort_by_key(|s| match s {
         GameReplaySegment::Init(_) => -1,
         GameReplaySegment::Update(_s) => _s.idx as i32,
-        GameReplaySegment::GameOver => i32::MAX,
+        GameReplaySegment::GameOver(_) => i32::MAX,
     });
     Ok(r)
 }
