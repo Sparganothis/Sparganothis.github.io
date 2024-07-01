@@ -308,37 +308,38 @@ pub async fn start_match(
 
     match _type {
         GameMatchType::_1v1 => start_new_1v1_match(_current_user_id).await,
-        GameMatchType::ManVsCar(bot_type) => start_new_man_vs_car_match(bot_type, _current_user_id).await,
+        GameMatchType::ManVsCar(bot_type) => {
+            start_new_man_vs_car_match(bot_type, _current_user_id).await
+        }
         GameMatchType::_40lines => todo!(),
         GameMatchType::_10v10 => todo!(),
         GameMatchType::_4v4 => todo!(),
     }
-
 }
 
-async fn start_new_man_vs_car_match(bot_type: String, _current_user_id: GuestInfo) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
-
-    let bot_player_id = get_bot_id(&bot_type).context("bot not found")?; 
+async fn start_new_man_vs_car_match(
+    bot_type: String,
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
+    let bot_player_id = get_bot_id(&bot_type).context("bot not found")?;
 
     let new_match = GameMatch {
         seed: (&mut rand::thread_rng()).gen(),
         time: get_timestamp_now_nano(),
         users: vec![bot_player_id, _current_user_id.user_id],
-        title: format!(
-            "1v1 {} vs. {}",
-            bot_player_id, _current_user_id.user_id
-        ),
+        title: format!("1v1 {} vs. {}", bot_player_id, _current_user_id.user_id),
     };
     let new_match_id = uuid::Uuid::new_v4();
     GAME_MATCH_DB.insert(&new_match_id, &new_match)?;
-    
+
     create_db_match_entry(&new_match)?;
 
     Ok((new_match_id, new_match))
 }
 
-async fn start_new_1v1_match(_current_user_id: GuestInfo) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
-    
+async fn start_new_1v1_match(
+    _current_user_id: GuestInfo,
+) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
     let mut _waiting_for_match: Option<_> = None;
     let mut _got_new_match: Option<_> = None;
     {
