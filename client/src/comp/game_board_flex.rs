@@ -49,7 +49,7 @@ pub fn GameBoardFlex(
                             tet::TetAction::Hold =>"hold",
                             tet::TetAction::RotateLeft | tet::TetAction::RotateRight => "rotate",
                             
-                            tet::TetAction::Nothing => panic!("no sound for nothing"),
+                            tet::TetAction::Nothing => "",
                         };
                         crate::audio3::play_sound_effect(sound);                        
                         if current.game_over{

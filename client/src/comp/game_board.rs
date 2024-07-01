@@ -205,9 +205,12 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
     } = leptos_use::use_interval_fn(
         move || {
             state.update(move |state| {
-                let random_action = game::tet::TetAction::random();
-                let _ = state
-                    .apply_action_if_works(random_action, get_timestamp_now_nano());
+                let bot = game::bot::get_bot("random").unwrap();
+                let action = bot.as_ref().choose_move(state);
+                if let Ok(action) = action {
+                    let _ = state
+                        .apply_action_if_works(action, get_timestamp_now_nano());
+                }
             })
         },
         1000,

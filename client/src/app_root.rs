@@ -212,24 +212,6 @@ pub fn AppRoot() -> impl IntoView {
 
     provide_user_setting();
 
-    
-    {
-        // YES
-        let user_setting_signals: UserSettingSignals= expect_context();
-        let _must_use = watch(move || user_setting_signals.sound_menu_music_enabled.get(), move |is_enable,_,_| {
-            if *is_enable {
-                crate::audio3::play_sound_effect("mmenu_mmusicc");
-            } else {
-                crate::audio3::stop_sound("mmenu_mmusicc");
-            }
-
-        }, false);
-        on_cleanup(move || {
-            crate::audio3::stop_sound("mmenu_mmusicc");
-        });
-
-    }
-
     use crate::page::page_1p::Game1PPage;
     use crate::page::page_2p_lobby::Game2LobbyPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};

@@ -27,6 +27,9 @@ pub fn provide_audio_context() {
 }
 
 pub fn play_sound_effect(audio_key: &str) {
+    if audio_key.len() == 0 {
+        return;
+    }
     let user_setting_signal = expect_context::<UserSettingSignals>();
 
     let is_enabled = if audio_key != "mmenu_mmusicc" {
