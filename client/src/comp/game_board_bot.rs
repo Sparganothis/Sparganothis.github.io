@@ -9,7 +9,7 @@ use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
-pub const BOT_MOVE_INTERVAL: u64 = 100;
+pub const BOT_MOVE_INTERVAL: u64 = 300;
 
 #[component]
 pub fn BotGameBoard(
@@ -143,6 +143,15 @@ pub fn BotGameBoardSingle(
                         if let Some(the_move) = extra_moves.pop_front() {
                             if state                            .apply_action_if_works(
                                 the_move,
+                                get_timestamp_now_nano(),
+                            )
+                                .is_ok()
+                            {
+                                on_state_change.call(state.clone());
+                            }
+                        } else {
+                            if state                            .apply_action_if_works(
+                                tet::TetAction::SoftDrop,
                                 get_timestamp_now_nano(),
                             )
                                 .is_ok()
