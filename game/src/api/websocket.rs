@@ -41,6 +41,8 @@ pub enum WebsocketAPIMessageType {
     SetUserSetting,
 
     AppendBotGameSegment,
+
+    SetGlobalPlayLock
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -270,5 +272,13 @@ pub struct SetUserSetting {}
 impl APIMethod for SetUserSetting {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::SetUserSetting;
     type Req = (UserSettingType, Vec<u8>);
+    type Resp = ();
+}
+
+
+pub struct SetGlobalPlayLock {}
+impl APIMethod for SetGlobalPlayLock {
+    const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::SetGlobalPlayLock;
+    type Req = (bool, Option<GameId>);
     type Resp = ();
 }

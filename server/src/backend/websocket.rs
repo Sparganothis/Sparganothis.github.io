@@ -28,7 +28,7 @@ use axum::extract::connect_info::ConnectInfo;
 use axum::extract::ws::CloseFrame;
 use axum_extra::headers;
 
-use crate::database::tables::get_or_create_user_profile;
+use crate::{backend::server_fn::_unlock_global_lock_id, database::tables::get_or_create_user_profile};
 
 use super::session::Guest;
 //allows to split the websocket stream into separate TX and RX branches
@@ -73,7 +73,9 @@ pub async fn ws_handler(
 
 /// Actual websocket statemachine (one will be spawned per connection)
 async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
+    let websocket_id = uuid::Uuid::new_v4();
     let user_info = (&guest).guest_data.clone();
+    let current_session = CurrentSessionInfo {guest_id: user_info, websocket_id};
     use futures::{sink::SinkExt, stream::StreamExt};
     let (mut sender, mut receiver) = socket.split();
     let (response_tx, mut response_rx) = tokio::sync::mpsc::channel(32);
@@ -157,7 +159,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
 
             let b = match websocket_handle_request(
                 b,
-                (&user_info).clone(),
+                current_session,
                 &mut subscribed_games,
             )
             .await
@@ -207,6 +209,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
         }
     }
 
+    let _ = _unlock_global_lock_id(current_session);
     // returning from the handler closes the websocket connection
     log::info!("Websocket context {who} destroyed");
 }
@@ -315,16 +318,21 @@ impl SubscribedGamesState {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct CurrentSessionInfo {
+    pub guest_id: GuestInfo,
+    pub websocket_id: uuid::Uuid,
+}
+
 use game::api::user::GuestInfo;
 pub async fn websocket_handle_request(
     b: Vec<u8>,
-    user_id: GuestInfo,
+    session_info: CurrentSessionInfo,
     subscribe_games: &mut SubscribedGamesState,
 ) -> anyhow::Result<Vec<u8>> {
     use crate::backend::server_fn::*;
     use game::api::websocket::*;
-    let user_id2 = user_id.clone();
-    get_or_create_user_profile(&user_id2.user_id).unwrap();
+    get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();
 
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
         .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
@@ -332,41 +340,41 @@ pub async fn websocket_handle_request(
     log::info!(
         "handling request {:?} for userID {:?}",
         msg_type,
-        user_id.user_id
+        session_info.guest_id.user_id
     );
     let r: WebsocketAPIMessageRaw = match msg._type {
         WebsocketAPIMessageType::WhoAmI => {
-            let callback = move |_, i| Ok(i);
-            specific_sync_request::<WhoAmI>(msg, user_id, callback).await
+            let callback = move |_, i: CurrentSessionInfo| Ok(i.guest_id);
+            specific_sync_request::<WhoAmI>(msg, session_info, callback).await
         }
         WebsocketAPIMessageType::GetProfile => {
-            specific_sync_request::<GetProfile>(msg, user_id, get_profile).await
+            specific_sync_request::<GetProfile>(msg, session_info, get_profile).await
         }
         WebsocketAPIMessageType::GitVersion => {
-            specific_sync_request::<GitVersion>(msg, user_id, git_version).await
+            specific_sync_request::<GitVersion>(msg, session_info, git_version).await
         }
 
         WebsocketAPIMessageType::CreateNewGameId => {
-            specific_sync_request::<CreateNewGameId>(msg, user_id, create_new_game_id)
+            specific_sync_request::<CreateNewGameId>(msg, session_info, create_new_game_id)
                 .await
         }
         WebsocketAPIMessageType::AppendGameSegment => {
             specific_sync_request::<AppendGameSegment>(
                 msg,
-                user_id,
+                session_info,
                 append_game_segment,
             )
             .await
         }
 
         WebsocketAPIMessageType::GetSegmentCount => {
-            specific_sync_request::<GetSegmentCount>(msg, user_id, get_segment_count)
+            specific_sync_request::<GetSegmentCount>(msg, session_info, get_segment_count)
                 .await
         }
         WebsocketAPIMessageType::GetAllSegments => {
             specific_sync_request::<GetAllSegments>(
                 msg,
-                user_id,
+                session_info,
                 get_all_segments_for_game,
             )
             .await
@@ -374,27 +382,27 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::GetLastFullGameState => {
             specific_sync_request::<GetLastFullGameState>(
                 msg,
-                user_id,
+                session_info,
                 get_last_full_game_state,
             )
             .await
         }
         WebsocketAPIMessageType::GetAllGames => {
-            specific_sync_request::<GetAllGames>(msg, user_id, get_all_games).await
+            specific_sync_request::<GetAllGames>(msg, session_info, get_all_games).await
         }
         WebsocketAPIMessageType::GetAllCustomGames => {
-            specific_sync_request::<GetAllCustomGames>(msg, user_id, get_all_gustom)
+            specific_sync_request::<GetAllCustomGames>(msg, session_info, get_all_gustom)
                 .await
         }
         WebsocketAPIMessageType::GetCustomGame => {
-            specific_sync_request::<GetCustomGame>(msg, user_id, get_gustom_game).await
+            specific_sync_request::<GetCustomGame>(msg, session_info, get_gustom_game).await
         }
         WebsocketAPIMessageType::UpdateCustomGame => {
-            specific_sync_request::<UpdateCustomGame>(msg, user_id, update_custom_game)
+            specific_sync_request::<UpdateCustomGame>(msg, session_info, update_custom_game)
                 .await
         }
         WebsocketAPIMessageType::GetRandomWord => {
-            specific_sync_request::<GetRandomWord>(msg, user_id, random_word2).await
+            specific_sync_request::<GetRandomWord>(msg, session_info, random_word2).await
         }
         WebsocketAPIMessageType::SubscribeGamePlz => {
             let request: <game::api::websocket::SubscribeGamePlz as APIMethod>::Req =
@@ -410,48 +418,56 @@ pub async fn websocket_handle_request(
             })
         }
         WebsocketAPIMessageType::StartMatch => {
-            specific_async_request::<StartMatch, _, _>(msg, user_id, start_match).await
+            specific_async_request::<StartMatch, _, _>(msg, session_info, start_match).await
         }
         WebsocketAPIMessageType::GetMatchList => {
-            specific_sync_request::<GetMatchList>(msg, user_id, get_match_list).await
+            specific_sync_request::<GetMatchList>(msg, session_info, get_match_list).await
         }
         WebsocketAPIMessageType::SubscribedGameUpdateNotification => {
             anyhow::bail!("Unsupported message from client: {:?}", msg._type);
         }
         WebsocketAPIMessageType::GetMatchInfo => {
-            specific_sync_request::<GetMatchInfo>(msg, user_id, get_match_info).await
+            specific_sync_request::<GetMatchInfo>(msg, session_info, get_match_info).await
         }
         WebsocketAPIMessageType::GetUserSetting => {
-            specific_sync_request::<GetUserSetting>(msg, user_id, get_user_setting)
+            specific_sync_request::<GetUserSetting>(msg, session_info, get_user_setting)
                 .await
         }
         WebsocketAPIMessageType::SetUserSetting => {
-            specific_sync_request::<SetUserSetting>(msg, user_id, set_user_setting)
+            specific_sync_request::<SetUserSetting>(msg, session_info, set_user_setting)
                 .await
         }
         WebsocketAPIMessageType::AppendBotGameSegment => {
             specific_sync_request::<AppendBotGameSegment>(
                 msg,
-                user_id,
+                session_info,
                 append_bot_game_segment,
             )
             .await
         }
+        WebsocketAPIMessageType::SetGlobalPlayLock => {
+            specific_sync_request::<SetGlobalPlayLock>(
+                msg,
+                session_info,
+                set_global_play_lock,
+            )
+            .await
+        },
     }
     .context(format!("specific handler {:?}", msg_type))?;
 
     log::info!(
         "sending response {:?} for userID {:?}",
         msg_type,
-        user_id2.user_id
+        session_info.guest_id.user_id
     );
     Ok(bincode::serialize(&r).context("bincode never fail")?)
 }
 use anyhow::Context;
 pub async fn specific_sync_request<T: APIMethod>(
     request_msg: WebsocketAPIMessageRaw,
-    guest_info: GuestInfo,
-    callback: impl Fn(T::Req, GuestInfo) -> anyhow::Result<T::Resp>
+    guest_info: CurrentSessionInfo,
+    callback: impl Fn(T::Req, CurrentSessionInfo) -> anyhow::Result<T::Resp>
         + std::marker::Sync
         + std::marker::Send
         + 'static,
@@ -482,12 +498,12 @@ pub async fn specific_sync_request<T: APIMethod>(
 //   (impl Future<>)+ std::marker::Sync+ std::marker::Send+ 'static,
 pub async fn specific_async_request<T, F, Fut>(
     request_msg: WebsocketAPIMessageRaw,
-    guest_info: GuestInfo,
+    guest_info: CurrentSessionInfo,
     callback: F,
 ) -> anyhow::Result<WebsocketAPIMessageRaw>
 where
     T: APIMethod,
-    F: FnOnce(T::Req, GuestInfo) -> Fut,
+    F: FnOnce(T::Req, CurrentSessionInfo) -> Fut,
     Fut: Future<Output = anyhow::Result<T::Resp>>,
 {
     if !request_msg._type.eq(&T::TYPE) {

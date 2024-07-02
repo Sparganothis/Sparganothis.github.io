@@ -20,22 +20,22 @@ use rand::Rng;
 
 pub fn get_profile(
     user_id: uuid::Uuid,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<UserProfile> {
     use crate::database::tables::get_user_profile;
     get_user_profile(&user_id)
 }
 
-pub fn git_version(_: (), _current_user_id: GuestInfo) -> anyhow::Result<String> {
+pub fn git_version(_: (), _session_info: CurrentSessionInfo) -> anyhow::Result<String> {
     Ok(GIT_VERSION.clone())
 }
 
 pub fn create_new_game_id(
     _: (),
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<GameId> {
     for existing_game in GAME_IS_IN_PROGRESS_DB
-        .range(GameId::get_range_for_user(&_current_user_id.user_id))
+        .range(GameId::get_range_for_user(&_current_session.guest_id.user_id))
     {
         let (old_game_id, is_in_progress) = existing_game?;
         if is_in_progress {
@@ -45,7 +45,7 @@ pub fn create_new_game_id(
 
     let mut rand = rand::thread_rng();
     let g = GameId {
-        user_id: _current_user_id.user_id,
+        user_id: _current_session.guest_id.user_id,
         init_seed: rand.gen(),
         start_time: get_timestamp_now_nano(),
     };
@@ -57,26 +57,26 @@ pub fn create_new_game_id(
 
 pub fn append_game_segment(
     (id, segment_json): (GameId, String),
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
     let new_segment: GameReplaySegment =
         serde_json::from_str(&segment_json).expect("json never fail");
 
-    let who = _current_user_id.user_id;
+    let who = _current_session.guest_id.user_id;
     if !who.eq(&id.user_id) {
         anyhow::bail!("no impersonate plz");
     }
-    do_append_game_segment(id, new_segment, _current_user_id)
+    do_append_game_segment(id, new_segment, _current_session)
 }
 
 pub fn append_bot_game_segment(
     (id, segment_json): (GameId, String),
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
     let new_segment: GameReplaySegment =
         serde_json::from_str(&segment_json).expect("json never fail");
 
-    let who = _current_user_id.user_id;
+    let who = _current_session.guest_id.user_id;
     let bot_name = get_bot_from_id(id.user_id)?;
     // cchecck that the game id is listed for a mamtcch  vs. this bot
     // and the other player in the mamtch is "who"
@@ -100,13 +100,13 @@ pub fn append_bot_game_segment(
         _ => anyhow::bail!("wrong match type for this game!"),
     }
 
-    do_append_game_segment(id, new_segment, _current_user_id)
+    do_append_game_segment(id, new_segment, _current_session)
 }
 
 fn do_append_game_segment(
     id: GameId,
     new_segment: GameReplaySegment,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
@@ -197,14 +197,14 @@ fn do_append_game_segment(
 
 pub fn get_last_full_game_state(
     game_id: GameId,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Option<GameState>> {
     Ok(GAME_FULL_DB.get(&game_id)?)
 }
 
 pub fn get_all_segments_for_game(
     game_id: GameId,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<GameReplaySegment>> {
     let mut r = vec![];
     for item in GAME_SEGMENT_DB
@@ -224,7 +224,7 @@ pub fn get_all_segments_for_game(
 
 pub fn get_segment_count(
     game_id: GameId,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<GameSegmentCountReply> {
     let is_in_progress = GAME_IS_IN_PROGRESS_DB
         .get(&game_id)?
@@ -240,13 +240,13 @@ const PAGE_SIZE: usize = 9;
 
 pub fn get_all_games(
     arg: GetAllGamesArg,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(GameId, GameSegmentCountReply)>> {
     let load_all_games = || -> anyhow::Result<_> {
         let mut v = vec![];
         for game_id in GAME_IS_IN_PROGRESS_DB.iter().keys() {
             let game_id = game_id?;
-            let r = get_segment_count(game_id, _current_user_id.clone())?;
+            let r = get_segment_count(game_id, _current_session)?;
             v.push((game_id, r));
         }
         Ok(v)
@@ -258,7 +258,7 @@ pub fn get_all_games(
             .keys()
         {
             let game_id = game_id?;
-            let r = get_segment_count(game_id, _current_user_id.clone())?;
+            let r = get_segment_count(game_id, _current_session)?;
             v.push((game_id, r));
         }
         Ok(v)
@@ -276,10 +276,10 @@ pub fn get_all_games(
         GetAllGamesArg::BestGames => sort_best(load_all_games()?)?,
         GetAllGamesArg::RecentGames => sort_recent(load_all_games()?)?,
         GetAllGamesArg::MyBestGames => {
-            sort_best(load_games_for_user(&_current_user_id.user_id)?)?
+            sort_best(load_games_for_user(&_current_session.guest_id.user_id)?)?
         }
         GetAllGamesArg::MyRecentGames => {
-            sort_recent(load_games_for_user(&_current_user_id.user_id)?)?
+            sort_recent(load_games_for_user(&_current_session.guest_id.user_id)?)?
         }
         GetAllGamesArg::BestGamesForPlayer(player_id) => {
             sort_best(load_games_for_user(&player_id)?)?
@@ -295,7 +295,7 @@ pub fn get_all_games(
 #[allow(unused_variables)]
 pub fn get_all_gustom(
     arg: (),
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(String, GameState)>> {
     let mut v = vec![];
     for x in CUSTOM_GAME_BOARD_DB.iter() {
@@ -307,20 +307,20 @@ pub fn get_all_gustom(
 
 pub fn get_gustom_game(
     arg: String,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<GameState> {
     Ok(CUSTOM_GAME_BOARD_DB.get(&arg)?.context("not found")?)
 }
 
 pub fn update_custom_game(
     arg: (String, GameState),
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
     CUSTOM_GAME_BOARD_DB.insert(&arg.0, &arg.1)?;
     Ok(())
 }
 
-pub fn random_word2(_: (), _current_user_id: GuestInfo) -> anyhow::Result<String> {
+pub fn random_word2(_: (), _current_session: CurrentSessionInfo) -> anyhow::Result<String> {
     Ok(random_word())
 }
 
@@ -338,20 +338,22 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+
+use super::websocket::CurrentSessionInfo;
 pub struct MatchMakingQueue {
     v: Arc<Mutex<HashMap<uuid::Uuid, MatchMakingItem>>>,
 }
 
 pub async fn start_match(
     _type: GameMatchType,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
     // Ok(uuid::Uuid::nil(), GameMatch)
 
     match _type {
-        GameMatchType::_1v1 => start_new_1v1_match(_current_user_id).await,
+        GameMatchType::_1v1 => start_new_1v1_match(_current_session).await,
         GameMatchType::ManVsCar(bot_type) => {
-            start_new_man_vs_car_match(bot_type, _current_user_id).await
+            start_new_man_vs_car_match(bot_type, _current_session).await
         }
         GameMatchType::_40lines => todo!(),
         GameMatchType::_10v10 => todo!(),
@@ -361,15 +363,15 @@ pub async fn start_match(
 
 async fn start_new_man_vs_car_match(
     bot_type: String,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
     let bot_player_id = get_bot_id(&bot_type).context("bot not found")?;
 
     let new_match = GameMatch {
         seed: (&mut rand::thread_rng()).gen(),
         time: get_timestamp_now_nano(),
-        users: vec![_current_user_id.user_id, bot_player_id],
-        title: format!("1v1 {} vs. {}", bot_player_id, _current_user_id.user_id),
+        users: vec![_current_session.guest_id.user_id, bot_player_id],
+        title: format!("1v1 {} vs. {}", bot_player_id, _current_session.guest_id.user_id),
         type_: GameMatchType::ManVsCar(bot_type),
     };
     let new_match_id = uuid::Uuid::new_v4();
@@ -381,7 +383,7 @@ async fn start_new_man_vs_car_match(
 }
 
 async fn start_new_1v1_match(
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<(uuid::Uuid, GameMatch)> {
     let mut _waiting_for_match: Option<_> = None;
     let mut _got_new_match: Option<_> = None;
@@ -390,7 +392,7 @@ async fn start_new_1v1_match(
         if q.is_empty() {
             // creezi chan, te bagi in el
             let (tx, rx) = tokio::sync::mpsc::channel(1);
-            let player_id = _current_user_id.user_id;
+            let player_id = _current_session.guest_id.user_id;
             let new_item = MatchMakingItem {
                 channel: tx,
                 player_id,
@@ -399,7 +401,7 @@ async fn start_new_1v1_match(
             _waiting_for_match = Some(rx);
             q.insert(player_id, new_item);
         } else {
-            if q.contains_key(&_current_user_id.user_id) {
+            if q.contains_key(&_current_session.guest_id.user_id) {
                 anyhow::bail!("another game is already in matchmaking!");
             } else {
                 let k = *q.keys().next().unwrap();
@@ -407,10 +409,10 @@ async fn start_new_1v1_match(
                 let new_match = GameMatch {
                     seed: (&mut rand::thread_rng()).gen(),
                     time: get_timestamp_now_nano(),
-                    users: vec![other_player.player_id, _current_user_id.user_id],
+                    users: vec![other_player.player_id, _current_session.guest_id.user_id],
                     title: format!(
                         "1v1 {} vs. {}",
-                        other_player.player_id, _current_user_id.user_id
+                        other_player.player_id, _current_session.guest_id.user_id
                     ),
                     type_: GameMatchType::_1v1,
                 };
@@ -468,7 +470,7 @@ fn create_db_match_entry(
 
 pub fn get_match_list(
     _: GetMatchListArg,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(uuid::Uuid, GameMatch)>> {
     let mut v = vec![];
     for x in GAME_MATCH_DB.iter() {
@@ -480,16 +482,16 @@ pub fn get_match_list(
 
 pub fn get_match_info(
     match_id: uuid::Uuid,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<GameMatch> {
     GAME_MATCH_DB.get(&match_id)?.context(".not found")
 }
 
 pub fn get_user_setting(
     setting_name: UserSettingType,
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<u8>> {
-    match USER_SETTING_DB.get(&(_current_user_id.user_id, setting_name))? {
+    match USER_SETTING_DB.get(&(_current_session.guest_id.user_id, setting_name))? {
         Some(s) => Ok(s),
         None => Ok(vec![]),
     }
@@ -512,12 +514,36 @@ pub fn get_user_setting(
 
 pub fn set_user_setting(
     (setting_name, setting_val): (UserSettingType, Vec<u8>),
-    _current_user_id: GuestInfo,
+    _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
     if setting_val.len() > 100 {
         anyhow::bail!("too many bytes pls!");
     }
-    USER_SETTING_DB.insert(&(_current_user_id.user_id, setting_name), &setting_val)?;
+    USER_SETTING_DB.insert(&(_current_session.guest_id.user_id, setting_name), &setting_val)?;
 
     Ok(())
+}
+
+pub fn set_global_play_lock(
+    (lock, lock_for_game_id): (bool, Option<GameId>),
+    _current_session: CurrentSessionInfo,
+) -> anyhow::Result<()> {
+
+    if lock {
+        _lock_global_for_game(_current_session, lock_for_game_id.context("game not given")?)
+    } else {
+        _unlock_global_lock_id(_current_session)
+    }
+}
+
+fn _lock_global_for_game(_current_session: CurrentSessionInfo, game_id: GameId) -> anyhow::Result<()> {
+todo!()
+}
+
+pub fn _unlock_global_lock_id(_current_session: CurrentSessionInfo) -> anyhow::Result<()> {
+    todo!()
+}
+
+fn _check_is_global_locked(_current_session: CurrentSessionInfo) -> anyhow::Result<()> {
+    todo!()
 }
