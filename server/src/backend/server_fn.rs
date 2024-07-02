@@ -34,9 +34,9 @@ pub fn create_new_game_id(
     _: (),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<GameId> {
-    for existing_game in GAME_IS_IN_PROGRESS_DB
-        .range(GameId::get_range_for_user(&_current_session.guest_id.user_id))
-    {
+    for existing_game in GAME_IS_IN_PROGRESS_DB.range(GameId::get_range_for_user(
+        &_current_session.guest_id.user_id,
+    )) {
         let (old_game_id, is_in_progress) = existing_game?;
         if is_in_progress {
             GAME_IS_IN_PROGRESS_DB.insert(&old_game_id, &false)?;
@@ -321,7 +321,10 @@ pub fn update_custom_game(
     Ok(())
 }
 
-pub fn random_word2(_: (), _current_session: CurrentSessionInfo) -> anyhow::Result<String> {
+pub fn random_word2(
+    _: (),
+    _current_session: CurrentSessionInfo,
+) -> anyhow::Result<String> {
     Ok(random_word())
 }
 
@@ -372,7 +375,10 @@ async fn start_new_man_vs_car_match(
         seed: (&mut rand::thread_rng()).gen(),
         time: get_timestamp_now_nano(),
         users: vec![_current_session.guest_id.user_id, bot_player_id],
-        title: format!("1v1 {} vs. {}", bot_player_id, _current_session.guest_id.user_id),
+        title: format!(
+            "1v1 {} vs. {}",
+            bot_player_id, _current_session.guest_id.user_id
+        ),
         type_: GameMatchType::ManVsCar(bot_type),
     };
     let new_match_id = uuid::Uuid::new_v4();
@@ -410,7 +416,10 @@ async fn start_new_1v1_match(
                 let new_match = GameMatch {
                     seed: (&mut rand::thread_rng()).gen(),
                     time: get_timestamp_now_nano(),
-                    users: vec![other_player.player_id, _current_session.guest_id.user_id],
+                    users: vec![
+                        other_player.player_id,
+                        _current_session.guest_id.user_id,
+                    ],
                     title: format!(
                         "1v1 {} vs. {}",
                         other_player.player_id, _current_session.guest_id.user_id
@@ -520,7 +529,10 @@ pub fn set_user_setting(
     if setting_val.len() > 100 {
         anyhow::bail!("too many bytes pls!");
     }
-    USER_SETTING_DB.insert(&(_current_session.guest_id.user_id, setting_name), &setting_val)?;
+    USER_SETTING_DB.insert(
+        &(_current_session.guest_id.user_id, setting_name),
+        &setting_val,
+    )?;
 
     Ok(())
 }
@@ -529,9 +541,11 @@ pub fn set_global_play_lock(
     (lock, lock_for_game_id): (bool, Option<GameId>),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
-
     if lock {
-        _lock_global_for_game(_current_session, lock_for_game_id.context("game not given")?)
+        _lock_global_for_game(
+            _current_session,
+            lock_for_game_id.context("game not given")?,
+        )
     } else {
         _unlock_global_lock_id(_current_session)
     }
@@ -541,50 +555,60 @@ pub struct GlobalGameLock {
     v: Arc<std::sync::Mutex<HashMap<uuid::Uuid, (GameId, CurrentSessionInfo)>>>,
 }
 
-pub static GLOBAL_GAME_LOCKS: Lazy<GlobalGameLock> =
-    Lazy::new(|| GlobalGameLock {
-        v: Arc::new(std::sync::Mutex::new(HashMap::new())),
-    });
+pub static GLOBAL_GAME_LOCKS: Lazy<GlobalGameLock> = Lazy::new(|| GlobalGameLock {
+    v: Arc::new(std::sync::Mutex::new(HashMap::new())),
+});
 
-
-fn _lock_global_for_game(_current_session: CurrentSessionInfo, game_id: GameId) -> anyhow::Result<()> {
-    
+fn _lock_global_for_game(
+    _current_session: CurrentSessionInfo,
+    game_id: GameId,
+) -> anyhow::Result<()> {
     {
-        match  GLOBAL_GAME_LOCKS.v.lock() {
+        match GLOBAL_GAME_LOCKS.v.lock() {
             Ok(mut g) => {
                 let is_already_in = g.contains_key(&_current_session.guest_id.user_id);
                 if is_already_in {
-                    anyhow::bail!("already conneccted in another session; pls go there.")
+                    anyhow::bail!(
+                        "already conneccted in another session; pls go there."
+                    )
                 }
-                g.insert(_current_session.guest_id.user_id, (game_id, _current_session));
-            },
+                g.insert(
+                    _current_session.guest_id.user_id,
+                    (game_id, _current_session),
+                );
+            }
             Err(e) => {
                 let e_str = format!("e: {:?}", e);
                 anyhow::bail!("{e_str}");
             }
-        } 
+        }
     }
     Ok(())
 }
 
-pub fn _unlock_global_lock_id(_current_session: CurrentSessionInfo) -> anyhow::Result<()> {
+pub fn _unlock_global_lock_id(
+    _current_session: CurrentSessionInfo,
+) -> anyhow::Result<()> {
     {
-        match  GLOBAL_GAME_LOCKS.v.lock() {
+        match GLOBAL_GAME_LOCKS.v.lock() {
             Ok(mut g) => {
                 g.remove(&_current_session.guest_id.user_id);
-            },
+            }
             Err(e) => {
                 let e_str = format!("e: {:?}", e);
                 anyhow::bail!("{e_str}");
             }
-        } 
+        }
     }
     Ok(())
 }
 
-fn _check_is_global_locked(_current_session: CurrentSessionInfo, _current_game_id: GameId) -> anyhow::Result<()> {
+fn _check_is_global_locked(
+    _current_session: CurrentSessionInfo,
+    _current_game_id: GameId,
+) -> anyhow::Result<()> {
     {
-        match  GLOBAL_GAME_LOCKS.v.lock() {
+        match GLOBAL_GAME_LOCKS.v.lock() {
             Ok(mut g) => {
                 let existing = g.get(&_current_session.guest_id.user_id);
                 if existing.is_none() {
@@ -597,12 +621,12 @@ fn _check_is_global_locked(_current_session: CurrentSessionInfo, _current_game_i
                 if *game_id != _current_game_id {
                     anyhow::bail!("gamelock already set for different game id");
                 }
-            },
+            }
             Err(e) => {
                 let e_str = format!("e: {:?}", e);
                 anyhow::bail!("{e_str}");
             }
-        } 
+        }
     }
     Ok(())
 }

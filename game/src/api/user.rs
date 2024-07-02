@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-#[derive(Clone,  Copy, Deserialize, Serialize, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
+#[derive(
+    Clone, Copy, Deserialize, Serialize, Debug, PartialEq, PartialOrd, Eq, Ord, Hash,
+)]
 pub struct GuestInfo {
     pub user_id: uuid::Uuid,
     pub pageviews: usize,

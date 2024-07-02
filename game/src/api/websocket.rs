@@ -42,7 +42,7 @@ pub enum WebsocketAPIMessageType {
 
     AppendBotGameSegment,
 
-    SetGlobalPlayLock
+    SetGlobalPlayLock,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
@@ -274,7 +274,6 @@ impl APIMethod for SetUserSetting {
     type Req = (UserSettingType, Vec<u8>);
     type Resp = ();
 }
-
 
 pub struct SetGlobalPlayLock {}
 impl APIMethod for SetGlobalPlayLock {
