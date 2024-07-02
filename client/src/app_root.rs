@@ -257,8 +257,7 @@ pub fn AppRoot() -> impl IntoView {
                         <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
-
-                    <div style="position:absolute; left: 0px; top: 0px; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;   background-position: 50% 0 ;   background-size: cover;   opacity: 0.5;" >
+                    <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;   opacity: 0.5;" >
                     </div>
                     <nav>
                         <MainMenu/>
