@@ -762,9 +762,8 @@ impl GameState {
             new_current_pcs.pos.1 += x;
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
                 self.current_pcs = Some(new_current_pcs);
-                let _is_blocked_up = false;
-                self.is_t_spin = true;
-                // self.is_t_spin = try_idx>0 || is_blocked_up;
+                self.is_t_spin = (*x !=0) || (*y !=0);
+                log::info!("IS TSPIN BRO?{}",self.is_t_spin.to_string());
                 return Ok(());
             }
         }
