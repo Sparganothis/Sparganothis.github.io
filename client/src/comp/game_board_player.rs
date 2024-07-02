@@ -64,18 +64,25 @@ pub fn PlayerGameBoardFromId(
     let state = create_rw_signal(
         tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
-    call_api_sync::<GetLastFullGameState>(game_id, move |_state| {
-        match _state {
-            Some(_state) => {
-                state.set(_state);
-                resume_pre_123();
-            },
-            None => {
-                resume_pre_123();
+    call_api_sync::<SetGlobalPlayLock>((true, Some(game_id)), move |_| {
+        let resume_pre_123 = resume_pre_123.clone();
+        call_api_sync::<GetLastFullGameState>(game_id, move |_state| {
+            match _state {
+                Some(_state) => {
+                    state.set(_state);
+                    resume_pre_123();
+                },
+                None => {
+                    resume_pre_123();
+                }
             }
-        }
+        });
     });
-       
+
+    on_cleanup(move || {
+        call_api_sync::<SetGlobalPlayLock>((false, None), move |_| {});
+    });
+    
     view! {
         <Show
             when=move || { counter_pre_123.get() > 3 }

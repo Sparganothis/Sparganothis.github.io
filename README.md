@@ -48,6 +48,7 @@ bash run-server.sh
 
 - make tutros bot sound like https://soundcloud.com/funk-it-blog-1/kris-bowers-forever-spring-41814-boston-ma-scullers-jazz-club
 - mmake tatrus bot sound like https://soundcloud.com/bigupmagazine/big-up-podcast-89-commodo
+- and like https://soundcloud.com/lucas-goret/armenian
 - winamp
 - remmember in private storeage all winamp history and user ignore / skpi soundtrack
 - when song changes, put notiifcation in corner like nfss

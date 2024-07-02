@@ -59,6 +59,7 @@ pub fn append_game_segment(
     (id, segment_json): (GameId, String),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<()> {
+    _check_is_global_locked(_current_session, id)?;
     let new_segment: GameReplaySegment =
         serde_json::from_str(&segment_json).expect("json never fail");
 
@@ -536,14 +537,72 @@ pub fn set_global_play_lock(
     }
 }
 
+pub struct GlobalGameLock {
+    v: Arc<std::sync::Mutex<HashMap<uuid::Uuid, (GameId, CurrentSessionInfo)>>>,
+}
+
+pub static GLOBAL_GAME_LOCKS: Lazy<GlobalGameLock> =
+    Lazy::new(|| GlobalGameLock {
+        v: Arc::new(std::sync::Mutex::new(HashMap::new())),
+    });
+
+
 fn _lock_global_for_game(_current_session: CurrentSessionInfo, game_id: GameId) -> anyhow::Result<()> {
-todo!()
+    
+    {
+        match  GLOBAL_GAME_LOCKS.v.lock() {
+            Ok(mut g) => {
+                let is_already_in = g.contains_key(&_current_session.guest_id.user_id);
+                if is_already_in {
+                    anyhow::bail!("already conneccted in another session; pls go there.")
+                }
+                g.insert(_current_session.guest_id.user_id, (game_id, _current_session));
+            },
+            Err(e) => {
+                let e_str = format!("e: {:?}", e);
+                anyhow::bail!("{e_str}");
+            }
+        } 
+    }
+    Ok(())
 }
 
 pub fn _unlock_global_lock_id(_current_session: CurrentSessionInfo) -> anyhow::Result<()> {
-    todo!()
+    {
+        match  GLOBAL_GAME_LOCKS.v.lock() {
+            Ok(mut g) => {
+                g.remove(&_current_session.guest_id.user_id);
+            },
+            Err(e) => {
+                let e_str = format!("e: {:?}", e);
+                anyhow::bail!("{e_str}");
+            }
+        } 
+    }
+    Ok(())
 }
 
-fn _check_is_global_locked(_current_session: CurrentSessionInfo) -> anyhow::Result<()> {
-    todo!()
+fn _check_is_global_locked(_current_session: CurrentSessionInfo, _current_game_id: GameId) -> anyhow::Result<()> {
+    {
+        match  GLOBAL_GAME_LOCKS.v.lock() {
+            Ok(mut g) => {
+                let existing = g.get(&_current_session.guest_id.user_id);
+                if existing.is_none() {
+                    anyhow::bail!("you forgot to ask for GameLock with the message SetGlobalPlayLock");
+                }
+                let (game_id, locked_session) = existing.unwrap();
+                if locked_session.websocket_id != _current_session.websocket_id {
+                    anyhow::bail!("gamelock already set for different websocket id");
+                }
+                if *game_id != _current_game_id {
+                    anyhow::bail!("gamelock already set for different game id");
+                }
+            },
+            Err(e) => {
+                let e_str = format!("e: {:?}", e);
+                anyhow::bail!("{e_str}");
+            }
+        } 
+    }
+    Ok(())
 }
