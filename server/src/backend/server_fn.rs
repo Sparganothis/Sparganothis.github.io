@@ -6,7 +6,6 @@ use game::api::game_match::GameMatch;
 use game::api::game_match::GameMatchType;
 use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
-use game::api::user::GuestInfo;
 use game::api::user::UserProfile;
 use game::api::user_settings::UserSettingType;
 use game::api::websocket::GameSegmentCountReply;
@@ -609,7 +608,7 @@ fn _check_is_global_locked(
 ) -> anyhow::Result<()> {
     {
         match GLOBAL_GAME_LOCKS.v.lock() {
-            Ok(mut g) => {
+            Ok(g) => {
                 let existing = g.get(&_current_session.guest_id.user_id);
                 if existing.is_none() {
                     anyhow::bail!("you forgot to ask for GameLock with the message SetGlobalPlayLock");
