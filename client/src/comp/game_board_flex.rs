@@ -196,7 +196,7 @@ pub fn GameBoardFlex(
                     // SCORE BOARD
                     <div style="width:100%;height:6%; container-type: size;">
                         <h3 style="font-size:80cqh; text-align: center;">
-                            {move || { format!("{:?}", game_state.get().score) }}
+                            {move || { format!("{:?}", game_state.get().total_lines) }}
                         </h3>
                     </div>
                     <div style="width:100%;height:37%;"></div>
