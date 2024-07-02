@@ -106,24 +106,27 @@ pub fn GameBoardFlex(
     let main_board =
         create_read_slice(game_state, |state: &tet::GameState| state.main_board);
 
-    let gameover = view! {
-        <Show when=move || game_state.get().game_over fallback=|| view! {}>
-            <div class="game_over_display" on:click=move |_| on_reset_game.call(())>
-                you lose
+    let _countdown_view = view! {
+        <Show when=move || {game_state.get().game_over ||  pre_countdown_text.get().len() > 0}>
+            <div style="width: 0px; height: 0px; margin: 0px; position: relative;  z-index: 999;">
+                <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;   z-index: 999;           ">
+                    <Show when=move || game_state.get().game_over >
+                        <div class="gameover">
+                            <div class="game_over_display" on:click=move |_| on_reset_game.call(())>
+                                you lose
+                            </div> 
+                        </div>
+                    </Show>
+                    <Show when=move || { pre_countdown_text.get().len() > 0 } >
+                        <div class="pre_game_countdown">
+                            <div class="pre_game_countdown_display">
+                                {pre_countdown_text}
+                            </div>
+                        </div>
+                    </Show>
+                </div>
             </div>
         </Show>
-    };
-
-    let pre_countdown = view! {
-        <Show when=move || { pre_countdown_text.get().len() > 0 } fallback=|| view! {}>
-            <div class="pre_game_countdown_display">{pre_countdown_text}</div>
-        </Show>
-    };
-
-    // TODO PUT THIS ON SCREEN
-    let _countdown_view = view! {
-        <div class="gameover">{gameover}</div>
-        <div class="pre_game_countdown">{pre_countdown}</div>
     };
 
     let user_profile = create_rw_signal(None);
@@ -212,11 +215,7 @@ pub fn GameBoardFlex(
                         class="calculate_table_width"
                     >
 
-                        <div style="width: 0px; height: 0px; margin: 0px; position: relative;  z-index: 999;">
-                            <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;   z-index: 999;           ">
-                                {_countdown_view}
-                            </div>
-                        </div>
+                        {_countdown_view}
 
                         <BoardTable board=main_board on_click=on_main_cell_click/>
                     </div>
