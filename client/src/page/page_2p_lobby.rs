@@ -51,16 +51,6 @@ pub fn Lobby2P() -> impl IntoView {
             .into_view(),
             6=>view! {
                 <Show
-                    when=move || waiting_for_game.get()
-                    fallback=move || {
-                        view! {}
-                    }
-                >
-
-                    <h1>WAITING FOR GAME</h1>
-                </Show>
-
-                <Show
                     when=move || {
                         !waiting_for_game.get() && match_id_signal.get().is_none()
                     }
