@@ -80,6 +80,7 @@ where
     use rand::thread_rng;
     let mut rng = thread_rng();
     all_action_chains.shuffle(&mut rng);
+    all_action_chains.sort_by_key(|k| k.len());
 
     let mut best_action_chain = vec![TetAction::SoftDrop];
     let mut best_acction_score = f64::MIN;

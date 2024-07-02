@@ -9,7 +9,7 @@ use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
-pub const BOT_MOVE_INTERVAL: u64 = 150;
+pub const BOT_MOVE_INTERVAL: u64 = 100;
 
 #[component]
 pub fn BotGameBoard(
@@ -118,6 +118,7 @@ pub fn BotGameBoardSingle(
     let extra_moves = create_rw_signal(VecDeque::new()); 
 
     let bot_name2 = bot_name.clone();
+    let current_time_in_6 = create_rw_signal(0);
     let leptos_use::utils::Pausable {
         pause: _timer_pause,
         resume: _timer_resume,
@@ -125,6 +126,13 @@ pub fn BotGameBoardSingle(
     } = leptos_use::use_interval_fn(
         move || {
             let bot_name2 = bot_name2.clone();
+            let _t6 = current_time_in_6.get_untracked();
+            current_time_in_6.set_untracked((current_time_in_6.get_untracked() + 1) % 6);
+
+            if ! (_t6 == 0 || _t6 == 3 || _t6 == 5) {
+                return;
+            }
+
             state.update(move |state| {
                 if !state.game_over {
 
@@ -161,7 +169,7 @@ pub fn BotGameBoardSingle(
                         }
                     });
                 }
-            })
+            });
         },
         BOT_MOVE_INTERVAL,
     );

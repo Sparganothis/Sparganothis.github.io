@@ -46,11 +46,12 @@ pub fn GameBoardFlex(
                         let last_slice = current.replay.replay_slices.last().unwrap();
                         let sound = match last_slice.event.action {
                             tet::TetAction::HardDrop => "hard_drop",
-                            tet::TetAction::MoveRight|tet::TetAction::MoveLeft => "move", 
+                            tet::TetAction::MoveLeft => "move_left", 
+                            tet::TetAction::MoveRight => "move_right", 
                             tet::TetAction::SoftDrop => "soft_drop",
                             tet::TetAction::Hold =>"hold",
-                            tet::TetAction::RotateLeft | tet::TetAction::RotateRight => "rotate",
-                            
+                            tet::TetAction::RotateLeft => "rotate_left",
+                            tet::TetAction::RotateRight => "rotate_right",
                             tet::TetAction::Nothing => "",
                         };
                         crate::audio3::play_sound_effect(sound);                        
@@ -58,7 +59,14 @@ pub fn GameBoardFlex(
                             crate::audio3::play_sound_effect("game_over");
                         }
                         if current.total_lines != _prev.total_lines {
-                            crate::audio3::play_sound_effect("clear_line");
+                            let clr_line_effect = match current.total_lines - _prev.total_lines {
+                                1 => "clear_line_1",
+                                2 => "clear_line_2",
+                                3 => "clear_line_3",
+                                4 => "clear_line_4",
+                                _ => ""
+                            };
+                            crate::audio3::play_sound_effect(clr_line_effect);
                         }
                     }
                 }
@@ -70,7 +78,14 @@ pub fn GameBoardFlex(
             move || pre_countdown_text.get(),
             move |ccurrent, _prev, _| {
                 if ccurrent.len() > 0 {
-                    play_sound_effect("pre_123")
+                    let pre_effect = match ccurrent.as_str() {
+                        "1" => "pre_123_1",
+                        "2" => "pre_123_2",
+                        "3" => "pre_123_3",
+                        "Go" => "pre_123_4",
+                        _=> ""
+                    };
+                    play_sound_effect(pre_effect)
                 }
             },
             false
