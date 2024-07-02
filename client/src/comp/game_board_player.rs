@@ -8,7 +8,7 @@ use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
-pub const PRE_123_INTERVAL: u64 = 333;
+pub const PRE_123_INTERVAL: u64 = 400;
 pub const AUTO_SOFTDROP_INTERVAL: u64 = 1000;
 
 #[component]

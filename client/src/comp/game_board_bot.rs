@@ -10,7 +10,7 @@ use leptos::*;
 use rand::Rng;
 use crate::comp::game_board_flex::GameBoardFlex;
 
-pub const BOT_MOVE_INTERVAL: u64 = 100;
+pub const BOT_MOVE_INTERVAL: u64 = 88;
 
 #[component]
 pub fn BotGameBoard(
@@ -130,7 +130,7 @@ pub fn BotGameBoardSingle(
             let _t6 = current_time_in_6.get_untracked();
             current_time_in_6.set_untracked((current_time_in_6.get_untracked() + 1) % 6);
 
-            let r20percent =(&mut rand::thread_rng()).gen_bool(0.15);
+            let r20percent =(&mut rand::thread_rng()).gen_bool(0.25);
             if (_t6 == 0 || _t6 == 3 || _t6 == 5) ^ r20percent {
                 return;
             }

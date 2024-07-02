@@ -17,17 +17,18 @@ use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
 use crate::page::page_1p::GameSoloLobbyPage;
 use crate::page::settings::server_api::provide_user_setting;
-
+use crate::page::settings::settings_page::MMySettingsPage;
+use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
     let _style = stylist::style!(
         nav {
             position: absolute;
-            left: 1vmin;
+            left: 0.5vmin;
             top: 1vmin;
             height: 97vmin;
-            width: 19.2vmin;
+            width: 18.5vmin;
             border: 1vmin solid black;
         }
         main {
@@ -40,15 +41,15 @@ pub fn AppRoot() -> impl IntoView {
             position: absolute;
             top: 0vmin;
             width: 71.1vmin;
-            left: 1.1vmin;
+            left: 0.3vmin;
             height: 97vmin;
             border: 1vmin solid green;
         }
         main > div.main_mid {
             position: absolute;
             top: 0vmin;
-            width: 36.1vmin;
-            left: 73.0vmin;
+            width: 12.1vmin;
+            left: 72.0vmin;
             height: 97vmin;
             border: 1vmin solid black;
         }
@@ -56,7 +57,7 @@ pub fn AppRoot() -> impl IntoView {
             position: absolute;
             top: 0vmin;
             width: 71.1vmin;
-            left: 110.0vmin;
+            left: 84.7vmin;
             height: 97vmin;
             border: 1vmin solid blue;
         }
@@ -79,10 +80,7 @@ pub fn AppRoot() -> impl IntoView {
         a[aria-current="page"] > .menu_item  {
             font-weight: bold;
             color: darkred;
-            border: 0.5vmin darkred solid;
-            margin: 0.5vmin;
             height: 5vmin;
-            line-height: 5vmin;
         }
         .profile_view_container {
             color: black;
@@ -236,9 +234,11 @@ pub fn AppRoot() -> impl IntoView {
 
         <leptos_meta::Link
             rel="icon"
-            type_="image/x-icon"
-            href="/public/favicon.ico"
+            type_="image/png"
+            href="/public/favicon.PNG"
         ></leptos_meta::Link>
+
+        // <link rel="icon" type="" href="http://example.com/image.png" />
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
 
         <Title text="xanthoides"/>
@@ -257,6 +257,9 @@ pub fn AppRoot() -> impl IntoView {
                         <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
+
+                    <div style="position:absolute; left: 0px; top: 0px; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;   background-position: 50% 0 ;   background-size: cover;   opacity: 0.5;" >
+                    </div>
                     <nav>
                         <MainMenu/>
                         <div>
@@ -289,6 +292,9 @@ pub fn AppRoot() -> impl IntoView {
 
                             </p>
                         </div>
+
+
+                        <WebsocketErrorDisplay />
                     </nav>
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
@@ -303,6 +309,7 @@ pub fn AppRoot() -> impl IntoView {
                                 view=crate::page::page_replay_browser::GameReplayBrowserPage
                             />
                             <Route path="/account" view=MyAccountPage/>
+                            <Route path="/settings" view=MMySettingsPage/>
                             <Route path="/spectate-game/:game_id" view=SpectateGamePage/>
                             <Route path="/user/:user_id" view=UserProfilePage/>
                             <Route
@@ -336,6 +343,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/vs_net", "1v1 online"),
             ("/replay", "replay"),
             ("/account", "account"),
+            ("/settings", "settings"),
             ("/mspaint", "mspaint"),
             ("/demo", "DEMO"),
         ]

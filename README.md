@@ -35,16 +35,22 @@ bash run-server.sh
 
 # todo
 
+## bugs
+- if spectating eded game, UI blocked on gamme over instead of redirecting to replay
+- if spectating match, UI should refresh ended games with the replay
+- 
+- http://localhost:4001/play-game-solo/X if copied to another player allows UI to impersonate. server rejects but we should redirect to /spetate-game/X
+- 1v1 online complete disaster
+- 1v1 + man vs car : if open seccond tab on /mathc/ link, it's allowed to play, should be redirect  to /spectate-match/
+- man vs. car: replay is not working for Bot games.
+
 ## audio
 
-- real time update volume [global method Howler.volume(,...)](https://github.com/goldfire/howler.js?tab=readme-ov-file#global-methods)
-- stop/restart real time sound [gloabl method Howler.sstop()](https://github.com/goldfire/howler.js?tab=readme-ov-file#stop)
-- real timem update menu music volume (store numericc play ID for menu music in javascript, then update fromm differetn fn)
-- different sound nfor pre-game 3, 2, 1, GO
+- make tetris bot sound like https://soundcloud.com/funk-it-blog-1/kris-bowers-forever-spring-41814-boston-ma-scullers-jazz-club
 - winamp
 - remmember in private storeage all winamp history and user ignore / skpi soundtrack
 - when song changes, put notiifcation in corner like nfss
-- different cocmbo audio for 1Line Clear, 2 Line, 3 LIne, Spin
+- different cocmbo audio TSpin JSpin Back-To_Back-X Tetris
 - menu option to disable soft/auto-soft-drop sound
 - eacch different menu option sound has itws own slider
 - option for decreasing volume for repeating sound

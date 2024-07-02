@@ -12,3 +12,4 @@ pub mod game_board_flex;
 pub mod table_match;
 pub mod menu_grid_view;
 pub mod game_board_bot;
+pub mod websocket_error_display;
