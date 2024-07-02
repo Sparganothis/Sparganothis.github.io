@@ -7,6 +7,7 @@ use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
+use rand::Rng;
 use crate::comp::game_board_flex::GameBoardFlex;
 
 pub const BOT_MOVE_INTERVAL: u64 = 100;
@@ -129,7 +130,8 @@ pub fn BotGameBoardSingle(
             let _t6 = current_time_in_6.get_untracked();
             current_time_in_6.set_untracked((current_time_in_6.get_untracked() + 1) % 6);
 
-            if ! (_t6 == 0 || _t6 == 3 || _t6 == 5) {
+            let r20percent =(&mut rand::thread_rng()).gen_bool(0.15);
+            if (_t6 == 0 || _t6 == 3 || _t6 == 5) ^ r20percent {
                 return;
             }
 
