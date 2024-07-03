@@ -2,9 +2,6 @@ use game::bot::get_bot_from_id;
 use leptos::*;
 
 use crate::comp::table_replay_games::AllGamesTable;
-use crate::page::settings::sound::SoundSettingsTab;
-use crate::page::settings::themes::ThemeSettingsTab;
-use crate::page::settings::controls::ControlsSettingsTab;
 use crate::websocket::demo_comp::call_api_sync;
 use game::api::user::{self, GuestInfo, UserProfile};
 use game::api::websocket::{GetAllGamesArg, GetProfile, WhoAmI};
@@ -153,19 +150,6 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
 
     let my_account_tab = create_rw_signal(view! { <MyAccountTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
 
-    let seound_settings_tab = create_rw_signal(view! { <SoundSettingsTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
-
-    let control_settings_tab = create_rw_signal(view! {
-        <ControlsSettingsTab
-            user_profile=user_profile.clone()
-            guest_id=guest_id.clone()
-        />
-    });
-
-    let theme_settings = create_rw_signal(view! { <ThemeSettingsTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
-    
-    
-
     view! {
         <Tabs mount=Mount::Once>
             <Tab name="account" label="My Account".into_view()>
@@ -174,19 +158,6 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
 
             <Tab name="profile" label="Game Profile".into_view()>
                 {user_link_tab.get_untracked()}
-            </Tab>
-
-            <Tab name="sound" label="Sound".into_view()>
-                {seound_settings_tab.get_untracked()}
-            </Tab>
-
-            <Tab name="controls" label="Controls".into_view()>
-                {control_settings_tab.get_untracked()}
-            </Tab>
-
-            <Tab name="theme" label="Themes".into_view()>
-                {theme_settings.get_untracked()}
-
             </Tab>
         </Tabs>
     }

@@ -85,14 +85,18 @@ use leptos_struct_table::BootstrapClassesPreset;
 #[table( 
     classes_provider = "BootstrapClassesPreset", impl_vec_data_provider)]
 pub struct GameMatchTableRow {
-    #[table(renderer = "WeedRenderer")]
+    #[table(renderer = "MatchLinkRenderer")]
     pub match_id: uuid::Uuid,
     #[table(renderer = "SeedRenderer")]
     pub init_seed: GameSeed,
     #[table(renderer = "TimeRenderer")]
     pub start_time: i64,
-    pub users: String,
-    pub title: String,
+
+    #[table(renderer = "UserLinkRenderer")]
+    pub user0: uuid::Uuid,
+    #[table(renderer = "UserLinkRenderer")]
+    pub user1: uuid::Uuid,
+    // pub title: String,
 }
 
 impl GameMatchTableRow {
@@ -101,8 +105,9 @@ impl GameMatchTableRow {
             match_id: db_row.0,
             init_seed: db_row.1.seed,
             start_time: db_row.1.time,
-            users: format!("{:?}",db_row.1.users),
-            title : db_row.1.title,
+            user0: db_row.1.users[0],
+            user1:  db_row.1.users[1]
+            // title : db_row.1.title,
         }
     }
 
@@ -136,7 +141,29 @@ where
 
 #[allow(unused_variables)]
 #[component]
-fn WeedRenderer<F>(
+fn UserLinkRenderer<F>(
+    class: String,
+    #[prop(into)] value: MaybeSignal<uuid::Uuid>,
+    on_change: F,
+    index: usize,
+) -> impl IntoView
+where
+    F: Fn(uuid::Uuid) + 'static,
+{
+    view! {
+        <td class=class>
+            <a href=format!("/user/{:?}", value.get())>
+                <p style="border: 1px solid black">
+                    {move || { format!("{:?}", value.get())[0..8].to_string() }}
+                </p>
+            </a>
+        </td>
+    }
+}
+
+#[allow(unused_variables)]
+#[component]
+fn MatchLinkRenderer<F>(
     class: String,
     #[prop(into)] value: MaybeSignal<uuid::Uuid>,
     on_change: F,

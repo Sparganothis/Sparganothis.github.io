@@ -134,25 +134,6 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
     // let (checked, set_checked) = create_signal(false);
 
 
-    let guest_id2=guest_id.clone();
-    let user_profile2=user_profile.clone();
-    let user_link = move || {
-        let guest_id2=guest_id2.clone();
-        let user_profile2=user_profile2.clone();
-        view! {
-            <div style="width: 100%; padding: 1vh; margin: 1vh;">
-                <a href=format!("/user/{}", guest_id2.user_id)>
-                    <UserProfileView _user_id=guest_id2.user_id p=user_profile2/>
-                </a>
-            </div>
-        }
-        .into_view()
-    };
-    let user_link_tab = create_rw_signal(user_link());
-
-
-    let my_account_tab = create_rw_signal(view! { <MyAccountTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
-
     let seound_settings_tab = create_rw_signal(view! { <SoundSettingsTab user_profile=user_profile.clone() guest_id=guest_id.clone()/> });
 
     let control_settings_tab = create_rw_signal(view! {
@@ -168,14 +149,6 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
 
     view! {
         <Tabs mount=Mount::Once>
-            <Tab name="account" label="My Account".into_view()>
-                {my_account_tab.get_untracked()}
-            </Tab>
-
-            <Tab name="profile" label="Game Profile".into_view()>
-                {user_link_tab.get_untracked()}
-            </Tab>
-
             <Tab name="sound" label="Sound".into_view()>
                 {seound_settings_tab.get_untracked()}
             </Tab>
@@ -194,7 +167,7 @@ pub fn PersonalAccountSettingsForm(user_profile: user::UserProfile, guest_id: Gu
    
    
 #[component]
-pub fn MyAccountTab(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView {
+pub fn MySettingsTab(user_profile: user::UserProfile, guest_id: GuestInfo) -> impl IntoView {
 
     let user_info_str=  format!("user_profile: {:#?}", user_profile);
     let guest_id_str = format!("guest_info: {:#?}", guest_id);
