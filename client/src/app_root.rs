@@ -232,11 +232,6 @@ pub fn AppRoot() -> impl IntoView {
         <Script type_="module" src="/public/js/mobile_check.js"/>
         <Script type_="module" src="/public/js/audio.js"/>
 
-        <leptos_meta::Link
-            rel="icon"
-            type_="image/png"
-            href="/public/favicon.PNG"
-        ></leptos_meta::Link>
 
         // <link rel="icon" type="" href="http://example.com/image.png" />
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>

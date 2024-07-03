@@ -2,12 +2,16 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-
         
         <script src="/public/cdn/jquery-3.7.1.min.js"></script>
         <script src="/public/cdn/howler.min.js"></script>
         <script src="/public/cdn/bootstrap.min.js"></script>
-
+        
+        <link data-trunk
+            rel="icon"
+            type_="image/png"
+            href="/public/favicon.png"
+        />
 
         <link data-trunk rel="rust"  data-weak-refs /> <!-- data-wasm-opt="z" -->
         <link data-trunk rel="scss" href="style/main.scss" />
@@ -20,11 +24,7 @@
 .container_set_h {
   --h:80vh;
 }
-
-
-
-
-                .control_icon_parent {
+        .control_icon_parent {
                     position:absolute;
                     top:6.5vmin;
                     left:14vmin;
