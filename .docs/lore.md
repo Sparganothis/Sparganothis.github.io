@@ -18,6 +18,8 @@ The blocks wouldn't fall into place, no matter how hard I tried.
 
 Voices echoed in my mind, taunting me with the same words over and over again.
 
+_Clone. Clone. Clone. Clone._
+
 Frustration turned into madness as I became consumed by the occult forces that corrupted me.
 
 Lines of *codetris* twisted and contorted to *the jazz*.
