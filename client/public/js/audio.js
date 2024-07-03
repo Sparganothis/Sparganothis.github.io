@@ -7,9 +7,9 @@ export function init_audio_js() {
         "pre_123_3": ["effects/80s_synth/pre123_3_menu_x_fwd.wav.mp3", 1.0, false],
         "pre_123_4": ["effects/80s_synth/pre123_4_Asharp_clear.wav.mp3", 1.0, false],
 
-        "clear_line_3": ["effects/80s_synth/menu_C_silent.wav.mp3", 1.0, false],
-        "clear_line_2": ["effects/80s_synth/menu_C_short_muddy.mp3", 0.9, false],
-        "clear_line_1": ["effects/80s_synth/menu_C_clear.wav.mp3", 0.75, false],
+        "clear_line_1": ["effects/80s_synth/menu_C_silent.wav.mp3", 1.0, false],
+        "clear_line_2": ["effects/80s_synth/menu_C_short_muddy.mp3", 0.95, false],
+        "clear_line_3": ["effects/80s_synth/menu_C_clear.wav.mp3", 0.60, false],
         "clear_line_4": ["effects/80s_synth/menu_C_short_wah.mp3", 0.65, false],
         
         "game_over": ['effects/jazz_drums/JAZZ_DRUMS_1_CRASH_CYMBAL.wav.mp3', 1.0, false],
