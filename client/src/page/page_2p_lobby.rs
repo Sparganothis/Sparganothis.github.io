@@ -44,33 +44,16 @@ pub fn Lobby2P() -> impl IntoView {
 
    // let redirect_to_new_game:todo
     
-
-    let views:Vec<_> = {0..20}.into_iter().map(|x|{
-        match x{
-            8 =>view! { <RandomOpponentGameBoard seed=seed/> }
-            .into_view(),
-            6=>view! {
-                <Show
-                    when=move || {
-                        !waiting_for_game.get() && match_id_signal.get().is_none()
-                    }
-
-                    fallback=move || {
-                        view! {}
-                    }
-                >
-
-                    <div style="width:100%;height:100%; container-type: size;">
-                        <h3
-                            style="font-size:80cqh; text-align: center;"
-                            on:click=move |_| { obtain_new_match_id.call(()) }
-                        >
-                            PLAY
-                        </h3>
-                    </div>
-                </Show>
-
-                <Show
+   let play_button = view! {
+    <div style="width:100%;height:100%; container-type: size;">
+        <h3
+            style="font-size:80cqh; text-align: center;"
+            on:click=move |_| { obtain_new_match_id.call(()) }
+        >
+            PLAY
+        </h3>
+    </div>
+    <Show
                     when=move || (error_display.get().len() > 0)
                     fallback=move || {
                         view! {}
@@ -78,7 +61,7 @@ pub fn Lobby2P() -> impl IntoView {
                 >
 
                     <div style="width:100%;height:100%; container-type: size;">
-                        <h3 style="font-size:70cqh; text-align: center;">WAITING</h3>
+                        <h3 style="font-size:50cqh; text-align: center; color: red;">Please Wait</h3>
                     </div>
                 </Show>
 
@@ -94,8 +77,14 @@ pub fn Lobby2P() -> impl IntoView {
                     }}
 
                 </h1>
-            }.into_view(),
-            _ => {                view!{                }.into_view()            }
+            }.into_view();
+
+    let views:Vec<_> = {0..20}.into_iter().map(|x|{
+        match x{
+            8 =>view! { <RandomOpponentGameBoard seed=seed/> }
+            .into_view(),
+            6=>play_button.clone(),
+            _ => {                view!{                }.into_view()            },
         }
      }).collect();
 
