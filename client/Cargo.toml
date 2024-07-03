@@ -76,6 +76,7 @@ leptos-struct-table = {version = "0.10.2"}
 # async-broadcast = {path="../lib/async-broadcast-0.7.1"}
 async-broadcast = "0.5.1"
 js-sys = "0.3.69"
+markdown = "1.0.0-alpha.18"
 
 [dependencies.web-sys]
 version = "0.3.59"
