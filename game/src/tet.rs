@@ -763,7 +763,6 @@ impl GameState {
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
                 self.current_pcs = Some(new_current_pcs);
                 self.is_t_spin = (*x !=0) || (*y !=0);
-                log::info!("IS TSPIN BRO?{}",self.is_t_spin.to_string());
                 return Ok(());
             }
         }
