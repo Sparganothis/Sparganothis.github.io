@@ -79,9 +79,9 @@ pub fn GameBoardFlex(
             move |ccurrent, _prev, _| {
                 if ccurrent.len() > 0 {
                     let pre_effect = match ccurrent.as_str() {
-                        "1" => "pre_123_1",
+                        "3" => "pre_123_1",
                         "2" => "pre_123_2",
-                        "3" => "pre_123_3",
+                        "1" => "pre_123_3",
                         "Go" => "pre_123_4",
                         _=> ""
                     };
