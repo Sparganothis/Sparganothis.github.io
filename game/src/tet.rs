@@ -160,11 +160,10 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         C
     }
 
-    pub fn get_cell(&self, y:i8, x:i8) -> Option<CellValue>{
+    pub fn get_cell(&self, y: i8, x: i8) -> Option<CellValue> {
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             None
-        }
-        else {
+        } else {
             Some(self.v[y as usize][x as usize])
         }
     }
@@ -478,7 +477,7 @@ impl GameState {
         Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
-        format!("is_t_spin:{}",self.is_t_spin)
+        format!("is_t_spin:{}", self.is_t_spin)
     }
 
     fn clear_line(&mut self) {
@@ -527,7 +526,7 @@ impl GameState {
             self.is_t_spin = false;
         }
         if self.is_t_mini_spin {
-            score3 += match lines{
+            score3 += match lines {
                 1 => 666,
                 2 => 1666,
                 3 => 2666,
@@ -785,24 +784,28 @@ impl GameState {
 
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
                 let (t_is_blocked3, t_is_blocked2) = {
-                    let (yt,xt)=new_current_pcs.pos;
+                    let (yt, xt) = new_current_pcs.pos;
                     let mut block_counter = 0;
-                    for (dx, dy) in [(0,0),(0,2),(2,0),(2,2)]{
+                    for (dx, dy) in [(0, 0), (0, 2), (2, 0), (2, 2)] {
                         let px = dx + xt;
                         let py = dy + yt;
                         block_counter += match self.main_board.get_cell(py, px) {
                             Some(CellValue::Piece(_)) => 1,
                             Some(CellValue::Garbage) => 1,
                             Some(CellValue::Empty) => 0,
-                            Some(CellValue::Ghost )=> 0,
+                            Some(CellValue::Ghost) => 0,
                             None => 0,
                         };
                     }
-                    (block_counter>=3, block_counter>=2)
+                    (block_counter >= 3, block_counter >= 2)
                 };
                 self.current_pcs = Some(new_current_pcs);
-                self.is_t_spin = if new_current_pcs.tet ==Tet::T {t_is_blocked3} else{(*x != 0) || (*y != 0)};
-                self.is_t_mini_spin = new_current_pcs.tet ==Tet::T && t_is_blocked2;
+                self.is_t_spin = if new_current_pcs.tet == Tet::T {
+                    t_is_blocked3
+                } else {
+                    (*x != 0) || (*y != 0)
+                };
+                self.is_t_mini_spin = new_current_pcs.tet == Tet::T && t_is_blocked2;
                 return Ok(());
             }
         }

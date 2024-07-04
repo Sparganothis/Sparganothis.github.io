@@ -82,7 +82,7 @@ pub fn Lobby2P() -> impl IntoView {
    }.into_view();
    
    let play_button = if is_mobile_phone() {
-    view!{<p style="color:red"> You are phone. Plz use PC to play.</p>}.into_view()
+    view! { <p style="color:red">You are phone. Plz use PC to play.</p> }.into_view()
 } else {play_button};
 
 

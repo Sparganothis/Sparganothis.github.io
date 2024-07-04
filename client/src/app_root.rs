@@ -288,7 +288,8 @@ pub fn AppRoot() -> impl IntoView {
                         </div>
 
                         <WebsocketErrorDisplay/>
-                    </nav> <main _ref=main_ref>
+                    </nav>
+                    <main _ref=main_ref>
                         // all our routes will appear inside <main>
                         <Routes>
                             <Route path="" view=Homepage/>

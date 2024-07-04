@@ -60,7 +60,7 @@ pub fn GameCPUPage() -> impl IntoView {
     
     let play_button =move |bot_name: String|{ 
         if is_mobile_phone() {
-            view!{<p style="color:red"> You are phone. Plz use PC to play.</p>}.into_view()
+            view! { <p style="color:red">You are phone. Plz use PC to play.</p> }.into_view()
         } else {
             play_button(bot_name)
         }

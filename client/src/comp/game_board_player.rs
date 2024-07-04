@@ -22,9 +22,7 @@ pub fn PlayerGameBoardFromId(
     
     let is_mobile = is_mobile_phone();
     if is_mobile {
-        return view!{
-            <h1>You are phone.<br/>Plz use PC.</h1>
-        }.into_view()
+        return view! { <h1>You are phone. <br/> Plz use PC.</h1> }.into_view()
     }
     
     let on_state_change = Callback::<GameState>::new(move |s| {
