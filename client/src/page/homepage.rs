@@ -4,7 +4,7 @@ use game::api::websocket::{GetAllGames, GetAllGamesArg};
 use leptos::*;
 
 
-use crate::{comp::menu_grid_view::MenuGridView, mobile_check::is_mobile_phone, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
+use crate::{comp::menu_grid_view::MenuGridView, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
 
 #[component]
 pub fn Homepage()-> impl IntoView{

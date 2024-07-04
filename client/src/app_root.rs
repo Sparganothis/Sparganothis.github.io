@@ -24,7 +24,7 @@ use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
-    let redirect_mmobile_phone = leptos::Callback::<()>::new(move |_| {
+    let redirect_mmobile_phone = leptos::Callback::<()>::new(move |_gigel: ()| {
         let is_mobile = is_mobile_phone();
         if is_mobile {
             let location = leptos_router::use_location();
