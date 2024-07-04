@@ -6,9 +6,7 @@ use super::rot::{RotDirection, RotState, Shape};
 
 use super::random::*;
 
-use std::cell;
 use std::collections::VecDeque;
-use std::thread::current;
 #[derive(
     Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord,
 )]
