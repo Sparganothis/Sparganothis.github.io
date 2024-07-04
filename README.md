@@ -36,6 +36,9 @@ bash run-server.sh
 
 # todo
 
+## custom game / mspaint
+- save a difgferent strucct "GameBoardCustomM" that only contains editable things in mspaint.exe (avoid dropping old custom game baords)
+
 ## bugs
 - cannot replay bot games (stuck on first move)
 - if spectating eded game, UI blocked on gamme over instead of redirecting to replay
