@@ -29,6 +29,7 @@ rustup component add llvm-tools-preview
 
 
 bash test.sh
+bash run-client.sh
 bash run-server.sh
 ```
 
@@ -43,6 +44,11 @@ bash run-server.sh
 - 1v1 online complete disaster
 - 1v1 + man vs car : if open seccond tab on /mathc/ link, it's allowed to play, should be redirect  to /spectate-match/
 - man vs. car: replay is not working for Bot games.
+
+
+## PHONE
+
+- if phone, redirecct correctly to /you-are-phone. Currently, the phone website crashes, whicch also works.
 
 ## audio
 

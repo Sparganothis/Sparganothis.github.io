@@ -8,3 +8,4 @@ pub mod page_spectate;
 pub mod homepage;
 pub mod page_match;
 pub mod settings;
+pub mod you_are_phone;

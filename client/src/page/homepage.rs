@@ -8,9 +8,6 @@ use crate::{comp::menu_grid_view::MenuGridView, mobile_check::is_mobile_phone, p
 
 #[component]
 pub fn Homepage()-> impl IntoView{
-    let is_mobile = is_mobile_phone();
-    log::info!("Are yi a mobile phone???? {is_mobile}");
-
     let best_gameid = create_rw_signal(None);
     call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, move |v: Vec<_>| {
             let game_id = v.get(0).clone();
@@ -23,9 +20,6 @@ pub fn Homepage()-> impl IntoView{
         match x{
             0 => {
                 view! { <h1>todo</h1> }.into_view()
-            },
-            1=>{
-                view! { <h1>{is_mobile_phone}</h1> }.into_view()
             },
             8 =>{
                 (move || {

@@ -12,16 +12,33 @@ use crate::audio3::provide_audio_context;
 use crate::demo::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::hotkey_context::provide_hotkeys_context2;
+use crate::mobile_check::is_mobile_phone;
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
 use crate::page::page_1p::GameSoloLobbyPage;
 use crate::page::settings::server_api::provide_user_setting;
 use crate::page::settings::settings_page::MMySettingsPage;
+use crate::page::you_are_phone::YouArePhonePage;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
+    let redirect_mmobile_phone = leptos::Callback::<()>::new(move |_| {
+        let is_mobile = is_mobile_phone();
+        if is_mobile {
+            let location = leptos_router::use_location();
+            let navigate = leptos_router::use_navigate();
+            let redirect_url = "/you-are-phone";
+            create_effect(move |_| {
+                let url = location.pathname.get();
+                if url != redirect_url {
+                    navigate("/you-are-phone", Default::default());
+                }
+            });
+        }
+    });
+
     let _style = stylist::style!(
         nav {
             position: absolute;
@@ -249,9 +266,13 @@ pub fn AppRoot() -> impl IntoView {
                             crate::error_template::AppError::NotFound,
                         );
                     view! {
-                        <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
+                        <crate::error_template::ErrorTemplate outside_errors>
+                        </crate::error_template::ErrorTemplate>
                     }
                 }>
+                    {
+                        redirect_mmobile_phone.call(());
+                    }
                     <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;   opacity: 0.5;"></div>
                     <nav>
                         <MainMenu/>
@@ -316,6 +337,7 @@ pub fn AppRoot() -> impl IntoView {
                                 view=MsPaintPlayPage
                             />
                             <Route path="/demo" view=GameBoardFlexDemoPage/>
+                            <Route path="/you-are-phone" view=YouArePhonePage/>
 
                         </Routes>
                     </main>
