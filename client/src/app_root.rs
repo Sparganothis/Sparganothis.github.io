@@ -239,6 +239,7 @@ pub fn AppRoot() -> impl IntoView {
     use crate::page::page_2p_lobby::Game2LobbyPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
     use crate::page::page_vs_cpu::GameCPUPage;
+    use crate::page::page_about::AboutPage;
 
     view! {
         <Meta name="charset" content="UTF-8"/>
@@ -335,6 +336,7 @@ pub fn AppRoot() -> impl IntoView {
                                 view=MsPaintPlayPage
                             />
                             <Route path="/demo" view=GameBoardFlexDemoPage/>
+                            <Route path="/about" view=AboutPage/>
                             <Route path="/you-are-phone" view=YouArePhonePage/>
 
                         </Routes>
@@ -358,6 +360,7 @@ pub fn MainMenu() -> impl IntoView {
             ("/settings", "settings"),
             ("/mspaint", "mspaint"),
             ("/demo", "DEMO"),
+            ("/about", "about"),
         ]
     };
     // let git_version = create_resource(
