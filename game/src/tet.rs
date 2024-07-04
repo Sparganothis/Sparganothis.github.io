@@ -6,7 +6,9 @@ use super::rot::{RotDirection, RotState, Shape};
 
 use super::random::*;
 
+use std::cell;
 use std::collections::VecDeque;
+use std::thread::current;
 #[derive(
     Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord,
 )]
@@ -157,6 +159,16 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     pub fn get_num_cols(&self) -> usize {
         C
     }
+
+    pub fn get_cell(&self, y:i8, x:i8) -> Option<CellValue>{
+        if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
+            None
+        }
+        else {
+            Some(self.v[y as usize][x as usize])
+        }
+    }
+
     pub fn empty() -> Self {
         Self {
             v: [[CellValue::Empty; C]; R],
@@ -464,10 +476,7 @@ impl GameState {
         Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
-        format!(
-            "last_acction: {:?} \n next_pcs: {:?} \n current_pcs: {:?} \n hold_psc: {:?} \n is_game_over: {:?}",
-            self.last_action, self.next_pcs, self.current_pcs, self.hold_pcs, self.game_over
-        )
+        format!("is_t_spin:{}",self.is_t_spin)
     }
 
     fn clear_line(&mut self) {
@@ -760,9 +769,26 @@ impl GameState {
             // warning! table above in (x, y) but our repr in (y, x)
             new_current_pcs.pos.0 += y;
             new_current_pcs.pos.1 += x;
+
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
+                let t_is_blocked = {
+                    let (yt,xt)=new_current_pcs.pos;
+                    let mut block_counter = 0;
+                    for (dx, dy) in [(0,0),(0,2),(2,0),(2,2)]{
+                        let px = dx + xt;
+                        let py = dy + yt;
+                        block_counter += match self.main_board.get_cell(py, px) {
+                            Some(CellValue::Piece(_)) => 1,
+                            Some(CellValue::Garbage) => 1,
+                            Some(CellValue::Empty) => 0,
+                            Some(CellValue::Ghost )=> 0,
+                            None => 0,
+                        };
+                    }
+                    block_counter>=3
+                };
                 self.current_pcs = Some(new_current_pcs);
-                self.is_t_spin = (*x != 0) || (*y != 0);
+                self.is_t_spin = if new_current_pcs.tet ==Tet::T {t_is_blocked} else{(*x != 0) || (*y != 0)};
                 return Ok(());
             }
         }

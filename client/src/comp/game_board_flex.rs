@@ -207,7 +207,10 @@ pub fn GameBoardFlex(
                             {move || { format!("{:?}", game_state.get().score) }}
                         </h3>
                     </div>
-                    <div style="width:100%;height:37%;"></div>
+                    <div style="width:100%;height:37%;">
+                        {move || { format!("{}", game_state.get().get_debug_info()) }}
+                    </div>
+                    
 
                 </div>
 
