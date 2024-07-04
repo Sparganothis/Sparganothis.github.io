@@ -350,7 +350,7 @@ pub struct GameState {
     pub current_pcs: Option<CurrentPcsInfo>,
     pub current_id: u32,
 
-    pub hold_pcps: Option<HoldPcsInfo>,
+    pub hold_pcs: Option<HoldPcsInfo>,
     pub game_over: bool,
 
     pub replay: GameReplay,
@@ -444,7 +444,7 @@ impl GameState {
             next_pcs: VecDeque::new(),
             current_pcs: None,
             game_over: false,
-            hold_pcps: None,
+            hold_pcs: None,
             current_id: 0,
             seed: *seed,
             init_seed: *seed,
@@ -466,7 +466,7 @@ impl GameState {
     pub fn get_debug_info(&self) -> String {
         format!(
             "last_acction: {:?} \n next_pcs: {:?} \n current_pcs: {:?} \n hold_psc: {:?} \n is_game_over: {:?}",
-            self.last_action, self.next_pcs, self.current_pcs, self.hold_pcps, self.game_over
+            self.last_action, self.next_pcs, self.current_pcs, self.hold_pcs, self.game_over
         )
     }
 
@@ -589,7 +589,7 @@ impl GameState {
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             log::info!("tet game over");
             self.game_over = true;
-        } else if let Some(ref mut h) = self.hold_pcps {
+        } else if let Some(ref mut h) = self.hold_pcs {
             h.can_use = true;
         }
         Ok(())
@@ -632,7 +632,7 @@ impl GameState {
 
     pub fn get_hold_board(&self) -> BoardMatrixHold {
         let mut b = BoardMatrixHold::empty();
-        if let Some(HoldPcsInfo { can_use: _, tet }) = self.hold_pcps {
+        if let Some(HoldPcsInfo { can_use: _, tet }) = self.hold_pcs {
             let info = CurrentPcsInfo {
                 tet,
                 pos: (if tet.eq(&Tet::I) { -1 } else { 0 }, 0),
@@ -649,14 +649,14 @@ impl GameState {
     fn try_hold(&mut self, event_time: i64) -> anyhow::Result<()> {
         let current_pcs = self.current_pcs.context("no current pcs")?;
 
-        let old_hold = self.hold_pcps.clone();
+        let old_hold = self.hold_pcs.clone();
         if let Some(ref old_hold) = old_hold {
             if !old_hold.can_use {
                 anyhow::bail!("can_use=false for hold");
             }
         }
 
-        self.hold_pcps = Some(HoldPcsInfo {
+        self.hold_pcs = Some(HoldPcsInfo {
             tet: current_pcs.tet,
             can_use: false,
         });
@@ -670,7 +670,7 @@ impl GameState {
             self.next_pcs.push_front(old_hold.tet);
         }
         self.put_next_piece(event_time)?;
-        self.hold_pcps = Some(HoldPcsInfo {
+        self.hold_pcs = Some(HoldPcsInfo {
             tet: current_pcs.tet,
             can_use: false,
         });

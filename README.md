@@ -37,6 +37,7 @@ bash run-server.sh
 # todo
 
 ## bugs
+- cannot replay bot games (stuck on first move)
 - if spectating eded game, UI blocked on gamme over instead of redirecting to replay
 - if spectating match, UI should refresh ended games with the replay
 - 
