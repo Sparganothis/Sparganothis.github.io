@@ -1,4 +1,4 @@
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, websocket::demo_comp::call_api_sync};
+use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync};
 use game::{api::{game_replay::GameId, websocket::CreateNewGameId}, random::GameSeed};
 use leptos::*;
 use leptos_router::{use_navigate, use_params_map, NavigateOptions};
@@ -60,6 +60,11 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
         </div>
     }
         .into_view();
+
+       
+   let play_button = if is_mobile_phone() {
+        view!{<p style="color:red"> You are phone. Plz use PC to play.</p>}.into_view()
+    } else {play_button};
 
 
     let views:Vec<_> = {0..20}.into_iter().map(move |x|{

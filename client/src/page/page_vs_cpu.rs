@@ -1,7 +1,7 @@
 use game::{api::{game_match::GameMatchType, websocket::StartMatch}, random::GameSeed};
 use leptos_router::{use_navigate, NavigateOptions};
 
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, websocket::demo_comp:: call_api_sync_or_error};
+use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp:: call_api_sync_or_error};
 use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {
@@ -56,6 +56,15 @@ pub fn GameCPUPage() -> impl IntoView {
             </div>
         }
         .into_view()};
+
+    
+    let play_button =move |bot_name: String|{ 
+        if is_mobile_phone() {
+            view!{<p style="color:red"> You are phone. Plz use PC to play.</p>}.into_view()
+        } else {
+            play_button(bot_name)
+        }
+    };
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{

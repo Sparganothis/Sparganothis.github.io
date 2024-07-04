@@ -1,4 +1,4 @@
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView, table_match::AllMatchTable}, websocket::demo_comp::call_api_sync_or_error};
+use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView, table_match::AllMatchTable}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync_or_error};
 use game::{api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}}, random::GameSeed};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
@@ -80,6 +80,11 @@ pub fn Lobby2P() -> impl IntoView {
 
        </h1>
    }.into_view();
+   
+   let play_button = if is_mobile_phone() {
+    view!{<p style="color:red"> You are phone. Plz use PC to play.</p>}.into_view()
+} else {play_button};
+
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{

@@ -1,4 +1,5 @@
 use crate::comp::hotkey_reader::create_hotkey_reader;
+use crate::mobile_check::is_mobile_phone;
 use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sync};
 use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
@@ -18,6 +19,14 @@ pub fn PlayerGameBoardFromId(
     #[prop(optional)]
     on_reset: Callback<()>,
 ) -> impl IntoView {
+    
+    let is_mobile = is_mobile_phone();
+    if is_mobile {
+        return view!{
+            <h1>You are phone.<br/>Plz use PC.</h1>
+        }.into_view()
+    }
+    
     let on_state_change = Callback::<GameState>::new(move |s| {
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
@@ -105,7 +114,7 @@ pub fn PlayerGameBoardFromId(
                 player_id=game_id.user_id
             />
         </Show>
-    }
+    }.into_view()
 }
 
 

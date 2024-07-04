@@ -24,21 +24,6 @@ use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
-    let redirect_mmobile_phone = leptos::Callback::<()>::new(move |_gigel: ()| {
-        let is_mobile = is_mobile_phone();
-        if is_mobile {
-            let location = leptos_router::use_location();
-            let navigate = leptos_router::use_navigate();
-            let redirect_url = "/you-are-phone";
-            create_effect(move |_| {
-                let url = location.pathname.get();
-                if url != redirect_url {
-                    navigate("/you-are-phone", Default::default());
-                }
-            });
-        }
-    });
-
     let _style = stylist::style!(
         nav {
             position: absolute;
@@ -269,10 +254,6 @@ pub fn AppRoot() -> impl IntoView {
                         <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
-
-                    {
-                        redirect_mmobile_phone.call(());
-                    }
                     <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;   opacity: 0.5;"></div>
                     <nav>
                         <MainMenu/>

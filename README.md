@@ -13,8 +13,8 @@
 
 
 ```
-rustup default stable
-rustup update stable
+rustup default nightly
+rustup update nightly
 rustup target add wasm32-unknown-unknown
 
 cargo install cargo-binstall
