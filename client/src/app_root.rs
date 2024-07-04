@@ -12,7 +12,6 @@ use crate::audio3::provide_audio_context;
 use crate::demo::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::hotkey_context::provide_hotkeys_context2;
-use crate::mobile_check::is_mobile_phone;
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
