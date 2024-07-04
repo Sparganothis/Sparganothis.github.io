@@ -353,6 +353,7 @@ type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 pub struct GameState {
     pub score: i64,
     pub is_t_spin: bool,
+    pub is_t_mini_spin: bool,
     pub have_combo: bool,
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
@@ -449,6 +450,7 @@ impl GameState {
             score: 0,
             have_combo: false,
             is_t_spin: false,
+            is_t_mini_spin: false,
             main_board: BoardMatrix::empty(),
             // next_board: BoardMatrixNext::empty(),
             // hold_board: BoardMatrixHold::empty(),
@@ -524,6 +526,16 @@ impl GameState {
             };
             self.is_t_spin = false;
         }
+        if self.is_t_mini_spin {
+            score3 += match lines{
+                1 => 666,
+                2 => 1666,
+                3 => 2666,
+                _ => 0,
+            };
+            self.is_t_mini_spin = false;
+        }
+
         self.score += (score + score2 + score3) as i64;
         self.total_lines += lines;
     }
@@ -712,6 +724,7 @@ impl GameState {
             self.score += 2;
             self.current_pcs = Some(new_current_pcs);
             self.is_t_spin = false;
+            self.is_t_mini_spin = false;
         } else {
             self.main_board.spawn_piece(&current_pcs).unwrap();
             self.current_pcs = None;
@@ -771,7 +784,7 @@ impl GameState {
             new_current_pcs.pos.1 += x;
 
             if let Ok(_) = self.main_board.spawn_piece(&new_current_pcs) {
-                let t_is_blocked = {
+                let (t_is_blocked3, t_is_blocked2) = {
                     let (yt,xt)=new_current_pcs.pos;
                     let mut block_counter = 0;
                     for (dx, dy) in [(0,0),(0,2),(2,0),(2,2)]{
@@ -785,10 +798,11 @@ impl GameState {
                             None => 0,
                         };
                     }
-                    block_counter>=3
+                    (block_counter>=3, block_counter>=2)
                 };
                 self.current_pcs = Some(new_current_pcs);
-                self.is_t_spin = if new_current_pcs.tet ==Tet::T {t_is_blocked} else{(*x != 0) || (*y != 0)};
+                self.is_t_spin = if new_current_pcs.tet ==Tet::T {t_is_blocked3} else{(*x != 0) || (*y != 0)};
+                self.is_t_mini_spin = new_current_pcs.tet ==Tet::T && t_is_blocked2;
                 return Ok(());
             }
         }
