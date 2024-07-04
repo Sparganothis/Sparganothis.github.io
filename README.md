@@ -93,6 +93,51 @@ bash run-server.sh
 - hold / next: each pcs has its own centered board
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### whatever
 
   winamp music stream play pause music in corner of screen(youtube playlist)

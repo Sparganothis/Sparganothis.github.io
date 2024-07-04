@@ -168,7 +168,7 @@ pub fn GameBoardFlex(
     view! {
         <div
             class=_style_name
-            style="border:solid purple 1px;height:100%;flex-direction: column;display: flex;         container-type: size;
+            style="height:100%;flex-direction: column;display: flex;         container-type: size;
             --h-main-width:99.9cqw;   "
         >
 
@@ -181,9 +181,9 @@ pub fn GameBoardFlex(
                 </div>
             </div>
 
-            <div style="border:solid purple 1px;height:15%;flex-direction: row;display: flex;"></div>
+            <div style="height:15%;flex-direction: row;display: flex;"></div>
 
-            <div style="border:solid red 1px;height: 75%;flex-direction: row;display: flex;">
+            <div style="height: 75%;flex-direction: row;display: flex;">
 
                 // HOLD
                 <div style="width:25%;height:100%;flex-direction: column;display: flex;">
@@ -246,7 +246,7 @@ pub fn GameBoardFlex(
                 </div>
             </div>
             // PLAYER ID
-            <div style="border:solid yellow 1px;height:15%;flex-direction: column;display: flex;container-type: size;">
+            <div style="height:15%;flex-direction: column;display: flex;container-type: size;">
                 {profile_view}
             </div>
         </div>
