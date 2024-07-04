@@ -45,39 +45,41 @@ pub fn Lobby2P() -> impl IntoView {
    // let redirect_to_new_game:todo
     
    let play_button = view! {
-    <div style="width:100%;height:100%; container-type: size;">
-        <h3
-            style="font-size:80cqh; text-align: center;"
-            on:click=move |_| { obtain_new_match_id.call(()) }
-        >
-            PLAY
-        </h3>
-    </div>
-    <Show
-                    when=move || (error_display.get().len() > 0)
-                    fallback=move || {
-                        view! {}
-                    }
-                >
+       <div style="width:100%;height:100%; container-type: size;">
+           <h3
+               style="font-size:80cqh; text-align: center;"
+               on:click=move |_| { obtain_new_match_id.call(()) }
+           >
+               PLAY
+           </h3>
+       </div>
+       <Show
+           when=move || (error_display.get().len() > 0)
+           fallback=move || {
+               view! {}
+           }
+       >
 
-                    <div style="width:100%;height:100%; container-type: size;">
-                        <h3 style="font-size:50cqh; text-align: center; color: red;">Please Wait</h3>
-                    </div>
-                </Show>
+           <div style="width:100%;height:100%; container-type: size;">
+               <h3 style="font-size:50cqh; text-align: center; color: red;">
+                   Please Wait
+               </h3>
+           </div>
+       </Show>
 
-                <h1>
-                    {move || {
-                        match_id_signal
-                            .with(|s| {
-                                match s {
-                                    Some(x) => format!("{x:?}"),
-                                    None => "".to_string(),
-                                }
-                            })
-                    }}
+       <h1>
+           {move || {
+               match_id_signal
+                   .with(|s| {
+                       match s {
+                           Some(x) => format!("{x:?}"),
+                           None => "".to_string(),
+                       }
+                   })
+           }}
 
-                </h1>
-            }.into_view();
+       </h1>
+   }.into_view();
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{

@@ -249,7 +249,6 @@ pub fn AppRoot() -> impl IntoView {
         <Script type_="module" src="/public/js/mobile_check.js"/>
         <Script type_="module" src="/public/js/audio.js"/>
 
-
         // <link rel="icon" type="" href="http://example.com/image.png" />
         // <Stylesheet href="https://fonts.googleapis.com/css?family=Roboto&display=swap"/>
 
@@ -266,10 +265,10 @@ pub fn AppRoot() -> impl IntoView {
                             crate::error_template::AppError::NotFound,
                         );
                     view! {
-                        <crate::error_template::ErrorTemplate outside_errors>
-                        </crate::error_template::ErrorTemplate>
+                        <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
+
                     {
                         redirect_mmobile_phone.call(());
                     }
@@ -308,8 +307,7 @@ pub fn AppRoot() -> impl IntoView {
                         </div>
 
                         <WebsocketErrorDisplay/>
-                    </nav>
-                    <main _ref=main_ref>
+                    </nav> <main _ref=main_ref>
                         // all our routes will appear inside <main>
                         <Routes>
                             <Route path="" view=Homepage/>

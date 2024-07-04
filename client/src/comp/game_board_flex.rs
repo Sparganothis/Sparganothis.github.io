@@ -107,17 +107,22 @@ pub fn GameBoardFlex(
         create_read_slice(game_state, |state: &tet::GameState| state.main_board);
 
     let _countdown_view = view! {
-        <Show when=move || {game_state.get().game_over ||  pre_countdown_text.get().len() > 0}>
+        <Show when=move || {
+            game_state.get().game_over || pre_countdown_text.get().len() > 0
+        }>
             <div style="width: 0px; height: 0px; margin: 0px; position: relative;  z-index: 999;">
                 <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;   z-index: 999;           ">
-                    <Show when=move || game_state.get().game_over >
+                    <Show when=move || game_state.get().game_over>
                         <div class="gameover">
-                            <div class="game_over_display" on:click=move |_| on_reset_game.call(())>
+                            <div
+                                class="game_over_display"
+                                on:click=move |_| on_reset_game.call(())
+                            >
                                 you lose
-                            </div> 
+                            </div>
                         </div>
                     </Show>
-                    <Show when=move || { pre_countdown_text.get().len() > 0 } >
+                    <Show when=move || { pre_countdown_text.get().len() > 0 }>
                         <div class="pre_game_countdown">
                             <div class="pre_game_countdown_display">
                                 {pre_countdown_text}
