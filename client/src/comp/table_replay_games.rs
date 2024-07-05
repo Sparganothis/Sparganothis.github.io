@@ -7,7 +7,7 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::websocket::demo_comp::call_api_sync;
+use crate::{comp::table_generic::{DisplayTableGeneric, TablePaginateDirection}, websocket::demo_comp::call_api_sync};
 use game::api::websocket::GetAllGamesArg;
 use leptos::*;
 use leptos_struct_table::*;
@@ -15,27 +15,58 @@ use leptos_struct_table::*;
 
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
-    let all_games = create_rw_signal(vec![]);
-    call_api_sync::<GetAllGames>(list_type, move |r| {
-        all_games.set(r);
+
+    let fi = Callback::new(move |(k, cb): (TablePaginateDirection<_>, Callback<_>)| {
+
+        match k {
+            TablePaginateDirection::Forward(key) => todo!(),
+            TablePaginateDirection::Back(key) => todo!(),
+            TablePaginateDirection::InitialPage => {
+                call_api_sync::<GetAllGames>(list_type, move |x| {
+                    cb.call(x);
+                });
+            },
+        }
     });
-    let table_from_rows = move || {
-        let rows = all_games.get();
-            let rows = rows
-                .iter()
-                .map(|r| FullGameReplayTableRow::new(r.clone()))
-                // .filter(|f| f.num_segments > 0)
-                .collect::<Vec<_>>();
 
-            view! {
-                <table id=format!("{list_type:?}")>
-                    <TableContent rows row_renderer=CustomTableRowRenderer/>
-                </table>
-            }
-            .into_view()
-    };
+    type DataP = Vec<FullGameReplayTableRow>;
+    log::warn!("hello sirs");
 
-    view! { {table_from_rows} }
+    view! {
+        <
+            DisplayTableGeneric<
+                GameSegmentCountReply,
+                FullGameReplayTableRow,
+                GameId,
+                DataP,
+            > 
+        
+            fetch_items=fi 
+        />
+    }.into_view()
+
+
+    // let all_games = create_rw_signal(vec![]);
+    // call_api_sync::<GetAllGames>(list_type, move |r| {
+    //     all_games.set(r);
+    // });
+    // let table_from_rows = move || {
+    //     let rows = all_games.get();
+    //         let rows = rows
+    //             .iter()
+    //             .map(|r| FullGameReplayTableRow::new(r.clone()))
+    //             // .filter(|f| f.num_segments > 0)
+    //             .collect::<Vec<_>>();
+
+    //         view! {
+    //             <table id=format!("{list_type:?}")>
+    //                 <TableContent rows row_renderer=CustomTableRowRenderer/>
+    //             </table>
+    //         }
+    //         .into_view()
+    // };
+
+    // view! { {table_from_rows} }
 }
 
 #[allow(unused_variables, non_snake_case)]
@@ -82,6 +113,8 @@ pub fn CustomTableRowRenderer(
 
 use leptos_struct_table::BootstrapClassesPreset;
 
+use super::table_generic::CustomRowExtraView;
+
 #[derive(TableRow, Clone, Debug)]
 #[table( 
     classes_provider = "BootstrapClassesPreset", impl_vec_data_provider)]
@@ -96,8 +129,36 @@ pub struct FullGameReplayTableRow {
     pub is_in_progress: bool,
 }
 
-impl FullGameReplayTableRow {
-    pub fn new(db_row: (GameId, GameSegmentCountReply)) -> Self {
+impl CustomRowExtraView for FullGameReplayTableRow {
+    fn row_extra_view(&self) -> impl IntoView  {
+    
+    let is_in_prog =  self.is_in_progress;
+    let url = self.to_url();
+
+    let url2 = url.clone();
+       view! {
+        <a href=move || {
+            if is_in_prog {
+                format!("/spectate-game/{}", url)
+            } else {
+                format!("/view-game/{}", url2)
+            }
+        }>
+            {move || {
+                if is_in_prog {
+                    "Spectate".to_string()
+                } else {
+                    "Replay".to_string()
+                }
+            }}
+
+        </a>
+       }
+    }
+}
+
+impl From<(GameId, GameSegmentCountReply)> for FullGameReplayTableRow {
+    fn from(db_row: (GameId, GameSegmentCountReply)) -> Self {
         Self {
             user_id: db_row.0.user_id,
             init_seed: db_row.0.init_seed,
@@ -106,7 +167,10 @@ impl FullGameReplayTableRow {
             is_in_progress: db_row.1.is_in_progress,
         }
     }
+}
 
+
+impl FullGameReplayTableRow {
     pub fn to_url(&self) -> String {
         GameId {
             user_id: self.user_id,
