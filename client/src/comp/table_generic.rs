@@ -117,23 +117,27 @@ where
             view! {
                 <tr class=class on:click=move |mouse_event| on_select.run(mouse_event)>
                     {row2.render_row(index, on_change)}
-                    <td>
-                        {row3.row_extra_view()}
-                    </td>
+                    <td>{row3.row_extra_view()}</td>
                 </tr>
             }
         }
 
         let buttons = if items.len() > 0 {
-            view!{
+            view! {
                 <div style="display:flex; flex-direction:row;">
 
-                    <leptonic::prelude::Button style="margin-right:auto"  on_click=move |_| {on_prev(())} color=ButtonColor::Info>
+                    <leptonic::prelude::Button
+                        style="margin-right:auto"
+                        on_click=move |_| { on_prev(()) }
+                        color=ButtonColor::Info
+                    >
                         "PREV"
                     </leptonic::prelude::Button>
 
-                    
-                    <leptonic::prelude::Button on_click=move |_| {on_next(())} color=ButtonColor::Info>
+                    <leptonic::prelude::Button
+                        on_click=move |_| { on_next(()) }
+                        color=ButtonColor::Info
+                    >
                         "NEXT"
                     </leptonic::prelude::Button>
 

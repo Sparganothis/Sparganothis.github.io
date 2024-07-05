@@ -73,22 +73,18 @@ impl CustomRowExtraView for FullGameReplayTableRow {
 
     let url2 = url.clone();
        view! {
-        <a href=move || {
-            if is_in_prog {
-                format!("/spectate-game/{}", url)
-            } else {
-                format!("/view-game/{}", url2)
-            }
-        }>
-            {move || {
-                if is_in_prog {
-                    "Spectate".to_string()
-                } else {
-                    "Replay".to_string()
-                }
-            }}
+           <a href=move || {
+               if is_in_prog {
+                   format!("/spectate-game/{}", url)
+               } else {
+                   format!("/view-game/{}", url2)
+               }
+           }>
+               {move || {
+                   if is_in_prog { "Spectate".to_string() } else { "Replay".to_string() }
+               }}
 
-        </a>
+           </a>
        }
     }
 }
