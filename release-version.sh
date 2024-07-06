@@ -1,4 +1,5 @@
-#!/bin/bash -ex
+#!/bin/bash
+set -ex
 
 if [ -z "$(git status --porcelain)" ]; then 
     echo "git status OK."
@@ -13,7 +14,12 @@ else
     exit 66
 fi
 
-export NEW_VERSION="$1"
+(
+    cd game
+    cargo set-version --bump patch
+)
+export NEW_VERSION="$(cat game/Cargo.toml | grep "^version = .*$" | cut -f3 -d' ' | cut -f2 -d'"' | head -n1)"
+
 if [ "$NEW_VERSION" == "" ]; then 
     echo "no version given!"
     exit 1
@@ -25,10 +31,6 @@ fi
 )
 (
     cd server
-    cargo set-version $NEW_VERSION
-)
-(
-    cd game
     cargo set-version $NEW_VERSION
 )
 (
