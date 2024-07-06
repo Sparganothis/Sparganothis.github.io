@@ -10,6 +10,10 @@ fn get_rng(seed: &GameSeed) -> ChaCha20Rng {
     ChaCha20Rng::from_seed(*seed)
 }
 
+pub fn get_random_seed() -> GameSeed {
+    (&mut rand::thread_rng()).gen()
+}
+
 pub fn shuffle_tets(seed: &GameSeed, event_time: i64) -> (Vec<Tet>, GameSeed) {
     let event_time = event_time.to_le_bytes();
     let mut seed = *seed;
