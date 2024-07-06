@@ -26,8 +26,19 @@ use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 pub fn AppRoot() -> impl IntoView {
     if is_mobile_phone() {
         return view!{
-            <h1> You are phone. </h1>
-            <p> Please use Firefox on PC or maybe the other thing. </p>
+            <div style="container-type:size;">
+                <h1 style="font-size:20cqmin"> 
+                    You are phone. 
+                </h1>
+                <p style="font-size:10cqmin"> 
+                    Please use Firefox on PC or maybe the other thing.
+                </p>
+                <p style="font-size:10cqmin"> 
+                    <a href="https://github.org/sparganothis">
+                     "github.org/sparganothis"
+                    </a> 
+                </p>
+            </div>
         }.into_view()
     }
     let _style = stylist::style!(

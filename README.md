@@ -1,7 +1,7 @@
 ![](./.docs/Screenshot.png)
 
 
-# GYM / GYMNASIUMM VIM ENVIRONMMENT (python)
+# GYM / GYMNASIUMM ENVIRONMMENT (python)
 
 ```
 pip install sparganothis_vim
