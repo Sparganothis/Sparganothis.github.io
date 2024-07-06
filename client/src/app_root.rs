@@ -19,30 +19,13 @@ use crate::page::page_match::MatchPage;
 use crate::page::page_1p::GameSoloLobbyPage;
 use crate::page::settings::server_api::provide_user_setting;
 use crate::page::settings::settings_page::MMySettingsPage;
-use crate::page::you_are_phone::YouArePhonePage;
+use crate::page::you_are_phone::you_are_phone_view;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
     if is_mobile_phone() {
-        return view! {
-            <div style="container-type:size;width:100%; height: 100%;">
-                <h1 style="font-size:7cqmin">You are phone.</h1>
-                <p style="font-size:3cqmin">
-                    Please use Firefox on PC or maybe the other thing.
-                </p>
-                <p style="font-size:3cqmin">
-                    <a
-                        target="_blank"
-                        href="https://github.com/Sparganothis/Sparganothis.github.io"
-                    >
-                        <Icon icon=icondata::BsGithub width="3vmin" height="3vmin"/>
-
-                        "github.com/Sparganothis"
-                    </a>
-                </p>
-            </div>
-        }.into_view()
+        return you_are_phone_view();
     }
     let _style = stylist::style!(
         nav {
@@ -352,7 +335,7 @@ pub fn AppRoot() -> impl IntoView {
                             />
                             <Route path="/demo" view=GameBoardFlexDemoPage/>
                             <Route path="/about" view=AboutPage/>
-                            <Route path="/you-are-phone" view=YouArePhonePage/>
+                            <Route path="/you-are-phone" view=you_are_phone_view/>
 
                         </Routes>
                     </main>
