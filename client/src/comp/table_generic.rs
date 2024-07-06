@@ -12,7 +12,9 @@ pub enum TablePaginateDirection<T: Debug+ Clone> {
 }
 
 pub trait CustomRowExtraView {
-    fn row_extra_view(&self) -> impl IntoView ;
+    fn row_extra_view(&self) -> impl IntoView{
+        view!{ }
+    }
 }
 
 #[component]
