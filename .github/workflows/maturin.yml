@@ -159,6 +159,8 @@ jobs:
           path: sparganothis_vim/dist
 
   release:
+    environment:
+      name: maturin
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
