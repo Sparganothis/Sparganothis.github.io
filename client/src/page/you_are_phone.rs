@@ -4,11 +4,13 @@ use leptonic::prelude::*;
 pub fn you_are_phone_view() -> View {
     view! {
         <div style="container-type:size;  display: flex; flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  min-height: 100vh;">
-            <h1 style="font-size:9cqmin; margin: 1cqmin; padding: 1cqmin;">You are phone.</h1>
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 100vh;">
+            <h1 style="font-size:9cqmin; margin: 1cqmin; padding: 1cqmin;">
+                You are phone.
+            </h1>
             <p style="font-size:6cqmin;margin: 1cqmin; padding: 1cqmin; width: 50%;">
                 Please use Firefox on PC or maybe the other thing.
             </p>
