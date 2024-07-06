@@ -9,5 +9,5 @@ name = "sparganothis_vim"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.21.1"
+pyo3 = {version="0.21.1", features=["extension-module", "generate-import-lib"]}
 game = {path = "../game"}

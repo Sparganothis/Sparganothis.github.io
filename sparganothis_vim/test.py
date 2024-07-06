@@ -11,7 +11,8 @@ print("seed2", seed2)
 print("seed2", seed2.ts)
 print("seed2", seed2.seed)
 
-state = sparganothis_vim.GameStatePy(seed)
+
+state = sparganothis_vim.GameStatePy(seed2)
 print(state)
 
 print("state getters:", [k for k in dir(state) if not k.startswith("_")])
@@ -19,6 +20,7 @@ print("seed getters:", [k for k in dir(seed) if not k.startswith("_")])
 
 print(" current rotation  ", state.current_pcs_rotation )
 print(" debug current info  ", state.debug_current_pcs_info)
+print(" current pcs state ", state.get_current_pcs_rotation)
 print(" game over  ", state.game_over )
 print(" hold ", state.hold)
 print(" main ", str(state.main_board)[0:20] )
