@@ -12,6 +12,7 @@ use crate::audio3::provide_audio_context;
 use crate::demo::GameBoardFlexDemoPage;
 use crate::comp::game_board_mspaint::{MsPaintPage, MsPaintPlayPage};
 use crate::hotkey_context::provide_hotkeys_context2;
+use crate::mobile_check::is_mobile_phone;
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
@@ -23,6 +24,12 @@ use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
+    if is_mobile_phone() {
+        return view!{
+            <h1> You are phone. </h1>
+            <p> Please use Firefox on PC or maybe the other thing. </p>
+        }.into_view()
+    }
     let _style = stylist::style!(
         nav {
             position: absolute;
@@ -325,7 +332,7 @@ pub fn AppRoot() -> impl IntoView {
                 </Router>
             </div>
         </Root>
-    }
+    }.into_view()
 }
 
 #[component]
