@@ -479,11 +479,7 @@ fn create_db_match_entry(
 }
 
 pub fn get_match_list(
-    (
-        _arg, 
-        _pag): 
-        (GetMatchListArg, 
-            TablePaginateDirection<uuid::Uuid>),
+    (_arg, _pag): (GetMatchListArg, TablePaginateDirection<uuid::Uuid>),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(uuid::Uuid, GameMatch)>> {
     let mut v = vec![];

@@ -66,10 +66,10 @@ impl CustomRowExtraView for CustomGameDbRow {
 
         view! {
             <td>
-                <a href={url2}>Edit</a>
+                <a href=url2>Edit</a>
             </td>
             <td>
-                <a href={url3}>Play</a>
+                <a href=url3>Play</a>
             </td>
         }
     }

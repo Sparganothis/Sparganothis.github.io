@@ -39,7 +39,9 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
     };
 
     view! {
-        <h1 on:click=move |_| { is_open.set(!is_open.get_untracked()) }>{error_cnt} err</h1>
+        <h1 on:click=move |_| {
+            is_open.set(!is_open.get_untracked())
+        }>{error_cnt} err</h1>
         {overlay}
     }
 }

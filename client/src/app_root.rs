@@ -25,24 +25,21 @@ use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 #[component]
 pub fn AppRoot() -> impl IntoView {
     if is_mobile_phone() {
-        return view!{
+        return view! {
             <div style="container-type:size;width:100%; height: 100%;">
-                <h1 style="font-size:7cqmin"> 
-                    You are phone. 
-                </h1>
-                <p style="font-size:3cqmin"> 
+                <h1 style="font-size:7cqmin">You are phone.</h1>
+                <p style="font-size:3cqmin">
                     Please use Firefox on PC or maybe the other thing.
                 </p>
-                <p style="font-size:3cqmin"> 
-                    <a target="_blank" href="https://github.com/Sparganothis/Sparganothis.github.io">
-                    <Icon
-                        icon=icondata::BsGithub
-                        width="3vmin"
-                        height="3vmin"
-                    />
+                <p style="font-size:3cqmin">
+                    <a
+                        target="_blank"
+                        href="https://github.com/Sparganothis/Sparganothis.github.io"
+                    >
+                        <Icon icon=icondata::BsGithub width="3vmin" height="3vmin"/>
 
-                     "github.com/Sparganothis"
-                    </a> 
+                        "github.com/Sparganothis"
+                    </a>
                 </p>
             </div>
         }.into_view()
@@ -314,14 +311,17 @@ pub fn AppRoot() -> impl IntoView {
 
                         <WebsocketErrorDisplay/>
 
-                        <p><a href="https://github.com/Sparganothis/Sparganothis.github.io" target="_blank">
-                            <Icon
-                                icon=icondata::BsGithub
-                                width="3vmin"
-                                height="3vmin"
-                            />
-                            <span style="font-size: 2.5vmin;  text-align: right;">GitHub</span>
-                        </a></p>
+                        <p>
+                            <a
+                                href="https://github.com/Sparganothis/Sparganothis.github.io"
+                                target="_blank"
+                            >
+                                <Icon icon=icondata::BsGithub width="3vmin" height="3vmin"/>
+                                <span style="font-size: 2.5vmin;  text-align: right;">
+                                    GitHub
+                                </span>
+                            </a>
+                        </p>
                     </nav>
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>

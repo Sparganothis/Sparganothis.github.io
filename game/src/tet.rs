@@ -328,7 +328,6 @@ impl TetAction {
             Self::Hold,
             Self::RotateLeft,
             Self::RotateRight,
-
         ]
     }
     pub fn is_repeating(&self) -> bool {
@@ -826,7 +825,11 @@ impl GameState {
         anyhow::bail!("all ooffset are blocked")
     }
 
-    pub fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
+    pub fn try_action(
+        &self,
+        action: TetAction,
+        event_time: i64,
+    ) -> anyhow::Result<Self> {
         if self.game_over {
             // log::warn!("gamem over cannot try_action");
             anyhow::bail!("game over");
