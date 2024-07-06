@@ -5,5 +5,5 @@ cd sparganothis_vim
 rm -rf test-venv || true
 python -m venv test-venv
 . test-venv/Scripts/activate
-pip install sparganothis_vim
+pip install --no-cache-dir sparganothis_vim
 python test.py
