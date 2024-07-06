@@ -11,3 +11,4 @@ RUN cargo binstall wasm-pack --no-confirm
 RUN cargo binstall cargo-leptos --no-confirm
 RUN cargo binstall leptosfmt --no-confirm
 RUN cargo binstall cargo-watch --no-confirm
+RUN cargo binstall cargo-edit --no-confirm

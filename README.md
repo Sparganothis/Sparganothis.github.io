@@ -33,6 +33,7 @@ cargo binstall wasm-pack --no-confirm
 cargo binstall cargo-leptos --no-confirm
 cargo binstall leptosfmt --no-confirm
 cargo binstall cargo-watch --no-confirm
+cargo binstall cargo-edit --no-confirm
 cargo install -f cargo-binutils
 rustup component add llvm-tools-preview
 
