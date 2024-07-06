@@ -5,28 +5,19 @@ use game::{
     api::websocket::GetAllCustomGames, tet::GameState
 };
 
-use crate::comp::table_generic::TablePaginateDirection;
+use game::api::table_paginate::TablePaginateDirection;
 use crate::websocket::demo_comp::call_api_sync;
 use leptos_struct_table::*;
 
 #[component]
 pub fn ListAllCustomGames() -> impl IntoView {
-
-
     let fi = Callback::new(move |(k, cb): (TablePaginateDirection<_>, Callback<_>)| {
 
-        match k {
-            TablePaginateDirection::Forward(key) => todo!(),
-            TablePaginateDirection::Back(key) => todo!(),
-            TablePaginateDirection::InitialPage => {
-                call_api_sync::<GetAllCustomGames>((), move |x| {
-                    cb.call(x);
-                });
-            },
-        }
+        call_api_sync::<GetAllCustomGames>(k, move |x| {
+            cb.call(x);
+        });
     });
 
-    log::warn!("hello sirs");
     type DataP = Vec<CustomGameDbRow>;
     use crate::comp::table_generic::DisplayTableGeneric;
     view! {

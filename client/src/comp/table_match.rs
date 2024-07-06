@@ -7,7 +7,8 @@ use game::{
 };
 use uuid::Uuid;
 
-use crate::{comp::table_generic::{DisplayTableGeneric, TablePaginateDirection}, websocket::demo_comp::call_api_sync};
+use crate::{comp::table_generic::{DisplayTableGeneric}, websocket::demo_comp::call_api_sync};
+use game::api::table_paginate::TablePaginateDirection;
 use leptos::*;
 use leptos_struct_table::*;
 
@@ -16,16 +17,10 @@ pub fn AllMatchTable(list_type: GetMatchListArg) -> impl IntoView {
 
 
     let fi = Callback::new(move |(k, cb): (TablePaginateDirection<_>, Callback<_>)| {
-
-        match k {
-            TablePaginateDirection::Forward(key) => todo!(),
-            TablePaginateDirection::Back(key) => todo!(),
-            TablePaginateDirection::InitialPage => {
-                call_api_sync::<GetMatchList>(list_type, move |x| {
-                    cb.call(x);
-                });
-            },
-        }
+        
+        call_api_sync::<GetMatchList>((list_type, k), move |x| {
+            cb.call(x);
+        });
     });
 
     type DataP = Vec<GameMatchTableRow>;

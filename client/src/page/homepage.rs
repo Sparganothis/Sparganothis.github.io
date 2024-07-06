@@ -1,5 +1,5 @@
 
-use game::api::websocket::{GetAllGames, GetAllGamesArg};
+use game::api::{game_replay::GameId, table_paginate::TablePaginateDirection, websocket::{GetAllGames, GetAllGamesArg}};
 // use game::tet::GameState;
 use leptos::*;
 
@@ -9,7 +9,8 @@ use crate::{comp::menu_grid_view::MenuGridView, page::page_replay_single::GameRe
 #[component]
 pub fn Homepage()-> impl IntoView{
     let best_gameid = create_rw_signal(None);
-    call_api_sync::<GetAllGames>(GetAllGamesArg::BestGames, move |v: Vec<_>| {
+    call_api_sync::<GetAllGames>((GetAllGamesArg::BestGames, TablePaginateDirection::<GameId>::InitialPage
+    ), move |v: Vec<_>| {
             let game_id = v.get(0).clone();
             if let Some((a, _b)) = game_id {
                 best_gameid.set(Some(*a));

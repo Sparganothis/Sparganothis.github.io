@@ -6,6 +6,7 @@ use game::api::game_match::GameMatch;
 use game::api::game_match::GameMatchType;
 use game::api::game_replay::GameId;
 use game::api::game_replay::GameSegmentId;
+use game::api::table_paginate::TablePaginateDirection;
 use game::api::user::UserProfile;
 use game::api::user_settings::UserSettingType;
 use game::api::websocket::GameSegmentCountReply;
@@ -239,7 +240,7 @@ use game::api::websocket::GetAllGamesArg;
 const PAGE_SIZE: usize = 9;
 
 pub fn get_all_games(
-    arg: GetAllGamesArg,
+    (arg, _pag): (GetAllGamesArg, TablePaginateDirection<GameId>),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(GameId, GameSegmentCountReply)>> {
     let load_all_games = || -> anyhow::Result<_> {
@@ -294,7 +295,7 @@ pub fn get_all_games(
 
 #[allow(unused_variables)]
 pub fn get_all_gustom(
-    arg: (),
+    _pag: TablePaginateDirection<String>,
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(String, GameState)>> {
     let mut v = vec![];
@@ -478,7 +479,11 @@ fn create_db_match_entry(
 }
 
 pub fn get_match_list(
-    _: GetMatchListArg,
+    (
+        _arg, 
+        _pag): 
+        (GetMatchListArg, 
+            TablePaginateDirection<uuid::Uuid>),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(uuid::Uuid, GameMatch)>> {
     let mut v = vec![];

@@ -8,6 +8,7 @@ use super::game_match::GameMatch;
 use super::game_match::GameMatchType;
 use super::game_replay::GameId;
 use super::game_replay::GameSegmentId;
+use super::table_paginate::TablePaginateDirection;
 use super::user_settings::UserSettingType;
 
 #[derive(
@@ -166,14 +167,17 @@ pub enum GetAllGamesArg {
 pub struct GetAllGames {}
 impl APIMethod for GetAllGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllGames;
-    type Req = GetAllGamesArg;
+    type Req = (
+        GetAllGamesArg,
+        TablePaginateDirection<GameId>
+    );
     type Resp = Vec<(GameId, GameSegmentCountReply)>;
 }
 
 pub struct GetAllCustomGames {}
 impl APIMethod for GetAllCustomGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllCustomGames;
-    type Req = ();
+    type Req = TablePaginateDirection<String>;
     type Resp = Vec<(String, GameState)>;
 }
 
@@ -250,7 +254,7 @@ pub enum GetMatchListArg {
 pub struct GetMatchList {}
 impl APIMethod for GetMatchList {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetMatchList;
-    type Req = GetMatchListArg;
+    type Req = (GetMatchListArg, TablePaginateDirection<uuid::Uuid>);
     type Resp = Vec<(uuid::Uuid, GameMatch)>;
 }
 

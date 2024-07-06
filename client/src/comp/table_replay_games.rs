@@ -7,7 +7,9 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::{comp::table_generic::{DisplayTableGeneric, TablePaginateDirection}, websocket::demo_comp::call_api_sync};
+use crate::{comp::table_generic::{DisplayTableGeneric}, websocket::demo_comp::call_api_sync};
+use game::api::table_paginate::TablePaginateDirection;
+
 use game::api::websocket::GetAllGamesArg;
 use leptos::*;
 use leptos_struct_table::*;
@@ -18,15 +20,9 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
 
     let fi = Callback::new(move |(k, cb): (TablePaginateDirection<_>, Callback<_>)| {
 
-        match k {
-            TablePaginateDirection::Forward(key) => todo!(),
-            TablePaginateDirection::Back(key) => todo!(),
-            TablePaginateDirection::InitialPage => {
-                call_api_sync::<GetAllGames>(list_type, move |x| {
-                    cb.call(x);
-                });
-            },
-        }
+        call_api_sync::<GetAllGames>((list_type, k), move |x| {
+            cb.call(x);
+        });
     });
 
     type DataP = Vec<FullGameReplayTableRow>;
