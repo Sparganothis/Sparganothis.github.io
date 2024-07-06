@@ -316,6 +316,21 @@ pub enum TetAction {
 }
 
 impl TetAction {
+    pub fn name(&self) -> String {
+        format!("{self:?}")
+    }
+    pub fn all() -> Vec<TetAction> {
+        vec![
+            Self::HardDrop,
+            Self::SoftDrop,
+            Self::MoveLeft,
+            Self::MoveRight,
+            Self::Hold,
+            Self::RotateLeft,
+            Self::RotateRight,
+
+        ]
+    }
     pub fn is_repeating(&self) -> bool {
         match self {
             TetAction::MoveLeft | TetAction::MoveRight | TetAction::SoftDrop => true,
@@ -429,8 +444,8 @@ const SPAWN_POS: (i8, i8) = (18, 3);
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HoldPcsInfo {
-    can_use: bool,
-    tet: Tet,
+    pub can_use: bool,
+    pub tet: Tet,
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -811,7 +826,7 @@ impl GameState {
         anyhow::bail!("all ooffset are blocked")
     }
 
-    fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
+    pub fn try_action(&self, action: TetAction, event_time: i64) -> anyhow::Result<Self> {
         if self.game_over {
             // log::warn!("gamem over cannot try_action");
             anyhow::bail!("game over");
