@@ -5,34 +5,41 @@ use game::{
     api::websocket::GetAllCustomGames, tet::GameState
 };
 
+use crate::comp::table_generic::TablePaginateDirection;
 use crate::websocket::demo_comp::call_api_sync;
 use leptos_struct_table::*;
 
 #[component]
 pub fn ListAllCustomGames() -> impl IntoView {
-    let all_games = create_rw_signal(vec![]);
 
-    call_api_sync::<GetAllCustomGames>((), move |_r| {
-        all_games.set(_r);
+
+    let fi = Callback::new(move |(k, cb): (TablePaginateDirection<_>, Callback<_>)| {
+
+        match k {
+            TablePaginateDirection::Forward(key) => todo!(),
+            TablePaginateDirection::Back(key) => todo!(),
+            TablePaginateDirection::InitialPage => {
+                call_api_sync::<GetAllCustomGames>((), move |x| {
+                    cb.call(x);
+                });
+            },
+        }
     });
 
-    let table_from_rows = move || {
-        let rows = all_games.get();
-        let rows = rows
-            .iter()
-            .map(|r| CustomGameDbRow::new(r.clone()))
-            // .filter(|f| f.num_segments > 0)
-            .collect::<Vec<_>>();
-
-        view! {
-            <table id="get_custom_games">
-                <TableContent rows row_renderer=CustomTableRowRenderer/>
-            </table>
-        }
-        .into_view()
-    };
-
-    view! { {table_from_rows} }
+    log::warn!("hello sirs");
+    type DataP = Vec<CustomGameDbRow>;
+    use crate::comp::table_generic::DisplayTableGeneric;
+    view! {
+        <
+            DisplayTableGeneric<
+                GameState,
+                CustomGameDbRow,
+                String,
+                DataP,
+            > 
+            fetch_items=fi 
+        />
+    }.into_view()
 }
 
 
@@ -47,8 +54,8 @@ pub struct CustomGameDbRow {
     pub start_time: i64,
 }
 
-impl CustomGameDbRow {
-    pub fn new(db_row: (String, GameState)) -> Self {
+impl From<(String, GameState)> for CustomGameDbRow {
+    fn from(db_row: (String, GameState)) -> Self {
         Self {
             save_name: db_row.0,
             game_state: db_row.1.clone(),
@@ -58,7 +65,24 @@ impl CustomGameDbRow {
 
 }
 
+use super::table_generic::CustomRowExtraView;
+impl CustomRowExtraView for CustomGameDbRow {
+    fn row_extra_view(&self) -> impl IntoView{
+        let url2 =  format!("/edit-custom-game/{}", self.save_name);
 
+        let url3 =
+            format!("/play-custom-game/{}", self.save_name);
+
+        view! {
+            <td>
+                <a href={url2}>Edit</a>
+            </td>
+            <td>
+                <a href={url3}>Play</a>
+            </td>
+        }
+    }
+}
 
 
 #[allow(unused_variables, non_snake_case)]
@@ -81,16 +105,7 @@ pub fn CustomTableRowRenderer(
     view! {
         <tr class=class on:click=move |mouse_event| on_select.run(mouse_event)>
             {row2.render_row(index, on_change)}
-            <td>
-                <a href=move || {
-                    format!("/edit-custom-game/{}", row2.save_name)
-                }>Edit</a>
-            </td>
-            <td>
-                <a href=move || {
-                    format!("/play-custom-game/{}", row3.save_name)
-                }>Play</a>
-            </td>
+
         </tr>
     }
 }
