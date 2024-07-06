@@ -1,6 +1,15 @@
 ![](./.docs/Screenshot.png)
 
 
+# GYM / GYMNASIUMM VIM ENVIRONMMENT (python)
+
+```
+pip install sparganothis_vim
+
+```
+
+[EXAMPLE: test.py](./sparganothis_vim/test.py)
+
 
 # HOW TO COMPILE
 
