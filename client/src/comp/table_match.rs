@@ -7,7 +7,7 @@ use game::{
 };
 use uuid::Uuid;
 
-use crate::{comp::table_generic::{DisplayTableGeneric}, websocket::demo_comp::call_api_sync};
+use crate::{comp::table_generic::DisplayTableGeneric, websocket::demo_comp::call_api_sync};
 use game::api::table_paginate::TablePaginateDirection;
 use leptos::*;
 use leptos_struct_table::*;

@@ -7,7 +7,7 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::{comp::table_generic::{DisplayTableGeneric}, websocket::demo_comp::call_api_sync};
+use crate::{comp::table_generic::DisplayTableGeneric, websocket::demo_comp::call_api_sync};
 use game::api::table_paginate::TablePaginateDirection;
 
 use game::api::websocket::GetAllGamesArg;
