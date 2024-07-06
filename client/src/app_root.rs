@@ -34,7 +34,7 @@ pub fn AppRoot() -> impl IntoView {
                     Please use Firefox on PC or maybe the other thing.
                 </p>
                 <p style="font-size:3cqmin"> 
-                    <a href="https://github.org/sparganothis">
+                    <a target="_blank" href="https://github.org/sparganothis">
                      "github.org/sparganothis"
                     </a> 
                 </p>
@@ -303,9 +303,19 @@ pub fn AppRoot() -> impl IntoView {
                                 }}
 
                             </p>
+
                         </div>
 
                         <WebsocketErrorDisplay/>
+
+                        <p><a href="https://github.com/Sparganothis/Sparganothis.github.io" target="_blank">
+                            <Icon
+                                icon=icondata::BsGithub
+                                width="3vmin"
+                                height="3vmin"
+                            />
+                            <span style="font-size: 2.5vmin;  text-align: right;">GitHub</span>
+                        </a></p>
                     </nav>
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
