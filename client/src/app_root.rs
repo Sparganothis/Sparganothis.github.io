@@ -27,15 +27,21 @@ pub fn AppRoot() -> impl IntoView {
     if is_mobile_phone() {
         return view!{
             <div style="container-type:size;width:100%; height: 100%;">
-                <h1 style="font-size:6cqmin"> 
+                <h1 style="font-size:7cqmin"> 
                     You are phone. 
                 </h1>
-                <p style="font-size:2cqmin"> 
+                <p style="font-size:3cqmin"> 
                     Please use Firefox on PC or maybe the other thing.
                 </p>
                 <p style="font-size:3cqmin"> 
-                    <a target="_blank" href="https://github.org/sparganothis">
-                     "github.org/sparganothis"
+                    <a target="_blank" href="https://github.com/Sparganothis/Sparganothis.github.io">
+                    <Icon
+                        icon=icondata::BsGithub
+                        width="3vmin"
+                        height="3vmin"
+                    />
+
+                     "github.com/Sparganothis"
                     </a> 
                 </p>
             </div>
