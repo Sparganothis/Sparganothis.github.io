@@ -509,8 +509,7 @@ impl GameState {
         self.total_lines += lines;
     }
 
-
-    fn add_score_for_clear_line(&mut self, lines: i64){
+    fn add_score_for_clear_line(&mut self, lines: i64) {
         let mut score = 0;
         let mut score2 = 0;
         let mut score3 = 0;
@@ -547,18 +546,17 @@ impl GameState {
                 _ => 0,
             };
         }
-        self.is_b2b = (lines ==4) || (self.is_t_spin);
+        self.is_b2b = (lines == 4) || (self.is_t_spin);
         self.score += (score + score2 + score3) as i64;
         self.is_t_spin = false;
         self.is_t_mini_spin = false;
-        if lines>0 {
-            self.combo_counter+=1;
+        if lines > 0 {
+            self.combo_counter += 1;
+        } else {
+            self.combo_counter = -1;
         }
-        else {
-            self.combo_counter=-1;
-        }
-        if self.combo_counter>0{
-            self.score+=50*self.combo_counter as i64;
+        if self.combo_counter > 0 {
+            self.score += 50 * self.combo_counter as i64;
         }
     }
 

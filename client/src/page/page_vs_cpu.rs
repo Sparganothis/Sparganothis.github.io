@@ -24,6 +24,7 @@ pub fn GameCPUPage() -> impl IntoView {
                         .into_view()
                 }
             >
+
                 <iframe
                     width="100%"
                     height="100%"
