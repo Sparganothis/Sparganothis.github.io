@@ -562,7 +562,7 @@ impl GameState {
         if self.combo_counter > 0 {
             self.score += 50 * self.combo_counter as i64;
         }
-        self.total_garbage_sent  += match self.combo_counter {
+        self.total_garbage_sent += match self.combo_counter {
             1 | 2 => 1,
             3 | 4 => 2,
             5 | 6 => 3,
