@@ -66,6 +66,36 @@ impl GameStatePy {
         Ok(self.inner.total_lines)
     }
 
+
+
+
+    #[getter]
+    fn is_t_spin(&self) ->  PyResult<bool> {
+        Ok(self.inner.is_t_spin)
+    } 
+
+    #[getter]
+    fn is_t_mini_spin(&self) ->  PyResult<bool> {
+        Ok(self.inner.is_t_mini_spin)
+    }
+    
+    #[getter]
+    fn is_b2b(&self) ->  PyResult<bool> {
+        Ok(self.inner.is_b2b)
+    }
+    #[getter]
+    fn combo_counter(&self) ->  PyResult<i32> {
+        Ok(self.inner.combo_counter)
+    }
+    #[getter]
+    fn total_garbage_sent(&self) ->  PyResult<i64> {
+        Ok(self.inner.total_garbage_sent)
+    }
+    #[getter]
+    fn garbage_recv(&self) ->  PyResult<i64> {
+        Ok(self.inner.garbage_recv)
+    }
+
     #[getter]
     fn hold(&self) ->  PyResult<Option<String>> {
         Ok(self.inner.hold_pcs.clone().map(|x| x.tet.name().to_string()))
