@@ -14,6 +14,15 @@ else
     exit 66
 fi
 
+export BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
+
+if [ $BRANCH_NAME == "master" ] || [ $BRANCH_NAME == "bos" ]; then 
+    echo "branch ok"
+else
+    echo "plz use master or bos brancch"
+    exit 1
+fi
+
 for TESTFILE in test.sh test-pypi.sh; do
     if bash $TESTFILE; then
         echo $TESTFILE OK
