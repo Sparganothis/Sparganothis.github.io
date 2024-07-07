@@ -54,32 +54,14 @@ bash run-server.sh
 - if spectating eded game, UI blocked on gamme over instead of redirecting to replay
 - if spectating match, UI should refresh ended games with the replay
 - 
-- http://localhost:4001/play-game-solo/X if copied to another player allows UI to impersonate. server rejects but we should redirect to /spetate-game/X
-- 1v1 online complete disaster
+- 1v1 online complete disaster.
 - 1v1 + man vs car : if open seccond tab on /mathc/ link, it's allowed to play, should be redirect  to /spectate-match/
 - man vs. car: replay is not working for Bot games.
 
 
-## PHONE
-
-- if phone, redirecct correctly to /you-are-phone. Currently, the phone website crashes, whicch also works.
-
-## audio
-
-- make tutros bot sound like https://soundcloud.com/funk-it-blog-1/kris-bowers-forever-spring-41814-boston-ma-scullers-jazz-club
-- mmake tatrus bot sound like https://soundcloud.com/bigupmagazine/big-up-podcast-89-commodo
-- and like https://soundcloud.com/lucas-goret/armenian
-- winamp
-- remmember in private storeage all winamp history and user ignore / skpi soundtrack
-- when song changes, put notiifcation in corner like nfss
-- different cocmbo audio TSpin JSpin Back-To_Back-X Tetris
-- menu option to disable soft/auto-soft-drop sound
-- eacch different menu option sound has itws own slider
-- option for decreasing volume for repeating sound
 
 ## SINGLEPLAYER
 
-- fix mspaint.exe (cclick pls)
 - SINGLEPLAYE$R: TIMER  + 40 LINE WORLD RECCORD + BLIETZ + "PUZZLE MODE" + TUTORIAL MODE
 
 - change all Get* api message to return None for "not found" -- is not error (custom game / mmspaint on randomm name);
@@ -91,13 +73,12 @@ bash run-server.sh
 ### feature = singleplayer
 
 - leaderboard + world record
-- combo + TSPIN + Score
 
 
 
 ### 1V1 ONLINE
 
-- Combo GARBAGE - bara + send lines
+- Combo GARBAGE - bara + send lines between bots
 
 
 ## grafic
@@ -147,6 +128,18 @@ bash run-server.sh
 
 
 
+## audio
+
+- make tutros bot sound like https://soundcloud.com/funk-it-blog-1/kris-bowers-forever-spring-41814-boston-ma-scullers-jazz-club
+- mmake tatrus bot sound like https://soundcloud.com/bigupmagazine/big-up-podcast-89-commodo
+- and like https://soundcloud.com/lucas-goret/armenian
+- winamp
+- remmember in private storeage all winamp history and user ignore / skpi soundtrack
+- when song changes, put notiifcation in corner like nfss
+- different cocmbo audio TSpin JSpin Back-To_Back-X Tetris
+- menu option to disable soft/auto-soft-drop sound
+- eacch different menu option sound has itws own slider
+- option for decreasing volume for repeating sound
 
 ### whatever
 

@@ -1,9 +1,30 @@
 
 use game::{api::{user::UserProfile, websocket::GetProfile}, bot::get_bot_from_id, tet};
 use leptos::*;
+use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 
 use crate::{audio3::play_sound_effect, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync, };
+#[component]
+pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text: ReadSignal<String>,)->impl IntoView{
 
+    let UseIntervalReturn {counter:counter_timer,pause:pause_timer,resume:resume_timer, reset, is_active }  = use_interval_with_options( 1000, UseIntervalOptions::default().immediate(true) );
+
+    let timer_str = move || { 
+        counter_timer.track();
+        let s = game_state.get_untracked();
+        let pre = pre_countdown_text.get();
+        if s.game_over || !pre.is_empty() {
+            pause_timer();
+            reset();
+        } else {
+            if !is_active.get() {
+                resume_timer();
+            }
+        }
+        format!("{}", s.current_time_string()) 
+    };
+    timer_str
+}
 
 #[component]
 pub fn GameBoardFlex(
@@ -209,6 +230,9 @@ pub fn GameBoardFlex(
                     <div style="width:100%;height:37%;">
                         {move || { format!("{}", game_state.get().get_debug_info()) }}
                     </div>
+                    <div style="width:100%;height:37%;">
+                    <GameBoardTimer game_state pre_countdown_text />
+                </div>
 
                 </div>
 

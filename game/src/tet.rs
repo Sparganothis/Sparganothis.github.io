@@ -2,11 +2,14 @@ use anyhow::Context;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use crate::timestamp::get_timestamp_now_nano;
+
 use super::rot::{RotDirection, RotState, Shape};
 
 use super::random::*;
 
 use std::collections::VecDeque;
+use std::time::Duration;
 #[derive(
     Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord,
 )]
@@ -459,6 +462,23 @@ pub struct CurrentPcsInfo {
 }
 
 impl GameState {
+    pub fn current_time_string(&self) -> String{
+        let dt_s = self.current_time_sec();
+        if dt_s<0{
+            return "future".to_string();
+        }
+        let duration = Duration::from_secs(dt_s as u64);
+        format!(
+            "{:?}",duration
+        )
+    }
+    pub fn current_time_sec(&self) -> i64{
+        let now = get_timestamp_now_nano();
+        let dt_nano = now-self.start_time;
+        let dt_s = dt_nano/1000000;
+        dt_s
+    }
+
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
             score: 0,

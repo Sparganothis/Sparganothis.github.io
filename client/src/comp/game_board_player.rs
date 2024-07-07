@@ -30,6 +30,7 @@ pub fn PlayerGameBoardFromId(
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
             } else if s.game_over {
+                log::info!("got segment for game over");
                 GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
             } else {
                 GameReplaySegment::Update(
