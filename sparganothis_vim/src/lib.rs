@@ -55,7 +55,7 @@ impl GameStatePy {
     fn next_pcs(&self) -> PyResult<Vec<String>> {
         let mut v = vec![];
         
-        for x in self.inner.next_pcs.iter() {
+        for x in self.inner.next_pcs.iter().take(5) {
             v.push(x.name().to_string());
         }
         Ok(v)
