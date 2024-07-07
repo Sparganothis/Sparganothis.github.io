@@ -47,7 +47,7 @@ pub fn Lobby2P() -> impl IntoView {
    let play_button = view! {
        <div style="width:100%;height:100%; container-type: size;">
            <h3
-               style="font-size:80cqh; text-align: center;"
+               style="font-size:80cqh; text-align: center; cursor:pointer;"
                on:click=move |_| { obtain_new_match_id.call(()) }
            >
                PLAY
@@ -59,13 +59,22 @@ pub fn Lobby2P() -> impl IntoView {
                view! {}
            }
        >
-
            <div style="width:100%;height:100%; container-type: size;">
-               <h3 style="font-size:50cqh; text-align: center; color: red;">
-                   Please Wait
-               </h3>
+               <p style="font-size:15cqh; text-align: center; color: red;">
+                   {error_display.get()}
+               </p>
            </div>
        </Show>
+
+       <Show 
+           when=move|| (waiting_for_game.get())
+        >
+            <div style="width:100%;height:100%; container-type: size;">
+                <p style="font-size:15cqh; text-align: center; color: brown;">
+                    Please Wait
+                </p>
+            </div>
+        </Show>
 
        <h1>
            {move || {

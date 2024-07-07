@@ -73,22 +73,22 @@ pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'sta
 pub fn call_api_sync_or_error<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'static, ferr: impl Fn(String) + Clone+'static) -> () {
     let api2: WebsocketAPI = expect_context();
     spawn_local(async move {
-        let api3 = api2.clone();
-            // log::info!("calling websocket api");
-            let r = _call_websocket_api::<T>(api2, arg)
-                .expect("cannot obtain future")
-                .await;
+        // let api3 = api2.clone();
+        // log::info!("calling websocket api");
+        let r = _call_websocket_api::<T>(api2, arg)
+            .expect("cannot obtain future")
+            .await;
 
-            match r {
-                Ok(result) => {
-                    f(result);
-                }
-                Err(err) => {
-                    log::warn!("WEBSOCKET SERVER ERROR: {}", err);
-                    api3.error_msgs.update(|x| x.push(err.clone()));
-                    ferr(err);
-                }
+        match r {
+            Ok(result) => {
+                f(result);
             }
+            Err(err) => {
+                log::warn!("WEBSOCKET SERVER ERROR: {}", err);
+                // api3.error_msgs.update(|x| x.push(err.clone()));
+                ferr(err);
+            }
+        }
     });
 }
 

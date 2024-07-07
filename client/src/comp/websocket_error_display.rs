@@ -4,19 +4,23 @@ use crate::websocket::demo_comp::WebsocketAPI;
 
 #[component]
 pub fn WebsocketErrorDisplay() -> impl IntoView {
-    let is_open = create_rw_signal(false);
+    let is_open_sig = create_rw_signal(false);
     let api2: WebsocketAPI = expect_context();
     let error_cnt = move || {
         api2.error_msgs.with(|x| x.len())
     };
     let overlay = move || {
-        let is_open = is_open.get();
+        let is_open = is_open_sig.get();
         let errors = api2.error_msgs.get();
         let get_err =  move || errors.clone();
         if is_open {
             log::info!("overlay opened");
             view! {
-                <div style="position:absolute; left: 13vmin; top: 3vmin; height: 88vmin; width: 99vmin; border:1vmin solid red; z-index: 1999; background-color:#eee;">
+                <div style="position:absolute; left: 13vmin; top: 3vmin; height: 88vmin; width: 99vmin; border:1vmin solid red; z-index: 1999; background-color:#eee; cursor:pointer;"
+                on:click=move |_| {
+                    is_open_sig.set(!is_open_sig.get_untracked())
+                }
+                >
 
                     "errors here lol" <ul>
                         <For
@@ -39,8 +43,8 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
     };
 
     view! {
-        <h1 on:click=move |_| {
-            is_open.set(!is_open.get_untracked())
+        <h1  style="cursor:pointer;" on:click=move |_| {
+            is_open_sig.set(!is_open_sig.get_untracked())
         }>{error_cnt} err</h1>
         {overlay}
     }

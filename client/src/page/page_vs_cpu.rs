@@ -6,18 +6,31 @@ use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {
     let seed: GameSeed = [0; 32];
-    let youtube_video = view! {
-        <iframe
-            width="100%"
-            height="100%"
-            src="https://www.youtube-nocookie.com/embed/DrO9ySwbTjo"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-        ></iframe>
-    }.into_view();
+    let youtube_video = move || {
+        let is_clicked = create_rw_signal(false);
+        view! {
+            <Show when=move || is_clicked.get()
+            fallback=move || view!{
+                    <img on:click=move|_| {is_clicked.set(true)} style="cursor:pointer;"
+                        src="/public/img/thumb-youtube.png" width="100%" height="100%">
+                    </img>
+                }.into_view()
+            >
+                <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube-nocookie.com/embed/DrO9ySwbTjo"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="picture-in-picture"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen
+                ></iframe>
+            </Show>
+        // <a target="_blank" href="https://www.youtube.com/watch?v=DrO9ySwbTjo">
+
+        // </a>
+    }.into_view()};
 
     
     let error_display = create_rw_signal("".to_string());
@@ -47,7 +60,7 @@ pub fn GameCPUPage() -> impl IntoView {
         view! {
             <div style="width:100%;height:100%; container-type: size;">
                 <h3
-                    style="font-size:40cqh; text-align: center;"
+                    style="font-size:40cqh; text-align: center; cursor:pointer;"
                     on:click=move |_| { obtain_new_match_id.call(bot_name.clone()) }
                 >
                     PLAY vs. BOT:
@@ -68,7 +81,7 @@ pub fn GameCPUPage() -> impl IntoView {
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
-            5 =>             youtube_video.clone(),
+            5 =>             youtube_video.clone().into_view(),
 
             6 => play_button("random".to_string()).clone(),
             7 => play_button("wordpress".to_string()).clone(),

@@ -52,7 +52,7 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
     let play_button = view! {
         <div style="width:100%;height:100%; container-type: size;">
             <h3
-                style="font-size:80cqh; text-align: center;"
+                style="font-size:80cqh; text-align: center;  cursor:pointer; "
                 on:click=move |_| { redirect_to_new_game.call(()) }
             >
                 PLAY
