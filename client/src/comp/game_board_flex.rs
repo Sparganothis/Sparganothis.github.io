@@ -231,8 +231,8 @@ pub fn GameBoardFlex(
                         {move || { format!("{}", game_state.get().get_debug_info()) }}
                     </div>
                     <div style="width:100%;height:37%;">
-                    <GameBoardTimer game_state pre_countdown_text />
-                </div>
+                        <GameBoardTimer game_state pre_countdown_text/>
+                    </div>
 
                 </div>
 

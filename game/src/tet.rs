@@ -462,20 +462,18 @@ pub struct CurrentPcsInfo {
 }
 
 impl GameState {
-    pub fn current_time_string(&self) -> String{
+    pub fn current_time_string(&self) -> String {
         let dt_s = self.current_time_sec();
-        if dt_s<0{
+        if dt_s < 0 {
             return "future".to_string();
         }
         let duration = Duration::from_secs(dt_s as u64);
-        format!(
-            "{:?}",duration
-        )
+        format!("{:?}", duration)
     }
-    pub fn current_time_sec(&self) -> i64{
+    pub fn current_time_sec(&self) -> i64 {
         let now = get_timestamp_now_nano();
-        let dt_nano = now-self.start_time;
-        let dt_s = dt_nano/1000000;
+        let dt_nano = now - self.start_time;
+        let dt_s = dt_nano / 1000000;
         dt_s
     }
 
