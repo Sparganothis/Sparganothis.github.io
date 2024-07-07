@@ -96,6 +96,12 @@ impl GameStatePy {
         Ok(self.inner.garbage_recv)
     }
 
+    // #[getter]
+    // fn matrix_txt(&self) ->  PyResult<i64> {
+    //     Ok(self.inner.matrix_txt)
+    // }
+    
+
     #[getter]
     fn hold(&self) ->  PyResult<Option<String>> {
         Ok(self.inner.hold_pcs.clone().map(|x| x.tet.name().to_string()))

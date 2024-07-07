@@ -36,4 +36,5 @@ print(" is_b2b ", state.is_b2b)
 print(" combo_counter ", state.combo_counter)
 print(" total_garbage_sent ", state.total_garbage_sent)
 print(" garbage_recv ", state.garbage_recv)
+# print("matrix_txt", state.matrix_txt)
 
