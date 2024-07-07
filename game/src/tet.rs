@@ -365,7 +365,8 @@ pub struct GameState {
     pub score: i64,
     pub is_t_spin: bool,
     pub is_t_mini_spin: bool,
-    pub have_combo: bool,
+    pub is_b2b: bool,
+    pub have_combo: i32,
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
@@ -459,9 +460,10 @@ impl GameState {
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
             score: 0,
-            have_combo: false,
+            have_combo: -1,
             is_t_spin: false,
             is_t_mini_spin: false,
+            is_b2b: false,
             main_board: BoardMatrix::empty(),
             // next_board: BoardMatrixNext::empty(),
             // hold_board: BoardMatrixHold::empty(),
@@ -489,15 +491,11 @@ impl GameState {
         Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
-        format!("is_t_spin:{}", self.is_t_spin)
+        format!("is_b2b:{}", self.is_b2b)
     }
 
     fn clear_line(&mut self) {
-        let mut score = 0;
         let mut lines = 0;
-        let mut score2 = 0;
-        let mut score3 = 0;
-
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
@@ -506,12 +504,16 @@ impl GameState {
                 }
             }
             lines += 1;
-            self.have_combo = true;
         }
-        if self.have_combo {
-            self.score += 50;
-            self.have_combo = false;
-        }
+        self.add_score_for_clear_line(lines);
+        self.total_lines += lines;
+    }
+
+
+    fn add_score_for_clear_line(&mut self, lines: i64){
+        let mut score = 0;
+        let mut score2 = 0;
+        let mut score3 = 0;
         score += match lines {
             1 => 40,
             2 => 80,
@@ -519,6 +521,7 @@ impl GameState {
             4 => 320,
             _ => 0,
         };
+
         if self.is_gameboard_empty() {
             score2 += match lines {
                 1 => 200,
@@ -535,7 +538,6 @@ impl GameState {
                 3 => 3000,
                 _ => 0,
             };
-            self.is_t_spin = false;
         }
         if self.is_t_mini_spin {
             score3 += match lines {
@@ -544,13 +546,13 @@ impl GameState {
                 3 => 2666,
                 _ => 0,
             };
-            self.is_t_mini_spin = false;
         }
-
+        self.is_b2b = (lines ==4) || (self.is_t_spin);
         self.score += (score + score2 + score3) as i64;
-        self.total_lines += lines;
+        self.is_t_spin = false;
+        self.is_t_mini_spin = false;
     }
-
+    
     fn can_clear_line(&self) -> Option<i8> {
         for i in 0..40 {
             let row = self.main_board.v[i];
