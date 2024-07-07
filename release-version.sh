@@ -24,7 +24,7 @@ if [ "$NEW_VERSION" == "" ]; then
     echo "no version given!"
     exit 1
 fi
-
+echo "$NEW_VERSION" > VERSION
 (
     cd client
     cargo set-version $NEW_VERSION
