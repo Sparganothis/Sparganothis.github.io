@@ -40,7 +40,7 @@ impl GameStatePy {
     fn main_board(&self) -> PyResult<Vec<Vec<bool>>> {
         let mut brows = vec![];
 
-        for row in self.inner.main_board.rows() {
+        for row in self.inner.main_board.rows().into_iter().take(20) {
             brows.push(row.iter().map(|x| match x {
                 game::tet::CellValue::Piece(_) => true,
                 game::tet::CellValue::Garbage => true,
@@ -48,6 +48,8 @@ impl GameStatePy {
                 game::tet::CellValue::Ghost => false,
             }).collect());
         }
+        
+        brows.reverse();
         Ok(brows)
     }
 
@@ -96,11 +98,45 @@ impl GameStatePy {
         Ok(self.inner.garbage_recv)
     }
 
-    // #[getter]
-    // fn matrix_txt(&self) ->  PyResult<i64> {
-    //     Ok(self.inner.matrix_txt)
-    // }
+    #[getter]
+    fn matrix_txt(&self) ->  PyResult<String> {
+        let mut matrix_rows = vec![];
+
+        matrix_rows.push("\n-------------".to_string());
+        for (i, row) in self.main_board()?.into_iter().enumerate() {
+            let row_str: Vec<_> = row.iter().map(|x| if *x {"x"} else {" "}.to_string()).collect();
+            let row_str = row_str.join("");
+            let row_extra = match i {
+                1 => format!("current_pcs_rotation = {:?}", self.current_pcs_rotation()?),
+                2 => format!("game_over            = {:?}", self.game_over()?),
+                3 => format!("hold                 = {:?}", self.hold()?),
+                4 => format!("next_pcs             = {:?}", self.next_pcs()?),
+                5 => format!("total_lines          = {:?}", self.total_lines()?),
+                6 => format!("is_t_spin            = {}", self.is_t_spin()?),
+                7 => format!("is_t_mini_spin       = {}", self.is_t_mini_spin()?),
+                8 => format!("is_b2b               = {}", self.is_b2b()?),
+                9 => format!("combo_counter        = {}", self.combo_counter()?),
+                10 => format!("total_garbage_sent  = {}", self.total_garbage_sent()?),
+                11 => format!("garbage_recv        = {}", self.garbage_recv()?),
+                12 => format!("total_move_count    = {}", self.total_move_count()?),
+                _ => "".to_string()
+            };
+            matrix_rows.push(format!(" | {row_str} | {row_extra}"));
+        }
+        matrix_rows.push("-------------\n".to_string());
+        Ok(matrix_rows.join("\n"))
+    }
+
+    #[getter]
+    fn html(&self) -> PyResult<String> {
+        let x = self.matrix_txt()?;
+        Ok(format!("<code><pre>{x}</pre></code>"))
+    }
     
+    #[getter]
+    fn total_move_count(&self) -> PyResult<usize> {
+        Ok(self.inner.replay.replay_slices.len())
+    }
 
     #[getter]
     fn hold(&self) ->  PyResult<Option<String>> {
@@ -123,7 +159,7 @@ impl GameStatePy {
     }
 
     #[getter]
-    fn get_current_pcs_rotation(&self) -> PyResult<(String, i64, (i8, i8))> {
+    fn current_pcs_rotation(&self) -> PyResult<(String, i64, (i8, i8))> {
 
         if let Some(c) = self.inner.current_pcs {
             let rot = match c.rs {

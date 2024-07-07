@@ -29,6 +29,8 @@ print(" score ", state.score)
 
 print(" next actions ", [k[0] for k in state.next_actions_and_states])
 
+state3 = state.next_actions_and_states[0][1]
+
 
 print(" is_t_spin ", state.is_t_spin)
 print(" is_t_mini_spin ", state.is_t_mini_spin)
@@ -36,5 +38,7 @@ print(" is_b2b ", state.is_b2b)
 print(" combo_counter ", state.combo_counter)
 print(" total_garbage_sent ", state.total_garbage_sent)
 print(" garbage_recv ", state.garbage_recv)
-# print("matrix_txt", state.matrix_txt)
 
+print("total_move_count\n", state3.total_move_count)
+print("matrix_txt\n", state3.matrix_txt)
+print("html\n", state3.html)
