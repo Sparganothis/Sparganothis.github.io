@@ -366,7 +366,7 @@ pub struct GameState {
     pub is_t_spin: bool,
     pub is_t_mini_spin: bool,
     pub is_b2b: bool,
-    pub have_combo: i32,
+    pub combo_counter: i32,
     pub main_board: BoardMatrix,
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
@@ -460,7 +460,7 @@ impl GameState {
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
             score: 0,
-            have_combo: -1,
+            combo_counter: -1,
             is_t_spin: false,
             is_t_mini_spin: false,
             is_b2b: false,
@@ -491,7 +491,7 @@ impl GameState {
         Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
-        format!("is_b2b:{}", self.is_b2b)
+        format!("comboconter:{}", self.combo_counter)
     }
 
     fn clear_line(&mut self) {
@@ -551,8 +551,17 @@ impl GameState {
         self.score += (score + score2 + score3) as i64;
         self.is_t_spin = false;
         self.is_t_mini_spin = false;
+        if lines>0 {
+            self.combo_counter+=1;
+        }
+        else {
+            self.combo_counter=-1;
+        }
+        if self.combo_counter>0{
+            self.score+=50*self.combo_counter as i64;
+        }
     }
-    
+
     fn can_clear_line(&self) -> Option<i8> {
         for i in 0..40 {
             let row = self.main_board.v[i];
