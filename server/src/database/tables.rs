@@ -24,29 +24,29 @@ pub static USER_PROFILE_DB: Lazy<typed_sled::Tree<uuid::Uuid, UserProfile>> =
 
 pub static GAME_IS_IN_PROGRESS_DB: Lazy<typed_sled::Tree<GameId, bool>> =
     Lazy::new(|| {
-        typed_sled::Tree::<GameId, bool>::open(&TABLES_DB, "game_is_in_progress_v3")
+        typed_sled::Tree::<GameId, bool>::open(&TABLES_DB, "game_is_in_progress_v4")
     });
 
 pub static GAME_SEGMENT_COUNT_DB: Lazy<typed_sled::Tree<GameId, u32>> =
     Lazy::new(|| {
-        typed_sled::Tree::<GameId, u32>::open(&TABLES_DB, "game_segment_count_v3")
+        typed_sled::Tree::<GameId, u32>::open(&TABLES_DB, "game_segment_count_v4")
     });
 
 pub static GAME_SEGMENT_DB: Lazy<typed_sled::Tree<GameSegmentId, GameReplaySegment>> =
     Lazy::new(|| {
         typed_sled::Tree::<GameSegmentId, GameReplaySegment>::open(
             &TABLES_DB,
-            "game_segment_db_v3",
+            "game_segment_db_v4",
         )
     });
 
 pub static CUSTOM_GAME_BOARD_DB: Lazy<typed_sled::Tree<String, GameState>> =
     Lazy::new(|| {
-        typed_sled::Tree::<String, GameState>::open(&TABLES_DB, "custom_game_board_v6")
+        typed_sled::Tree::<String, GameState>::open(&TABLES_DB, "custom_game_board_v7")
     });
 
 pub static GAME_FULL_DB: Lazy<typed_sled::Tree<GameId, GameState>> =
-    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_full_v6"));
+    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_full_v7"));
 
 pub fn get_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
     Ok(USER_PROFILE_DB
@@ -73,22 +73,22 @@ pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfi
 // ===
 
 pub static GAME_MATCH_DB: Lazy<typed_sled::Tree<uuid::Uuid, GameMatch>> =
-    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_v7"));
+    Lazy::new(|| typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_v8"));
 
 pub static GAME_MATCH_FOR_GAME_ID_DB: Lazy<typed_sled::Tree<GameId, uuid::Uuid>> =
     Lazy::new(|| {
-        typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_for_game_id_v4")
+        typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_for_game_id_v5")
     });
 
 pub static GAME_MATCH_IS_IN_PROGRESS_DB: Lazy<typed_sled::Tree<uuid::Uuid, bool>> =
     Lazy::new(|| {
-        typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_is_in_progress_v4")
+        typed_sled::Tree::<_, _>::open(&TABLES_DB, "game_match_is_in_progress_v5")
     });
 
 pub static GAME_MATCHES_FOR_USER_DB: Lazy<
     typed_sled::Tree<UserAndMatchId, UserAndMatchResult>,
 > = Lazy::new(|| {
-    typed_sled::Tree::<_, _>::open(&TABLES_DB, "GAME_MATCHES_FOR_USER_DB_v4")
+    typed_sled::Tree::<_, _>::open(&TABLES_DB, "GAME_MATCHES_FOR_USER_DB_v5")
 });
 
 pub static USER_SETTING_DB: Lazy<

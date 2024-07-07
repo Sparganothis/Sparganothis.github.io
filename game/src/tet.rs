@@ -383,6 +383,8 @@ pub struct GameState {
     pub init_seed: GameSeed,
     pub start_time: i64,
     pub total_lines: i64,
+    pub total_garbage_sent: i64,
+    pub garbage_recv: i64,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -478,6 +480,8 @@ impl GameState {
             replay: GameReplay::empty(seed, start_time),
             start_time,
             total_lines: 0,
+            total_garbage_sent: 0,
+            garbage_recv: 0,
         };
         new_state.refill_nextpcs(start_time);
         let _ = new_state.put_next_piece(start_time);
@@ -491,7 +495,7 @@ impl GameState {
         Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
-        format!("comboconter:{}", self.combo_counter)
+        format!("total_garbage_sent:{}", self.total_garbage_sent)
     }
 
     fn clear_line(&mut self) {
@@ -558,6 +562,13 @@ impl GameState {
         if self.combo_counter > 0 {
             self.score += 50 * self.combo_counter as i64;
         }
+        self.total_garbage_sent  += match self.combo_counter {
+            1 | 2 => 1,
+            3 | 4 => 2,
+            5 | 6 => 3,
+            _i if _i >= 7 => 4,
+            _ => 0,
+        };
     }
 
     fn can_clear_line(&self) -> Option<i8> {
