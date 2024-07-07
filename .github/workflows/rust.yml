@@ -3,6 +3,7 @@ name: Rust
 on:
   push:
     branches: [ "master", "bos" ]
+    tags: ['*']
   workflow_dispatch:
 
 permissions:
@@ -19,9 +20,7 @@ env:
 
 jobs:
   build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    name: Build Client/Server
 
     # strategy:
     #   fail-fast: false
@@ -95,23 +94,59 @@ jobs:
     - name: CLIENT TEST # ${{ matrix.os }}
       run: cd client && cargo test && wasm-pack test --node
 
-    - name: CLIENT BUILD # ${{ matrix.os }}
-      run: cd client && echo "wss://ws.sparganothis.org/api/ws" > src/websocket.txt && trunk build
+    # - na/me: CLIENT BUILD # ${{ matrix.os }}
+    # run: cd client && echo "wss://ws.sparganothis.org/api/ws" > src/websocket.txt && trunk build
 
     - name: Trunk Build Prod
       run: cd client && echo "wss://ws.sparganothis.org/api/ws" > src/websocket.txt && trunk build --release --minify --public-url "/" && echo '/* /index.html 200' > dist/_redirects && cp dist/index.html dist/404.html
-
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      with:
-        enablement: true
-        # token:
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
         path: "./client/dist"
 
+  release_pages:
+    name: Release Github Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/')"
+    needs: [build]
+    steps:
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      with:
+        enablement: true
+    - uses: actions/download-artifact@v4
+    - name: print all downloaded artifacts
+      run: ls -R .
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+
+
+  release_backend_ssh:
+    name: Release Backend on SSH
+    environment:
+      name: backend-ssh
+    runs-on: ubuntu-latest
+    needs: [build, release_pages]
+    if: "startsWith(github.ref, 'refs/tags/')"
+    steps:
+    - name: SSH Deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        key: ${{ secrets.SSH_KEY }}
+        username: ${{ secrets.SSH_USER }}
+        script_stop: true
+        script: |
+          set -e
+          cd Sparganothis
+          git fetch -ap --tags
+          git checkout  ${{  github.ref_name }}
+          git status
+          sleep 30
+          touch server/src/main.rs
+

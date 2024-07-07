@@ -1,9 +1,8 @@
 #!/bin/bash
 set -ex
 cd sparganothis_vim
+. venv/Scripts/activate
 
-rm -rf test-venv || true
-python -m venv test-venv
-. test-venv/Scripts/activate
-pip install --no-cache-dir sparganothis_vim
+maturin develop
+
 python test.py

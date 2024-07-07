@@ -14,6 +14,15 @@ else
     exit 66
 fi
 
+for TESTFILE in test.sh test-pypi.sh; do
+    if bash $TESTFILE; then
+        echo $TESTFILE OK
+    else
+        echo $TESTFILE FAIL PLZ FIX BEFORE RELEASE VERSION
+        exit 1
+    fi
+done
+
 (
     cd game
     cargo set-version --bump patch
