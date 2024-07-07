@@ -16,13 +16,13 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
         if is_open {
             log::info!("overlay opened");
             view! {
-                <div style="position:absolute; left: 13vmin; top: 3vmin; height: 88vmin; width: 99vmin; border:1vmin solid red; z-index: 1999; background-color:#eee; cursor:pointer;"
-                on:click=move |_| {
-                    is_open_sig.set(!is_open_sig.get_untracked())
-                }
+                <div
+                    style="position:absolute; left: 13vmin; top: 3vmin; height: 88vmin; width: 99vmin; border:1vmin solid red; z-index: 1999; background-color:#eee; cursor:pointer;"
+                    on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }
                 >
 
-                    "errors here lol" <ul>
+                    "errors here lol"
+                    <ul>
                         <For
                             each=get_err
                             key=|k| k.clone()
@@ -43,9 +43,13 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
     };
 
     view! {
-        <h1  style="cursor:pointer;" on:click=move |_| {
-            is_open_sig.set(!is_open_sig.get_untracked())
-        }>{error_cnt} err</h1>
+        <h1
+            style="cursor:pointer;"
+            on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }
+        >
+            {error_cnt}
+            err
+        </h1>
         {overlay}
     }
 }

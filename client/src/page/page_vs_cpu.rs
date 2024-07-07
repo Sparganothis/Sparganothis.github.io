@@ -9,12 +9,20 @@ pub fn GameCPUPage() -> impl IntoView {
     let youtube_video = move || {
         let is_clicked = create_rw_signal(false);
         view! {
-            <Show when=move || is_clicked.get()
-            fallback=move || view!{
-                    <img on:click=move|_| {is_clicked.set(true)} style="cursor:pointer;"
-                        src="/public/img/thumb-youtube.png" width="100%" height="100%">
-                    </img>
-                }.into_view()
+            <Show
+                when=move || is_clicked.get()
+                fallback=move || {
+                    view! {
+                        <img
+                            on:click=move |_| { is_clicked.set(true) }
+                            style="cursor:pointer;"
+                            src="/public/img/thumb-youtube.png"
+                            width="100%"
+                            height="100%"
+                        />
+                    }
+                        .into_view()
+                }
             >
                 <iframe
                     width="100%"
@@ -27,10 +35,7 @@ pub fn GameCPUPage() -> impl IntoView {
                     allowfullscreen
                 ></iframe>
             </Show>
-        // <a target="_blank" href="https://www.youtube.com/watch?v=DrO9ySwbTjo">
-
-        // </a>
-    }.into_view()};
+        }.into_view()};
 
     
     let error_display = create_rw_signal("".to_string());
