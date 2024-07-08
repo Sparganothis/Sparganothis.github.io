@@ -181,9 +181,6 @@ impl GameStatePy {
         let mut v = vec![];
 
         for action in TetAction::all() {
-            if action == TetAction::HardDrop {
-                continue;
-            }
             if let Ok(mut result) = self.inner.try_action(action, 0) {
                 result.replay.replay_slices.clear();
                 v.push((action.name(), GameStatePy{inner:result}));
