@@ -42,3 +42,13 @@ print(" garbage_recv ", state.garbage_recv)
 print("total_move_count\n", state3.total_move_count)
 print("matrix_txt\n", state3.matrix_txt)
 print("html\n", state3.html)
+
+
+
+ep = state3.generate_bot_episode("random", 500)
+print("RANDOM EPISODE: ", len(ep), ":", ", ".join(r[0] for r in ep[:10]))
+print("RANDOM SCORE: ", ep[-1][-1].score)
+
+ep = state3.generate_bot_episode("wordpress", 500)
+print("WORDPRESS EPISODE: ", len(ep), ":", ", ".join(r[0] for r in ep[:10]))
+print("WORDPRESS SCORE: ", ep[-1][-1].score)

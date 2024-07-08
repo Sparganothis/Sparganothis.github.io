@@ -1,4 +1,4 @@
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyValueError, prelude::*};
 use game::{random::{get_random_seed, GameSeed}, tet::{GameState, TetAction}, timestamp::get_timestamp_now_nano};
 
 #[pyclass]
@@ -134,8 +134,8 @@ impl GameStatePy {
     }
     
     #[getter]
-    fn total_move_count(&self) -> PyResult<usize> {
-        Ok(self.inner.replay.replay_slices.len())
+    fn total_move_count(&self) -> PyResult<i32> {
+        Ok(self.inner.total_moves)
     }
 
     #[getter]
@@ -181,8 +181,47 @@ impl GameStatePy {
         let mut v = vec![];
 
         for action in TetAction::all() {
-            if let Ok(result) = self.inner.try_action(action, 0) {
+            if action == TetAction::HardDrop {
+                continue;
+            }
+            if let Ok(mut result) = self.inner.try_action(action, 0) {
+                result.replay.replay_slices.clear();
                 v.push((action.name(), GameStatePy{inner:result}));
+            }
+        }
+        Ok(v)
+    }
+
+    pub fn generate_bot_episode(&self, bot_type: String, max_episode_len: usize) -> PyResult<Vec<(String, GameStatePy)>> {
+        let mut v = vec![];
+
+        let b = game::bot::get_bot(&bot_type).map_err(|e| PyValueError::new_err(format!("{}", e)))?;
+        let mut state = self.inner.clone();
+        let mut _i = 0;
+        while _i < max_episode_len {
+            state.replay.replay_slices.clear();
+            if state.game_over {
+                break
+            }
+            match b.choose_move(&state) {
+                Ok(actions) => {
+                    if actions.is_empty() {
+                        break
+                    }
+                    for act in actions {
+
+                        if state.apply_action_if_works(act, 0).is_err() {
+                            break
+                        }
+                        state.replay.replay_slices.clear();
+                        v.push((act.name(), GameStatePy{inner: state.clone()}));
+                        _i += 1;
+                        if _i >= max_episode_len {
+                            break
+                        }
+                    }
+                }
+                Err(_) => break
             }
         }
         Ok(v)

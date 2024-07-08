@@ -388,6 +388,7 @@ pub struct GameState {
     pub total_lines: i64,
     pub total_garbage_sent: i64,
     pub garbage_recv: i64,
+    pub total_moves: i32,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -500,6 +501,7 @@ impl GameState {
             total_lines: 0,
             total_garbage_sent: 0,
             garbage_recv: 0,
+            total_moves: 0,
         };
         new_state.refill_nextpcs(start_time);
         let _ = new_state.put_next_piece(start_time);
@@ -909,6 +911,7 @@ impl GameState {
         if !new.game_over {
             new.put_ghost();
         }
+        new.total_moves += 1;
         Ok(new)
     }
 

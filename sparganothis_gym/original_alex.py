@@ -57,7 +57,7 @@ import numpy as np
 
 ALL_ACTIONS = ['HardDrop', 'SoftDrop', 'MoveLeft', 'MoveRight', 'Hold', 'RotateLeft', 'RotateRight']
 ALL_PIECES = ['I', 'J', 'L', 'O', 'S', 'T', 'Z']
-BOARD_SHAPE = (40, 10)
+BOARD_SHAPE = (20, 10)
 
 def a2i(a):
   return ALL_ACTIONS.index(a)
@@ -122,7 +122,7 @@ class TetrisEnv(gym.Env):
 
   def reward_vim_state(self, prev_state):
     terminated = self.vim_state.game_over
-    reward = self.vim_state.score
+    reward = self.vim_state.score + 500 * self.vim_state.total_garbage_sent + 250 * self.vim_state.total_lines - 3 * self.vim_state.total_move_count
 
     if terminated:
       reward -= 1000
@@ -405,7 +405,7 @@ def o2t(o):
   }
 
 if torch.cuda.is_available() or torch.backends.mps.is_available():
-    num_episodes = 600
+    num_episodes = 3500
 else:
     num_episodes = 50
 
