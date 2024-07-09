@@ -1,5 +1,5 @@
 use pyo3::{exceptions::PyValueError, prelude::*};
-use game::{random::{get_random_seed, GameSeed}, tet::{GameState, TetAction}, timestamp::get_timestamp_now_nano};
+use game::{bot::random_choice_bot::get_all_move_chains, random::{get_random_seed, GameSeed}, tet::{GameState, TetAction}, timestamp::get_timestamp_now_nano};
 
 #[pyclass]
 struct GameStatePy {
@@ -143,6 +143,7 @@ impl GameStatePy {
                 15 => format!("height               = {}", self.height()?),
                 16 => format!("bot_moves_raw('wordpress') = {:?}", self.bot_moves_raw("wordpress".to_string())?),
                 17 => format!("bot_moves_raw('random') = {:?}", self.bot_moves_raw("random".to_string())?),
+                18 => format!("get_valid_move_chains().len() = {:?} / {:?}", self.get_valid_move_chains()?.len(), get_all_move_chains().len()),
                 _ => "".to_string()
             };
             matrix_rows.push(format!(" | {row_str} | {row_extra}"));
@@ -257,6 +258,33 @@ impl GameStatePy {
                     }
                 }
                 Err(_) => break
+            }
+        }
+        Ok(v)
+    }
+
+    #[staticmethod]
+    fn get_all_move_chains() -> PyResult<Vec<Vec<String>>> {
+        Ok(get_all_move_chains().into_iter().map(|x| x.into_iter().map(|y| y.name()).collect()).collect())
+    }
+
+    fn get_valid_move_chains(&self) -> PyResult<Vec<(Vec<String>, GameStatePy)>> {
+        let mut v = vec![];
+
+        let state = self.inner.clone();
+        for t in get_all_move_chains() {
+            let mut s_current = state.clone();
+            let mut s_ok = true;
+            for action in t.clone() {
+                if s_current.apply_action_if_works(action, 0).is_err() {
+                    s_ok = false;
+                    break
+                }
+            }
+            if s_ok {
+                let r: Vec<String> = t.into_iter().map(|x| x.name()).collect();
+                s_current.replay.replay_slices.clear();
+                v.push((r, GameStatePy{inner:s_current}));
             }
         }
         Ok(v)

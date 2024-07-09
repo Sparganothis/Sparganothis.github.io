@@ -48,10 +48,15 @@ print("html\n", state3.html)
 
 
 
-ep = state3.generate_bot_episode("random", 500)
+ep = state3.generate_bot_episode("random", 50)
 print("RANDOM EPISODE: ", len(ep), ":", ", ".join(r[0] for r in ep[:10]))
 print("RANDOM SCORE: ", ep[-1][-1].score)
 
-ep = state3.generate_bot_episode("wordpress", 500)
+ep = state3.generate_bot_episode("wordpress", 50)
 print("WORDPRESS EPISODE: ", len(ep), ":", ", ".join(r[0] for r in ep[:10]))
 print("WORDPRESS SCORE: ", ep[-1][-1].score)
+
+
+print("ALL MOVE CHAINS count:", len(sparganothis_vim.GameStatePy.get_all_move_chains()))
+
+print("VALID MOVE CHAINS:", len(state3.get_valid_move_chains()))
