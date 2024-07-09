@@ -26,7 +26,11 @@ target_net = DQN(TRAIN_MODEL_SIZE).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = init_memory(default_reward, TRAIN_MEMORY_EPISODES, TRAIN_MEMORY_EPISODE_SIZE, TRAIN_MEMORY_SIZE)
+memory = init_memory(default_reward, 
+    TRAIN_MEMORY_EPISODES, 
+    TRAIN_MEMORY_EPISODE_SIZE, 
+    TRAIN_MEMORY_SIZE, 
+    TRAIN_MEMORY_THREADS)
 # memory = ReplayMemory(TRAIN_EPISODE_SIZE)
 
 optimize_model(policy_net, target_net, optimizer, memory, TRAIN_MODEL_INIT_STEPS)

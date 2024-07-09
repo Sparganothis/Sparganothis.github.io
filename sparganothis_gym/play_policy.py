@@ -37,6 +37,7 @@ while True:
         .item()
     )
     obs, reward, terminated, _, info = env.step(action)
+    print(reward)
 
     if terminated:
         break
