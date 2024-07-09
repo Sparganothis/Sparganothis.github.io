@@ -67,7 +67,7 @@ def select_action(env, policy_net, state, info, eps_threshold):
             )
     else:
         return torch.tensor(
-            [[env.action_space.sample(mask=info["action_mask"])]],
+            [[a2i(env.vim_state.generate_bot_episode("wordpress", 1)[0][0])]],
             device=device,
             dtype=torch.long,
         )

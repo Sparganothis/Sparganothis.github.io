@@ -1,3 +1,6 @@
+from tetris.core import * 
+from tetris.hparams import *
+
 def build_score_reward(alpha):
     def score_reward(current_state, next_state, history):
         return (next_state.score - current_state.score) * alpha
@@ -10,15 +13,24 @@ def build_end_reward(value):
         return 0
     return end_reward
 
-def build_history_reward(value):
+def build_history_reward(targets):
     def history_reward(current_state, next_state, history):
-        return 
+        history = list(reversed(history))
+        def try_def(a):
+            try:
+                return history.index(a2i(a))
+            except ValueError:
+                return 0
+        r = 0
+        for v, al in targets:
+            for a in al: 
+                r += min(
+                    [
+                        try_def(a) for a in targets
+                    ]
+                ) * v
+        return r
     return history_reward
-
-def build_per_state_reward():
-    def per_state_reward(current_state, next_state, history):
-        return next_state.score + 500 * next_state.total_garbage_sent + 250 * next_state.total_lines - 5 * next_state.total_move_count
-    return per_state_reward
 
 def merge_rewards(reward_fns):
     def reward_fn(current_state, next_state, history):
@@ -27,3 +39,13 @@ def merge_rewards(reward_fns):
             reward += fn(current_state, next_state, history)
         return reward
     return reward_fn
+
+default_reward = merge_rewards(
+    [build_end_reward(REWARD_END),
+    build_score_reward(REWARD_END),
+    build_history_reward([
+        (REWARD_SOFT, [SOFT_DROP]),
+        (REWARD_MOVE, [MOVE_LEFT, MOVE_RIGHT]),
+        (REWARD_ROTATE, [ROTATE_LEFT, ROTATE_RIGHT]),
+    ])]
+)

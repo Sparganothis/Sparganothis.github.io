@@ -5,24 +5,6 @@ from gymnasium import spaces
 import sparganothis_vim
 from tetris.reward import *
 
-ALL_ACTIONS = [
-    "HardDrop",
-    "SoftDrop",
-    "MoveLeft",
-    "MoveRight",
-    "Hold",
-    "RotateLeft",
-    "RotateRight",
-]
-ALL_PIECES = ["I", "J", "L", "O", "S", "T", "Z"]
-BOARD_SHAPE = [20, 10]
-
-def a2i(a):
-    return ALL_ACTIONS.index(a)
-
-def i2a(i):
-    return ALL_ACTIONS[i]
-
 def al2m(al):
     r = np.zeros(len(ALL_ACTIONS))
     if not al:
@@ -30,14 +12,6 @@ def al2m(al):
     for a in al:
         r[a2i(a)] = 1
     return r
-
-def p2i(p):
-    if not p:
-        return -1
-    return ALL_PIECES.index(p)
-
-def i2p(i):
-    return ALL_PIECES[i]
 
 def v2s(v):
     return {
@@ -55,7 +29,7 @@ def v2s(v):
 class TetrisEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 4}
 
-    def __init__(self, reward_fn=build_end_reward(-100), render_mode=None):
+    def __init__(self, reward_fn=default_reward, render_mode=None):
         self.reward_fn = reward_fn
         self.render_mode = render_mode
         self.move_history = []

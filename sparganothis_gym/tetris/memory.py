@@ -21,9 +21,8 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
-def init_memory(episodes, episode_size, memory_size):
+def init_memory(reward, episodes, episode_size, memory_size):
     memory = ReplayMemory(memory_size)
-    reward = build_per_state_reward()
     for _ in tqdm.tqdm(range(episodes)):
         env = TetrisEnv()
         moves = env.vim_state.generate_bot_episode("wordpress", episode_size)
