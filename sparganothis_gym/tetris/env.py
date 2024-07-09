@@ -29,8 +29,9 @@ def v2s(v):
 class TetrisEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 4}
 
-    def __init__(self, reward_fn=default_reward, render_mode=None):
+    def __init__(self, reward_fn=default_reward, soft_drop_int=4, render_mode=None):
         self.reward_fn = reward_fn
+        self.soft_drop_int = soft_drop_int
         self.render_mode = render_mode
         self.move_history = []
 
@@ -68,6 +69,8 @@ class TetrisEnv(gym.Env):
         return obs, info
 
     def step(self, action):
+        if len(self.move_history) % self.soft_drop_int == 0:
+            self.vim_state = dict(self.vim_state.next_actions_and_states)[SOFT_DROP]
         self.move_history.append(action)
         # Perform action
         last_vim_state = self.vim_state
