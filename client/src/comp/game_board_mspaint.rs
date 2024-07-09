@@ -176,14 +176,15 @@ pub fn MsPaintGameBoard(game_state: RwSignal<GameState>, save_name: ReadSignal<S
     let on_reset_game = Callback::<()>::new(move |_| {});
     let on_click = Callback::<(i8, i8)>::new(move |(y, x)| {
         game_state.update(|game_state| {
-            let old_value = game_state.main_board.v[y as usize][x as usize];
+            let old_value = game_state.main_board.get_cell(y as i8, x as i8).unwrap();
             let new_value = match old_value {
                 CellValue::Piece(_) => CellValue::Empty,
                 CellValue::Garbage => CellValue::Empty,
                 CellValue::Empty => CellValue::Piece(Tet::J),
                 CellValue::Ghost => CellValue::Piece(Tet::J),
             };
-            game_state.main_board.v[y as usize][x as usize] = new_value;
+            game_state.main_board.set_cell(y as i8, x as i8, new_value);
+            
         })
     });
 

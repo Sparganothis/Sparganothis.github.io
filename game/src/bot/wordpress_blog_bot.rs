@@ -11,7 +11,7 @@ use super::random_choice_bot::get_best_move_for_score_fn;
 
 pub fn get_height_for_column(b: &BoardMatrix, col: i32) -> i32 {
     for x in (0..b.get_num_rows()).rev() {
-        match b.v[x][col as usize] {
+        match b.get_cell(x as i8, col as i8).unwrap() {
             crate::tet::CellValue::Piece(_) => return x as i32,
             crate::tet::CellValue::Garbage => return x as i32,
             crate::tet::CellValue::Empty => continue,
@@ -28,7 +28,7 @@ fn board_holes(b: &BoardMatrix) -> i32 {
         let height = get_height_for_column(b, x as i32);
 
         for y in 0..height {
-            match b.v[y as usize][x as usize] {
+            match b.get_cell(y as i8, x as i8).unwrap() {
                 crate::tet::CellValue::Empty | crate::tet::CellValue::Ghost => {
                     holes += 1;
                 }
