@@ -141,7 +141,8 @@ impl GameStatePy {
                 13 => format!("bumpi               = {}", self.bumpi()?),
                 14 => format!("holes               = {}", self.holes()?),
                 15 => format!("height               = {}", self.height()?),
-                16 => format!("bot_moves_raw (wordpress) = {:?}", self.bot_moves_raw("wordpress".to_string())?),
+                16 => format!("bot_moves_raw('wordpress') = {:?}", self.bot_moves_raw("wordpress".to_string())?),
+                17 => format!("bot_moves_raw('random') = {:?}", self.bot_moves_raw("random".to_string())?),
                 _ => "".to_string()
             };
             matrix_rows.push(format!(" | {row_str} | {row_extra}"));
