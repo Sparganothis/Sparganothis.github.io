@@ -141,6 +141,8 @@ def optimize_model(policy_net, target_net, optimizer, memory, steps=1):
         torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100)
         optimizer.step()
 
+        return loss.item()
+
 def s2t(o):
     return {
         "board": torch.tensor(o["board"], dtype=torch.float32, device=device),

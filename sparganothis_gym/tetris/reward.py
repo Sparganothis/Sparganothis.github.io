@@ -20,15 +20,14 @@ def build_history_reward(targets):
             try:
                 return history.index(a2i(a))
             except ValueError:
-                return 0
+                return len(history)
         r = 0
         for v, al in targets:
-            for a in al: 
-                r += min(
-                    [
-                        try_def(a) for a in targets
-                    ]
-                ) * v
+            r += min(
+                [
+                    try_def(a) for a in al
+                ]
+            ) * v
         return r
     return history_reward
 
@@ -42,7 +41,7 @@ def merge_rewards(reward_fns):
 
 default_reward = merge_rewards(
     [build_end_reward(REWARD_END),
-    build_score_reward(REWARD_END),
+    build_score_reward(REWARD_SCORE),
     build_history_reward([
         (REWARD_SOFT, [SOFT_DROP]),
         (REWARD_MOVE, [MOVE_LEFT, MOVE_RIGHT]),
