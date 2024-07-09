@@ -97,6 +97,25 @@ impl GameStatePy {
     fn garbage_recv(&self) ->  PyResult<i64> {
         Ok(self.inner.garbage_recv)
     }
+    #[getter]
+    fn bumpi(&self) ->  PyResult<i32> {
+        Ok(self.inner.main_board.board_bumpi())
+    }
+    #[getter]
+    fn holes(&self) ->  PyResult<i32> {
+        Ok(self.inner.main_board.board_holes())
+    }
+    #[getter]
+    fn height(&self) ->  PyResult<i32> {
+        let mut x = self.inner.clone();
+        if let Some(c) = x.current_pcs {
+            let _ = x.main_board.delete_piece(&c);
+            Ok(x.main_board.get_height()+1)
+        }
+        else         {
+            Ok(self.inner.main_board.get_height()+1)
+        }
+    }
 
     #[getter]
     fn matrix_txt(&self) ->  PyResult<String> {
@@ -107,7 +126,7 @@ impl GameStatePy {
             let row_str: Vec<_> = row.iter().map(|x| if *x {"x"} else {" "}.to_string()).collect();
             let row_str = row_str.join("");
             let row_extra = match i {
-                1 => format!("current_pcs_rotation = {:?}", self.current_pcs_rotation()?),
+                1 => format!("current_pcs = {:?}", self.current_pcs()?),
                 2 => format!("game_over            = {:?}", self.game_over()?),
                 3 => format!("hold                 = {:?}", self.hold()?),
                 4 => format!("next_pcs             = {:?}", self.next_pcs()?),
@@ -119,6 +138,9 @@ impl GameStatePy {
                 10 => format!("total_garbage_sent  = {}", self.total_garbage_sent()?),
                 11 => format!("garbage_recv        = {}", self.garbage_recv()?),
                 12 => format!("total_move_count    = {}", self.total_move_count()?),
+                13 => format!("bumpi               = {}", self.bumpi()?),
+                14 => format!("holes               = {}", self.holes()?),
+                15 => format!("height               = {}", self.height()?),
                 _ => "".to_string()
             };
             matrix_rows.push(format!(" | {row_str} | {row_extra}"));
@@ -174,6 +196,11 @@ impl GameStatePy {
         } else {
             Ok(("".to_string(), -666, (-127, -127)))
         }
+    }
+    
+    #[getter]
+    fn current_pcs(&self) -> PyResult<(String, i64, (i8, i8))> {
+        self.current_pcs_rotation()
     }
 
     #[getter]

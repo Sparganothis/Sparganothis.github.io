@@ -26,6 +26,9 @@ print(" main ", str(state.main_board)[0:20] )
 print(" next ", state.next_pcs )
 print(" total_lines ", state.total_lines)
 print(" score ", state.score)
+print(" bumpi ", state.bumpi)
+print(" holes ", state.holes)
+print(" height ", state.height)
 
 print(" next actions ", [k[0] for k in state.next_actions_and_states])
 
