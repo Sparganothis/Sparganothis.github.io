@@ -85,7 +85,7 @@ class TetrisEnv(gym.Env):
         if self.render_mode == "human":
             self.render()
 
-        if not i2a(action) == SOFT_DROP:
+        if not terminated and not i2a(action) == SOFT_DROP:
             if len(self.move_history) % self.soft_drop_int == 0:
                 last_vim_state = self.vim_state
                 self.vim_state = dict(self.vim_state.next_actions_and_states)[SOFT_DROP]
