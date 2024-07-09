@@ -3,8 +3,16 @@ from tetris.model import *
 from tetris.core import * 
 import torch
 
-policy_net = torch.jit.load('policy_net.pt')
+
+device = torch.device(
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps" if torch.backends.mps.is_available() else "cpu"
+)
+
+policy_net = torch.jit.load('policy_net.pt', map_location=device)
 policy_net.eval()
+
 
 env = TetrisEnv()
 
