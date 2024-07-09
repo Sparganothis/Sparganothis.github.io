@@ -46,6 +46,11 @@ bash run-server.sh
 
 # todo
 
+## BOT/PERF
+- OPTIMIZE GameState REpresentation to uyse bvit vector / int mask / all mamtrix in i128
+- READ &* PARSE TETio SAVE FILE FORMAT JSON 
+- 
+
 ## custom game / mspaint
 - save a difgferent strucct "GameBoardCustomM" that only contains editable things in mspaint.exe (avoid dropping old custom game baords)
 
