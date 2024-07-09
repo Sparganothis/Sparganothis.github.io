@@ -1,5 +1,5 @@
 from tetris.env import *
-from tetris.model import o2t
+from tetris.model import s2t
 import os
 import time
 import torch
@@ -23,7 +23,7 @@ while True:
     print(env.render())
     time.sleep(0.25)
     os.system('cls')
-    x = o2t(obs)
+    x = s2t(obs)
     action = (
         (
             policy_net(

@@ -13,7 +13,9 @@ target_net = DQN(128).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = init_memory(100_000)
+memory = init_memory(100, 50, 10_000)
+
+optimize_model(policy_net, target_net, optimizer, memory, 1000)
 
 # env = TetrisEnv(merge_rewards(
 #     [build_end_reward(-100),
@@ -32,7 +34,7 @@ else:
 for i_episode in tqdm(range(num_episodes)):
     # Initialize the environment and get its state
     state, info = env.reset()
-    state = o2t(state)
+    state = s2t(state)
 
     for t in count():
         eps_threshold = EPS_END + (EPS_START - EPS_END) * math.exp(
@@ -47,7 +49,7 @@ for i_episode in tqdm(range(num_episodes)):
         if terminated:
             next_state = None
         else:
-            next_state = o2t(observation)
+            next_state = s2t(observation)
 
         # Store the transition in memory
         memory.push(state, action, next_state, reward)
