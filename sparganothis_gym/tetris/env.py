@@ -70,7 +70,13 @@ class TetrisEnv(gym.Env):
 
     def step(self, action):
         if len(self.move_history) % self.soft_drop_int == 0:
+            last_vim_state = self.vim_state
             self.vim_state = dict(self.vim_state.next_actions_and_states)[SOFT_DROP]
+            terminated = self.vim_state.game_over
+            if terminated:
+                reward = self.reward_fn(last_vim_state, self.vim_state, self.move_history) 
+                obs, info = v2s(self.vim_state)
+                return obs, reward, terminated, False, info
         self.move_history.append(action)
         # Perform action
         last_vim_state = self.vim_state
