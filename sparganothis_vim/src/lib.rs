@@ -141,6 +141,7 @@ impl GameStatePy {
                 13 => format!("bumpi               = {}", self.bumpi()?),
                 14 => format!("holes               = {}", self.holes()?),
                 15 => format!("height               = {}", self.height()?),
+                16 => format!("bot_moves_raw (wordpress) = {:?}", self.bot_moves_raw("wordpress".to_string())?),
                 _ => "".to_string()
             };
             matrix_rows.push(format!(" | {row_str} | {row_extra}"));
@@ -154,6 +155,8 @@ impl GameStatePy {
         let x = self.matrix_txt()?;
         Ok(format!("<code><pre>{x}</pre></code>"))
     }
+
+    
     
     #[getter]
     fn total_move_count(&self) -> PyResult<i32> {
@@ -214,6 +217,13 @@ impl GameStatePy {
             }
         }
         Ok(v)
+    }
+
+    pub fn bot_moves_raw(&self, bot_type: String,) -> PyResult<Vec<String>> {
+
+        let b = game::bot::get_bot(&bot_type).map_err(|e| PyValueError::new_err(format!("{}", e)))?;
+        let moves = b.choose_move(&self.inner).map_err(|e| PyValueError::new_err(format!("bad bot move: {}", e)))?;
+        Ok(moves.into_iter().map(|m| m.name()).collect())
     }
 
     pub fn generate_bot_episode(&self, bot_type: String, max_episode_len: usize) -> PyResult<Vec<(String, GameStatePy)>> {
