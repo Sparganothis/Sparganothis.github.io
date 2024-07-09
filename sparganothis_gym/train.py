@@ -2,7 +2,7 @@ from tetris.env import *
 from tetris.model import *
 from tetris.hparams import *
 from tetris.reward import *
-
+from tetris.memory import *
 from tqdm import tqdm
 from itertools import count
 import math
@@ -13,12 +13,14 @@ target_net = DQN(128).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = ReplayMemory(10000)
+memory = init_memory(100_000)
 
-env = TetrisEnv(merge_rewards(
-    [build_end_reward(-100),
-    build_score_reward(0.01)]
-))
+# env = TetrisEnv(merge_rewards(
+#     [build_end_reward(-100),
+#     build_score_reward(0.01)]
+# ))
+
+env = TetrisEnv(build_per_state_reward())
 
 steps_done = 0
 

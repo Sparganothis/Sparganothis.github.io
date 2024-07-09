@@ -42,9 +42,10 @@ def i2p(i):
 class TetrisEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 4}
 
-    def __init__(self, reward_fn=default_reward, render_mode=None):
+    def __init__(self, reward_fn=build_end_reward(-100), render_mode=None):
         self.reward_fn = reward_fn
         self.render_mode = render_mode
+        self.move_history = []
 
         self.action_space = spaces.Discrete(len(ALL_ACTIONS))
 
@@ -77,13 +78,14 @@ class TetrisEnv(gym.Env):
     def reward_vim_state(self, prev_state):
         terminated = self.vim_state.game_over
 
-        reward = self.reward_fn(prev_state, self.vim_state)
+        reward = self.reward_fn(prev_state, self.vim_state, self.move_history)
 
         return reward, terminated
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
+        self.move_history = []
         if seed is None:
             self.vim_seed = sparganothis_vim.generate_random_seed()
         else:
@@ -99,6 +101,7 @@ class TetrisEnv(gym.Env):
         return obs, info
 
     def step(self, action):
+        self.move_history.append(action)
         # Perform action
         last_vim_state = self.vim_state
         self.vim_state = dict(self.vim_state.next_actions_and_states)[i2a(action)]
