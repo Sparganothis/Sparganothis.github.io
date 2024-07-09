@@ -314,6 +314,55 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         0
     }
 
+    
+    pub fn get_height_for_column(&self, col: i32) -> i32 {
+        for x in (0..self.get_num_rows()).rev() {
+            match self.get_cell(x as i8, col as i8).unwrap() {
+                crate::tet::CellValue::Piece(_) => return x as i32,
+                crate::tet::CellValue::Garbage => return x as i32,
+                crate::tet::CellValue::Empty => continue,
+                crate::tet::CellValue::Ghost => continue,
+            }
+        }
+        0
+    }
+
+    pub fn board_holes(&self) -> i32 {
+        let mut holes: i32 = 0;
+
+        for x in (0..self.get_num_cols()).rev() {
+            let height = self.get_height_for_column(x as i32);
+
+            for y in 0..height {
+                match self.get_cell(y as i8, x as i8).unwrap() {
+                    crate::tet::CellValue::Empty | crate::tet::CellValue::Ghost => {
+                        holes += 1;
+                    }
+                    _ => {}
+                };
+            }
+        }
+
+        holes
+    }
+    pub fn board_bumpi(&self) -> i32 {
+        let mut max_bumpi = 0;
+        for i in 0..(self.get_num_cols() - 1) {
+            let left = i;
+            let right = i + 1;
+            let height_left = self.get_height_for_column(left as i32);
+            let height_right = self.get_height_for_column(right as i32);
+
+            let bumpi = height_left - height_right;
+            let bumpi = if bumpi > 0 { bumpi } else { -bumpi };
+            if bumpi > max_bumpi {
+                max_bumpi = bumpi;
+            }
+        }
+        max_bumpi
+    }
+
+
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TetAction {

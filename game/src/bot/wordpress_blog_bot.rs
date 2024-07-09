@@ -9,61 +9,14 @@ pub struct WordpressBlogBot;
 
 use super::random_choice_bot::get_best_move_for_score_fn;
 
-pub fn get_height_for_column(b: &BoardMatrix, col: i32) -> i32 {
-    for x in (0..b.get_num_rows()).rev() {
-        match b.get_cell(x as i8, col as i8).unwrap() {
-            crate::tet::CellValue::Piece(_) => return x as i32,
-            crate::tet::CellValue::Garbage => return x as i32,
-            crate::tet::CellValue::Empty => continue,
-            crate::tet::CellValue::Ghost => continue,
-        }
-    }
-    0
-}
-
-fn board_holes(b: &BoardMatrix) -> i32 {
-    let mut holes: i32 = 0;
-
-    for x in (0..b.get_num_cols()).rev() {
-        let height = get_height_for_column(b, x as i32);
-
-        for y in 0..height {
-            match b.get_cell(y as i8, x as i8).unwrap() {
-                crate::tet::CellValue::Empty | crate::tet::CellValue::Ghost => {
-                    holes += 1;
-                }
-                _ => {}
-            };
-        }
-    }
-
-    holes
-}
-fn board_bumpi(b: &BoardMatrix) -> i32 {
-    let mut max_bumpi = 0;
-    for i in 0..(b.get_num_cols() - 1) {
-        let left = i;
-        let right = i + 1;
-        let height_left = get_height_for_column(b, left as i32);
-        let height_right = get_height_for_column(b, right as i32);
-
-        let bumpi = height_left - height_right;
-        let bumpi = if bumpi > 0 { bumpi } else { -bumpi };
-        if bumpi > max_bumpi {
-            max_bumpi = bumpi;
-        }
-    }
-    max_bumpi
-}
-
 fn get_wordpress_score_for_board(
     old_state: &GameState,
     new_state: &GameState,
 ) -> anyhow::Result<f64> {
     let line_diff = new_state.total_lines - old_state.total_lines;
 
-    let bumpi: i32 = board_bumpi(&new_state.main_board);
-    let holes: i32 = board_holes(&new_state.main_board);
+    let bumpi: i32 = new_state.main_board.board_bumpi();
+    let holes: i32 = new_state.main_board.board_holes();
 
     Ok(
         -0.51 * (new_state.main_board.get_height() as f64) + 0.76 * (line_diff as f64)
