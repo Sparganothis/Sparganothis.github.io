@@ -140,7 +140,6 @@ pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
 }
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
-
     pub fn get_cell(&self, y: i8, x: i8) -> Option<CellValue> {
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             None
@@ -154,14 +153,17 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     }
 
     pub fn rows(&self) -> Vec<Vec<CellValue>> {
-        self.vv.iter().map(|r| r.iter().cloned().collect()).collect()
+        self.vv
+            .iter()
+            .map(|r| r.iter().cloned().collect())
+            .collect()
     }
     pub fn empty() -> Self {
         Self {
             vv: [[CellValue::Empty; C]; R],
         }
     }
-    
+
     pub fn get_num_rows(&self) -> usize {
         R
     }
@@ -190,7 +192,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    match self.get_cell(cy ,cx).unwrap() {
+                    match self.get_cell(cy, cx).unwrap() {
                         CellValue::Empty | CellValue::Ghost => {}
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -208,9 +210,9 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    match self.get_cell(cy ,cx).unwrap() {
+                    match self.get_cell(cy, cx).unwrap() {
                         CellValue::Empty | CellValue::Ghost => {
-                            self.set_cell(cy ,cx, CellValue::Piece(piece)) ;
+                            self.set_cell(cy, cx, CellValue::Piece(piece));
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -240,9 +242,9 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    match self.get_cell(cy ,cx).unwrap() {
+                    match self.get_cell(cy, cx).unwrap() {
                         CellValue::Empty | CellValue::Ghost => {
-                            self.set_cell(cy ,cx, CellValue::Ghost) ;
+                            self.set_cell(cy, cx, CellValue::Ghost);
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -271,7 +273,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    self.set_cell(cy ,cx, CellValue::Empty) ;
+                    self.set_cell(cy, cx, CellValue::Empty);
                 }
             }
         }
@@ -298,7 +300,6 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
     }
 
-    
     pub fn get_height(&self) -> i32 {
         for i in (0..R).rev() {
             for j in 0..C {
@@ -314,7 +315,6 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         0
     }
 
-    
     pub fn get_height_for_column(&self, col: i32) -> i32 {
         for x in (0..self.get_num_rows()).rev() {
             match self.get_cell(x as i8, col as i8).unwrap() {
@@ -361,8 +361,6 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
         max_bumpi
     }
-
-
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TetAction {
@@ -581,7 +579,7 @@ impl GameState {
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
-                    let upper = self.main_board.get_cell(i+1, j).unwrap();
+                    let upper = self.main_board.get_cell(i + 1, j).unwrap();
                     self.main_board.set_cell(i, j, upper);
                 }
             }
