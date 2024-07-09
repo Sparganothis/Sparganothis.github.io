@@ -136,10 +136,11 @@ use serde_with::serde_as;
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
     #[serde_as(as = "[[_; C]; R]")]
-    pub v: [[CellValue; C]; R],
+    v: [[CellValue; C]; R],
 }
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
+
     pub fn get_height(&self) -> i32 {
         for i in (0..R).rev() {
             for j in 0..C {
@@ -167,6 +168,10 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         } else {
             Some(self.v[y as usize][x as usize])
         }
+    }
+
+    pub fn set_cell(&mut self, y: i8, x: i8, v: CellValue) {
+        self.v[y as usize][x as usize] = v;
     }
 
     pub fn empty() -> Self {
