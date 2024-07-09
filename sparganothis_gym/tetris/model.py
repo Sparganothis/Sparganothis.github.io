@@ -73,7 +73,7 @@ def select_action(env, policy_net, state, info, eps_threshold):
         )
 
 def optimize_model(policy_net, target_net, optimizer, memory, steps=1):
-    for _ in tqdm.tqdm(range(steps)) if steps > 1 else range(steps):
+    def _fn():
         if len(memory) < BATCH_SIZE:
             return
         transitions = memory.sample(BATCH_SIZE)
@@ -142,6 +142,12 @@ def optimize_model(policy_net, target_net, optimizer, memory, steps=1):
         optimizer.step()
 
         return loss.item()
+    if steps > 1:
+        for _ in tqdm.tqdm(range(steps)):
+            _fn()
+    else:
+        _fn()
+
 
 def s2t(o):
     return {
