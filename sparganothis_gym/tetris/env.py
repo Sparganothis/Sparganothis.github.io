@@ -5,24 +5,6 @@ from gymnasium import spaces
 import sparganothis_vim
 from tetris.reward import *
 
-ALL_ACTIONS = [
-    "HardDrop",
-    "SoftDrop",
-    "MoveLeft",
-    "MoveRight",
-    "Hold",
-    "RotateLeft",
-    "RotateRight",
-]
-ALL_PIECES = ["I", "J", "L", "O", "S", "T", "Z"]
-BOARD_SHAPE = [20, 10]
-
-def a2i(a):
-    return ALL_ACTIONS.index(a)
-
-def i2a(i):
-    return ALL_ACTIONS[i]
-
 def al2m(al):
     r = np.zeros(len(ALL_ACTIONS))
     if not al:
@@ -31,18 +13,23 @@ def al2m(al):
         r[a2i(a)] = 1
     return r
 
-def p2i(p):
-    if not p:
-        return -1
-    return ALL_PIECES.index(p)
-
-def i2p(i):
-    return ALL_PIECES[i]
+def v2s(v):
+    return {
+        "board": np.array(v.main_board).astype(int),
+        "next": [p2i(p) for p in v.next_pcs[:5]],
+        "hold": p2i(v.hold) + 1,
+    }, {
+        "action_mask": np.array(
+            al2m([a for a, _ in v.next_actions_and_states]),
+            dtype=np.int8,
+        ),
+        "game_over": v.game_over,
+    }
 
 class TetrisEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 4}
 
-    def __init__(self, reward_fn=build_end_reward(-100), render_mode=None):
+    def __init__(self, reward_fn=default_reward, render_mode=None):
         self.reward_fn = reward_fn
         self.render_mode = render_mode
         self.move_history = []
@@ -62,26 +49,6 @@ class TetrisEnv(gym.Env):
         self.vim_seed = sparganothis_vim.generate_random_seed()
         self.vim_state = sparganothis_vim.GameStatePy(self.vim_seed)
 
-    def obs_vim_state(self):
-        return {
-            "board": np.array(self.vim_state.main_board).astype(int),
-            "next": [p2i(p) for p in self.vim_state.next_pcs[:5]],
-            "hold": p2i(self.vim_state.hold) + 1,
-        }, {
-            "action_mask": np.array(
-                al2m([a for a, _ in self.vim_state.next_actions_and_states]),
-                dtype=np.int8,
-            ),
-            "game_over": self.vim_state.game_over,
-        }
-
-    def reward_vim_state(self, prev_state):
-        terminated = self.vim_state.game_over
-
-        reward = self.reward_fn(prev_state, self.vim_state, self.move_history)
-
-        return reward, terminated
-
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
@@ -93,7 +60,7 @@ class TetrisEnv(gym.Env):
 
         self.vim_state = sparganothis_vim.GameStatePy(self.vim_seed)
 
-        obs, info = self.obs_vim_state()
+        obs, info = v2s(self.vim_state)
 
         if self.render_mode == "human":
             self.render()
@@ -107,10 +74,11 @@ class TetrisEnv(gym.Env):
         self.vim_state = dict(self.vim_state.next_actions_and_states)[i2a(action)]
 
         # Determine reward and termination
-        reward, terminated = self.reward_vim_state(last_vim_state)
+        reward = self.reward_fn(last_vim_state, self.vim_state, self.move_history) 
+        terminated = self.vim_state.game_over
 
         # Construct the observation state:
-        obs, info = self.obs_vim_state()
+        obs, info = v2s(self.vim_state)
 
         # Render environment
         if self.render_mode == "human":

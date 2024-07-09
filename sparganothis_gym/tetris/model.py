@@ -2,9 +2,14 @@ import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from collections import namedtuple
 
 from tetris.env import *
 from tetris.hparams import *
+
+import tqdm 
+
+Transition = namedtuple("Transition", ("state", "action", "next_state", "reward"))
 
 # if GPU is to be used
 device = torch.device(
@@ -12,6 +17,7 @@ device = torch.device(
     if torch.cuda.is_available()
     else "mps" if torch.backends.mps.is_available() else "cpu"
 )
+
 
 class DQN(nn.Module):
 
@@ -61,80 +67,83 @@ def select_action(env, policy_net, state, info, eps_threshold):
             )
     else:
         return torch.tensor(
-            [[env.action_space.sample(mask=info["action_mask"])]],
+            [[a2i(env.vim_state.generate_bot_episode("wordpress", 1)[0][0])]],
             device=device,
             dtype=torch.long,
         )
 
-def optimize_model(policy_net, target_net, optimizer, memory):
-    if len(memory) < BATCH_SIZE:
-        return
-    transitions = memory.sample(BATCH_SIZE)
-    # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
-    # detailed explanation). This converts batch-array of Transitions
-    # to Transition of batch-arrays.
-    batch = Transition(*zip(*transitions))
+def optimize_model(policy_net, target_net, optimizer, memory, steps=1):
+    for _ in tqdm.tqdm(range(steps)) if steps > 1 else range(steps):
+        if len(memory) < BATCH_SIZE:
+            return
+        transitions = memory.sample(BATCH_SIZE)
+        # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
+        # detailed explanation). This converts batch-array of Transitions
+        # to Transition of batch-arrays.
+        batch = Transition(*zip(*transitions))
 
-    # Compute a mask of non-final states and concatenate the batch elements
-    # (a final state would've been the one after which simulation ended)
-    non_final_mask = torch.tensor(
-        tuple(map(lambda s: s is not None, batch.next_state)),
-        device=device,
-        dtype=torch.bool,
-    )
-    non_final_next_states = [s for s in batch.next_state if s is not None]
-    non_final_next_states = {
-        "board": torch.cat([s["board"][None, ::] for s in non_final_next_states]),
-        "next": torch.cat([s["next"][None, ::] for s in non_final_next_states]),
-        "hold": torch.cat([s["hold"][None, ::] for s in non_final_next_states]),
-    }
-
-    state_batch = {
-        "board": torch.cat([s["board"][None, ::] for s in batch.state]),
-        "next": torch.cat([s["next"][None, ::] for s in batch.state]),
-        "hold": torch.cat([s["hold"][None, ::] for s in batch.state]),
-    }
-    action_batch = torch.cat(batch.action)
-    reward_batch = torch.cat(batch.reward)
-
-    # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
-    # columns of actions taken. These are the actions which would've been taken
-    # for each batch state according to policy_net
-    state_action_values = policy_net(
-        state_batch['board'],
-        state_batch['next'],
-        state_batch['hold']
-    ).gather(1, action_batch)
-
-    # Compute V(s_{t+1}) for all next states.
-    # Expected values of actions for non_final_next_states are computed based
-    # on the "older" target_net; selecting their best reward with max(1).values
-    # This is merged based on the mask, such that we'll have either the expected
-    # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    with torch.no_grad():
-        next_state_values[non_final_mask] = (
-            target_net(
-                non_final_next_states['board'],
-                non_final_next_states['next'],
-                non_final_next_states['hold'],
-            ).max(1).values
+        # Compute a mask of non-final states and concatenate the batch elements
+        # (a final state would've been the one after which simulation ended)
+        non_final_mask = torch.tensor(
+            tuple(map(lambda s: s is not None, batch.next_state)),
+            device=device,
+            dtype=torch.bool,
         )
-    # Compute the expected Q values
-    expected_state_action_values = (next_state_values * GAMMA) + reward_batch
+        non_final_next_states = [s for s in batch.next_state if s is not None]
+        non_final_next_states = {
+            "board": torch.cat([s["board"][None, ::] for s in non_final_next_states]),
+            "next": torch.cat([s["next"][None, ::] for s in non_final_next_states]),
+            "hold": torch.cat([s["hold"][None, ::] for s in non_final_next_states]),
+        }
 
-    # Compute Huber loss
-    criterion = nn.SmoothL1Loss()
-    loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+        state_batch = {
+            "board": torch.cat([s["board"][None, ::] for s in batch.state]),
+            "next": torch.cat([s["next"][None, ::] for s in batch.state]),
+            "hold": torch.cat([s["hold"][None, ::] for s in batch.state]),
+        }
+        action_batch = torch.cat(batch.action)
+        reward_batch = torch.cat(batch.reward)
 
-    # Optimize the model
-    optimizer.zero_grad()
-    loss.backward()
-    # In-place gradient clipping
-    torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100)
-    optimizer.step()
+        # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
+        # columns of actions taken. These are the actions which would've been taken
+        # for each batch state according to policy_net
+        state_action_values = policy_net(
+            state_batch['board'],
+            state_batch['next'],
+            state_batch['hold']
+        ).gather(1, action_batch)
 
-def o2t(o):
+        # Compute V(s_{t+1}) for all next states.
+        # Expected values of actions for non_final_next_states are computed based
+        # on the "older" target_net; selecting their best reward with max(1).values
+        # This is merged based on the mask, such that we'll have either the expected
+        # state value or 0 in case the state was final.
+        next_state_values = torch.zeros(BATCH_SIZE, device=device)
+        with torch.no_grad():
+            next_state_values[non_final_mask] = (
+                target_net(
+                    non_final_next_states['board'],
+                    non_final_next_states['next'],
+                    non_final_next_states['hold'],
+                ).max(1).values
+            )
+        # Compute the expected Q values
+        expected_state_action_values = (next_state_values * GAMMA) + reward_batch
+
+        # Compute Huber loss
+        criterion = nn.SmoothL1Loss()
+        loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+
+        # Optimize the model
+        optimizer.zero_grad()
+        loss.backward()
+        # In-place gradient clipping
+        torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100)
+        optimizer.step()
+
+        return loss.item()
+
+def s2t(o):
     return {
         "board": torch.tensor(o["board"], dtype=torch.float32, device=device),
         "next": F.one_hot(
