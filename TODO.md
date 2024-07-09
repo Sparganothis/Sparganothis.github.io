@@ -3,12 +3,14 @@
 # todo
 
 ## BOT/PERF
-- READ FROM TORCHSCRIPT
-- 
+- OPTIMIZE GameState REpresentation to uyse bvit vector / int mask / all mamtrix in i128
+
+- READ &* PARSE TETio SAVE FILE FORMAT JSON
+- SAMPLE BOT FROM PYTHON SCRIPT 
+
+- OPTIMIZE: SAMPLE FROM TORCHSCRIPT
 - -addd more info to game state:
   - wordpress bot things: # holes, bumpiness, max height, if line clear
-- OPTIMIZE GameState REpresentation to uyse bvit vector / int mask / all mamtrix in i128
-- READ &* PARSE TETio SAVE FILE FORMAT JSON 
 
 ## PAGINAITE ALL TABLES --- API ROUTES IGNORE _PAG PARAM
 
