@@ -12,7 +12,10 @@
 - -addd more info to game state:
   - wordpress bot things: # holes, bumpiness, max height, if line clear
 
-## PAGINAITE ALL TABLES --- API ROUTES IGNORE _PAG PARAM
+
+## PAGINAITE ALL TABLES 
+
+- API ROUTES IGNORE _PAG PARAM
 
 ## custom game / mspaint
 - save a difgferent strucct "GameBoardCustomM" that only contains editable things in mspaint.exe (avoid dropping old custom game baords)

@@ -136,25 +136,32 @@ use serde_with::serde_as;
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
     #[serde_as(as = "[[_; C]; R]")]
-    v: [[CellValue; C]; R],
+    vv: [[CellValue; C]; R],
 }
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
 
-    pub fn get_height(&self) -> i32 {
-        for i in (0..R).rev() {
-            for j in 0..C {
-                let cc = self.v[i][j];
-                match cc {
-                    CellValue::Piece(_) => return i as i32,
-                    CellValue::Garbage => return i as i32,
-                    CellValue::Empty => continue,
-                    CellValue::Ghost => continue,
-                };
-            }
+    pub fn get_cell(&self, y: i8, x: i8) -> Option<CellValue> {
+        if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
+            None
+        } else {
+            Some(self.vv[y as usize][x as usize])
         }
-        0
     }
+
+    pub fn set_cell(&mut self, y: i8, x: i8, v: CellValue) {
+        self.vv[y as usize][x as usize] = v;
+    }
+
+    pub fn rows(&self) -> Vec<Vec<CellValue>> {
+        self.vv.iter().map(|r| r.iter().cloned().collect()).collect()
+    }
+    pub fn empty() -> Self {
+        Self {
+            vv: [[CellValue::Empty; C]; R],
+        }
+    }
+    
     pub fn get_num_rows(&self) -> usize {
         R
     }
@@ -162,23 +169,6 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         C
     }
 
-    pub fn get_cell(&self, y: i8, x: i8) -> Option<CellValue> {
-        if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
-            None
-        } else {
-            Some(self.v[y as usize][x as usize])
-        }
-    }
-
-    pub fn set_cell(&mut self, y: i8, x: i8, v: CellValue) {
-        self.v[y as usize][x as usize] = v;
-    }
-
-    pub fn empty() -> Self {
-        Self {
-            v: [[CellValue::Empty; C]; R],
-        }
-    }
     pub fn spawn_piece(&mut self, info: &CurrentPcsInfo) -> anyhow::Result<()> {
         let CurrentPcsInfo {
             pos: (y, x),
@@ -200,7 +190,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    match self.v[cy as usize][cx as usize] {
+                    match self.get_cell(cy ,cx).unwrap() {
                         CellValue::Empty | CellValue::Ghost => {}
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -218,9 +208,9 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    match self.v[cy as usize][cx as usize] {
+                    match self.get_cell(cy ,cx).unwrap() {
                         CellValue::Empty | CellValue::Ghost => {
-                            self.v[cy as usize][cx as usize] = CellValue::Piece(piece);
+                            self.set_cell(cy ,cx, CellValue::Piece(piece)) ;
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -250,9 +240,9 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    match self.v[cy as usize][cx as usize] {
+                    match self.get_cell(cy ,cx).unwrap() {
                         CellValue::Empty | CellValue::Ghost => {
-                            self.v[cy as usize][cx as usize] = CellValue::Ghost;
+                            self.set_cell(cy ,cx, CellValue::Ghost) ;
                         }
                         CellValue::Garbage | CellValue::Piece(_) => {
                             anyhow::bail!("cell position already taken");
@@ -281,7 +271,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
                         anyhow::bail!(
                     "given position out of game bounds (got (x={x} y={y}), max (x={C} y={R})");
                     }
-                    self.v[cy as usize][cx as usize] = CellValue::Empty;
+                    self.set_cell(cy ,cx, CellValue::Empty) ;
                 }
             }
         }
@@ -307,9 +297,23 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             }
         }
     }
-    pub fn rows(&self) -> Vec<Vec<CellValue>> {
-        self.v.iter().map(|r| r.iter().cloned().collect()).collect()
+
+    
+    pub fn get_height(&self) -> i32 {
+        for i in (0..R).rev() {
+            for j in 0..C {
+                let cc = self.get_cell(i as i8, j as i8).unwrap();
+                match cc {
+                    CellValue::Piece(_) => return i as i32,
+                    CellValue::Garbage => return i as i32,
+                    CellValue::Empty => continue,
+                    CellValue::Ghost => continue,
+                };
+            }
+        }
+        0
     }
+
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TetAction {
@@ -528,8 +532,8 @@ impl GameState {
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
                 for j in 0..10 {
-                    self.main_board.v[i as usize][j] =
-                        self.main_board.v[i as usize + 1][j];
+                    let upper = self.main_board.get_cell(i+1, j).unwrap();
+                    self.main_board.set_cell(i, j, upper);
                 }
             }
             lines += 1;
@@ -597,8 +601,8 @@ impl GameState {
     }
 
     fn can_clear_line(&self) -> Option<i8> {
-        for i in 0..40 {
-            let row = self.main_board.v[i];
+        for (i, row) in self.main_board.rows().into_iter().enumerate() {
+            // let row = self.main_board.v[i];
             let is_full = row
                 .iter()
                 .map(|cell| match cell {
@@ -952,7 +956,8 @@ impl GameState {
         let mut gameboard_empty = true;
         for y in 0..self.main_board.get_num_rows() {
             for x in 0..self.main_board.get_num_cols() {
-                let value = (&self.main_board.v)[y][x];
+                let value = self.main_board.get_cell(y as i8, x as i8).unwrap();
+                // let value = (&self.main_board.v)[y][x];
                 if !(value.eq(&CellValue::Ghost) || value.eq(&CellValue::Empty)) {
                     gameboard_empty = false;
                 }
@@ -964,9 +969,9 @@ impl GameState {
     fn clear_ghost(&mut self) {
         for y in 0..self.main_board.get_num_rows() {
             for x in 0..self.main_board.get_num_cols() {
-                let old_value = (&self.main_board.v)[y][x];
+                let old_value = self.main_board.get_cell(y as i8, x as i8).unwrap();
                 if old_value.eq(&CellValue::Ghost) {
-                    self.main_board.v[y][x] = CellValue::Empty;
+                    self.main_board.set_cell(y as i8, x as i8, CellValue::Empty);
                 }
             }
         }
