@@ -60,17 +60,14 @@ def select_action(env, policy_net, state, info, eps_threshold):
             return (
                 (
                     policy_net(
-                        state["board"][None, ::],
-                        state["next"][None, ::],
-                        state["hold"][None, ::],
+                        state["board"][None, ::].to(device),
+                        state["next"][None, ::].to(device),
+                        state["hold"][None, ::].to(device),
                     ).squeeze()
-                    * torch.tensor(
-                        info["action_mask"], dtype=torch.float32
-                    )
                 )
                 .argmax()
                 .view(1, 1)
-            )
+            ).to("cpu")
     else:
         return torch.tensor(
             [[env.action_space.sample(mask=info['action_mask'])]],
