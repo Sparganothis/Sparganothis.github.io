@@ -132,6 +132,8 @@ for i_episode in tqdm(range(num_episodes)):
         target_net.load_state_dict(target_net_state_dict)
 
         if done or t > TRAIN_EPISODE_SIZE:
+            if eps_threshold > 0.5:
+                add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
             wandb.log({"total_reward": total_reward, 
                 "total_move_count": env.vim_state.total_move_count,
                 "score": env.vim_state.score,
