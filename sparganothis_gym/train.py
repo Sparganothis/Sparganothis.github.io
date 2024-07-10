@@ -55,7 +55,15 @@ for i_episode in tqdm(range(num_episodes)):
         )
         steps_done += 1
         action = select_action(env, policy_net, state, info, eps_threshold)
-        observation, reward, terminated, truncated, info = env.step(action.item())
+
+        item = action.item()
+        next_act = [a2i(k[0]) for k in env.vim_state.next_actions_and_states]
+        if item not in next_act:
+            if not next_act:
+                print("NO NEXT ERROR WTF")
+                break
+            item = random.choice(next_act)
+        observation, reward, terminated, truncated, info = env.step(item)
         total_reward += reward
         reward = torch.tensor([reward], device=device)
         done = terminated or truncated

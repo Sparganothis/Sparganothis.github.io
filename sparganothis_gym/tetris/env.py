@@ -29,8 +29,9 @@ def v2s(v):
 class TetrisEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 4}
 
-    def __init__(self, reward_fn=default_reward, render_mode=None):
+    def __init__(self, reward_fn=default_reward, soft_drop_int=4, render_mode=None):
         self.reward_fn = reward_fn
+        self.soft_drop_int = soft_drop_int
         self.render_mode = render_mode
         self.move_history = []
 
@@ -83,6 +84,16 @@ class TetrisEnv(gym.Env):
         # Render environment
         if self.render_mode == "human":
             self.render()
+
+        if not terminated and not i2a(action) == SOFT_DROP:
+            if len(self.move_history) % self.soft_drop_int == 0:
+                last_vim_state = self.vim_state
+                self.vim_state = dict(self.vim_state.next_actions_and_states)[SOFT_DROP]
+                terminated = self.vim_state.game_over
+                if terminated:
+                    reward = self.reward_fn(last_vim_state, self.vim_state, self.move_history) 
+                    obs, info = v2s(self.vim_state)
+                    return obs, reward, terminated, False, info
 
         # Return observation, reward, terminated, truncated (not used), info
         return obs, reward, terminated, False, info
