@@ -8,8 +8,13 @@ sparganothis-vim = "*"
 gymnasium = "*"
 numpy = "<2"
 matplotlib = "*"
+torch = "*"
+torchvision = "*"
+torchaudio = "*"
+tqdm = "*"
+wandb = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "3.10"

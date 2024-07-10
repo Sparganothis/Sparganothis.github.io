@@ -42,17 +42,28 @@ target_net = DQN(TRAIN_MODEL_SIZE).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = init_memory(default_reward, 
-    TRAIN_MEMORY_EPISODES, 
-    TRAIN_MEMORY_EPISODE_SIZE, 
-    TRAIN_MEMORY_SIZE, 
-    TRAIN_MEMORY_THREADS)
-# memory = ReplayMemory(TRAIN_EPISODE_SIZE)
+
+import os
+import pickle
+if os.path.isfile("memory.pk"):
+    with open('memory.pk', 'rb') as f:
+        memory = pickle.load(f)
+else:
+    memory = init_memory(default_reward, 
+        TRAIN_MEMORY_EPISODES, 
+        TRAIN_MEMORY_EPISODE_SIZE, 
+        TRAIN_MEMORY_SIZE, 
+        TRAIN_MEMORY_THREADS)
+    with open('memory.pk', 'wb') as f:
+        pickle.dump(memory, f)
+
 
 optimize_model_steps = 0
 for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
     loss = optimize_model(policy_net, target_net, optimizer, memory)
     optimize_model_steps+=1
+    if optimize_model_steps % TRAIN_MEMORY_EPISODE_SIZE == 0:
+        memory = add_episode(reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
     if optimize_model_steps % 500 == 0:
         wandb.log({"loss": loss}, step=optimize_model_steps)
 
