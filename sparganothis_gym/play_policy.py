@@ -4,8 +4,6 @@ import os
 import time
 import torch
 
-policy_net = torch.jit.load('policy_net.pt')
-policy_net.eval()
 
 env = TetrisEnv()
 
@@ -18,10 +16,13 @@ device = torch.device(
     else "mps" if torch.backends.mps.is_available() else "cpu"
 )
 
+policy_net = torch.jit.load('policy_net.pt', map_location=device)
+policy_net.eval()
+
 # Take some policy_net actions
 while True:
     print(env.render())
-    time.sleep(0.25)
+    time.sleep(0.1)
     os.system('cls')
     x = s2t(obs)
     action = (

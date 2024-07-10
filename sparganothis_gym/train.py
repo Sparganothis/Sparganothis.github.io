@@ -17,8 +17,28 @@ run = wandb.init(
         "REWARD_MOVE": REWARD_MOVE,
         "REWARD_ROTATE": REWARD_ROTATE,
         "REWARD_SCORE": REWARD_SCORE,
+        "TRAIN_MEMORY_EPISODES": TRAIN_MEMORY_EPISODES,
+        "TRAIN_MEMORY_EPISODE_SIZE": TRAIN_MEMORY_EPISODE_SIZE,
+        "TRAIN_MEMORY_SIZE": TRAIN_MEMORY_SIZE,
+        "TRAIN_MEMORY_THREADS": TRAIN_MEMORY_THREADS,
+        "TRAIN_MEMORY_THREADS": TRAIN_MEMORY_THREADS,
+        "TRAIN_MODEL_INIT_STEPS": TRAIN_MODEL_INIT_STEPS,
+        "TRAIN_EPISODES_CPU": TRAIN_EPISODES_CPU,
+        "TRAIN_EPISODES_GPU": TRAIN_EPISODES_GPU,
+        "TRAIN_EPISODE_SIZE": TRAIN_EPISODE_SIZE,
+        "TRAIN_LOG_INTERVAL": TRAIN_LOG_INTERVAL,
+        "BATCH_SIZE": BATCH_SIZE,
+        "GAMMA": GAMMA,
+        "EPS_INTERVAL": EPS_INTERVAL,
+        "EPS_START": EPS_START,
+        "EPS_END": EPS_END,
+        "EPS_DECAY": EPS_DECAY,
+        "TAU": TAU,
+        "LR": LR,
     }
 )
+
+print(device)
 
 
 policy_net = DQN(TRAIN_MODEL_SIZE).to(device)
@@ -26,14 +46,30 @@ target_net = DQN(TRAIN_MODEL_SIZE).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-memory = init_memory(default_reward, 
-    TRAIN_MEMORY_EPISODES, 
-    TRAIN_MEMORY_EPISODE_SIZE, 
-    TRAIN_MEMORY_SIZE, 
-    TRAIN_MEMORY_THREADS)
-# memory = ReplayMemory(TRAIN_EPISODE_SIZE)
 
-optimize_model(policy_net, target_net, optimizer, memory, TRAIN_MODEL_INIT_STEPS)
+import os
+import pickle
+if os.path.isfile("memory.pk"):
+    with open('memory.pk', 'rb') as f:
+        memory = pickle.load(f)
+else:
+    memory = init_memory(default_reward, 
+        TRAIN_MEMORY_EPISODES, 
+        TRAIN_MEMORY_EPISODE_SIZE, 
+        TRAIN_MEMORY_SIZE, 
+        TRAIN_MEMORY_THREADS)
+    with open('memory.pk', 'wb') as f:
+        pickle.dump(memory, f)
+
+
+optimize_model_steps = 0
+for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
+    loss = optimize_model(policy_net, target_net, optimizer, memory)
+    optimize_model_steps+=1
+    if optimize_model_steps % TRAIN_MEMORY_EPISODE_SIZE == 0:
+        add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
+    if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
+        wandb.log({"loss": loss}, step=optimize_model_steps)
 
 env = TetrisEnv()
 
@@ -54,6 +90,7 @@ for i_episode in tqdm(range(num_episodes)):
             -1.0 * steps_done / EPS_DECAY
         )
         steps_done += 1
+        steps_done = steps_done % EPS_INTERVAL
         action = select_action(env, policy_net, state, info, eps_threshold)
 
         item = action.item()
@@ -65,7 +102,7 @@ for i_episode in tqdm(range(num_episodes)):
             item = random.choice(next_act)
         observation, reward, terminated, truncated, info = env.step(item)
         total_reward += reward
-        reward = torch.tensor([reward], device=device)
+        reward = torch.tensor([reward])
         done = terminated or truncated
 
         if terminated:
@@ -81,7 +118,9 @@ for i_episode in tqdm(range(num_episodes)):
 
         # Perform one step of the optimization (on the policy network)
         loss = optimize_model(policy_net, target_net, optimizer, memory)
-
+        optimize_model_steps+=1
+        if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
+            wandb.log({"loss": loss, "eps_threshold": eps_threshold}, step=optimize_model_steps)
         # Soft update of the target network's weights
         # θ′ ← τ θ + (1 −τ )θ′
         target_net_state_dict = target_net.state_dict()
@@ -93,9 +132,20 @@ for i_episode in tqdm(range(num_episodes)):
         target_net.load_state_dict(target_net_state_dict)
 
         if done or t > TRAIN_EPISODE_SIZE:
-            wandb.log({"total_reward": total_reward, "loss": loss})
+            if eps_threshold > 0.5:
+                add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
+            wandb.log({"total_reward": total_reward, 
+                "total_move_count": env.vim_state.total_move_count,
+                "score": env.vim_state.score,
+                "total_lines": env.vim_state.total_lines,
+                "holes": env.vim_state.holes,
+                "height": env.vim_state.height,}, step=optimize_model_steps)
             break
+    torch.save(policy_net.state_dict(), "policy_net_states.pt")
+    torch.save(optimizer.state_dict(), "optimizer_states.pt")
     policy_net_scripted = torch.jit.script(policy_net)
     policy_net_scripted.save("policy_net.pt")
-    run.log_model(path="policy_net.pt", name=WANDB_MODEL_NAME)
+    if i_episode % TRAIN_LOG_INTERVAL == 0:
+        run.log_model(path="policy_net_states.pt", name=WANDB_MODEL_NAME + "policy")
+        run.log_model(path="optimizer_states.pt", name=WANDB_MODEL_NAME + "optimizer")
 wandb.finish()
