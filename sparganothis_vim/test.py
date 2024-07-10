@@ -58,5 +58,12 @@ print("WORDPRESS SCORE: ", ep[-1][-1].score)
 
 
 print("ALL MOVE CHAINS count:", len(sparganothis_vim.GameStatePy.get_all_move_chains()))
-
 print("VALID MOVE CHAINS:", len(state3.get_valid_move_chains()))
+
+
+with open(r"D:\code\Sparganothis.github.io\sparganothis_gym\data\copo1.replay.bin", "rb") as f:
+    replay_bytes = f.read()
+init_state, ep = sparganothis_vim.GameStatePy.load_replay_from_bytes(replay_bytes)
+print("LOAD REPLAY FROM BYTES  ep count: ", len(ep))
+print("LOAD REPLAY FROM BYTES  ep : ", ep[0])
+print("LOAD REPLAY FROM BYTES   SCORE: ", ep[-1][-1].score)

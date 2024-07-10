@@ -74,11 +74,14 @@ def select_action(env, policy_net, state, info, eps_threshold):
             dtype=torch.long,
         )
 
-def optimize_model(policy_net, target_net, optimizer, memory):
-    if len(memory) < BATCH_SIZE:
-        print(len(memory))
+def optimize_model(policy_net, target_net, optimizer, memories, batch_sizes):
+    transitions = []
+    for mem_size, memory in zip(batch_sizes, memories):
+        if len(memory) < mem_size:
+            return
+        transitions += memory.sample(mem_size)
+    if not transitions:
         return
-    transitions = memory.sample(BATCH_SIZE)
     # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
     # detailed explanation). This converts batch-array of Transitions
     # to Transition of batch-arrays.
@@ -119,7 +122,7 @@ def optimize_model(policy_net, target_net, optimizer, memory):
     # on the "older" target_net; selecting their best reward with max(1).values
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(BATCH_SIZE).to(device)
+    next_state_values = torch.zeros(sum([s for s in batch_sizes])).to(device)
     with torch.no_grad():
         next_state_values[non_final_mask] = (
             target_net(

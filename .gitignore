@@ -1,3 +1,9 @@
 target
 dist
 server_data
+
+__pycache__
+wandb
+*.pt
+*.pk
+*.bin
