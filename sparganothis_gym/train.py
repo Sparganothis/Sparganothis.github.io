@@ -26,8 +26,10 @@ run = wandb.init(
         "TRAIN_EPISODES_CPU": TRAIN_EPISODES_CPU,
         "TRAIN_EPISODES_GPU": TRAIN_EPISODES_GPU,
         "TRAIN_EPISODE_SIZE": TRAIN_EPISODE_SIZE,
+        "TRAIN_LOG_INTERVAL": TRAIN_LOG_INTERVAL,
         "BATCH_SIZE": BATCH_SIZE,
         "GAMMA": GAMMA,
+        "EPS_INTERVAL": EPS_INTERVAL,
         "EPS_START": EPS_START,
         "EPS_END": EPS_END,
         "EPS_DECAY": EPS_DECAY,
@@ -35,6 +37,8 @@ run = wandb.init(
         "LR": LR,
     }
 )
+
+print(device)
 
 
 policy_net = DQN(TRAIN_MODEL_SIZE).to(device)
@@ -63,7 +67,7 @@ for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
     loss = optimize_model(policy_net, target_net, optimizer, memory)
     optimize_model_steps+=1
     if optimize_model_steps % TRAIN_MEMORY_EPISODE_SIZE == 0:
-        memory = add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
+        add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
     if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
         wandb.log({"loss": loss}, step=optimize_model_steps)
 
@@ -86,6 +90,7 @@ for i_episode in tqdm(range(num_episodes)):
             -1.0 * steps_done / EPS_DECAY
         )
         steps_done += 1
+        steps_done = steps_done % EPS_INTERVAL
         action = select_action(env, policy_net, state, info, eps_threshold)
 
         item = action.item()
@@ -97,7 +102,7 @@ for i_episode in tqdm(range(num_episodes)):
             item = random.choice(next_act)
         observation, reward, terminated, truncated, info = env.step(item)
         total_reward += reward
-        reward = torch.tensor([reward], device=device)
+        reward = torch.tensor([reward])
         done = terminated or truncated
 
         if terminated:
@@ -115,7 +120,7 @@ for i_episode in tqdm(range(num_episodes)):
         loss = optimize_model(policy_net, target_net, optimizer, memory)
         optimize_model_steps+=1
         if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
-            wandb.log({"loss": loss}, step=optimize_model_steps)
+            wandb.log({"loss": loss, "eps_threshold": eps_threshold}, step=optimize_model_steps)
         # Soft update of the target network's weights
         # θ′ ← τ θ + (1 −τ )θ′
         target_net_state_dict = target_net.state_dict()
@@ -134,8 +139,11 @@ for i_episode in tqdm(range(num_episodes)):
                 "holes": env.vim_state.holes,
                 "height": env.vim_state.height,}, step=optimize_model_steps)
             break
+    torch.save(policy_net.state_dict(), "policy_net_states.pt")
+    torch.save(optimizer.state_dict(), "optimizer_states.pt")
     policy_net_scripted = torch.jit.script(policy_net)
     policy_net_scripted.save("policy_net.pt")
     if i_episode % TRAIN_LOG_INTERVAL == 0:
-        run.log_model(path="policy_net.pt", name=WANDB_MODEL_NAME)
+        run.log_model(path="policy_net_states.pt", name=WANDB_MODEL_NAME + "policy")
+        run.log_model(path="optimizer_states.pt", name=WANDB_MODEL_NAME + "optimizer")
 wandb.finish()

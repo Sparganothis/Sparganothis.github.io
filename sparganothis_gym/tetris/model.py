@@ -13,7 +13,7 @@ Transition = namedtuple("Transition", ("state", "action", "next_state", "reward"
 
 # if GPU is to be used
 device = torch.device(
-    "cuda"
+    CUDA_DEVICE
     if torch.cuda.is_available()
     else "mps" if torch.backends.mps.is_available() else "cpu"
 )
@@ -65,7 +65,7 @@ def select_action(env, policy_net, state, info, eps_threshold):
                         state["hold"][None, ::],
                     ).squeeze()
                     * torch.tensor(
-                        info["action_mask"], device=device, dtype=torch.float32
+                        info["action_mask"], dtype=torch.float32
                     )
                 )
                 .argmax()
@@ -74,12 +74,12 @@ def select_action(env, policy_net, state, info, eps_threshold):
     else:
         return torch.tensor(
             [[env.action_space.sample(mask=info['action_mask'])]],
-            device=device,
             dtype=torch.long,
         )
 
 def optimize_model(policy_net, target_net, optimizer, memory):
     if len(memory) < BATCH_SIZE:
+        print(len(memory))
         return
     transitions = memory.sample(BATCH_SIZE)
     # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
@@ -91,23 +91,22 @@ def optimize_model(policy_net, target_net, optimizer, memory):
     # (a final state would've been the one after which simulation ended)
     non_final_mask = torch.tensor(
         tuple(map(lambda s: s is not None, batch.next_state)),
-        device=device,
         dtype=torch.bool,
-    )
+    ).to(device)
     non_final_next_states = [s for s in batch.next_state if s is not None]
     non_final_next_states = {
-        "board": torch.cat([s["board"][None, ::] for s in non_final_next_states]),
-        "next": torch.cat([s["next"][None, ::] for s in non_final_next_states]),
-        "hold": torch.cat([s["hold"][None, ::] for s in non_final_next_states]),
+        "board": torch.cat([s["board"][None, ::] for s in non_final_next_states]).to(device),
+        "next": torch.cat([s["next"][None, ::] for s in non_final_next_states]).to(device),
+        "hold": torch.cat([s["hold"][None, ::] for s in non_final_next_states]).to(device),
     }
 
     state_batch = {
-        "board": torch.cat([s["board"][None, ::] for s in batch.state]),
-        "next": torch.cat([s["next"][None, ::] for s in batch.state]),
-        "hold": torch.cat([s["hold"][None, ::] for s in batch.state]),
+        "board": torch.cat([s["board"][None, ::] for s in batch.state]).to(device),
+        "next": torch.cat([s["next"][None, ::] for s in batch.state]).to(device),
+        "hold": torch.cat([s["hold"][None, ::] for s in batch.state]).to(device),
     }
-    action_batch = torch.cat(batch.action)
-    reward_batch = torch.cat(batch.reward)
+    action_batch = torch.cat(batch.action).to(device)
+    reward_batch = torch.cat(batch.reward).to(device)
 
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
     # columns of actions taken. These are the actions which would've been taken
@@ -123,7 +122,7 @@ def optimize_model(policy_net, target_net, optimizer, memory):
     # on the "older" target_net; selecting their best reward with max(1).values
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(BATCH_SIZE, device=device)
+    next_state_values = torch.zeros(BATCH_SIZE).to(device)
     with torch.no_grad():
         next_state_values[non_final_mask] = (
             target_net(
@@ -151,13 +150,13 @@ def optimize_model(policy_net, target_net, optimizer, memory):
 
 def s2t(o):
     return {
-        "board": torch.tensor(o["board"], dtype=torch.float32, device=device),
+        "board": torch.tensor(o["board"], dtype=torch.float32),
         "next": F.one_hot(
-            torch.tensor(o["next"], dtype=torch.long, device=device),
+            torch.tensor(o["next"], dtype=torch.long),
             num_classes=len(ALL_PIECES),
         ).float(),
         "hold": F.one_hot(
-            torch.tensor(o["hold"], dtype=torch.long, device=device),
+            torch.tensor(o["hold"], dtype=torch.long),
             num_classes=len(ALL_PIECES) + 1,
         ).float(),
     }
