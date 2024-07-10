@@ -99,11 +99,23 @@ impl GameStatePy {
     }
     #[getter]
     fn bumpi(&self) ->  PyResult<i32> {
-        Ok(self.inner.main_board.board_bumpi())
+        let mut x = self.inner.clone();
+        if let Some(c) = x.current_pcs {
+            let _ = x.main_board.delete_piece(&c);
+            Ok(x.main_board.board_bumpi())
+        } else {
+            Ok(self.inner.main_board.board_bumpi())
+        }
     }
     #[getter]
     fn holes(&self) ->  PyResult<i32> {
-        Ok(self.inner.main_board.board_holes())
+        let mut x = self.inner.clone();
+        if let Some(c) = x.current_pcs {
+            let _ = x.main_board.delete_piece(&c);
+            Ok(x.main_board.board_holes())
+        } else {
+            Ok(self.inner.main_board.board_holes())
+        }
     }
     #[getter]
     fn height(&self) ->  PyResult<i32> {
@@ -158,8 +170,6 @@ impl GameStatePy {
         Ok(format!("<code><pre>{x}</pre></code>"))
     }
 
-    
-    
     #[getter]
     fn total_move_count(&self) -> PyResult<i32> {
         Ok(self.inner.total_moves)
