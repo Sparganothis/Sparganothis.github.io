@@ -61,6 +61,7 @@ else:
     with open('memory.pk', 'wb') as f:
         pickle.dump(memory, f)
 
+# memory = ReplayMemory(TRAIN_MEMORY_SIZE)
 
 optimize_model_steps = 0
 for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
