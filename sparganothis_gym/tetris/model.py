@@ -22,19 +22,27 @@ device = torch.device(
 class DQN(nn.Module):
 
     def __init__(self, num_features):
+        self.num_features = num_features
         super(DQN, self).__init__()
         self.layer_hold = nn.Linear(len(ALL_PIECES) + 1, num_features)
         self.layer_next = nn.Linear(5 * len(ALL_PIECES), num_features)
-        self.layer_board = nn.Linear(BOARD_SHAPE[0] * BOARD_SHAPE[1], num_features)
-        self.layer_hiden = nn.Linear(3 * num_features, num_features)
+        self.layer_board = nn.Sequential(
+            nn.Conv2d(1, num_features // 8, kernel_size=5, stride=2, padding=2),
+            nn.ReLU(),
+            nn.Conv2d(num_features // 8, num_features // 8, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(num_features // 8, num_features // 8, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+        )
+        self.layer_hiden = nn.Linear(2 * num_features + BOARD_SHAPE[0] * BOARD_SHAPE[1] // 4 * num_features // 8, num_features)
         self.layer_actions = nn.Linear(num_features, len(ALL_ACTIONS))
 
     # Called with either one element to determine next action, or a batch
     def forward(self, board, next, hold):
         b, h, w = board.shape
         bx = F.relu(
-            self.layer_board(board.view(b, w * h))
-        )
+            self.layer_board(board[:,None,:,:])
+        ).view(b, w * h // 4 * self.num_features // 8)
         nx = F.relu(
             self.layer_next(next.view(b, 5 * next.shape[-1]))
         )
