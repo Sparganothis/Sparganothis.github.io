@@ -1,5 +1,5 @@
 use pyo3::{exceptions::PyValueError, prelude::*};
-use game::{bot::random_choice_bot::get_all_move_chains, random::{get_random_seed, GameSeed}, tet::{GameState, TetAction}, timestamp::get_timestamp_now_nano};
+use game::{bot::random_choice_bot::get_all_move_chains, random::{get_random_seed, GameSeed}, tet::{segments_to_states, GameReplaySegment, GameState, TetAction}, timestamp::get_timestamp_now_nano};
 
 #[pyclass]
 struct GameStatePy {
@@ -276,6 +276,37 @@ impl GameStatePy {
     #[staticmethod]
     fn get_all_move_chains() -> PyResult<Vec<Vec<String>>> {
         Ok(get_all_move_chains().into_iter().map(|x| x.into_iter().map(|y| y.name()).collect()).collect())
+    }
+
+    #[staticmethod]
+    fn load_replay_from_bytes(data: Vec<u8>) -> PyResult<(GameStatePy, Vec<(String, GameStatePy)>)> {
+        let segments: Vec<GameReplaySegment> = bincode::deserialize(&data).map_err(|e| PyValueError::new_err(format!("bad data: {}", e)))?;
+        if segments.len() < 3 {
+            return Err(PyValueError::new_err("not enough segments in savefile."))
+        }
+        let states = segments_to_states(&segments);
+        if states.len() < 3 {
+            return Err(PyValueError::new_err("not enough gamestates in savefile."))
+        }
+        let s1 = states.first().unwrap();
+        let ps1 = GameStatePy{inner:s1.clone()};
+        let mut v = vec![];
+
+        for i in 0..(segments.len().min(states.len())) {
+            let st = &segments[i];
+            let mut gt = (&states[i]).clone();
+            gt.replay.replay_slices.clear();
+            match st {
+                GameReplaySegment::Update(_x) => {
+                    let ev = _x.event.action.name();
+                    let pgt = GameStatePy{inner: gt.clone()};
+                    v.push((ev, pgt));
+                },
+                _ => continue
+            }
+        }
+
+        Ok((ps1, v))
     }
 
     fn get_valid_move_chains(&self) -> PyResult<Vec<(Vec<String>, GameStatePy)>> {

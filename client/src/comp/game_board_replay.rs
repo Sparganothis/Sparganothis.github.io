@@ -1,8 +1,40 @@
-use game::tet::{GameReplaySegment, GameState};
+use game::tet::{segments_to_states, GameReplaySegment, GameState};
 use game::timestamp::get_timestamp_now_ms;
 use leptonic::prelude::*;
 use leptonic::slider::Slider;
 use leptos::*;
+use wasm_bindgen::JsValue;
+
+
+fn _bytes_to_array(bytes: &[u8]) -> JsValue {
+    let array: js_sys::Uint8Array =
+        js_sys::Uint8Array::new_with_length(bytes.len().try_into().unwrap());
+
+    array.copy_from(bytes);
+
+    array.into()
+}
+
+pub fn _bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> web_sys::Blob {
+    let array = _bytes_to_array(bytes);
+
+    let blob_parts_array = js_sys::Array::new();
+
+    blob_parts_array.push(&array);
+
+    let mut options = web_sys::BlobPropertyBag::new();
+
+    match content_type {
+        Some(content_type) => {
+            options.type_(content_type);
+        }
+        None => {}
+    };
+
+    web_sys::Blob::new_with_u8_array_sequence_and_options(&blob_parts_array, &options)
+        .unwrap()
+}
+
 
 #[component]
 pub fn ReplayGameBoardFromSegmments(
@@ -25,35 +57,7 @@ pub fn ReplayGameBoardFromSegmments(
         let all_segments = all_segments.get();
         let t0 = get_timestamp_now_ms();
         status_message.set("simulating...".to_string());
-        let mut current_state = match all_segments.get(0) {
-            Some(GameReplaySegment::Init(_replay)) => {
-                GameState::new(&_replay.init_seed, _replay.start_time)
-            }
-            _ => {
-                log::info!("got no init segment");
-                return vec![];
-            }
-        };
-        let mut all_states = vec![];
-        all_states.push(current_state.clone());
-        for segment in &all_segments[1..] {
-            match segment {
-                GameReplaySegment::Init(_) => {
-                    log::error!("got two init segments");
-                    return vec![];
-                }
-                GameReplaySegment::Update(_slice) => {
-                    if let Err(e) = current_state.accept_replay_slice(_slice) {
-                        log::error!("failed to accept replay slice: {:#?}", e);
-                        return vec![];
-                    }
-                }
-                GameReplaySegment::GameOver(_) => {
-                    current_state.game_over = true;
-                }
-            }
-            all_states.push(current_state.clone());
-        }
+        let all_states = segments_to_states(&all_segments);
         let t1 = get_timestamp_now_ms();
         status_message.set(format!("done {}ms", t1 - t0));
         all_states
@@ -183,6 +187,13 @@ pub fn ReplayGameBoardFromSegmments(
             log::info!("left one");
         };
 
+        let download_href = move || {
+            let seg = all_segments.get();
+            let bytes = bincode::serialize(&seg).unwrap();
+            let b = _bytes_to_blob(&bytes, Some("application/octet-stream"));
+            web_sys::Url::create_object_url_with_blob(&b).unwrap()
+        };
+
         view! {
             <div class="control_icon_parent">
 
@@ -255,6 +266,18 @@ pub fn ReplayGameBoardFromSegmments(
                         width="5vmin"
                         height="5vmin"
                     />
+                </div>
+
+                
+                <div class="control_icon_container">
+                    <a href={download_href} download="Sparganothis.replay.bin">
+                    <Icon
+                        class="control_icon"
+                        icon=icondata::BsDownload
+                        width="5vmin"
+                        height="5vmin"
+                    />
+                    </a>
                 </div>
 
             </div>

@@ -1040,6 +1040,43 @@ impl GameState {
     }
 }
 
+
+
+
+pub fn segments_to_states(all_segments: &Vec<GameReplaySegment>) -> Vec<GameState> {
+    let mut current_state = match all_segments.get(0) {
+        Some(GameReplaySegment::Init(_replay)) => {
+            GameState::new(&_replay.init_seed, _replay.start_time)
+        }
+        _ => {
+            log::info!("got no init segment");
+            return vec![];
+        }
+    };
+    let mut all_states = vec![];
+    all_states.push(current_state.clone());
+    for segment in &all_segments[1..] {
+        match segment {
+            GameReplaySegment::Init(_) => {
+                log::error!("got two init segments");
+                return vec![];
+            }
+            GameReplaySegment::Update(_slice) => {
+                if let Err(e) = current_state.accept_replay_slice(_slice) {
+                    log::error!("failed to accept replay slice: {:#?}", e);
+                    return vec![];
+                }
+            }
+            GameReplaySegment::GameOver(_) => {
+                current_state.game_over = true;
+            }
+        }
+        all_states.push(current_state.clone());
+    }
+    all_states
+}
+
+
 #[cfg(test)]
 pub mod tests {
     use super::super::timestamp::get_timestamp_now_nano;
@@ -1130,3 +1167,4 @@ pub mod tests {
         }
     }
 }
+

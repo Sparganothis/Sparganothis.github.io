@@ -102,6 +102,7 @@ features = [
   'GainNode',
   'OscillatorNode',
   'OscillatorType',
+  "Blob","Url", "BlobPropertyBag"
 ]
 
 [dev-dependencies]
