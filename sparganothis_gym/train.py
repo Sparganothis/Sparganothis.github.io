@@ -17,6 +17,22 @@ run = wandb.init(
         "REWARD_MOVE": REWARD_MOVE,
         "REWARD_ROTATE": REWARD_ROTATE,
         "REWARD_SCORE": REWARD_SCORE,
+        "TRAIN_MEMORY_EPISODES": TRAIN_MEMORY_EPISODES,
+        "TRAIN_MEMORY_EPISODE_SIZE": TRAIN_MEMORY_EPISODE_SIZE,
+        "TRAIN_MEMORY_SIZE": TRAIN_MEMORY_SIZE,
+        "TRAIN_MEMORY_THREADS": TRAIN_MEMORY_THREADS,
+        "TRAIN_MEMORY_THREADS": TRAIN_MEMORY_THREADS,
+        "TRAIN_MODEL_INIT_STEPS": TRAIN_MODEL_INIT_STEPS,
+        "TRAIN_EPISODES_CPU": TRAIN_EPISODES_CPU,
+        "TRAIN_EPISODES_GPU": TRAIN_EPISODES_GPU,
+        "TRAIN_EPISODE_SIZE": TRAIN_EPISODE_SIZE,
+        "BATCH_SIZE": BATCH_SIZE,
+        "GAMMA": GAMMA,
+        "EPS_START": EPS_START,
+        "EPS_END": EPS_END,
+        "EPS_DECAY": EPS_DECAY,
+        "TAU": TAU,
+        "LR": LR,
     }
 )
 
@@ -38,7 +54,7 @@ for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
     loss = optimize_model(policy_net, target_net, optimizer, memory)
     optimize_model_steps+=1
     if optimize_model_steps % 500 == 0:
-        wandb.log({"loss": loss, "om_steps": optimize_model_steps})
+        wandb.log({"loss": loss}, step=optimize_model_steps)
 
 env = TetrisEnv()
 
@@ -87,7 +103,7 @@ for i_episode in tqdm(range(num_episodes)):
         # Perform one step of the optimization (on the policy network)
         loss = optimize_model(policy_net, target_net, optimizer, memory)
         optimize_model_steps+=1
-        if optimize_model_steps % 500 == 1:
+        if optimize_model_steps % 500 == 0:
             wandb.log({"loss": loss}, step=optimize_model_steps)
         # Soft update of the target network's weights
         # θ′ ← τ θ + (1 −τ )θ′

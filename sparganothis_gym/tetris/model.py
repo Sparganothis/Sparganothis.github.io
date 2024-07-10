@@ -135,7 +135,7 @@ def optimize_model(policy_net, target_net, optimizer, memory):
     optimizer.zero_grad()
     loss.backward()
     # In-place gradient clipping
-    torch.nn.utils.clip_grad_value_(policy_net.parameters(), 100)
+    torch.nn.utils.clip_grad_value_(policy_net.parameters(), 10)
     optimizer.step()
 
     return loss.item()
