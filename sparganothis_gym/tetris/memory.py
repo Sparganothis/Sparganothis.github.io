@@ -33,7 +33,7 @@ def add_episode(reward, memory, moves):
             s2t(v2s(ls)[0]), 
             torch.tensor([[a2i(la)]], dtype=torch.long), 
             s2t(v2s(s)[0]), 
-            torch.tensor([reward(ls, s, history)], dtype=torch.long), 
+            torch.tensor([reward(ls, s)], dtype=torch.long), 
         )
         ls = s
         la = a

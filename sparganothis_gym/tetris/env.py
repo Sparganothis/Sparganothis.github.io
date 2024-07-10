@@ -75,7 +75,7 @@ class TetrisEnv(gym.Env):
         self.vim_state = dict(self.vim_state.next_actions_and_states)[i2a(action)]
 
         # Determine reward and termination
-        reward = self.reward_fn(last_vim_state, self.vim_state, self.move_history) 
+        reward = self.reward_fn(last_vim_state, self.vim_state) 
         terminated = self.vim_state.game_over
 
         # Construct the observation state:
@@ -91,7 +91,7 @@ class TetrisEnv(gym.Env):
                 self.vim_state = dict(self.vim_state.next_actions_and_states)[SOFT_DROP]
                 terminated = self.vim_state.game_over
                 if terminated:
-                    reward = self.reward_fn(last_vim_state, self.vim_state, self.move_history) 
+                    reward = self.reward_fn(last_vim_state, self.vim_state) 
                     obs, info = v2s(self.vim_state)
                     return obs, reward, terminated, False, info
 

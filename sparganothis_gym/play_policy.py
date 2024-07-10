@@ -1,5 +1,5 @@
 from tetris.env import *
-from tetris.model import s2t
+from tetris.model import *
 import os
 import time
 import torch
@@ -16,7 +16,10 @@ device = torch.device(
     else "mps" if torch.backends.mps.is_available() else "cpu"
 )
 
-policy_net = torch.jit.load('policy_net.pt', map_location=device)
+policy_net = DQN(TRAIN_MODEL_SIZE)
+with open("policy_net_states.pt", "rb") as f:
+    policy_net.load_state_dict(torch.load(f))
+# policy_net = torch.jit.load('policy_net.pt', map_location=device)
 policy_net.eval()
 
 # Take some policy_net actions
@@ -32,7 +35,7 @@ while True:
                 x["next"][None, ::],
                 x["hold"][None, ::],
             ).squeeze()
-            * torch.tensor(info["action_mask"], device=device, dtype=torch.float32)
+            * torch.tensor(info["action_mask"], dtype=torch.float32)
         )
         .argmax()
         .item()
