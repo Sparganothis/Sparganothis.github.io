@@ -4,7 +4,6 @@ from tetris.env import *
 from tetris.reward import *
 from tetris.model import *
 import tqdm
-import time
 class ReplayMemory(object):
 
     def __init__(self, capacity):
@@ -20,9 +19,7 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
-def add_episode(reward, memory, episode_size):
-    env = TetrisEnv()
-    moves = env.vim_state.generate_bot_episode("wordpress", episode_size)
+def add_episode(reward, memory, moves):
     ls = None
     la = None
     history = []
@@ -41,8 +38,8 @@ def add_episode(reward, memory, episode_size):
         ls = s
         la = a
 
-def init_memory(reward, episodes, episode_size, memory_size, threads):
+def init_memory(reward, episodes, generator, memory_size):
     memory = ReplayMemory(memory_size)
     for _ in tqdm.tqdm(range(episodes)):
-        add_episode(reward, memory, episode_size)
+        add_episode(reward, memory, generator())
     return memory

@@ -17,24 +17,26 @@ run = wandb.init(
         "REWARD_MOVE": REWARD_MOVE,
         "REWARD_ROTATE": REWARD_ROTATE,
         "REWARD_SCORE": REWARD_SCORE,
-        "TRAIN_MEMORY_EPISODES": TRAIN_MEMORY_EPISODES,
+        "MEMORY_EPISODES": TRAIN_MEMORY_EPISODES,
         "TRAIN_MEMORY_EPISODE_SIZE": TRAIN_MEMORY_EPISODE_SIZE,
-        "TRAIN_MEMORY_SIZE": TRAIN_MEMORY_SIZE,
-        "TRAIN_MEMORY_THREADS": TRAIN_MEMORY_THREADS,
-        "TRAIN_MEMORY_THREADS": TRAIN_MEMORY_THREADS,
+        "TRAIN_MEMORY_SIZE_LONG": TRAIN_MEMORY_SIZE_LONG,
+        "TRAIN_MEMORY_SIZE_SHORT": TRAIN_MEMORY_SIZE_SHORT,
+        "TRAIN_MEMORY_SIZE_HUMAN": TRAIN_MEMORY_SIZE_HUMAN,
         "TRAIN_MODEL_INIT_STEPS": TRAIN_MODEL_INIT_STEPS,
         "TRAIN_EPISODES_CPU": TRAIN_EPISODES_CPU,
         "TRAIN_EPISODES_GPU": TRAIN_EPISODES_GPU,
         "TRAIN_EPISODE_SIZE": TRAIN_EPISODE_SIZE,
         "TRAIN_LOG_INTERVAL": TRAIN_LOG_INTERVAL,
         "BATCH_SIZE": BATCH_SIZE,
-        "GAMMA": GAMMA,
-        "EPS_INTERVAL": EPS_INTERVAL,
-        "EPS_START": EPS_START,
-        "EPS_END": EPS_END,
-        "EPS_DECAY": EPS_DECAY,
-        "TAU": TAU,
-        "LR": LR,
+        "BATCH_SIZE_SHORT": BATCH_SIZE_SHORT,
+        "BATCH_SIZE_HUMAN": BATCH_SIZE_HUMAN,
+        "PPO_GAMMA": GAMMA,
+        "PPO_EPS_INTERVAL": EPS_INTERVAL,
+        "PPO_EPS_START": EPS_START,
+        "PPO_EPS_END": EPS_END,
+        "PPO_EPS_DECAY": EPS_DECAY,
+        "PPO_TAU": TAU,
+        "PPO_LR": LR,
     }
 )
 
@@ -47,6 +49,11 @@ target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
 
+
+
+def wordpress_bot():
+    env = TetrisEnv()
+    return env.vim_state.generate_bot_episode("wordpress", TRAIN_MEMORY_EPISODE_SIZE)
 import os
 import pickle
 if os.path.isfile("memory.pk"):
@@ -55,22 +62,39 @@ if os.path.isfile("memory.pk"):
 else:
     memory = init_memory(default_reward, 
         TRAIN_MEMORY_EPISODES, 
-        TRAIN_MEMORY_EPISODE_SIZE, 
-        TRAIN_MEMORY_SIZE, 
-        TRAIN_MEMORY_THREADS)
+        wordpress_bot, 
+        TRAIN_MEMORY_SIZE_LONG)
     with open('memory.pk', 'wb') as f:
         pickle.dump(memory, f)
 
-# memory = ReplayMemory(TRAIN_MEMORY_SIZE)
+short_memory = ReplayMemory(TRAIN_MEMORY_SIZE_SHORT)
+add_episode(default_reward, short_memory, wordpress_bot())
+
+human_memory = ReplayMemory(TRAIN_MEMORY_SIZE_HUMAN)
+
+import glob
+human_data = glob.glob('data')
+for replay in human_data:
+    with open(replay, "rb") as f:
+        replay_bytes = f.read()
+    _, ep = sparganothis_vim.GameStatePy.load_replay_from_bytes(replay_bytes)
+    add_episode(default_reward, human_memory, ep)
 
 optimize_model_steps = 0
-for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
-    loss = optimize_model(policy_net, target_net, optimizer, memory)
-    optimize_model_steps+=1
-    if optimize_model_steps % TRAIN_MEMORY_EPISODE_SIZE == 0:
-        add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
-    if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
-        wandb.log({"loss": loss}, step=optimize_model_steps)
+
+if os.path.isfile("policy_net_states.pt") and os.path.isfile("optimizer_states.pt"):
+    with open("policy_net_states.pt", "rb") as f:
+        policy_net.load_state_dict(torch.load(f))
+    with open("optimizer_states.pt", "rb") as f:
+        optimizer.load_state_dict(torch.load(f))
+else:
+    for i in tqdm(range(TRAIN_MODEL_INIT_STEPS),desc="pretrain"):
+        loss = optimize_model(policy_net, target_net, optimizer, [human_memory], [BATCH_SIZE_HUMAN])
+        optimize_model_steps += 1
+        if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
+            wandb.log({"pretrain_loss": loss}, step=optimize_model_steps)
+    torch.save(policy_net.state_dict(), "policy_net_states.pt")
+    torch.save(optimizer.state_dict(), "optimizer_states.pt")
 
 env = TetrisEnv()
 
@@ -81,7 +105,7 @@ if torch.cuda.is_available() or torch.backends.mps.is_available():
 else:
     num_episodes = TRAIN_EPISODES_CPU
 
-for i_episode in tqdm(range(num_episodes)):
+for i_episode in tqdm(range(num_episodes), desc="episodes"):
     # Initialize the environment and get its state
     state, info = env.reset()
     state = s2t(state)
@@ -113,12 +137,15 @@ for i_episode in tqdm(range(num_episodes)):
 
         # Store the transition in memory
         memory.push(state, action, next_state, reward)
+        short_memory.push(state, action, next_state, reward)
 
         # Move to the next state
         state = next_state
 
         # Perform one step of the optimization (on the policy network)
-        loss = optimize_model(policy_net, target_net, optimizer, memory)
+        loss = optimize_model(policy_net, target_net, optimizer, 
+            [memory, short_memory, human_memory], 
+            [BATCH_SIZE, BATCH_SIZE_SHORT, BATCH_SIZE_HUMAN])
         optimize_model_steps+=1
         if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
             wandb.log({"loss": loss, "eps_threshold": eps_threshold}, step=optimize_model_steps)
@@ -133,13 +160,12 @@ for i_episode in tqdm(range(num_episodes)):
         target_net.load_state_dict(target_net_state_dict)
 
         if done or t > TRAIN_EPISODE_SIZE:
-            if eps_threshold > 0.5:
-                add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
             wandb.log({"total_reward": total_reward, 
                 "total_move_count": env.vim_state.total_move_count,
                 "score": env.vim_state.score,
                 "total_lines": env.vim_state.total_lines,
                 "holes": env.vim_state.holes,
+                "bumpi": env.vim_state.bumpi,
                 "height": env.vim_state.height,}, step=optimize_model_steps)
             break
     torch.save(policy_net.state_dict(), "policy_net_states.pt")
