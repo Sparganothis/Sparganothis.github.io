@@ -23,9 +23,7 @@ class ReplayMemory(object):
 
 def init_memory(reward, episodes, episode_size, memory_size, threads):
     memory = ReplayMemory(memory_size)
-    from concurrent.futures import ThreadPoolExecutor
-    
-    def add():
+    for _ in tqdm.tqdm(range(episodes)):
         env = TetrisEnv()
         moves = env.vim_state.generate_bot_episode("wordpress", episode_size)
         ls = None
@@ -45,10 +43,4 @@ def init_memory(reward, episodes, episode_size, memory_size, threads):
             )
             ls = s
             la = a
-    executor = ThreadPoolExecutor(max_workers=threads)
-    results = []
-    for _ in range(episodes):
-        results.append(executor.submit(add))
-    for r in tqdm.tqdm(results):
-        r.result()
     return memory

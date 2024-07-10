@@ -33,7 +33,12 @@ memory = init_memory(default_reward,
     TRAIN_MEMORY_THREADS)
 # memory = ReplayMemory(TRAIN_EPISODE_SIZE)
 
-optimize_model(policy_net, target_net, optimizer, memory, TRAIN_MODEL_INIT_STEPS)
+optimize_model_steps = 0
+for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
+    loss = optimize_model(policy_net, target_net, optimizer, memory)
+    optimize_model_steps+=1
+    if optimize_model_steps % 500 == 0:
+        wandb.log({"loss": loss, "om_steps": optimize_model_steps})
 
 env = TetrisEnv()
 
@@ -81,7 +86,9 @@ for i_episode in tqdm(range(num_episodes)):
 
         # Perform one step of the optimization (on the policy network)
         loss = optimize_model(policy_net, target_net, optimizer, memory)
-
+        optimize_model_steps+=1
+        if optimize_model_steps % 500 == 1:
+            wandb.log({"loss": loss}, step=optimize_model_steps)
         # Soft update of the target network's weights
         # θ′ ← τ θ + (1 −τ )θ′
         target_net_state_dict = target_net.state_dict()
@@ -93,9 +100,15 @@ for i_episode in tqdm(range(num_episodes)):
         target_net.load_state_dict(target_net_state_dict)
 
         if done or t > TRAIN_EPISODE_SIZE:
-            wandb.log({"total_reward": total_reward, "loss": loss})
+            wandb.log({"total_reward": total_reward, 
+                "total_move_count": env.vim_state.total_move_count,
+                "score": env.vim_state.score,
+                "total_lines": env.vim_state.total_lines,
+                "holes": env.vim_state.holes,
+                "height": env.vim_state.height,}, step=optimize_model_steps)
             break
     policy_net_scripted = torch.jit.script(policy_net)
     policy_net_scripted.save("policy_net.pt")
-    run.log_model(path="policy_net.pt", name=WANDB_MODEL_NAME)
+    if i_episode % 20 == 0:
+        run.log_model(path="policy_net.pt", name=WANDB_MODEL_NAME)
 wandb.finish()
