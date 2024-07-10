@@ -128,14 +128,14 @@ def optimize_model(policy_net, target_net, optimizer, memory):
     expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
     # Compute Huber loss
-    criterion = nn.SmoothL1Loss()
+    criterion = nn.L1Loss()
     loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
     # Optimize the model
     optimizer.zero_grad()
     loss.backward()
     # In-place gradient clipping
-    torch.nn.utils.clip_grad_value_(policy_net.parameters(), 10)
+    torch.nn.utils.clip_grad_value_(policy_net.parameters(), 1)
     optimizer.step()
 
     return loss.item()

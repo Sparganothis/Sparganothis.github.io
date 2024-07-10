@@ -63,8 +63,8 @@ for i in tqdm(range(TRAIN_MODEL_INIT_STEPS)):
     loss = optimize_model(policy_net, target_net, optimizer, memory)
     optimize_model_steps+=1
     if optimize_model_steps % TRAIN_MEMORY_EPISODE_SIZE == 0:
-        memory = add_episode(reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
-    if optimize_model_steps % 500 == 0:
+        memory = add_episode(default_reward, memory, TRAIN_MEMORY_EPISODE_SIZE)
+    if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
         wandb.log({"loss": loss}, step=optimize_model_steps)
 
 env = TetrisEnv()
@@ -114,7 +114,7 @@ for i_episode in tqdm(range(num_episodes)):
         # Perform one step of the optimization (on the policy network)
         loss = optimize_model(policy_net, target_net, optimizer, memory)
         optimize_model_steps+=1
-        if optimize_model_steps % 500 == 0:
+        if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
             wandb.log({"loss": loss}, step=optimize_model_steps)
         # Soft update of the target network's weights
         # θ′ ← τ θ + (1 −τ )θ′
@@ -136,6 +136,6 @@ for i_episode in tqdm(range(num_episodes)):
             break
     policy_net_scripted = torch.jit.script(policy_net)
     policy_net_scripted.save("policy_net.pt")
-    if i_episode % 20 == 0:
+    if i_episode % TRAIN_LOG_INTERVAL == 0:
         run.log_model(path="policy_net.pt", name=WANDB_MODEL_NAME)
 wandb.finish()
