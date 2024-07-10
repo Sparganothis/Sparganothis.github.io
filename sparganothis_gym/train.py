@@ -59,7 +59,10 @@ for i_episode in tqdm(range(num_episodes)):
         item = action.item()
         next_act = [a2i(k[0]) for k in env.vim_state.next_actions_and_states]
         if item not in next_act:
-            item = random.sample(next_act)
+            if not next_act:
+                print("NO NEXT ERROR WTF")
+                break
+            item = random.choice(next_act)
         observation, reward, terminated, truncated, info = env.step(item)
         total_reward += reward
         reward = torch.tensor([reward], device=device)
