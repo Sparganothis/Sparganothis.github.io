@@ -19,12 +19,14 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
-def add_episode(reward, memory, moves):
+def add_episode(reward, memory, moves, ignore=[]):
     ls = None
     la = None
-    history = []
     for a, s in moves:
-        history.append(a2i(a))
+        if a in ignore:
+            ls = s
+            la = a
+            continue
         if not ls:
             ls = s
             la = a
