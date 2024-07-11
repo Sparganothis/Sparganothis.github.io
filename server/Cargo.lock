@@ -569,7 +569,7 @@ dependencies = [
 
 [[package]]
 name = "game"
-version = "0.1.23"
+version = "0.1.24"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1495,7 +1495,7 @@ dependencies = [
 
 [[package]]
 name = "server"
-version = "0.1.23"
+version = "0.1.24"
 dependencies = [
  "anyhow",
  "async-trait",
