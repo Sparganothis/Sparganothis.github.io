@@ -8,7 +8,7 @@ use wasm_bindgen::JsValue;
 
 fn _bytes_to_array(bytes: &[u8]) -> JsValue {
     let array: js_sys::Uint8Array =
-        js_sys::Uint8Array::new_with_length(bytes.len().try_into().unwrap());
+        js_sys::Uint8Array::new_with_length(bytes.len().try_into().expect("ccreate js int8 array"));
 
     array.copy_from(bytes);
 
@@ -32,7 +32,7 @@ pub fn _bytes_to_blob(bytes: &[u8], content_type: Option<&str>) -> web_sys::Blob
     };
 
     web_sys::Blob::new_with_u8_array_sequence_and_options(&blob_parts_array, &options)
-        .unwrap()
+        .expect("create blob")
 }
 
 
@@ -57,7 +57,11 @@ pub fn ReplayGameBoardFromSegmments(
         let all_segments = all_segments.get();
         let t0 = get_timestamp_now_ms();
         status_message.set("simulating...".to_string());
-        let all_states = segments_to_states(&all_segments);
+        log::info!("segments_to_states: {}", all_segments.len());
+        let mut all_segemnts_2 = all_segments.clone();
+        all_segemnts_2.truncate(8888);
+        let all_states = segments_to_states(&all_segemnts_2);
+        log::info!("segmments to states OK!");
         let t1 = get_timestamp_now_ms();
         status_message.set(format!("done {}ms", t1 - t0));
         all_states
@@ -189,9 +193,9 @@ pub fn ReplayGameBoardFromSegmments(
 
         let download_href = move || {
             let seg = all_segments.get();
-            let bytes = bincode::serialize(&seg).unwrap();
+            let bytes = bincode::serialize(&seg).expect("must serialize");
             let b = _bytes_to_blob(&bytes, Some("application/octet-stream"));
-            web_sys::Url::create_object_url_with_blob(&b).unwrap()
+            web_sys::Url::create_object_url_with_blob(&b).expect("create url")
         };
 
         view! {

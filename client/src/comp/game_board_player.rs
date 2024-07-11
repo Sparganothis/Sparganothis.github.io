@@ -34,12 +34,12 @@ pub fn PlayerGameBoardFromId(
                 GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
             } else {
                 GameReplaySegment::Update(
-                    s.replay.replay_slices.last().unwrap().clone(),
+                    s.replay.replay_slices.last().expect("last after not is empty").clone(),
                 )
             }
         };
 
-        let segment_json: String = serde_json::to_string(&segment).unwrap();
+        let segment_json: String = serde_json::to_string(&segment).expect("serialize segmment ot json");
         call_api_sync::<AppendGameSegment>((game_id, segment_json), move |_r| {
             // log::info!("append OK: {:?}", _r);
         });

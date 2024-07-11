@@ -25,12 +25,12 @@ pub fn BotGameBoard(
                 GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
             } else {
                 GameReplaySegment::Update(
-                    s.replay.replay_slices.last().unwrap().clone(),
+                    s.replay.replay_slices.last().expect("else branch of is empty must have last").clone(),
                 )
             }
         };
 
-        let segment_json: String = serde_json::to_string(&segment).unwrap();
+        let segment_json: String = serde_json::to_string(&segment).expect("must serialize zsegmment to json");
         call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {
             // log::info!("append OK: {:?}", _r);
         });
@@ -139,7 +139,7 @@ pub fn BotGameBoardSingle(
                 if !state.game_over {
 
                     if extra_moves.get_untracked().is_empty() {
-                        let bot = game::bot::get_bot(&bot_name2).unwrap();
+                        let bot = game::bot::get_bot(&bot_name2).expect("bot must exist");
                         if let Ok(action) =  bot.as_ref().choose_move(state) {
                             extra_moves.update_untracked(move |extra_moves| {
                                 for act in action {

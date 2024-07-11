@@ -155,8 +155,6 @@ pub fn AppRoot() -> impl IntoView {
         close();
     };
 
-    // let message =
-    // let message = bincode::serialize(&message).unwrap();
     let api = WebsocketAPI {
         map: create_rw_signal(std::collections::HashMap::<_, _>::new()),
         sender: create_rw_signal(Rc::new(Box::new(send_bytes.clone()))),

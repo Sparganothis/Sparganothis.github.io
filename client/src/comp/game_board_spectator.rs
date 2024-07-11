@@ -30,6 +30,8 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
                         state_val.game_over = true;
                         let api2 = api2.clone();
                         queue_microtask(move || {
+                            
+                            log::info!("stop subscribe to game");
                             api2.stop_subscribe_to_game(&game_id2);
                         })
                     }

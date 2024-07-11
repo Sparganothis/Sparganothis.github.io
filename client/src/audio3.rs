@@ -43,6 +43,7 @@ pub fn play_sound_effect(audio_key: &str) {
     let audio_key = audio_key.to_string();
     let _context : Audio3Context= leptos::expect_context();
     queue_microtask(move || {
+        log::info!("play soundn js sound js");
         play_sound_js( audio_key, 100.0);
     });
 }
@@ -51,6 +52,7 @@ pub fn stop_sound(audio_key: &str) {
     let audio_key = audio_key.to_string();
     let _context : Audio3Context= leptos::expect_context();
     queue_microtask(move || {
+        log::info!("stop sound js");
         stop_sound_js(audio_key);
     });
 }

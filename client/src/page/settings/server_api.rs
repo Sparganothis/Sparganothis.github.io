@@ -33,9 +33,10 @@ where T: Serialize + for<'a> Deserialize<'a> + Clone + std::fmt::Debug + Partial
         move |_setting_bytes|        {
             log::info!("OK: Fetched Setting vluae for {:?} len {} bytes", _type, _setting_bytes.len());
             if _setting_bytes.len() > 0 {
-                let new_value = bincode::deserialize(&_setting_bytes).unwrap();
-                is_from_server.set_untracked(true);
-                signal.set(new_value);
+                if let Ok(new_value) = bincode::deserialize(&_setting_bytes) {
+                    is_from_server.set_untracked(true);
+                    signal.set(new_value);
+                }
             } else {
                 // we hgave no value from server
             }

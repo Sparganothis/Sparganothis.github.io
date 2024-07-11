@@ -40,7 +40,7 @@ pub fn MsPaintPlayPage() ->impl IntoView{
             <PlayerGameBoardSingle
                 state=game_state
                 top_bar=view! { <h1>"play custom     | " {save_name}</h1> }.into_view()
-                player_id=get_bot_id("random").unwrap()
+                player_id=get_bot_id("random").expect("rand bot must exist")
             />
         </div>
     }

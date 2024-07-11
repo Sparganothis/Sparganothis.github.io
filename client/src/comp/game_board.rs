@@ -203,7 +203,7 @@ pub fn RandomOpponentGameBoard(seed: GameSeed) -> impl IntoView {
         <BotGameBoardSingle
             state=state
             bot_name="wordpress".to_string()
-            bot_id=get_bot_id("wordpress").unwrap()
+            bot_id=get_bot_id("wordpress").expect("bot exists")
         />
     }
 }

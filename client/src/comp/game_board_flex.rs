@@ -66,17 +66,17 @@ pub fn GameBoardFlex(
             move|| game_state.get(),
             move |current, _prev, _| {
                 if let Some(_prev) = _prev {
-                    if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() {
-                        let last_slice = current.replay.replay_slices.last().unwrap();
+                    if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() && current.replay.replay_slices.len()>=1 {
+                        let last_slice = current.replay.replay_slices.last().expect("last of vec longer than 1");
                         let sound = match last_slice.event.action {
-                            tet::TetAction::HardDrop => "hard_drop",
-                            tet::TetAction::MoveLeft => "move_left", 
-                            tet::TetAction::MoveRight => "move_right", 
-                            tet::TetAction::SoftDrop => "soft_drop",
-                            tet::TetAction::Hold =>"hold",
-                            tet::TetAction::RotateLeft => "rotate_left",
+                            tet::TetAction::HardDrop    => "hard_drop",
+                            tet::TetAction::MoveLeft    => "move_left", 
+                            tet::TetAction::MoveRight   => "move_right", 
+                            tet::TetAction::SoftDrop    => "soft_drop",
+                            tet::TetAction::Hold        =>"hold",
+                            tet::TetAction::RotateLeft  => "rotate_left",
                             tet::TetAction::RotateRight => "rotate_right",
-                            tet::TetAction::Nothing => "",
+                            tet::TetAction::Nothing       => "",
                         };
                         crate::audio3::play_sound_effect(sound);                        
                         if current.game_over{
@@ -181,7 +181,7 @@ pub fn GameBoardFlex(
 
         <h3 style="font-size: 35cqh; height: 40%;">
             {if user_profile.get().is_some() {
-                user_profile.get().unwrap().display_name
+                user_profile.get().expect("is_some").display_name
             } else {
                 "".to_string()
             }}
