@@ -6,6 +6,8 @@ edition = "2021"
 
 [dependencies]
 game = {path = "../game"}
+git-version = "0.3.9"
+
 
 log = "0.4"
 # simple_logger = "4.0"

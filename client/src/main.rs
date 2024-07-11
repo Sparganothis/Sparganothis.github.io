@@ -20,6 +20,7 @@ mod demo_matchbox;
 pub mod mobile_check;
 pub mod audio3;
 pub mod demo;
+pub mod git_version;
 
 
 fn main() {

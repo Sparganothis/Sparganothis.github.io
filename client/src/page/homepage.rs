@@ -4,7 +4,11 @@ use game::api::{game_replay::GameId, table_paginate::TablePaginateDirection, web
 use leptos::*;
 
 
-use crate::{comp::menu_grid_view::MenuGridView, page::page_replay_single::GameReplayBoardMini, websocket::demo_comp::call_api_sync};
+use crate::{
+    comp::menu_grid_view::MenuGridView, 
+    // page::page_replay_single::GameReplayBoardMini, 
+    websocket::demo_comp::call_api_sync
+};
 
 #[component]
 pub fn Homepage()-> impl IntoView{

@@ -49,4 +49,8 @@ fn get_timestamp_hash() -> u64 {
         % MAGIC_NUMBER as u128) as u64
 }
 
-pub static GIT_VERSION: Lazy<String> = Lazy::new(|| _fetch_git_version());
+// pub static GIT_VERSION: Lazy<String> = Lazy::new(|| _fetch_git_version());
+
+
+use git_version::git_version;
+pub const GIT_VERSION: &str = git_version!();

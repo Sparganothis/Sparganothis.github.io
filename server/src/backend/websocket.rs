@@ -281,7 +281,8 @@ impl SubscribedGamesState {
 
             // log::info!("{:?}: Spectate found existing segments {}", game_id, existing_segments.len());
             let mut subscriber = subscriber;
-            loop {
+            let mut eject = false;
+            while !eject {
                 while let Some(x) = (&mut subscriber).await {
                     let reply_callback = reply_callback.clone();
                     match x {
@@ -298,6 +299,8 @@ impl SubscribedGamesState {
                             .await
                             {
                                 log::error!("error sending update subscribe segment for {:?}: {:?}", game_id, e);
+                                eject = true;
+                                break;
                             }
                         }
                         typed_sled::Event::Remove { key } => {

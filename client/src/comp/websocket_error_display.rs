@@ -43,13 +43,13 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
     };
 
     view! {
-        <h1
+        <h3
             style="cursor:pointer;"
             on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }
         >
             {error_cnt}
             err
-        </h1>
+        </h3>
         {overlay}
     }
 }

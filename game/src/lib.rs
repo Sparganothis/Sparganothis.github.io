@@ -9,6 +9,7 @@ pub mod random;
 pub mod rot;
 pub mod tet;
 pub mod timestamp;
+pub mod git_version;
 
 #[cfg(test)]
 pub mod tests {

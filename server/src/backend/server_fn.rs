@@ -27,7 +27,7 @@ pub fn get_profile(
 }
 
 pub fn git_version(_: (), _session_info: CurrentSessionInfo) -> anyhow::Result<String> {
-    Ok(GIT_VERSION.clone())
+    Ok(GIT_VERSION.to_string())
 }
 
 pub fn create_new_game_id(
@@ -237,7 +237,7 @@ pub fn get_segment_count(
     })
 }
 use game::api::websocket::GetAllGamesArg;
-const PAGE_SIZE: usize = 9;
+const PAGE_SIZE: usize = 24;
 
 pub fn get_all_games(
     (arg, _pag): (GetAllGamesArg, TablePaginateDirection<GameId>),

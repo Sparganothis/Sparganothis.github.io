@@ -3,7 +3,7 @@ use leptos::*;
 use leptos_meta::{provide_meta_context, Meta, Script, Title};
 use leptos_router::*;
 // use crate::error_template::ErrorTemplate;
-use game::api::websocket::{WebsocketAPIMessageRaw, WhoAmI};
+use game::api::websocket::{GitVersion, WebsocketAPIMessageRaw, WhoAmI};
 use leptonic::prelude::*;
 use leptos_use::core::ConnectionReadyState;
 use leptos_use::{use_websocket, UseWebsocketReturn};
@@ -21,6 +21,7 @@ use crate::page::settings::server_api::provide_user_setting;
 use crate::page::settings::settings_page::MMySettingsPage;
 use crate::page::you_are_phone::you_are_phone_view;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
+use crate::websocket::demo_comp::call_api_sync_or_error;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -261,13 +262,13 @@ pub fn AppRoot() -> impl IntoView {
                     <nav>
                         <MainMenu/>
                         <div>
-                            <p>"status: " {status}</p>
+                           {status}
 
                             <button
                                 on:click=send_byte_message
                                 disabled=move || !connected()
                             >
-                                "Send bytes"
+                                "Send"
                             </button>
                             <button on:click=open_connection disabled=connected>
                                 "Open"
@@ -305,6 +306,9 @@ pub fn AppRoot() -> impl IntoView {
                                 </span>
                             </a>
                         </p>
+
+                        <VersionDisplayComp/>
+
                     </nav>
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
@@ -395,4 +399,30 @@ pub fn RootRedirectPage()->impl IntoView {
         n("/home", NavigateOptions{replace:true, ..Default::default()});
     });
     view! { <p>Redirecting to <a href="/home">home</a></p> }
+}
+
+#[component]
+pub fn VersionDisplayComp() -> impl IntoView {
+    let client_version = crate::git_version::GIT_VERSION;
+    let game_version = game::git_version::GIT_VERSION;
+    let server_version = create_rw_signal("".to_string());
+    call_api_sync_or_error::<GitVersion>((), move |v| {
+        server_version.set(v);
+    }, move |err| {
+        server_version.set(format!("error: {err}"));
+    });
+    let s = move || {
+        format!(" Client: {}\n Server: {}\n   Game: {}", client_version, server_version.get(), game_version)
+    };
+
+    let style = move || {
+        if server_version.get() == client_version && client_version == game_version {
+            "color:blue;".to_string()
+        } else {
+            "color:red;".to_string()
+        }
+    };
+    view!{
+        <p><code><pre style={style}>{s}</pre></code> </p>
+    }
 }

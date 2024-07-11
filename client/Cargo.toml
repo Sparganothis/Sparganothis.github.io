@@ -23,6 +23,8 @@ codegen-units = 1
 
 [dependencies]
 game = {path = "../game"}
+git-version = "0.3.9"
+
 matchbox_socket = "0.9.0"
 wasm-bindgen-futures = "0.4.29"
 futures-timer = { version = "3", features = ["wasm-bindgen"] }
