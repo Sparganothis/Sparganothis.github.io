@@ -64,29 +64,23 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
                (
             "Open".to_string(),
             Callback::new(|(_k, _it):(GameId, GameSegmentCountReply)| {
-
-    
+   
                 let is_in_prog =  _it.is_in_progress;
                 let url = _k.to_url();
             
-                let url2 = url.clone();
-                   view! {
-                       <a href=move || {
-                           if is_in_prog {
-                               format!("/spectate-game/{}", url)
-                           } else {
-                               format!("/view-game/{}", url2)
-                           }
-                       }>
-                           {move || {
-                               if is_in_prog { "Spectate".to_string() } else { "Replay".to_string() }
-                           }}
-            
-                       </a>
-                   }.into_view()
+                let url_spectate = format!("/spectate-game/{}", url);
+                let url_replay = format!("/view-game/{}", url);
+
+                   view!{
+                       <a style="margin-right:auto;" href={url_replay}>replay</a>
+
+                       <Show when=move||{is_in_prog}>
+                            <a style="margin-right:auto;" href={url_spectate.clone()}>spectate</a>
+                       </Show>
+                    } .into_view()
 
             })
-        ),
+        )
     ];
     view! {
         <

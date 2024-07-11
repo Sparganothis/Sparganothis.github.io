@@ -22,14 +22,14 @@ pub fn Homepage()-> impl IntoView{
             0 => {
                 view! { <h1>todo</h1> }.into_view()
             },
-            8 =>{
-                (move || {
-                    match best_gameid.get() {
-                        Some(game_id) => view! { <GameReplayBoardMini game_id/> }.into_view(),
-                        None => view!{}.into_view(),
-                    }
-                }).into_view()
-            },
+            // 8 =>{
+            //     (move || {
+            //         match best_gameid.get() {
+            //             Some(game_id) => view! { <GameReplayBoardMini game_id/> }.into_view(),
+            //             None => view!{}.into_view(),
+            //         }
+            //     }).into_view()
+            // },
 
             _ => {
                 view!{
