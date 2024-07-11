@@ -338,6 +338,13 @@ pub async fn websocket_handle_request(
 ) -> anyhow::Result<Vec<u8>> {
     use crate::backend::server_fn::*;
     use game::api::websocket::*;
+
+
+    // TODO WARNING REMOVE ME
+    // test delay for websocket request handling
+    tokio::time::sleep(tokio::time::Duration::from_millis(700)).await;
+    // TODO: WARNING REMOVE ME
+
     get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();
 
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)

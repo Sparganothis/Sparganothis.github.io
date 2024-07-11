@@ -1,17 +1,8 @@
 use leptonic::button::ButtonColor;
 use leptos::*;
-use leptos_struct_table::*;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use game::api::table_paginate::TablePaginateDirection;
-
-pub trait CustomRowExtraView {
-    fn row_extra_view(&self) -> impl IntoView{
-        view!{ }
-    }
-}
-
-
 
 
 #[component]
