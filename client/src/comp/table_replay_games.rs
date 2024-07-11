@@ -26,12 +26,19 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     });
 
     type DataP = Vec<FullGameReplayTableRow>;
-    log::warn!("hello sirs");
 
     let column_display_fns = vec![
         (
-            "Ceva".to_string(),
-            Callback::new(|_| {view!{ceva}.into_view()})
+            "User Id".to_string(),
+            Callback::new(|(_k, _it):(GameId, _)| {
+                view!{
+                    <a href=format!("/user/{:?}", _k.user_id)>
+                        <p style="border: 1px solid black">
+                            {format!("{:?}",  _k.user_id)[0..8].to_string() }
+                        </p>
+                    </a>
+                }.into_view()
+            })
         ),
     ];
     view! {
