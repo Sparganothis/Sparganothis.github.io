@@ -4,6 +4,7 @@ use leptonic::prelude::*;
 use leptonic::slider::Slider;
 use leptos::*;
 use wasm_bindgen::JsValue;
+use crate::comp::game_board_flex::GameBoardFlex;
 
 
 fn _bytes_to_array(bytes: &[u8]) -> JsValue {
@@ -59,7 +60,7 @@ pub fn ReplayGameBoardFromSegmments(
         status_message.set("simulating...".to_string());
         log::info!("segments_to_states: {}", all_segments.len());
         let mut all_segemnts_2 = all_segments.clone();
-        all_segemnts_2.truncate(8888);
+        all_segemnts_2.truncate(6666);
         let all_states = segments_to_states(&all_segemnts_2);
         log::info!("segmments to states OK!");
         let t1 = get_timestamp_now_ms();
@@ -305,4 +306,3 @@ pub fn ReplayGameBoardFromSegmments(
         />
     }
 }
-use crate::comp::game_board_flex::GameBoardFlex;
