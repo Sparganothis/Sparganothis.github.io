@@ -19,10 +19,10 @@ pub fn ListAllCustomGames() -> impl IntoView {
     });
 
     type DataP = Vec<CustomGameDbRow>;
-    use crate::comp::table_generic::DisplayTableGeneric;
+    use crate::comp::table_generic::DisplayTableGeneric_OLD;
     view! {
         <
-            DisplayTableGeneric<
+            DisplayTableGeneric_OLD<
                 GameState,
                 CustomGameDbRow,
                 String,

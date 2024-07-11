@@ -7,13 +7,13 @@ use game::{
     timestamp::get_human_readable_nano,
 };
 
-use crate::{comp::table_generic::DisplayTableGeneric, websocket::demo_comp::call_api_sync};
+use crate::{comp::table_generic::DisplayTableGeneric_OLD, websocket::demo_comp::call_api_sync};
 use game::api::table_paginate::TablePaginateDirection;
 
 use game::api::websocket::GetAllGamesArg;
 use leptos::*;
 use leptos_struct_table::*;
-
+use crate::comp::table_generic::DisplayTableGeneric;
 
 #[component]
 pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
@@ -28,9 +28,15 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
     type DataP = Vec<FullGameReplayTableRow>;
     log::warn!("hello sirs");
 
+    let column_display_fns = vec![
+        (
+            "Ceva".to_string(),
+            Callback::new(|_| {view!{ceva}.into_view()})
+        ),
+    ];
     view! {
         <
-            DisplayTableGeneric<
+            DisplayTableGeneric_OLD<
                 GameSegmentCountReply,
                 FullGameReplayTableRow,
                 GameId,
@@ -38,6 +44,15 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
             > 
         
             fetch_items=fi 
+        />
+
+        <
+            DisplayTableGeneric<
+                GameSegmentCountReply,
+                GameId,
+            >
+            fetch_items=fi
+            column_display_fns
         />
     }.into_view()
 
