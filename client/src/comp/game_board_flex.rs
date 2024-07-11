@@ -11,17 +11,21 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
 
     let timer_str = move || { 
         counter_timer.track();
-        let s = game_state.get_untracked();
-        let pre = pre_countdown_text.get();
-        if s.game_over || !pre.is_empty() {
-            pause_timer();
-            reset();
-        } else {
-            if !is_active.get() {
-                resume_timer();
+        if let Some(s) = game_state.try_get_untracked() {
+            let pre = pre_countdown_text.get();
+            if s.game_over || !pre.is_empty() {
+                pause_timer();
+                reset();
+            } else {
+                if !is_active.get() {
+                    resume_timer();
+                }
             }
+            format!("{}", s.current_time_string()) 
+        } else {
+            "".to_string()
         }
-        format!("{}", s.current_time_string()) 
+        
     };
     timer_str
 }
