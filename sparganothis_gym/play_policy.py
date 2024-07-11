@@ -1,5 +1,5 @@
 from tetris.env import *
-from tetris.model import s2t
+from tetris.model import *
 import os
 import time
 import torch
@@ -10,12 +10,11 @@ env = TetrisEnv()
 obs, info = env.reset()
 
 # if GPU is to be used
-device = torch.device(
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available() else "cpu"
-)
+device = torch.device("cpu")
 
+policy_net = DQN(TRAIN_MODEL_SIZE).to(device)
+# with open("policy_net_states.pt", "rb") as f:
+    # policy_net.load_state_dict(torch.load(f))
 policy_net = torch.jit.load('policy_net.pt', map_location=device)
 policy_net.eval()
 
@@ -32,7 +31,7 @@ while True:
                 x["next"][None, ::],
                 x["hold"][None, ::],
             ).squeeze()
-            * torch.tensor(info["action_mask"], device=device, dtype=torch.float32)
+            * torch.tensor(info["action_mask"], dtype=torch.float32)
         )
         .argmax()
         .item()

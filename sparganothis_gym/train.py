@@ -13,9 +13,6 @@ run = wandb.init(
     project="sparganothis_gym_tet",
     config={
         "REWARD_END": REWARD_END,
-        "REWARD_SOFT": REWARD_SOFT,
-        "REWARD_MOVE": REWARD_MOVE,
-        "REWARD_ROTATE": REWARD_ROTATE,
         "REWARD_SCORE": REWARD_SCORE,
         "MEMORY_EPISODES": TRAIN_MEMORY_EPISODES,
         "TRAIN_MEMORY_EPISODE_SIZE": TRAIN_MEMORY_EPISODE_SIZE,
@@ -47,7 +44,6 @@ policy_net = DQN(TRAIN_MODEL_SIZE).to(device)
 target_net = DQN(TRAIN_MODEL_SIZE).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 
-optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
 
 
 
@@ -73,15 +69,16 @@ add_episode(default_reward, short_memory, wordpress_bot())
 human_memory = ReplayMemory(TRAIN_MEMORY_SIZE_HUMAN)
 
 import glob
-human_data = glob.glob('data')
+human_data = glob.glob('data/*.replay.bin')
 for replay in human_data:
     with open(replay, "rb") as f:
         replay_bytes = f.read()
     _, ep = sparganothis_vim.GameStatePy.load_replay_from_bytes(replay_bytes)
-    add_episode(default_reward, human_memory, ep)
+    add_episode(default_reward, human_memory, ep, [SOFT_DROP])
 
 optimize_model_steps = 0
 
+optimizer = optim.AdamW(policy_net.parameters(), lr=TRAIN_LR, amsgrad=True)
 if os.path.isfile("policy_net_states.pt") and os.path.isfile("optimizer_states.pt"):
     with open("policy_net_states.pt", "rb") as f:
         policy_net.load_state_dict(torch.load(f))
@@ -89,7 +86,7 @@ if os.path.isfile("policy_net_states.pt") and os.path.isfile("optimizer_states.p
         optimizer.load_state_dict(torch.load(f))
 else:
     for i in tqdm(range(TRAIN_MODEL_INIT_STEPS),desc="pretrain"):
-        loss = optimize_model(policy_net, target_net, optimizer, [human_memory], [BATCH_SIZE_HUMAN])
+        loss = optimize_model(policy_net, target_net, optimizer, [memory, human_memory], [BATCH_SIZE, BATCH_SIZE_HUMAN])
         optimize_model_steps += 1
         if optimize_model_steps % TRAIN_LOG_INTERVAL == 0:
             wandb.log({"pretrain_loss": loss}, step=optimize_model_steps)
@@ -100,11 +97,16 @@ env = TetrisEnv()
 
 steps_done = 0
 
+print("memory", len(memory))
+print("human_data", len(human_memory))
+print("short_memory", len(short_memory))
+
 if torch.cuda.is_available() or torch.backends.mps.is_available():
     num_episodes = TRAIN_EPISODES_GPU
 else:
     num_episodes = TRAIN_EPISODES_CPU
 
+optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
 for i_episode in tqdm(range(num_episodes), desc="episodes"):
     # Initialize the environment and get its state
     state, info = env.reset()
