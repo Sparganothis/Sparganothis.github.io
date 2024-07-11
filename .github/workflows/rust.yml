@@ -32,6 +32,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - run: git config --system --add safe.directory *
     
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@master
@@ -98,7 +99,7 @@ jobs:
     # run: cd client && echo "wss://ws.sparganothis.org/api/ws" > src/websocket.txt && trunk build
 
     - name: Trunk Build Prod
-      run: cd client && echo "wss://ws.sparganothis.org/api/ws" > src/websocket.txt && trunk build --release --minify --public-url "/" && echo '/* /index.html 200' > dist/_redirects && cp dist/index.html dist/404.html
+      run: cd client && echo "wss://ws.sparganothis.org/api/ws" > src/websocket.txt && (  trunk build --release --minify --public-url "/" ||  trunk build --release --minify --public-url "/" ||  trunk build --release --minify --public-url "/" ) && echo '/* /index.html 200' > dist/_redirects && cp dist/index.html dist/404.html
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3

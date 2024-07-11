@@ -38,6 +38,7 @@ jobs:
             target: ppc64le
     steps:
       - uses: actions/checkout@v4
+      - run: git config --system --add safe.directory *
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -70,6 +71,7 @@ jobs:
             target: armv7
     steps:
       - uses: actions/checkout@v4
+      - run: git config --system --add safe.directory *
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -98,6 +100,7 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v4
+      - run: git config --system --add safe.directory *
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -126,6 +129,7 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      - run: git config --system --add safe.directory *
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
@@ -146,6 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: git config --system --add safe.directory *
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
