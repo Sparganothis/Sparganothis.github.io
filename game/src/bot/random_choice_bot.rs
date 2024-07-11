@@ -75,7 +75,7 @@ where
     F: Fn(&GameState, &GameState) -> anyhow::Result<f64>,
 {
     if game_state.game_over {
-        return Ok(vec![])
+        return Ok(vec![]);
     }
     let mut all_action_chains = get_all_move_chains();
 

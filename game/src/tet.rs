@@ -1040,9 +1040,6 @@ impl GameState {
     }
 }
 
-
-
-
 pub fn segments_to_states(all_segments: &Vec<GameReplaySegment>) -> Vec<GameState> {
     let mut current_state = match all_segments.get(0) {
         Some(GameReplaySegment::Init(_replay)) => {
@@ -1075,7 +1072,6 @@ pub fn segments_to_states(all_segments: &Vec<GameReplaySegment>) -> Vec<GameStat
     }
     all_states
 }
-
 
 #[cfg(test)]
 pub mod tests {
@@ -1167,4 +1163,3 @@ pub mod tests {
         }
     }
 }
-

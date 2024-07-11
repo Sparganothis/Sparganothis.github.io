@@ -268,15 +268,14 @@ pub fn ReplayGameBoardFromSegmments(
                     />
                 </div>
 
-                
                 <div class="control_icon_container">
-                    <a href={download_href} download="Sparganothis.replay.bin">
-                    <Icon
-                        class="control_icon"
-                        icon=icondata::BsDownload
-                        width="5vmin"
-                        height="5vmin"
-                    />
+                    <a href=download_href download="Sparganothis.replay.bin">
+                        <Icon
+                            class="control_icon"
+                            icon=icondata::BsDownload
+                            width="5vmin"
+                            height="5vmin"
+                        />
                     </a>
                 </div>
 

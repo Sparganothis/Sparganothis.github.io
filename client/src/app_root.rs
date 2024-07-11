@@ -394,7 +394,5 @@ pub fn RootRedirectPage()->impl IntoView {
         log::info!("REDIRECTING TO /home....");
         n("/home", NavigateOptions{replace:true, ..Default::default()});
     });
-    view!{
-        <p> Redirecting to <a href="/home">home</a> </p>
-    }
+    view! { <p>Redirecting to <a href="/home">home</a></p> }
 }

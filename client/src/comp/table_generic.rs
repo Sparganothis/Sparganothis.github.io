@@ -81,28 +81,22 @@ where
         };
 
         
-        let table_headers:Vec<_> = column_display_fns.iter().map(|k| k.0.clone()) .map(|k| view!{<th>{k}</th>}) .collect();
+        let table_headers:Vec<_> = column_display_fns.iter().map(|k| k.0.clone()) .map(|k| view! { <th>{k}</th> }) .collect();
      
         let table_rows: Vec<View> = items.iter().map(|r| {
             column_display_fns.iter().map(|(_c_name, c_fn)| {
                 let val = c_fn.call(r.clone());
 
-                view!{
-                    <td>{val}</td>
-                }.into_view()
+                view! { <td>{val}</td> }.into_view()
             }).collect()
-        }).map(|r:Vec<_>| view!{<tr>{r}</tr>}.into_view())
+        }).map(|r:Vec<_>| view! { <tr>{r}</tr> }.into_view())
         .collect();
             
         view! {
             <div>
                 <table>
-                  <thead>
-                    {table_headers}
-                  </thead>
-                  <tbody>
-                    {table_rows}
-                  </tbody>
+                    <thead>{table_headers}</thead>
+                    <tbody>{table_rows}</tbody>
                 </table>
                 {buttons}
             </div>
