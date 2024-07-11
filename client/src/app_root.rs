@@ -398,19 +398,27 @@ pub fn RootRedirectPage()->impl IntoView {
 #[component]
 pub fn VersionDisplayComp() -> impl IntoView {
     let client_version = crate::git_version::GIT_VERSION;
+    let client_version = client_version.replace("\n", "").replace(" ", "");
+
     let game_version = game::git_version::GIT_VERSION;
+    let game_version = game_version.replace("\n", "").replace(" ", "");
+    
     let server_version = create_rw_signal("".to_string());
     call_api_sync_or_error::<GitVersion>((), move |v| {
-        server_version.set(v);
+        server_version.set(v.replace("\n", "").replace(" ", ""));
     }, move |err| {
         server_version.set(format!("error: {err}"));
     });
+    let c2 = client_version.clone();
+    let g2 = game_version.clone();
     let s = move || {
-        format!(" Client: {}\n Server: {}\n   Game: {}", client_version, server_version.get(), game_version)
+        format!(" Client: {}\n Server: {}\n   Game: {}", c2, server_version.get(), g2)
     };
 
+    let c2 = client_version.clone();
+    let g2 = game_version.clone();
     let style = move || {
-        if server_version.get() == client_version && client_version == game_version {
+        if server_version.get() == c2 && c2 == g2 {
             "color:blue;".to_string()
         } else {
             "color:red;".to_string()

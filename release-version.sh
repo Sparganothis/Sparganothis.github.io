@@ -36,7 +36,7 @@ done
     cd game
     cargo set-version --bump patch
 )
-export NEW_VERSION="$(cat game/Cargo.toml | grep "^version = .*$" | cut -f3 -d' ' | cut -f2 -d'"' | head -n1)"
+export NEW_VERSION="$(cat game/Cargo.toml | grep "^version = .*$" | cut -f3 -d' ' | cut -f2 -d'"' | head -n1 | tr -d '\n' | tr -d ' ')"
 
 if [ "$NEW_VERSION" == "" ]; then 
     echo "no version given!"

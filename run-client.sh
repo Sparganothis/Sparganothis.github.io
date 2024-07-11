@@ -5,4 +5,4 @@ export TRUNK_SKIP_VERSION_CHECK=true
 # cargo watch --why --delay 4 -s "bash -exc ' time trunk build --offline; trunk serve --offline --ignore . --ignore ..'" -w ../game/ -i ../game/target -w . -i server_data -i target -i dist
 
 trunk build --offline || trunk build
-trunk serve --offline --watch . --ignore dist --ignore target --watch ../game/ --ignore ../game/target
+trunk serve --offline --watch . --ignore dist --ignore target --watch ../game/ --ignore ../game/target --watch ../VERSION
