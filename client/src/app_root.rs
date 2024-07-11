@@ -392,7 +392,7 @@ pub fn RootRedirectPage()->impl IntoView {
     let n = leptos_router::use_navigate();
     queue_microtask(move || {
         log::info!("REDIRECTING TO /home....");
-        n("/home", Default::default())
+        n("/home", NavigateOptions{replace:true, ..Default::default()});
     });
     view!{
         <p> Redirecting to <a href="/home">home</a> </p>

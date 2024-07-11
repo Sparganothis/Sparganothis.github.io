@@ -87,6 +87,10 @@ pub fn GameCPUPage() -> impl IntoView {
 
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
+            
+            0 => {
+                view! { <h1>car</h1> }.into_view()
+            },
             5 =>             youtube_video.clone().into_view(),
 
             6 => play_button("random".to_string()).clone(),

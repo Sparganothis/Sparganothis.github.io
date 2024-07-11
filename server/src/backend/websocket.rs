@@ -342,7 +342,7 @@ pub async fn websocket_handle_request(
 
     // TODO WARNING REMOVE ME
     // test delay for websocket request handling
-    tokio::time::sleep(tokio::time::Duration::from_millis(700)).await;
+    tokio::time::sleep(tokio::time::Duration::from_millis(4)).await;
     // TODO: WARNING REMOVE ME
 
     get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();

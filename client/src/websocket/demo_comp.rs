@@ -35,18 +35,25 @@ type SubscribeSegmentCallback = Callback<Vec<(GameSegmentId, GameReplaySegment)>
 impl WebsocketAPI {
     pub fn subscribe_to_game(&self, game_id: &GameId, cb: SubscribeSegmentCallback) {
         self.subscribe_game_callbacks.update_untracked(|map| {
+            log::warn!("START SUBSCRIBE TO GAME: {:?}", game_id);
             map.insert(*game_id, cb);
             let game_id = *game_id;
             let arg = SubscribeGamePlzArgument { game_id, command: game::api::websocket::SubscribeGamePlzCommmand::StartStreaming };
             call_api_sync::<SubscribeGamePlz>(arg, move |_x| {
-                log::info!("subscribe OK");
+                log::warn!("subscribe OK");
             });
         });
     }
 
    pub fn stop_subscribe_to_game(&self, game_id: &GameId) {
     self.subscribe_game_callbacks.update_untracked(|map| {
+        log::warn!("STOP SUBSCRIBE TO GAME: {:?}", game_id);
         map.remove(game_id);
+        let game_id = *game_id;
+        let arg = SubscribeGamePlzArgument { game_id, command: game::api::websocket::SubscribeGamePlzCommmand::StopStreaming };
+        call_api_sync::<SubscribeGamePlz>(arg, move |_x| {
+            log::warn!("unsubscribe OK");
+        });
     })
    }
 
@@ -67,30 +74,9 @@ pub fn call_api_sync<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'sta
 
 pub fn call_api_sync_or_error<T: APIMethod>(arg: T::Req, f: impl Fn(T::Resp) + Clone+'static, ferr: impl Fn(String) + Clone+'static) -> () {
     let api2: WebsocketAPI = expect_context();
-    // spawn_local(async move {
-    //     // let api3 = api2.clone();
-    //     // log::info!("calling websocket api");
-    //     let r = _call_websocket_api::<T>(api2, arg)
-    //         .expect("cannot obtain future")
-    //         .await;
-
-    //     match r {
-    //         Ok(result) => {
-    //             f(result);
-    //         }
-    //         Err(err) => {
-    //             log::warn!("WEBSOCKET SERVER ERROR: {}", err);
-    //             // 
-    //             ferr(err);
-    //         }
-    //     }
-    // });
-
-    let arg2 = arg.clone();
-    let api2 = api2.clone();
     let res = create_resource(|| (), move |_| {
         let api2 = api2.clone();
-        let arg2 = arg2.clone();
+        let arg2 = arg.clone();
         async move {
             _call_websocket_api::<T>(api2, arg2)
             .expect("cannot obtain future")

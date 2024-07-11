@@ -69,6 +69,10 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
 
     let views:Vec<_> = {0..20}.into_iter().map(move |x|{
         match x{
+            
+            0 => {
+                view! { <h1>solo</h1> }.into_view()
+            },
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),
             6 => play_button.clone(),

@@ -13,7 +13,7 @@ use leptos::*;
 
 use crate::{
     comp::{game_board_player::PlayerGameBoardSingle, multiselect_repeat::MultiSelectSmecher, table_custom_games::ListAllCustomGames},
-    websocket::demo_comp::call_api_sync,
+    websocket::demo_comp::{call_api_sync, call_api_sync_or_error},
 };
 
 #[component]
@@ -60,15 +60,17 @@ pub fn MsPaintPage() -> impl IntoView {
         log::info!("readcting to URL papram save_id = {:?}", p);
         if let Some(url_save_name) = p {
             set_save_name.set(url_save_name.clone());
-            call_api_sync::<GetCustomGame>(url_save_name, move |r| {
+            call_api_sync_or_error::<GetCustomGame>(url_save_name, move |r| {
                 game_state.set(r);
+            }, move |err| {
+                log::info!("custom get game err: {}", err);
             });
         } else {
             let navigate = use_navigate();
             call_api_sync::<GetRandomWord>((), move |r: String| {
                 set_save_name.set(r.clone());
                 let new_url = format!("/edit-custom-game/{}", r);
-                navigate(&new_url, NavigateOptions::default());
+                navigate(&new_url, NavigateOptions{replace:true, ..Default::default()});
             });
         }
     });

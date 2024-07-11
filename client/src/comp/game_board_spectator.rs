@@ -38,6 +38,11 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
         });
     }));
 
+    let api3 = api.clone();
+    on_cleanup(move || {
+        api3.stop_subscribe_to_game(&game_id2);
+    });
+
     let on_reset: Callback<()> = Callback::<()>::new(move |_| {});
     view! {
         <GameBoardFlex

@@ -35,7 +35,7 @@ export function init_audio_js() {
         var file_src = files[key][0];
         var volume = files[key][1];
         var should_retry_after_unlock =  files[key][1];
-        console.log("registering key " + key + " and sound " + files[key]);
+        // console.log("registering key " + key + " and sound " + files[key]);
 
         var arg = {
             src: ["/public/audio/"+file_src],
