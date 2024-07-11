@@ -51,5 +51,4 @@ fn get_timestamp_hash() -> u64 {
 
 // pub static GIT_VERSION: Lazy<String> = Lazy::new(|| _fetch_git_version());
 
-
 pub const GIT_VERSION: &str = include_str!("../../../VERSION");

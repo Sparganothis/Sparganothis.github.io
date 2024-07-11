@@ -262,8 +262,7 @@ pub fn AppRoot() -> impl IntoView {
                     <nav>
                         <MainMenu/>
                         <div>
-                           {status}
-
+                            {status}
                             <button
                                 on:click=send_byte_message
                                 disabled=move || !connected()
@@ -279,7 +278,6 @@ pub fn AppRoot() -> impl IntoView {
                             >
                                 "Close"
                             </button>
-
                             // <p>{sig}</p>
                             <p>
                                 {move || {
@@ -418,7 +416,11 @@ pub fn VersionDisplayComp() -> impl IntoView {
             "color:red;".to_string()
         }
     };
-    view!{
-        <p><code><pre style={style}>{s}</pre></code> </p>
+    view! {
+        <p>
+            <code>
+                <pre style=style>{s}</pre>
+            </code>
+        </p>
     }
 }
