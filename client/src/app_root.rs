@@ -309,7 +309,8 @@ pub fn AppRoot() -> impl IntoView {
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
                         <Routes>
-                            <Route path="" view=Homepage/>
+                            <Route path="" view=RootRedirectPage/>
+                            <Route path="/home" view=Homepage/>
                             <Route path="/solo" view=GameSoloLobbyPage/>
                             <Route path="/play-game-solo/:game_id" view=Game1PPage/>
                             <Route path="/vs_cpu" view=GameCPUPage/>
@@ -349,7 +350,7 @@ pub fn AppRoot() -> impl IntoView {
 pub fn MainMenu() -> impl IntoView {
     let menu_entries = || {
         vec![
-            ("/", "home"),
+            ("/home", "home"),
             ("/solo", "solo"),
             ("/vs_cpu", "man vs car"),
             ("/vs_net", "1v1 online"),
@@ -381,5 +382,19 @@ pub fn MainMenu() -> impl IntoView {
             />
 
         </ul>
+    }
+}
+
+
+
+#[component]
+pub fn RootRedirectPage()->impl IntoView {
+    let n = leptos_router::use_navigate();
+    queue_microtask(move || {
+        log::info!("REDIRECTING TO /home....");
+        n("/home", Default::default())
+    });
+    view!{
+        <p> Redirecting to <a href="/home">home</a> </p>
     }
 }
