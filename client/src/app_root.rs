@@ -366,10 +366,6 @@ pub fn MainMenu() -> impl IntoView {
             ("/about", "about"),
         ]
     };
-    // let git_version = create_resource(
-    //     || (),
-    //     |_| async move { crate::server::api::server_info::git_version().await },
-    // );
 
     view! {
         <ul class="menu_root">

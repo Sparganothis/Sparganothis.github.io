@@ -4,7 +4,6 @@ version = "0.1.24"
 edition = "2021"
 
 [dependencies]
-git-version = "0.3.9"
 serde_with = "3.8"
 log = "0.4"
 hex = "0.4"
