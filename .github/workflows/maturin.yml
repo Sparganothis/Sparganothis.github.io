@@ -7,9 +7,9 @@ name: PyPI
 
 on:
   push:
-    branches:
-      - bos
-      - master
+    # branches:
+      # - bos
+      # - master
     tags:
       - '*'
   pull_request:
