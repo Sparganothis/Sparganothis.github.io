@@ -197,27 +197,30 @@ fn do_append_game_segment(
     Ok(is_game_over_because_sommething(id, _current_session)?)
 }
 
-fn is_game_over_because_sommething(game_id: GameId,  _current_session: CurrentSessionInfo,) -> anyhow::Result<Option<GameOverReason>> {{
-
-    if let Some(match_) = GAME_MATCH_FOR_GAME_ID_DB.get(&game_id)? {
-        if let Some(match_info) = GAME_MATCH_DB.get(&match_)?{
-            match match_info.type_ {
-                GameMatchType::ManVsCar(_) | GameMatchType::_1v1 => {
-                    if other_game_lost(&game_id, &match_info).unwrap_or(false) {
-                        return Ok(Some(GameOverReason::Win))
+fn is_game_over_because_sommething(
+    game_id: GameId,
+    _current_session: CurrentSessionInfo,
+) -> anyhow::Result<Option<GameOverReason>> {
+    {
+        if let Some(match_) = GAME_MATCH_FOR_GAME_ID_DB.get(&game_id)? {
+            if let Some(match_info) = GAME_MATCH_DB.get(&match_)? {
+                match match_info.type_ {
+                    GameMatchType::ManVsCar(_) | GameMatchType::_1v1 => {
+                        if other_game_lost(&game_id, &match_info).unwrap_or(false) {
+                            return Ok(Some(GameOverReason::Win));
+                        }
                     }
-                },
 
-                GameMatchType::_40lines => todo!(),
-                GameMatchType::_10v10 => todo!(),
-                GameMatchType::_4v4 => todo!(),
+                    GameMatchType::_40lines => todo!(),
+                    GameMatchType::_10v10 => todo!(),
+                    GameMatchType::_4v4 => todo!(),
+                }
             }
         }
+
+        Ok(None)
     }
-
-
-    Ok(None)
-}}
+}
 
 fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<bool> {
     for user in match_info.users.iter() {
@@ -227,8 +230,10 @@ fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<b
                 init_seed: match_info.seed,
                 start_time: match_info.time,
             };
-            let other_in_progress = GAME_IS_IN_PROGRESS_DB.get(&other_game_id)?.context("other match not found")?;
-            return Ok(!other_in_progress)
+            let other_in_progress = GAME_IS_IN_PROGRESS_DB
+                .get(&other_game_id)?
+                .context("other match not found")?;
+            return Ok(!other_in_progress);
         }
     }
     anyhow::bail!("oculd not find other game, am i playuing myself??")
