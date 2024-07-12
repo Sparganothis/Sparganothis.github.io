@@ -31,41 +31,31 @@ pub fn AppRoot() -> impl IntoView {
     }
     let _style = stylist::style!(
         nav {
-            position: absolute;
-            left: 0.5vmin;
-            top: 1vmin;
-            height: 97vmin;
-            width: 18.5vmin;
+            // height: 100%;
+            width: 12%;
             border: 1vmin solid black;
         }
         main {
-            position: absolute;
-            top: 1vmin;
-            left: 19.85vmin;
-            height: 98vmin;
+            height:100%;width:100%; border:1vmin solid purple; display:flex; flex-direction:row;
         }
         main > div.main_left {
-            position: absolute;
-            top: 0vmin;
-            width: 71.1vmin;
-            left: 0.3vmin;
-            height: 97vmin;
+            width: 40%;
+            display:flex;align-items:center;
+            // height: 100%;
             border: 1vmin solid green;
+
         }
         main > div.main_mid {
-            position: absolute;
-            top: 0vmin;
-            width: 12.1vmin;
-            left: 72.0vmin;
-            height: 97vmin;
+            width: 7%;
+            display:flex;align-items:center;
+            // height: 100%;
             border: 1vmin solid black;
+            aspect-ratio: 93/873;
         }
         main > div.main_right {
-            position: absolute;
-            top: 0vmin;
-            width: 71.1vmin;
-            left: 84.7vmin;
-            height: 97vmin;
+            width: 40%;
+            display:flex;align-items:center;
+            // height: 100%;
             border: 1vmin solid blue;
         }
         .menu_root {
@@ -257,8 +247,9 @@ pub fn AppRoot() -> impl IntoView {
         <Title text="xanthoides"/>
 
         <Root default_theme=LeptonicTheme::default()>
+        <div style="width:100%;height:100%;border:1vmin solid green; align-items:center;   justify-content: center; display:flex;">
 
-            <div class=_style.get_class_name().to_string()>
+            <div class=_style.get_class_name().to_string() style="border: 1vmin solid red; max-width:100%; max-height:100%; aspect-ratio:16/9; display:flex; flex-direction:row; align-items:center; margin: 0px;">
 
                 <Router fallback=|| {
                     let mut outside_errors = Errors::default();
@@ -270,67 +261,70 @@ pub fn AppRoot() -> impl IntoView {
                         <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
+                    // BACKGROUND IMAGE
                     <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;   opacity: 0.5;"></div>
-                    <nav style="display:flex; flex-direction:column;">
-                        <div style="height:60%; width: 100%;">
-                            <MainMenu/>
-                        </div>
-                        <div style="height:15%;width:100%;border-top:1vmin solid black;">
-                            <div style="height:43%; width:100%;">
-                                {status}
+
+                    <nav>
+                        <div style="display:flex; flex-direction:column;aspect-ratio: 182/873; border: 1vmin solid yellow; max-height: 100%;">
+                            <div style="height:60%; width: 100%;">
+                                <MainMenu/>
                             </div>
-                            <div style="height:33%;width:100%;display:flex;flex-direction:row;container-type:size;">
+                            <div style="height:15%;width:100%;border-top:1vmin solid black;">
+                                <div style="height:43%; width:100%;">
+                                    {status}
+                                </div>
+                                <div style="height:33%;width:100%;display:flex;flex-direction:row;container-type:size;">
 
-                                <Button style="height:100%; width:33%; font-size:40cqh; line-height:50cqh;"
-                                    on_click=send_byte_message
-                                    disabled=(move || !connected()).into_signal()
-                                >
-                                    "Send"
-                                </Button>
-                                <Button on_click=open_connection disabled=connected.into_signal() style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;" >
-                                    "Open"
-                                </Button>
-                                <Button style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;"
-                                    on_click=close_connection
-                                    disabled=(move || !connected()).into_signal()
-                                >
-                                    "Close"
-                                // <p>{sig}</p>
-                                </Button>
+                                    <Button style="height:100%; width:33%; font-size:40cqh; line-height:50cqh;"
+                                        on_click=send_byte_message
+                                        disabled=(move || !connected()).into_signal()
+                                    >
+                                        "Send"
+                                    </Button>
+                                    <Button on_click=open_connection disabled=connected.into_signal() style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;" >
+                                        "Open"
+                                    </Button>
+                                    <Button style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;"
+                                        on_click=close_connection
+                                        disabled=(move || !connected()).into_signal()
+                                    >
+                                        "Close"
+                                    // <p>{sig}</p>
+                                    </Button>
 
-                            </div>
-                            
-                            <div style="height:23%; width:100%;">
-                                <FlexText text={move || {
-                                    format!(
-                                        "{:?} bytes",
-                                        message_bytes.get().unwrap_or(vec![]).len(),
-                                    )
-                                }}.into_signal() size_cqh=60.0/>
-                            </div>
+                                </div>
+                                
+                                <div style="height:23%; width:100%;">
+                                    <FlexText text={move || {
+                                        format!(
+                                            "{:?} bytes",
+                                            message_bytes.get().unwrap_or(vec![]).len(),
+                                        )
+                                    }}.into_signal() size_cqh=60.0/>
+                                </div>
 
-                        </div>
-
-                        <div style="height:7%; width: 100%;">
-                            <WebsocketErrorDisplay/>
-                        </div>
-
-                        <a
-                            href="https://github.com/Sparganothis/Sparganothis.github.io"
-                            target="_blank"
-                            style="height:7%; width: 100%; display: flex;flex-direction:row; "
-                        >
-                            <Icon icon=icondata::BsGithub width="100%" height="100%" style="width:20%"/>
-                            <div style="width:80%; height:100%;">
-                                <FlexText text="GitHub" size_cqh=60.0/>
                             </div>
 
-                        </a>
+                            <div style="height:7%; width: 100%;">
+                                <WebsocketErrorDisplay/>
+                            </div>
 
-                        <div style="height:15%;width:100%;">
-                            <VersionDisplayComp/>
+                            <a
+                                href="https://github.com/Sparganothis/Sparganothis.github.io"
+                                target="_blank"
+                                style="height:7%; width: 100%; display: flex;flex-direction:row; "
+                            >
+                                <Icon icon=icondata::BsGithub width="100%" height="100%" style="width:20%"/>
+                                <div style="width:80%; height:100%;">
+                                    <FlexText text="GitHub" size_cqh=60.0/>
+                                </div>
+
+                            </a>
+
+                            <div style="height:15%;width:100%;">
+                                <VersionDisplayComp/>
+                            </div>
                         </div>
-
                     </nav>
                     <main _ref=main_ref>
                         // all our routes will appear inside <main>
@@ -368,6 +362,8 @@ pub fn AppRoot() -> impl IntoView {
                     </main>
                 </Router>
             </div>
+            
+        </div>
         </Root>
     }.into_view()
 }
