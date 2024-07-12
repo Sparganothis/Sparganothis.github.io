@@ -30,6 +30,7 @@ while True:
                 x["board"][None, ::],
                 x["next"][None, ::],
                 x["hold"][None, ::],
+                x["hcf"][None, ::],
             ).squeeze()
             * torch.tensor(info["action_mask"], dtype=torch.float32)
         )
