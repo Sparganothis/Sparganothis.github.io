@@ -38,13 +38,15 @@ pub fn AppRoot() -> impl IntoView {
             border: 1vmin solid black;
         }
         main {
-            height:100%;width:100%; border:1vmin solid purple; display:flex; flex-direction:row;
+            height:100%;width:100%;  display:flex; flex-direction:row;
+            border: 1vmin solid white;
+            background-color:#ffffff8f;
         }
         main > div.main_left {
             width: 50%;
             // display:flex;align-items:center;
             // height: 100%;
-            border: 1vmin solid green;
+            // border: 1vmin solid green;
             max-height:100%; overflow:scroll;
 
         }
@@ -59,7 +61,7 @@ pub fn AppRoot() -> impl IntoView {
             width: 50%;
             // display:flex;align-items:center;
             // height: 100%;
-            border: 1vmin solid blue;
+            // border: 1vmin solid blue;
             max-height:100%; overflow:scroll;
         }
         .menu_root {
@@ -247,9 +249,9 @@ pub fn AppRoot() -> impl IntoView {
                     // BACKGROUND IMAGE
                     <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;  opacity: 0.5; z-index:-999;"></div>
         
-        <div style="width:100%;height:100%;border:1vmin solid green; align-items:center;">
+        <div style="width:100%;height:100%; align-items:center;">
 
-            <div class=_style.get_class_name().to_string() style="border: 1vmin solid red; max-width:100%; max-height:100%; aspect-ratio:16/10; display:flex; flex-direction:row; align-items:center; margin: auto;">
+            <div class=_style.get_class_name().to_string() style=" max-width:100%; max-height:100%; aspect-ratio:16/10; display:flex; flex-direction:row; align-items:center; margin: auto;">
 
                 <Router fallback=|| {
                     let mut outside_errors = Errors::default();
@@ -264,7 +266,7 @@ pub fn AppRoot() -> impl IntoView {
 
 
                     <nav>
-                        <div style="display:flex; flex-direction:column;aspect-ratio: 182/1030; border: 1vmin solid yellow; max-height: 100%; max-width:100%; min-height:80%; min-width:90%; margin: auto;">
+                        <div style="display:flex; flex-direction:column;aspect-ratio: 182/1030; max-height: 100%; max-width:100%; min-height:80%; min-width:90%; margin: auto;">
                             <div style="height:60%; width: 100%;">
                                 <MainMenu/>
                             </div>

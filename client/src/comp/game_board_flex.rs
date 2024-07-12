@@ -193,7 +193,7 @@ pub fn GameBoardFlex(
         <div
             class=_style_name
             style="height:100%;flex-direction: column;display: flex;         container-type: size;
-            aspect-ratio: 0.66; border: 1vmin solid yellow; margin:auto;
+            aspect-ratio: 0.66;  margin:auto;
             --h-main-width:99.9cqw;   "
         >
 
