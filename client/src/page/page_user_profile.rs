@@ -26,7 +26,6 @@ pub fn MyAccountPage() -> impl IntoView {
 
 
     let user_settings = view! {
-        <div>
             <Show
                 when=move || user_profile.get().is_some() && guest_id.get().is_some()
                 fallback=move || view! {}
@@ -40,11 +39,10 @@ pub fn MyAccountPage() -> impl IntoView {
 
             </Show>
 
-        </div>
     };
 
     view! {
-        <div class="main_left" style="width:95vmin">
+        <div class="main_left">
             {{ user_settings }}
         </div>
     }

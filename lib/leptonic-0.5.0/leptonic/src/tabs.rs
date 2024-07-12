@@ -97,7 +97,7 @@ pub fn Tabs(#[prop(optional)] mount: Option<Mount>, children: Children) -> impl 
     let (tabs, set_tabs) = create_signal(Vec::new());
     
     view! {
-        <leptonic-tabs>
+        <leptonic-tabs style="height:100%;">
             <Provider value=TabsContext {
                 history,
                 set_history,
@@ -174,7 +174,7 @@ pub fn TabSelectors(
     update_tabs(current_hash);
 
     view! {
-        <leptonic-tab-selectors role="tablist">
+        <leptonic-tab-selectors role="tablist" style="height:10%;">
             <For
                 each=move || tabs.get()
                 key=|tab| tab.id

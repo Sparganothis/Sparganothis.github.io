@@ -32,31 +32,35 @@ pub fn AppRoot() -> impl IntoView {
     let _style = stylist::style!(
         nav {
             // height: 100%;
-            width: 12%;
+            min-width: 11.5%;
+            width: 13.5%;
+            max-width:13.5%;
             border: 1vmin solid black;
         }
         main {
             height:100%;width:100%; border:1vmin solid purple; display:flex; flex-direction:row;
         }
         main > div.main_left {
-            width: 40%;
-            display:flex;align-items:center;
+            width: 50%;
+            // display:flex;align-items:center;
             // height: 100%;
             border: 1vmin solid green;
+            max-height:100%; overflow:scroll;
 
         }
         main > div.main_mid {
-            width: 7%;
-            display:flex;align-items:center;
+            width: 6%;
+            // display:flex;align-items:center;
             // height: 100%;
             border: 1vmin solid black;
             aspect-ratio: 93/873;
         }
         main > div.main_right {
-            width: 40%;
-            display:flex;align-items:center;
+            width: 50%;
+            // display:flex;align-items:center;
             // height: 100%;
             border: 1vmin solid blue;
+            max-height:100%; overflow:scroll;
         }
         .menu_root {
             padding: 0px;
@@ -68,17 +72,11 @@ pub fn AppRoot() -> impl IntoView {
             width:100%;
         }
         .menu_item {
-            // border: 1vmin solid green;
-            // flex: 0 1 auto;
             container-type:size;
-
             margin: 0px;
             height:100%;
             width:100%;
-            // height: 6vmin;
             text-align: center;
-            // line-height: 6vmin;
-            // font-size: 3vmin;
             font-weight: normal;
             color: black;
             rotate: -8deg;
@@ -86,10 +84,9 @@ pub fn AppRoot() -> impl IntoView {
         a {
             text-decoration: none;
         }
-        a[aria-current="page"] > .menu_item  {
+        a[aria-current="page"] .menu_item  {
             font-weight: bold;
             color: darkred;
-            // height: 5vmin;
         }
         .profile_view_container {
             color: black;
@@ -247,9 +244,12 @@ pub fn AppRoot() -> impl IntoView {
         <Title text="xanthoides"/>
 
         <Root default_theme=LeptonicTheme::default()>
-        <div style="width:100%;height:100%;border:1vmin solid green; align-items:center;   justify-content: center; display:flex;">
+                    // BACKGROUND IMAGE
+                    <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;  opacity: 0.5; z-index:-999;"></div>
+        
+        <div style="width:100%;height:100%;border:1vmin solid green; align-items:center;">
 
-            <div class=_style.get_class_name().to_string() style="border: 1vmin solid red; max-width:100%; max-height:100%; aspect-ratio:16/9; display:flex; flex-direction:row; align-items:center; margin: 0px;">
+            <div class=_style.get_class_name().to_string() style="border: 1vmin solid red; max-width:100%; max-height:100%; aspect-ratio:16/10; display:flex; flex-direction:row; align-items:center; margin: auto;">
 
                 <Router fallback=|| {
                     let mut outside_errors = Errors::default();
@@ -261,11 +261,10 @@ pub fn AppRoot() -> impl IntoView {
                         <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
                     }
                 }>
-                    // BACKGROUND IMAGE
-                    <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;   opacity: 0.5;"></div>
+
 
                     <nav>
-                        <div style="display:flex; flex-direction:column;aspect-ratio: 182/873; border: 1vmin solid yellow; max-height: 100%;">
+                        <div style="display:flex; flex-direction:column;aspect-ratio: 182/1030; border: 1vmin solid yellow; max-height: 100%; max-width:100%; min-height:80%; min-width:90%; margin: auto;">
                             <div style="height:60%; width: 100%;">
                                 <MainMenu/>
                             </div>
@@ -396,7 +395,7 @@ pub fn MainMenu() -> impl IntoView {
                     view! {
                         <A href=k.0 class="menu_item" attr:style={move || format!("aspect-ratio:{};" , aspect_ratio)}>
                             // <div >
-                                <FlexText text={k.1} size_cqh=60.0/>
+                                <FlexText text={k.1} size_cqh=40.0/>
                             // </div>
                             // <h3 class="menu_item">{k.1}</h3>
                         </A>

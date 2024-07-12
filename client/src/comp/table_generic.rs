@@ -57,8 +57,6 @@ where
       
         let buttons = if items.len() > 0 {
             view! {
-                <div style="display:flex; flex-direction:row;">
-
                     <leptonic::prelude::Button
                         style="margin-right:auto"
                         on_click=move |_| { on_prev(()) }
@@ -73,15 +71,12 @@ where
                     >
                         "NEXT"
                     </leptonic::prelude::Button>
-
-                </div>
             }.into_view()
         } else {
             view!{}.into_view()
         };
 
-        
-        let table_headers:Vec<_> = column_display_fns.iter().map(|k| k.0.clone()) .map(|k| view! { <th>{k}</th> }) .collect();
+        let table_headers:Vec<_> = column_display_fns.iter().map(|k| k.0.clone()) .map(|k| view! { <th style="  position: sticky;  top: 0px;  background: white;">{k}</th> }) .collect();
      
         let table_rows: Vec<View> = items.iter().map(|r| {
             column_display_fns.iter().map(|(_c_name, c_fn)| {
@@ -93,12 +88,16 @@ where
         .collect();
             
         view! {
-            <div>
-                <table>
-                    <thead>{table_headers}</thead>
-                    <tbody>{table_rows}</tbody>
-                </table>
-                {buttons}
+            <div style="height:100%;width:100%;flex-direction:column;display:flex;">
+                <div   style="overflow: scroll; max-height: 90%; margin:2%;">
+                    <table>
+                        <thead>{table_headers}</thead>
+                        <tbody>{table_rows}</tbody>
+                    </table>
+                </div>
+                <div style="height:6%;display:flex; flex-direction:row;">
+                    {buttons}
+                </div>
             </div>
         }
         .into_view()

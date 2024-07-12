@@ -75,7 +75,7 @@ pub fn Tab(
         Mount::Once => view! {
             {
                 view! {
-                    <leptonic-tab id=id.to_string() data-name=name.get_value() role="tabpanel" aria-hidden=move || if is_active() { "false" } else { "true"} >
+                    <leptonic-tab id=id.to_string() data-name=name.get_value() role="tabpanel" aria-hidden=move || if is_active() { "false" } else { "true"} style="height:90%; max-height:90%; overflow:scroll;" >
                         {
                             if let Some(children) = &children {
                                 children()
@@ -91,7 +91,7 @@ pub fn Tab(
             {
                 view! {
                     <Show when=is_active fallback=|| ()>
-                        <leptonic-tab id=id.to_string() data:name=name.get_value() role="tabpanel">
+                        <leptonic-tab id=id.to_string() data:name=name.get_value() role="tabpanel" style="height:90%; max-height:90%; overflow:scroll;">
                             {
                                 if let Some(children) = &children {
                                     children()
