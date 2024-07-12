@@ -28,6 +28,11 @@ def build_height_reward(alpha):
         return alpha * (next_state.height - current_state.height)
     return height_reward
 
+def build_lines_reward(alpha):
+    def lines_reward(current_state, next_state):
+        return alpha * (next_state.total_lines - current_state.total_lines)
+    return lines_reward
+
 def merge_rewards(reward_fns):
     def reward_fn(current_state, next_state):
         reward = 0
@@ -41,5 +46,6 @@ default_reward = merge_rewards(
     build_score_reward(REWARD_SCORE),
     build_bumpi_reward(REWARD_BUMPI),
     build_holes_reward(REWARD_HOLES),
+    build_lines_reward(REWARD_LINES),
     build_height_reward(REWARD_HEIGHT),]
 )

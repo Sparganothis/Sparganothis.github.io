@@ -18,6 +18,7 @@ def v2s(v):
         "board": np.array(v.main_board).astype(int),
         "next": [p2i(p) for p in v.next_pcs[:5]],
         "hold": p2i(v.hold) + 1,
+        "hcf": [TRAIN_MODEL_HCF_SCALE * float(getattr(v, hcf)) for hcf in TRAIN_MODEL_HCF],
     }, {
         "action_mask": np.array(
             al2m([a for a, _ in v.next_actions_and_states]),

@@ -24,6 +24,7 @@ action = (
             x["board"][None, ::],
             x["next"][None, ::],
             x["hold"][None, ::],
+            x["hcf"][None, ::],
         ).squeeze()
         * torch.tensor(i["action_mask"], dtype=torch.float32)
     )
