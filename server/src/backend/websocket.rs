@@ -442,6 +442,7 @@ pub async fn websocket_handle_request(
                 bincode::deserialize(&msg.data).context("bincode never fail")?;
 
             let response = subscribe_games.accept_message(&request).await?;
+            let response = Result::<(), String>::Ok(response);
 
             Ok(WebsocketAPIMessageRaw {
                 id: msg.id,

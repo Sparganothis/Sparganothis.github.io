@@ -27,7 +27,7 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
                             each=get_err
                             key=|k| k.clone()
                             children=|k| {
-                                view! { <h1 style="color:brown;">{k}</h1> }
+                                view! { <li style="color:brown;">{k}</li> }
                             }
                         />
 

@@ -139,9 +139,9 @@ pub fn _call_websocket_api<T: APIMethod>(
             Ok(val) => match bincode::deserialize::<Result<T::Resp, String>>(&val.data)
             {
                 Ok(val) => val,
-                Err(e) => Err(format!("err websocket response deserialize: {:?}", e)),
+                Err(e) => Err(format!("err websocket {:?} response deserialize: {:?} (len={})",T::TYPE, e, &val.data.len())),
             },
-            Err(e) => Err(format!("err waiting on websocket oneshjot: {:?}", e)),
+            Err(e) => Err(format!("err waiting on websocket {:?} oneshjot: {:?}", T::TYPE, e)),
         }
     })
 }

@@ -105,11 +105,41 @@ pub fn append_bot_game_segment(
     do_append_game_segment(id, new_segment, _current_session)
 }
 
+
 fn do_append_game_segment(
     id: GameId,
     new_segment: GameReplaySegment,
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Option<GameOverReason>> {
+
+    let last_segment = GAME_SEGMENT_DB.range( GameSegmentId::get_range_for_game(&id)).next_back();
+    if let Some(Ok((_i, _seg))) = last_segment {
+        match _seg {
+            GameReplaySegment::GameOver(_r) => return Ok(Some(_r)),
+            _ => (),
+        }
+    }
+
+    do_append_game_segment_to_db(id, new_segment, _current_session)?;
+
+    let game_over_because = is_game_over_because_sommething(id, _current_session)?;
+
+
+    match &game_over_because {
+        Some(_reason) => {
+            do_append_game_segment_to_db(id, GameReplaySegment::GameOver(_reason.clone()), _current_session)?;
+        },
+        None => (),
+    }
+
+    Ok(game_over_because)
+}
+
+fn do_append_game_segment_to_db(
+    id: GameId,
+    new_segment: GameReplaySegment,
+    _current_session: CurrentSessionInfo,
+) -> anyhow::Result<()> {
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
         .context("game segment count not found!")?;
@@ -185,17 +215,15 @@ fn do_append_game_segment(
             last_state
         }
         GameReplaySegment::GameOver(_) => {
-            let last_state = last_state.context("no last state found")?;
-            if !last_state.game_over {
-                anyhow::bail!("got game over but reconstructed state is not game over")
-            }
+            let mut last_state = last_state.context("no last state found")?;
+            last_state.game_over = true;
             last_state
         }
     };
     GAME_FULL_DB.insert(&id, &new_game_state)?;
-
-    Ok(is_game_over_because_sommething(id, _current_session)?)
+    Ok(())
 }
+
 
 fn is_game_over_because_sommething(
     game_id: GameId,
