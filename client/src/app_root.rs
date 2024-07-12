@@ -275,8 +275,7 @@ pub fn AppRoot() -> impl IntoView {
                                 disabled=move || !connected()
                             >
                                 "Close"
-                            </button>
-                            // <p>{sig}</p>
+                            </button> // <p>{sig}</p>
                             <p>
                                 {move || {
                                     format!(
