@@ -2,6 +2,20 @@
 
 # todo
 
+
+## mmultiplayer + singleplayer
+- win game (40 lines)
+- win game (cpu/opponent lose)
+- win game 2p online (oopponent lose)
+- lose game (disconnect 15s)
+- lose game (abandon button)
+
+
+
+## extra feature : replayt
+- show gamme states about #6666 
+  - keep skip list (1/ 100 in memory) and when going backwards, recompute prev list
+
 ## BOT/PERF
 - OPTIMIZE GameState REpresentation to uyse bvit vector / int mask / all mamtrix in i128
 
