@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::tet::GameOverReason;
 use crate::tet::GameReplaySegment;
 use crate::tet::GameState;
 
@@ -115,14 +116,14 @@ pub struct AppendGameSegment {}
 impl APIMethod for AppendGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendGameSegment;
     type Req = (GameId, String);
-    type Resp = ();
+    type Resp = Option<GameOverReason>;
 }
 
 pub struct AppendBotGameSegment {}
 impl APIMethod for AppendBotGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendBotGameSegment;
     type Req = (GameId, String);
-    type Resp = ();
+    type Resp = Option<GameOverReason>;
 }
 
 #[derive(

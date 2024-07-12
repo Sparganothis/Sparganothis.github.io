@@ -2,7 +2,7 @@ use crate::comp::hotkey_reader::create_hotkey_reader;
 use crate::mobile_check::is_mobile_phone;
 use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sync};
 use game::api::{game_replay::GameId, websocket::*};
-use game::tet::TetAction;
+use game::tet::{GameReplayEvent, GameReplaySlice, TetAction};
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use game::tet::{self, GameReplaySegment, GameState};
@@ -25,6 +25,9 @@ pub fn PlayerGameBoardFromId(
         return view! { <h1>You are phone. <br/> Plz use PC.</h1> }.into_view()
     }
     
+    let state = create_rw_signal(
+        tet::GameState::new(&game_id.init_seed, game_id.start_time));
+
     let on_state_change = Callback::<GameState>::new(move |s| {
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
@@ -42,6 +45,12 @@ pub fn PlayerGameBoardFromId(
         let segment_json: String = serde_json::to_string(&segment).expect("serialize segmment ot json");
         call_api_sync::<AppendGameSegment>((game_id, segment_json), move |_r| {
             // log::info!("append OK: {:?}", _r);
+            if let Some(gamme_over_reasoon) = _r {
+                state.update(|state| {
+                    state.game_over = true;            
+                    log::info!("game over because {:?}", gamme_over_reasoon)    ;    
+                })
+            }
         });
     });
 
@@ -69,8 +78,6 @@ pub fn PlayerGameBoardFromId(
         }
     });
     
-    let state = create_rw_signal(
-        tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
     call_api_sync::<SetGlobalPlayLock>((true, Some(game_id)), move |_| {
         let resume_pre_123 = resume_pre_123.clone();

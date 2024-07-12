@@ -17,6 +17,10 @@ pub fn BotGameBoard(
     game_id: GameId,
     bot_name: String,
 ) -> impl IntoView {
+
+    let state = create_rw_signal(
+        tet::GameState::new(&game_id.init_seed, game_id.start_time));
+
      let on_state_change = Callback::<GameState>::new(move |s| {
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
@@ -32,7 +36,12 @@ pub fn BotGameBoard(
 
         let segment_json: String = serde_json::to_string(&segment).expect("must serialize zsegmment to json");
         call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {
-            // log::info!("append OK: {:?}", _r);
+            if let Some(gamme_over_reasoon) = _r {
+                state.update(|state| {
+                    state.game_over = true;            
+                    log::info!("game over because {:?}", gamme_over_reasoon)    ;    
+                })
+            }
         });
     });
 
@@ -60,8 +69,6 @@ pub fn BotGameBoard(
         }
     });
     
-    let state = create_rw_signal(
-        tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
     call_api_sync::<GetLastFullGameState>(game_id, move |_state| {
         match _state {
