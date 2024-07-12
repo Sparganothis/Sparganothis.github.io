@@ -48,7 +48,10 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
     }).into_signal();
 
     view! {
-        <div style="cursor:pointer;width:100%;height:100%;"  on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }>
+        <div
+            style="cursor:pointer;width:100%;height:100%;"
+            on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }
+        >
             <FlexText text=err_txt size_cqh=60.0/>
         </div>
         {overlay}

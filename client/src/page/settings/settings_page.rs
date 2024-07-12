@@ -28,24 +28,21 @@ pub fn MMySettingsPage() -> impl IntoView {
     });
 
     let user_settings = view! {
-            <Show
-                when=move || user_profile.get().is_some() && guest_id.get().is_some()
-                fallback=move || view! {}
-            >
+        <Show
+            when=move || user_profile.get().is_some() && guest_id.get().is_some()
+            fallback=move || view! {}
+        >
 
-                {move || {
-                    let user_profile = user_profile.get().unwrap();
-                    let guest_id = guest_id.get().unwrap();
-                    view! { <PersonalAccountSettingsForm user_profile guest_id/> }
-                }}
-            </Show>
+            {move || {
+                let user_profile = user_profile.get().unwrap();
+                let guest_id = guest_id.get().unwrap();
+                view! { <PersonalAccountSettingsForm user_profile guest_id/> }
+            }}
+
+        </Show>
     };
 
-    view! {
-        <div class="main_left">
-            {{ user_settings }}
-        </div>
-    }
+    view! { <div class="main_left">{{ user_settings }}</div> }
 }
 
 

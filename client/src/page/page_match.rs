@@ -120,12 +120,12 @@ pub fn MatchPage() -> impl IntoView {
     
     view! {
         <div class="main_left">{move || left_view.get()}</div>
-        
+
         <div class="main_mid">
             <h1>vs.</h1>
             <p>{title_sig}</p>
         </div>
-        
+
         <div class="main_right">{move || right_view.get()}</div>
     }
 }

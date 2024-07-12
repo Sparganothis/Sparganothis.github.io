@@ -57,20 +57,20 @@ where
       
         let buttons = if items.len() > 0 {
             view! {
-                    <leptonic::prelude::Button
-                        style="margin-right:auto"
-                        on_click=move |_| { on_prev(()) }
-                        color=ButtonColor::Info
-                    >
-                        "PREV"
-                    </leptonic::prelude::Button>
+                <leptonic::prelude::Button
+                    style="margin-right:auto"
+                    on_click=move |_| { on_prev(()) }
+                    color=ButtonColor::Info
+                >
+                    "PREV"
+                </leptonic::prelude::Button>
 
-                    <leptonic::prelude::Button
-                        on_click=move |_| { on_next(()) }
-                        color=ButtonColor::Info
-                    >
-                        "NEXT"
-                    </leptonic::prelude::Button>
+                <leptonic::prelude::Button
+                    on_click=move |_| { on_next(()) }
+                    color=ButtonColor::Info
+                >
+                    "NEXT"
+                </leptonic::prelude::Button>
             }.into_view()
         } else {
             view!{}.into_view()
@@ -89,15 +89,13 @@ where
             
         view! {
             <div style="height:100%;width:100%;flex-direction:column;display:flex;">
-                <div   style="overflow: scroll; max-height: 90%; margin:2%;">
+                <div style="overflow: scroll; max-height: 90%; margin:2%;">
                     <table>
                         <thead>{table_headers}</thead>
                         <tbody>{table_rows}</tbody>
                     </table>
                 </div>
-                <div style="height:6%;display:flex; flex-direction:row;">
-                    {buttons}
-                </div>
+                <div style="height:6%;display:flex; flex-direction:row;">{buttons}</div>
             </div>
         }
         .into_view()

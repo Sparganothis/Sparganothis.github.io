@@ -68,7 +68,7 @@ pub fn MenuGridView(views:Vec<View>) -> impl IntoView {
                     </div>
 
                 </div>
-            
+
             </div>
         </div>
     }

@@ -212,7 +212,7 @@ pub fn AppRoot() -> impl IntoView {
     let status = move || {
         let st = ready_state.get();
         log::info!("websocket status: {}", st);
-        let flextext = view!{<FlexText text={move||{st.to_string()}}.into_signal() size_cqh=60.0 />};
+        let flextext = view! { <FlexText text={ move || { st.to_string() } }.into_signal() size_cqh=60.0/> };
         match st {
             ConnectionReadyState::Open => {
                 view! { <h1 style="color:darkgreen;height:100%;width:100%;">{flextext}</h1> }.into_view()
@@ -246,125 +246,145 @@ pub fn AppRoot() -> impl IntoView {
         <Title text="xanthoides"/>
 
         <Root default_theme=LeptonicTheme::default()>
-                    // BACKGROUND IMAGE
-                    <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;  opacity: 0.5; z-index:-999;"></div>
-        
-        <div style="width:100%;height:100%; align-items:center;">
+            // BACKGROUND IMAGE
+            <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;  opacity: 0.5; z-index:-999;"></div>
 
-            <div class=_style.get_class_name().to_string() style=" max-width:100%; max-height:100%; aspect-ratio:16/10; display:flex; flex-direction:row; align-items:center; margin: auto;">
+            <div style="width:100%;height:100%; align-items:center;">
 
-                <Router fallback=|| {
-                    let mut outside_errors = Errors::default();
-                    outside_errors
-                        .insert_with_default_key(
-                            crate::error_template::AppError::NotFound,
-                        );
-                    view! {
-                        <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
-                    }
-                }>
+                <div
+                    class=_style.get_class_name().to_string()
+                    style=" max-width:100%; max-height:100%; aspect-ratio:16/10; display:flex; flex-direction:row; align-items:center; margin: auto;"
+                >
 
+                    <Router fallback=|| {
+                        let mut outside_errors = Errors::default();
+                        outside_errors
+                            .insert_with_default_key(
+                                crate::error_template::AppError::NotFound,
+                            );
+                        view! {
+                            <crate::error_template::ErrorTemplate outside_errors></crate::error_template::ErrorTemplate>
+                        }
+                    }>
 
-                    <nav>
-                        <div style="display:flex; flex-direction:column;aspect-ratio: 182/1030; max-height: 100%; max-width:100%; min-height:80%; min-width:90%; margin: auto;">
-                            <div style="height:60%; width: 100%;">
-                                <MainMenu/>
-                            </div>
-                            <div style="height:15%;width:100%;border-top:1vmin solid black;">
-                                <div style="height:43%; width:100%;">
-                                    {status}
+                        <nav>
+                            <div style="display:flex; flex-direction:column;aspect-ratio: 182/1030; max-height: 100%; max-width:100%; min-height:80%; min-width:90%; margin: auto;">
+                                <div style="height:60%; width: 100%;">
+                                    <MainMenu/>
                                 </div>
-                                <div style="height:33%;width:100%;display:flex;flex-direction:row;container-type:size;">
+                                <div style="height:15%;width:100%;border-top:1vmin solid black;">
+                                    <div style="height:43%; width:100%;">{status}</div>
+                                    <div style="height:33%;width:100%;display:flex;flex-direction:row;container-type:size;">
 
-                                    <Button style="height:100%; width:33%; font-size:40cqh; line-height:50cqh;"
-                                        on_click=send_byte_message
-                                        disabled=(move || !connected()).into_signal()
-                                    >
-                                        "Send"
-                                    </Button>
-                                    <Button on_click=open_connection disabled=connected.into_signal() style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;" >
-                                        "Open"
-                                    </Button>
-                                    <Button style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;"
-                                        on_click=close_connection
-                                        disabled=(move || !connected()).into_signal()
-                                    >
-                                        "Close"
-                                    // <p>{sig}</p>
-                                    </Button>
+                                        <Button
+                                            style="height:100%; width:33%; font-size:40cqh; line-height:50cqh;"
+                                            on_click=send_byte_message
+                                            disabled=(move || !connected()).into_signal()
+                                        >
+                                            "Send"
+                                        </Button>
+                                        <Button
+                                            on_click=open_connection
+                                            disabled=connected.into_signal()
+                                            style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;"
+                                        >
+                                            "Open"
+                                        </Button>
+                                        <Button
+                                            style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;"
+                                            on_click=close_connection
+                                            disabled=(move || !connected()).into_signal()
+                                        >
+                                            "Close"
+                                        // <p>{sig}</p>
+                                        </Button>
 
-                                </div>
-                                
-                                <div style="height:23%; width:100%;">
-                                    <FlexText text={move || {
-                                        format!(
-                                            "{:?} bytes",
-                                            message_bytes.get().unwrap_or(vec![]).len(),
-                                        )
-                                    }}.into_signal() size_cqh=60.0/>
-                                </div>
+                                    </div>
 
-                            </div>
+                                    <div style="height:23%; width:100%;">
+                                        <FlexText
+                                            text={
+                                                move || {
+                                                    format!(
+                                                        "{:?} bytes",
+                                                        message_bytes.get().unwrap_or(vec![]).len(),
+                                                    )
+                                                }
+                                            }
+                                                .into_signal()
+                                            size_cqh=60.0
+                                        />
+                                    </div>
 
-                            <div style="height:7%; width: 100%;">
-                                <WebsocketErrorDisplay/>
-                            </div>
-
-                            <a
-                                href="https://github.com/Sparganothis/Sparganothis.github.io"
-                                target="_blank"
-                                style="height:7%; width: 100%; display: flex;flex-direction:row; "
-                            >
-                                <Icon icon=icondata::BsGithub width="100%" height="100%" style="width:20%"/>
-                                <div style="width:80%; height:100%;">
-                                    <FlexText text="GitHub" size_cqh=60.0/>
                                 </div>
 
-                            </a>
+                                <div style="height:7%; width: 100%;">
+                                    <WebsocketErrorDisplay/>
+                                </div>
 
-                            <div style="height:15%;width:100%;">
-                                <VersionDisplayComp/>
+                                <a
+                                    href="https://github.com/Sparganothis/Sparganothis.github.io"
+                                    target="_blank"
+                                    style="height:7%; width: 100%; display: flex;flex-direction:row; "
+                                >
+                                    <Icon
+                                        icon=icondata::BsGithub
+                                        width="100%"
+                                        height="100%"
+                                        style="width:20%"
+                                    />
+                                    <div style="width:80%; height:100%;">
+                                        <FlexText text="GitHub" size_cqh=60.0/>
+                                    </div>
+
+                                </a>
+
+                                <div style="height:15%;width:100%;">
+                                    <VersionDisplayComp/>
+                                </div>
                             </div>
-                        </div>
-                    </nav>
-                    <main _ref=main_ref>
-                        // all our routes will appear inside <main>
-                        <Routes>
-                            <Route path="" view=RootRedirectPage/>
-                            <Route path="/home" view=Homepage/>
-                            <Route path="/solo" view=GameSoloLobbyPage/>
-                            <Route path="/play-game-solo/:game_id" view=Game1PPage/>
-                            <Route path="/vs_cpu" view=GameCPUPage/>
-                            <Route path="/vs_net" view=Game2LobbyPage/>
-                            <Route
-                                path="/replay"
-                                view=crate::page::page_replay_browser::GameReplayBrowserPage
-                            />
-                            <Route path="/account" view=MyAccountPage/>
-                            <Route path="/settings" view=MMySettingsPage/>
-                            <Route path="/spectate-game/:game_id" view=SpectateGamePage/>
-                            <Route path="/user/:user_id" view=UserProfilePage/>
-                            <Route
-                                path="/view-game/:game_id"
-                                view=crate::page::page_replay_single::GameReplaySinglePage
-                            />
-                            <Route path="/match/:match_id" view=MatchPage/>
-                            <Route path="/mspaint" view=MsPaintPage/>
-                            <Route path="/edit-custom-game/:save_id" view=MsPaintPage/>
-                            <Route
-                                path="/play-custom-game/:save_id"
-                                view=MsPaintPlayPage
-                            />
-                            <Route path="/demo" view=GameBoardFlexDemoPage/>
-                            <Route path="/about" view=AboutPage/>
-                            <Route path="/you-are-phone" view=you_are_phone_view/>
+                        </nav>
+                        <main _ref=main_ref>
+                            // all our routes will appear inside <main>
+                            <Routes>
+                                <Route path="" view=RootRedirectPage/>
+                                <Route path="/home" view=Homepage/>
+                                <Route path="/solo" view=GameSoloLobbyPage/>
+                                <Route path="/play-game-solo/:game_id" view=Game1PPage/>
+                                <Route path="/vs_cpu" view=GameCPUPage/>
+                                <Route path="/vs_net" view=Game2LobbyPage/>
+                                <Route
+                                    path="/replay"
+                                    view=crate::page::page_replay_browser::GameReplayBrowserPage
+                                />
+                                <Route path="/account" view=MyAccountPage/>
+                                <Route path="/settings" view=MMySettingsPage/>
+                                <Route
+                                    path="/spectate-game/:game_id"
+                                    view=SpectateGamePage
+                                />
+                                <Route path="/user/:user_id" view=UserProfilePage/>
+                                <Route
+                                    path="/view-game/:game_id"
+                                    view=crate::page::page_replay_single::GameReplaySinglePage
+                                />
+                                <Route path="/match/:match_id" view=MatchPage/>
+                                <Route path="/mspaint" view=MsPaintPage/>
+                                <Route path="/edit-custom-game/:save_id" view=MsPaintPage/>
+                                <Route
+                                    path="/play-custom-game/:save_id"
+                                    view=MsPaintPlayPage
+                                />
+                                <Route path="/demo" view=GameBoardFlexDemoPage/>
+                                <Route path="/about" view=AboutPage/>
+                                <Route path="/you-are-phone" view=you_are_phone_view/>
 
-                        </Routes>
-                    </main>
-                </Router>
+                            </Routes>
+                        </main>
+                    </Router>
+                </div>
+
             </div>
-            
-        </div>
         </Root>
     }.into_view()
 }
@@ -395,11 +415,15 @@ pub fn MainMenu() -> impl IntoView {
                 key=|k| k.0
                 children=move |k| {
                     view! {
-                        <A href=k.0 class="menu_item" attr:style={move || format!("aspect-ratio:{};" , aspect_ratio)}>
+                        <A
+                            href=k.0
+                            class="menu_item"
+                            attr:style=move || format!("aspect-ratio:{};", aspect_ratio)
+                        >
                             // <div >
-                                <FlexText text={k.1} size_cqh=40.0/>
-                            // </div>
-                            // <h3 class="menu_item">{k.1}</h3>
+                            <FlexText text=k.1 size_cqh=40.0/>
+                        // </div>
+                        // <h3 class="menu_item">{k.1}</h3>
                         </A>
                     }
                 }
@@ -453,7 +477,9 @@ pub fn VersionDisplayComp() -> impl IntoView {
     };
     view! {
         <code style="height:100%;width:100%;margin:0px;padding:0px;">
-            <pre style=style><FlexText text=s.into_signal() size_cqh=17.0/></pre>
+            <pre style=style>
+                <FlexText text=s.into_signal() size_cqh=17.0/>
+            </pre>
         </code>
     }
 }

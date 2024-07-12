@@ -71,7 +71,7 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
         match x{
             
             0 => {
-                view! { <FlexText text="solo" /> }.into_view()
+                view! { <FlexText text="solo"/> }.into_view()
             },
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),

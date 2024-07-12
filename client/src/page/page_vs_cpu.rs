@@ -89,7 +89,7 @@ pub fn GameCPUPage() -> impl IntoView {
         match x{
             
             0 => {
-                view! { <FlexText text="car" /> }.into_view()
+                view! { <FlexText text="car"/> }.into_view()
             },
             5 =>             youtube_video.clone().into_view(),
 

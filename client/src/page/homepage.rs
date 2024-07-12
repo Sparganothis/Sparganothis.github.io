@@ -24,7 +24,7 @@ pub fn Homepage()-> impl IntoView{
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
             0 => {
-                view! { <FlexText text="todo" /> }.into_view()
+                view! { <FlexText text="todo"/> }.into_view()
             },
             // 8 =>{
             //     (move || {

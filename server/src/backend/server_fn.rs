@@ -105,14 +105,14 @@ pub fn append_bot_game_segment(
     do_append_game_segment(id, new_segment, _current_session)
 }
 
-
 fn do_append_game_segment(
     id: GameId,
     new_segment: GameReplaySegment,
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Option<GameOverReason>> {
-
-    let last_segment = GAME_SEGMENT_DB.range( GameSegmentId::get_range_for_game(&id)).next_back();
+    let last_segment = GAME_SEGMENT_DB
+        .range(GameSegmentId::get_range_for_game(&id))
+        .next_back();
     if let Some(Ok((_i, _seg))) = last_segment {
         match _seg {
             GameReplaySegment::GameOver(_r) => return Ok(Some(_r)),
@@ -124,11 +124,14 @@ fn do_append_game_segment(
 
     let game_over_because = is_game_over_because_sommething(id, _current_session)?;
 
-
     match &game_over_because {
         Some(_reason) => {
-            do_append_game_segment_to_db(id, GameReplaySegment::GameOver(_reason.clone()), _current_session)?;
-        },
+            do_append_game_segment_to_db(
+                id,
+                GameReplaySegment::GameOver(_reason.clone()),
+                _current_session,
+            )?;
+        }
         None => (),
     }
 
@@ -223,7 +226,6 @@ fn do_append_game_segment_to_db(
     GAME_FULL_DB.insert(&id, &new_game_state)?;
     Ok(())
 }
-
 
 fn is_game_over_because_sommething(
     game_id: GameId,
