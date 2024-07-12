@@ -1,4 +1,4 @@
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync};
+use crate::{comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync};
 use game::{api::{game_replay::GameId, websocket::CreateNewGameId}, random::GameSeed};
 use leptos::*;
 use leptos_router::{use_navigate, use_params_map, NavigateOptions};
@@ -71,7 +71,7 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
         match x{
             
             0 => {
-                view! { <h1>solo</h1> }.into_view()
+                view! { <FlexText text="solo" /> }.into_view()
             },
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),

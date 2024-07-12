@@ -281,3 +281,22 @@ pub fn GameBoardFlex(
         </div>
     }
 }
+
+
+#[component]
+pub fn FlexText(
+    #[prop(into)]
+    text: MaybeSignal<String>,
+    
+    #[prop(into)]
+    #[prop(default=80.0)]
+    size_cqh: f32,
+) -> impl IntoView {
+    view!{
+        <div style="width:100%;height:100%; container-type: size; margin:0px; padding:0px;">
+            <p style={format!("font-size:{size_cqh}cqh;text-align: center;margin:0px; padding:0px;")} >
+                {text}
+            </p>
+        </div>
+    }
+}

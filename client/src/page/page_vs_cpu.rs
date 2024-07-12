@@ -1,7 +1,7 @@
 use game::{api::{game_match::GameMatchType, websocket::StartMatch}, random::GameSeed};
 use leptos_router::{use_navigate, NavigateOptions};
 
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp:: call_api_sync_or_error};
+use crate::{comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp:: call_api_sync_or_error};
 use leptos::*;
 #[component]
 pub fn GameCPUPage() -> impl IntoView {
@@ -89,7 +89,7 @@ pub fn GameCPUPage() -> impl IntoView {
         match x{
             
             0 => {
-                view! { <h1>car</h1> }.into_view()
+                view! { <FlexText text="car" /> }.into_view()
             },
             5 =>             youtube_video.clone().into_view(),
 

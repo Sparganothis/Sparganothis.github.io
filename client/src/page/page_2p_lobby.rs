@@ -1,4 +1,4 @@
-use crate::{comp::{game_board::RandomOpponentGameBoard, menu_grid_view::MenuGridView, table_match::AllMatchTable}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync_or_error};
+use crate::{comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView, table_match::AllMatchTable}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync_or_error};
 use game::{api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}}, random::GameSeed};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
@@ -97,7 +97,7 @@ pub fn Lobby2P() -> impl IntoView {
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
             0 => {
-                view! { <h1>online</h1> }.into_view()
+                view! { <FlexText text="online" /> }.into_view()
             },
             8 =>view! { <RandomOpponentGameBoard seed=seed/> }
             .into_view(),

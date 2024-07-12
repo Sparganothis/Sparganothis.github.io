@@ -1,6 +1,7 @@
 use leptos::*;
 
 use crate::websocket::demo_comp::WebsocketAPI;
+use crate::comp::game_board_flex::FlexText;
 
 #[component]
 pub fn WebsocketErrorDisplay() -> impl IntoView {
@@ -42,14 +43,14 @@ pub fn WebsocketErrorDisplay() -> impl IntoView {
         }
     };
 
+    let err_txt = (move || {
+        format!("{} err", error_cnt())
+    }).into_signal();
+
     view! {
-        <h3
-            style="cursor:pointer;"
-            on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }
-        >
-            {error_cnt}
-            err
-        </h3>
+        <div style="cursor:pointer;width:100%;height:100%;"  on:click=move |_| { is_open_sig.set(!is_open_sig.get_untracked()) }>
+            <FlexText text=err_txt size_cqh=60.0/>
+        </div>
         {overlay}
     }
 }

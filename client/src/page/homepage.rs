@@ -5,7 +5,7 @@ use leptos::*;
 
 
 use crate::{
-    comp::menu_grid_view::MenuGridView, 
+    comp::{game_board_flex::FlexText, menu_grid_view::MenuGridView}, 
     // page::page_replay_single::GameReplayBoardMini, 
     websocket::demo_comp::call_api_sync
 };
@@ -24,7 +24,7 @@ pub fn Homepage()-> impl IntoView{
     let views:Vec<_> = {0..20}.into_iter().map(|x|{
         match x{
             0 => {
-                view! { <h1>todo</h1> }.into_view()
+                view! { <FlexText text="todo" /> }.into_view()
             },
             // 8 =>{
             //     (move || {

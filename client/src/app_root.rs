@@ -22,6 +22,7 @@ use crate::page::settings::settings_page::MMySettingsPage;
 use crate::page::you_are_phone::you_are_phone_view;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 use crate::websocket::demo_comp::call_api_sync_or_error;
+use crate::comp::game_board_flex::FlexText;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -69,16 +70,28 @@ pub fn AppRoot() -> impl IntoView {
         }
         .menu_root {
             padding: 0px;
+            margin:0px;
+            flex: 0 1 auto;
+            display:flex;
+            flex-direction:column;
+            height:100%;
+            width:100%;
         }
         .menu_item {
+            // border: 1vmin solid green;
+            // flex: 0 1 auto;
+            container-type:size;
+
             margin: 0px;
-            height: 6vmin;
+            height:100%;
+            width:100%;
+            // height: 6vmin;
             text-align: center;
-            line-height: 6vmin;
-            font-size: 3vmin;
+            // line-height: 6vmin;
+            // font-size: 3vmin;
             font-weight: normal;
             color: black;
-            rotate: -11deg;
+            rotate: -8deg;
         }
         a {
             text-decoration: none;
@@ -86,7 +99,7 @@ pub fn AppRoot() -> impl IntoView {
         a[aria-current="page"] > .menu_item  {
             font-weight: bold;
             color: darkred;
-            height: 5vmin;
+            // height: 5vmin;
         }
         .profile_view_container {
             color: black;
@@ -210,13 +223,14 @@ pub fn AppRoot() -> impl IntoView {
     let status = move || {
         let st = ready_state.get();
         log::info!("websocket status: {}", st);
+        let flextext = view!{<FlexText text={move||{st.to_string()}}.into_signal() size_cqh=60.0 />};
         match st {
             ConnectionReadyState::Open => {
-                view! { <h1 style="color:darkgreen">{st.to_string()}</h1> }.into_view()
+                view! { <h1 style="color:darkgreen;height:100%;width:100%;">{flextext}</h1> }.into_view()
             },
             _  => {
-                view! { <h1 style="color:red">{st.to_string()}</h1> }.into_view()
-            },
+                view! { <h1 style="color:red;height:100%;width:100%;">{flextext}</h1> }.into_view()
+            }
         }
     };
 
@@ -257,53 +271,65 @@ pub fn AppRoot() -> impl IntoView {
                     }
                 }>
                     <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;   opacity: 0.5;"></div>
-                    <nav>
-                        <MainMenu/>
-                        <div>
-                            {status}
-                            <button
-                                on:click=send_byte_message
-                                disabled=move || !connected()
-                            >
-                                "Send"
-                            </button>
-                            <button on:click=open_connection disabled=connected>
-                                "Open"
-                            </button>
-                            <button
-                                on:click=close_connection
-                                disabled=move || !connected()
-                            >
-                                "Close"
-                            // <p>{sig}</p>
-                            </button>
-                            <p>
-                                {move || {
+                    <nav style="display:flex; flex-direction:column;">
+                        <div style="height:60%; width: 100%;">
+                            <MainMenu/>
+                        </div>
+                        <div style="height:15%;width:100%;border-top:1vmin solid black;">
+                            <div style="height:43%; width:100%;">
+                                {status}
+                            </div>
+                            <div style="height:33%;width:100%;display:flex;flex-direction:row;container-type:size;">
+
+                                <Button style="height:100%; width:33%; font-size:40cqh; line-height:50cqh;"
+                                    on_click=send_byte_message
+                                    disabled=(move || !connected()).into_signal()
+                                >
+                                    "Send"
+                                </Button>
+                                <Button on_click=open_connection disabled=connected.into_signal() style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;" >
+                                    "Open"
+                                </Button>
+                                <Button style="height:100%; width:33%; font-size:40cqh;line-height:50cqh;"
+                                    on_click=close_connection
+                                    disabled=(move || !connected()).into_signal()
+                                >
+                                    "Close"
+                                // <p>{sig}</p>
+                                </Button>
+
+                            </div>
+                            
+                            <div style="height:23%; width:100%;">
+                                <FlexText text={move || {
                                     format!(
                                         "{:?} bytes",
                                         message_bytes.get().unwrap_or(vec![]).len(),
                                     )
-                                }}
-
-                            </p>
+                                }}.into_signal() size_cqh=60.0/>
+                            </div>
 
                         </div>
 
-                        <WebsocketErrorDisplay/>
+                        <div style="height:7%; width: 100%;">
+                            <WebsocketErrorDisplay/>
+                        </div>
 
-                        <p>
-                            <a
-                                href="https://github.com/Sparganothis/Sparganothis.github.io"
-                                target="_blank"
-                            >
-                                <Icon icon=icondata::BsGithub width="3vmin" height="3vmin"/>
-                                <span style="font-size: 2.5vmin;  text-align: right;">
-                                    GitHub
-                                </span>
-                            </a>
-                        </p>
+                        <a
+                            href="https://github.com/Sparganothis/Sparganothis.github.io"
+                            target="_blank"
+                            style="height:7%; width: 100%; display: flex;flex-direction:row; "
+                        >
+                            <Icon icon=icondata::BsGithub width="100%" height="100%" style="width:20%"/>
+                            <div style="width:80%; height:100%;">
+                                <FlexText text="GitHub" size_cqh=60.0/>
+                            </div>
 
-                        <VersionDisplayComp/>
+                        </a>
+
+                        <div style="height:15%;width:100%;">
+                            <VersionDisplayComp/>
+                        </div>
 
                     </nav>
                     <main _ref=main_ref>
@@ -363,15 +389,20 @@ pub fn MainMenu() -> impl IntoView {
         ]
     };
 
+    let menu_cnt = menu_entries().len(); 
+    let aspect_ratio = menu_cnt as f32 * ( 144.0 / 467.0);
     view! {
-        <ul class="menu_root">
+        <ul class="menu_root" style="display:flex;flex-directon:column;">
             <For
                 each=menu_entries
                 key=|k| k.0
-                children=|k| {
+                children=move |k| {
                     view! {
-                        <A href=k.0>
-                            <h3 class="menu_item">{k.1}</h3>
+                        <A href=k.0 class="menu_item" attr:style={move || format!("aspect-ratio:{};" , aspect_ratio)}>
+                            // <div >
+                                <FlexText text={k.1} size_cqh=60.0/>
+                            // </div>
+                            // <h3 class="menu_item">{k.1}</h3>
                         </A>
                     }
                 }
@@ -399,7 +430,7 @@ pub fn VersionDisplayComp() -> impl IntoView {
     let client_version = client_version.replace("\n", "").replace(" ", "");
 
     let game_version = game::git_version::GIT_VERSION;
-    let game_version = game_version.replace("\n", "").replace(" ", "");
+    let game_version: String = game_version.replace("\n", "").replace(" ", "");
     
     let server_version = create_rw_signal("".to_string());
     call_api_sync_or_error::<GitVersion>((), move |v| {
@@ -410,23 +441,22 @@ pub fn VersionDisplayComp() -> impl IntoView {
     let c2 = client_version.clone();
     let g2 = game_version.clone();
     let s = move || {
-        format!(" Client: {}\n Server: {}\n   Game: {}", c2, server_version.get(), g2)
+        format!(" Client: {}\n Server: {}\n Game: {}", c2, server_version.get(), g2)
     };
 
     let c2 = client_version.clone();
     let g2 = game_version.clone();
     let style = move || {
-        if server_version.get() == c2 && c2 == g2 {
+        let color = if server_version.get() == c2 && c2 == g2 {
             "color:blue;".to_string()
         } else {
             "color:red;".to_string()
-        }
+        };
+        format!("height:100%;width:100%;margin:0px;padding:0px; {color}")
     };
     view! {
-        <p>
-            <code>
-                <pre style=style>{s}</pre>
-            </code>
-        </p>
+        <code style="height:100%;width:100%;margin:0px;padding:0px;">
+            <pre style=style><FlexText text=s.into_signal() size_cqh=17.0/></pre>
+        </code>
     }
 }
