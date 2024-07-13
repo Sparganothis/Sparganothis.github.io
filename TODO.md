@@ -5,8 +5,30 @@
 
 ## mmultiplayer + singleplayer
 - win game (40 lines)
-- win game (cpu/opponent lose)
-- win game 2p online (oopponent lose)
+  lobby buttons:
+    - LABL TEXT DECRIPTION: "CLEAR 40 LINES SHORTEST TIME SCORE DONT MMATTER GOTTA GO FAST"
+    - PERSONAL BEST DISPLAY
+    - LINK LEADERBOARDS
+    - START BUTTON
+    - OPTIONS:
+          - LEVEL /SPEED
+          - 40 lines/69 / 420
+          - CUSTOMIZER UI
+
+- win game (blitz)
+  lobby buttons:
+    - LABL TEXT DECRIPTION: "GET BIG SCORE IN 2 MIN! LEVEL UP! DO NONT DIE!"
+    - PERSONAL BEST DISPLAY
+    - LINK LEADERBOARDS
+    - START BUTTON
+    - OPTIONS:
+          - LEVEL /SPEED
+          - SLECT 1min/2min/4min
+          - CUSTOMIZER UI
+
+- train gamemmode: undo/redo pcs
+
+
 - lose game (disconnect 15s)
 - lose game (abandon button)
 
