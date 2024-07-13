@@ -125,7 +125,7 @@ impl Tet {
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub enum CellValue {
+pub enum CellValue { // 4 bit after, before 16-20bit b
     Piece(Tet),
     Garbage,
     Empty,
@@ -134,7 +134,8 @@ pub enum CellValue {
 use serde_with::serde_as;
 #[serde_as]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
+pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> { // 400 * cellValue = 1600bit after / 8000 before -- 200byte after, 1k before
+    // with no color -- 400bit = 80bytes
     #[serde_as(as = "[[_; C]; R]")]
     vv: [[CellValue; C]; R],
 }
@@ -363,7 +364,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     }
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TetAction {
+pub enum TetAction { // 3bit (8 acctions)
     HardDrop,
     SoftDrop,
     MoveLeft,
@@ -421,31 +422,31 @@ type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameState {
-    pub score: i64,
-    pub is_t_spin: bool,
-    pub is_t_mini_spin: bool,
-    pub is_b2b: bool,
-    pub combo_counter: i32,
-    pub main_board: BoardMatrix,
+    pub score: i64,                                     // 24 bits
+    pub is_t_spin: bool,                                // 1 bit
+    pub is_t_mini_spin: bool,                           // 1 bit
+    pub is_b2b: bool,                                   // 1 bit
+    pub combo_counter: i32,                             // 7 bit
+    pub main_board: BoardMatrix,                        // ?? bit
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
-    pub last_action: TetAction,
-    pub next_pcs: VecDeque<Tet>,
-    pub current_pcs: Option<CurrentPcsInfo>,
-    pub current_id: u32,
+    pub last_action: TetAction,                         // 3 bit
+    pub next_pcs: VecDeque<Tet>,                        // 42 bit
+    pub current_pcs: Option<CurrentPcsInfo>,            // 29 bit
+    pub current_id: u32,                                // 13 bit
 
-    pub hold_pcs: Option<HoldPcsInfo>,
+    pub hold_pcs: Option<HoldPcsInfo>,                  // 4 bit
     // pub game_over: bool,
-    pub game_over_reason: Option<GameOverReason>,
+    pub game_over_reason: Option<GameOverReason>,       // 3 bit
 
-    pub replay: GameReplay,
-    pub seed: GameSeed,
-    pub init_seed: GameSeed,
-    pub start_time: i64,
+    pub replay: GameReplay,                             // OK
+    pub seed: GameSeed,                                 // 32 bytes = 256bit
+    pub init_seed: GameSeed,                            // 256bit
+    pub start_time: i64,                                // n--ai acsf
     pub total_lines: i64,
-    pub total_garbage_sent: i64,
-    pub garbage_recv: i64,
-    pub total_moves: i32,
+    pub total_garbage_sent: i64,                        // 15 bit
+    pub garbage_recv: i64,                              // 15 bit
+    pub total_moves: i32,                               // 16 bit
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -512,11 +513,11 @@ pub struct HoldPcsInfo {
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CurrentPcsInfo {
-    pub pos: (i8, i8),
-    pub tet: Tet,
-    pub rs: RotState,
-    pub id: u32,
+pub struct CurrentPcsInfo { // total 29bit, with no bitfield = 64bit
+    pub pos: (i8, i8),    // max 40 , max 10 --> 6bit + 4bit = 10bit
+    pub tet: Tet,         // 3bit
+    pub rs: RotState,     // 2bit
+    pub id: u32,          // 14bit
 }
 
 impl GameState {

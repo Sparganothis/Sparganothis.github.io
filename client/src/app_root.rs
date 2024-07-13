@@ -54,7 +54,7 @@ pub fn AppRoot() -> impl IntoView {
             width: 6%;
             // display:flex;align-items:center;
             // height: 100%;
-            border: 1vmin solid black;
+            border: 1vmin solid transparent;
             aspect-ratio: 93/873;
         }
         main > div.main_right {
