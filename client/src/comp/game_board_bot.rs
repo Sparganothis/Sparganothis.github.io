@@ -26,7 +26,7 @@ pub fn BotGameBoard(
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
             } else if s.game_over() {
-                GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
+                GameReplaySegment::GameOver(s.game_over_reason.unwrap())
             } else {
                 GameReplaySegment::Update(
                     s.replay.replay_slices.last().expect("else branch of is empty must have last").clone(),

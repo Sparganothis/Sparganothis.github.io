@@ -244,6 +244,7 @@ fn is_game_over_because_sommething(
                     GameMatchType::_40lines => todo!(),
                     GameMatchType::_10v10 => todo!(),
                     GameMatchType::_4v4 => todo!(),
+                    GameMatchType::blitz => todo!(),
                 }
             }
         }
@@ -435,6 +436,7 @@ pub async fn start_match(
         GameMatchType::_40lines => todo!(),
         GameMatchType::_10v10 => todo!(),
         GameMatchType::_4v4 => todo!(),
+        GameMatchType::blitz => todo!(),
     }
 }
 

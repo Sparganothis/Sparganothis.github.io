@@ -109,6 +109,9 @@ features = [
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
 
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
+
 [package.metadata.leptonic]
 # REQUIRED: Leptonic's build-script will copy the Leptonic themes to this directory. Relative to your project root.
 style-dir = "style"

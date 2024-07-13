@@ -14,6 +14,10 @@ pub const AUTO_SOFTDROP_INTERVAL: u64 = 1000;
 
 #[component]
 pub fn PlayerGameBoardFromId(
+    #[prop(optional)]
+    #[prop(default = Callback::<GameState, GameState>::new(move |x| x))]
+    control_callback: Callback<GameState, GameState>,
+
     game_id: GameId,
     #[prop(default = Callback::<()>::new(move |_| {}))]
     #[prop(optional)]
@@ -25,16 +29,17 @@ pub fn PlayerGameBoardFromId(
         return view! { <h1>You are phone. <br/> Plz use PC.</h1> }.into_view()
     }
     
-    let state = create_rw_signal(
+    let state: RwSignal<GameState> = create_rw_signal(
         tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
-    let on_state_change = Callback::<GameState>::new(move |s| {
+
+    let send_to_server = Callback::<GameState>::new(move |s| {
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
             } else if s.game_over() {
                 log::info!("got segment for game over");
-                GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
+                GameReplaySegment::GameOver(s.game_over_reason.unwrap())
             } else {
                 GameReplaySegment::Update(
                     s.replay.replay_slices.last().expect("last after not is empty").clone(),
@@ -52,6 +57,14 @@ pub fn PlayerGameBoardFromId(
                 })
             }
         });
+    });
+    
+    let on_state_change = Callback::<GameState>::new(move |s| {
+        send_to_server.call(s.clone());
+        let s2 = control_callback.call(s.clone());
+        if s2 != s {
+            send_to_server.call(s2);
+        }
     });
 
     let UseIntervalReturn {

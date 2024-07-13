@@ -23,8 +23,6 @@ use crate::page::you_are_phone::you_are_phone_view;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 use crate::websocket::demo_comp::call_api_sync_or_error;
 use crate::comp::game_board_flex::FlexText;
-use crate::page::page_1p_lobby::GameSoloLobby40LinesPage;
-use crate::page::page_1p_lobby::GameSoloLobbyBLITZPage;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -351,11 +349,9 @@ pub fn AppRoot() -> impl IntoView {
                             <Routes>
                                 <Route path="" view=RootRedirectPage/>
                                 <Route path="/home" view=Homepage/>
-                                <Route path="/solo" view=GameSoloLobbyPage/>
-                                <Route path="/solo-lobby-40-lines" view=GameSoloLobby40LinesPage/>
-                                <Route path="/solo-lobby-blitz" view=GameSoloLobbyBLITZPage/>
+                                <Route path="/lobby/:game_type" view=GameSoloLobbyPage/>
 
-                                <Route path="/play-game-solo/:game_id" view=Game1PPage/>
+                                <Route path="/play-game/:game_type/:game_id" view=Game1PPage/>
                                 <Route path="/vs_cpu" view=GameCPUPage/>
                                 <Route path="/vs_net" view=Game2LobbyPage/>
                                 <Route
@@ -399,7 +395,7 @@ pub fn MainMenu() -> impl IntoView {
     let menu_entries = || {
         vec![
             ("/home", "home"),
-            ("/solo", "solo"),
+            ("/lobby/solo", "solo"),
             ("/vs_cpu", "man vs car"),
             ("/vs_net", "1v1 online"),
             ("/replay", "replay"),

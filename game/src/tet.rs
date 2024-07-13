@@ -577,7 +577,7 @@ impl GameState {
         Self::new(&seed, start_time)
     }
     pub fn get_debug_info(&self) -> String {
-        format!("total_garbage_sent:{}", self.total_garbage_sent)
+        format!("total_lines:{}\n total_garbage_sent:{}", self.total_lines, self.total_garbage_sent)
     }
 
     fn clear_line(&mut self) {
