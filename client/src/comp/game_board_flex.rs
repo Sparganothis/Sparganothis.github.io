@@ -13,7 +13,7 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
         counter_timer.track();
         if let Some(s) = game_state.try_get_untracked() {
             let pre = pre_countdown_text.get();
-            if s.game_over || !pre.is_empty() {
+            if s.game_over() || !pre.is_empty() {
                 pause_timer();
                 reset();
             } else {
@@ -79,7 +79,7 @@ pub fn GameBoardFlex(
                             tet::TetAction::Nothing       => "",
                         };
                         crate::audio3::play_sound_effect(sound);                        
-                        if current.game_over{
+                        if current.game_over(){
                             crate::audio3::play_sound_effect("game_over");
                         }
                         if current.total_lines != _prev.total_lines {
@@ -132,11 +132,11 @@ pub fn GameBoardFlex(
 
     let _countdown_view = view! {
         <Show when=move || {
-            game_state.get().game_over || pre_countdown_text.get().len() > 0
+            game_state.get().game_over() || pre_countdown_text.get().len() > 0
         }>
             <div style="width: 0px; height: 0px; margin: 0px; position: relative;  z-index: 999;">
                 <div style="position: absolute; width: calc(var(--h-table-width)); height:  calc(var(--h-table-width)*2); container-type:size;   z-index: 999;           ">
-                    <Show when=move || game_state.get().game_over>
+                    <Show when=move || game_state.get().game_over()>
                         <div class="gameover">
                             <div
                                 class="game_over_display"

@@ -435,7 +435,8 @@ pub struct GameState {
     pub current_id: u32,
 
     pub hold_pcs: Option<HoldPcsInfo>,
-    pub game_over: bool,
+    // pub game_over: bool,
+    pub game_over_reason: Option<GameOverReason>,
 
     pub replay: GameReplay,
     pub seed: GameSeed,
@@ -464,7 +465,7 @@ impl GameReplay {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameOverReason {
     Knockout,
     Disconnect,
@@ -534,6 +535,10 @@ impl GameState {
         dt_s
     }
 
+    pub fn game_over(&self) -> bool{
+        self.game_over_reason.is_some()
+    }
+
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
         let mut new_state = Self {
             score: 0,
@@ -547,7 +552,7 @@ impl GameState {
             last_action: TetAction::Nothing,
             next_pcs: VecDeque::new(),
             current_pcs: None,
-            game_over: false,
+            game_over_reason: None,
             hold_pcs: None,
             current_id: 0,
             seed: *seed,
@@ -698,7 +703,7 @@ impl GameState {
             anyhow::bail!("already have next pcs");
         }
 
-        if self.game_over {
+        if self.game_over() {
             log::warn!("game over but you called put_next_cs");
             anyhow::bail!("game already over");
         }
@@ -716,7 +721,7 @@ impl GameState {
 
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             log::info!("tet game over");
-            self.game_over = true;
+            self.game_over_reason=Some(GameOverReason::Knockout);
         } else if let Some(ref mut h) = self.hold_pcs {
             h.can_use = true;
         }
@@ -926,7 +931,7 @@ impl GameState {
         action: TetAction,
         event_time: i64,
     ) -> anyhow::Result<Self> {
-        if self.game_over {
+        if self.game_over() {
             // log::warn!("gamem over cannot try_action");
             anyhow::bail!("game over");
         }
@@ -964,7 +969,7 @@ impl GameState {
         };
         new.put_replay_event(&ev, event_time);
         new.clear_ghost();
-        if !new.game_over {
+        if !new.game_over() {
             new.put_ghost();
         }
         new.total_moves += 1;
@@ -1064,8 +1069,8 @@ pub fn segments_to_states(all_segments: &Vec<GameReplaySegment>) -> Vec<GameStat
                     return vec![];
                 }
             }
-            GameReplaySegment::GameOver(_) => {
-                current_state.game_over = true;
+            GameReplaySegment::GameOver(reason) => {
+                current_state.game_over_reason = Some(reason.clone());
             }
         }
         all_states.push(current_state.clone());
@@ -1126,7 +1131,7 @@ pub mod tests {
                     state2 = res2.unwrap();
                 }
 
-                if state1.game_over {
+                if state1.game_over() {
                     break;
                 }
             }
@@ -1149,7 +1154,7 @@ pub mod tests {
                 if let Ok(new_active_game) = res {
                     active_game = new_active_game;
                 }
-                if active_game.game_over {
+                if active_game.game_over() {
                     _slices = active_game.replay.replay_slices;
                     break;
                 }

@@ -25,9 +25,9 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
                                 log::warn!("error in accept_replay_slice() : {:?}", e);
                             }
                     }
-                    GameReplaySegment::GameOver(_) => {
+                    GameReplaySegment::GameOver(_reason) => {
                         log::info!("subscribe game got over!");
-                        state_val.game_over = true;
+                        state_val.game_over_reason = Some(_reason.clone());
                         let api2 = api2.clone();
                         queue_microtask(move || {
                             

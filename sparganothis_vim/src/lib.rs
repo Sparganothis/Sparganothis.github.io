@@ -182,7 +182,7 @@ impl GameStatePy {
 
     #[getter]
     fn game_over(&self) ->  PyResult<bool> {
-        Ok(self.inner.game_over)
+        Ok(self.inner.game_over())
     }
 
     #[getter]
@@ -246,7 +246,7 @@ impl GameStatePy {
         let mut _i = 0;
         while _i < max_episode_len {
             state.replay.replay_slices.clear();
-            if state.game_over {
+            if state.game_over() {
                 break
             }
             match b.choose_move(&state) {

@@ -2,7 +2,7 @@ use crate::comp::hotkey_reader::create_hotkey_reader;
 use crate::mobile_check::is_mobile_phone;
 use crate::{comp::game_board::key_debounce_ms, websocket::demo_comp::call_api_sync};
 use game::api::{game_replay::GameId, websocket::*};
-use game::tet::{GameReplayEvent, GameReplaySlice, TetAction};
+use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use game::tet::{self, GameReplaySegment, GameState};
@@ -32,7 +32,7 @@ pub fn PlayerGameBoardFromId(
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
-            } else if s.game_over {
+            } else if s.game_over() {
                 log::info!("got segment for game over");
                 GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
             } else {
@@ -47,7 +47,7 @@ pub fn PlayerGameBoardFromId(
             // log::info!("append OK: {:?}", _r);
             if let Some(gamme_over_reasoon) = _r {
                 state.update(|state| {
-                    state.game_over = true;            
+                    state.game_over_reason = Some(gamme_over_reasoon.clone());
                     log::info!("game over because {:?}", gamme_over_reasoon)    ;    
                 })
             }
@@ -160,7 +160,7 @@ pub fn PlayerGameBoardSingle(
     } = leptos_use::use_interval_fn(
         move || {
             state.update(move |state| {
-                if !state.game_over {
+                if !state.game_over() {
                     if state
                         .apply_action_if_works(
                             TetAction::SoftDrop,

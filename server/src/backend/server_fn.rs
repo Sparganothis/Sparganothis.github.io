@@ -217,9 +217,9 @@ fn do_append_game_segment_to_db(
             last_state.accept_replay_slice(&slice)?;
             last_state
         }
-        GameReplaySegment::GameOver(_) => {
+        GameReplaySegment::GameOver(_reason) => {
             let mut last_state = last_state.context("no last state found")?;
-            last_state.game_over = true;
+            last_state.game_over_reason = Some(_reason.clone());
             last_state
         }
     };

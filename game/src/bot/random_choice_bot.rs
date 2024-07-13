@@ -55,7 +55,7 @@ where
         let _ = state.apply_action_if_works(*action, 0)?;
     }
 
-    if state.game_over {
+    if state.game_over() {
         anyhow::bail!("action leads to game over");
     }
 
@@ -74,7 +74,7 @@ pub fn get_best_move_for_score_fn<F>(
 where
     F: Fn(&GameState, &GameState) -> anyhow::Result<f64>,
 {
-    if game_state.game_over {
+    if game_state.game_over() {
         return Ok(vec![]);
     }
     let mut all_action_chains = get_all_move_chains();

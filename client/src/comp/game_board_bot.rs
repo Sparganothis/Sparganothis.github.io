@@ -25,7 +25,7 @@ pub fn BotGameBoard(
         let segment: GameReplaySegment = {
             if s.replay.replay_slices.is_empty() {
                 GameReplaySegment::Init(s.replay)
-            } else if s.game_over {
+            } else if s.game_over() {
                 GameReplaySegment::GameOver(tet::GameOverReason::Knockout)
             } else {
                 GameReplaySegment::Update(
@@ -38,7 +38,7 @@ pub fn BotGameBoard(
         call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {
             if let Some(gamme_over_reasoon) = _r {
                 state.update(|state| {
-                    state.game_over = true;            
+                    state.game_over_reason = Some(gamme_over_reasoon);
                     log::info!("game over because {:?}", gamme_over_reasoon)    ;    
                 })
             }
@@ -143,7 +143,7 @@ pub fn BotGameBoardSingle(
             }
 
             state.update(move |state| {
-                if !state.game_over {
+                if !state.game_over() {
 
                     if extra_moves.get_untracked().is_empty() {
                         let bot = game::bot::get_bot(&bot_name2).expect("bot must exist");
