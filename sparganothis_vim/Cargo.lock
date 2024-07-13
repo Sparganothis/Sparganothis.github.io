@@ -158,7 +158,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "game"
-version = "0.1.30"
+version = "0.1.31"
 dependencies = [
  "anyhow",
  "bincode",
@@ -601,7 +601,7 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
 name = "sparganothis_vim"
-version = "0.1.30"
+version = "0.1.31"
 dependencies = [
  "bincode",
  "game",
