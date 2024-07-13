@@ -244,7 +244,7 @@ fn is_game_over_because_sommething(
                     GameMatchType::_40lines => todo!(),
                     GameMatchType::_10v10 => todo!(),
                     GameMatchType::_4v4 => todo!(),
-                    GameMatchType::blitz => todo!(),
+                    GameMatchType::Blitz => todo!(),
                 }
             }
         }
@@ -314,7 +314,15 @@ use game::api::websocket::GetAllGamesArg;
 const PAGE_SIZE: usize = 24;
 
 pub fn get_all_games(
-    (arg, _pag): (GetAllGamesArg, TablePaginateDirection<GameId>),
+    (
+        _game_type,
+        arg, 
+        _pag
+    ): (
+        Option<GameMatchType>,
+         GetAllGamesArg, 
+         TablePaginateDirection<GameId>
+    ),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<Vec<(GameId, GameSegmentCountReply)>> {
     let load_all_games = || -> anyhow::Result<_> {
@@ -436,7 +444,7 @@ pub async fn start_match(
         GameMatchType::_40lines => todo!(),
         GameMatchType::_10v10 => todo!(),
         GameMatchType::_4v4 => todo!(),
-        GameMatchType::blitz => todo!(),
+        GameMatchType::Blitz => todo!(),
     }
 }
 

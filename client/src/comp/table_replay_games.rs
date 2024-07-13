@@ -18,7 +18,7 @@ pub fn AllGamesTable(list_type: GetAllGamesArg) -> impl IntoView {
 
     let fi = Callback::new(move |(k, cb): (TablePaginateDirection<_>, Callback<_>)| {
 
-        call_api_sync::<GetAllGames>((list_type, k), move |x| {
+        call_api_sync::<GetAllGames>((None, list_type, k), move |x| {
             cb.call(x);
         });
     });

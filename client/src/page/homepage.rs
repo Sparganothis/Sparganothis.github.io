@@ -3,11 +3,9 @@
 use leptos::*;
 
 
-use crate::{
-    comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView}, 
-    // page::page_replay_single::GameReplayBoardMini, 
-    websocket::demo_comp::call_api_sync
-};
+use crate::
+    comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView}
+;
 
 #[component]
 pub fn Homepage()-> impl IntoView{

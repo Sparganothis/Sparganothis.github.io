@@ -1,5 +1,5 @@
 use crate::{comp::{game_board_flex::FlexText, menu_grid_view::MenuGridView}, websocket::demo_comp::call_api_sync};
-use game::{api::{game_match::GameMatchType, game_replay::GameId, table_paginate::TablePaginateDirection, websocket::{CreateNewGameId, GetAllGames, GetAllGamesArg}}, random::GameSeed};
+use game::api::{game_match::GameMatchType, game_replay::GameId, table_paginate::TablePaginateDirection, websocket::{CreateNewGameId, GetAllGames, GetAllGamesArg}};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
 
@@ -42,7 +42,7 @@ pub fn LobbyDisplay(match_type:Option<GameMatchType>, ) -> impl IntoView {
             6 => view! { <GameModeStartButton match_type=match_type_.clone()/> }.into_view(),
             10 => {link_to_lobby(None)},
             11 => {link_to_lobby(Some(GameMatchType::_40lines))},
-            12 => {link_to_lobby(Some(GameMatchType::blitz))},
+            12 => {link_to_lobby(Some(GameMatchType::Blitz))},
             _ => view!{ }.into_view()
         }
      }).collect();
@@ -61,7 +61,7 @@ pub fn LobbyDisplay(match_type:Option<GameMatchType>, ) -> impl IntoView {
 pub fn BestMiniReplayForGameMode(match_type:Option<GameMatchType>, ) -> impl IntoView
 {
     let best_gameid = create_rw_signal(None);
-    call_api_sync::<GetAllGames>((GetAllGamesArg::BestGames, TablePaginateDirection::<GameId>::InitialPage
+    call_api_sync::<GetAllGames>((match_type.clone(), GetAllGamesArg::BestGames, TablePaginateDirection::<GameId>::InitialPage
     ), move |v: Vec<_>| {
             let game_id = v.get(0).clone();
             if let Some((a, _b)) = game_id {
@@ -84,7 +84,7 @@ pub fn GameModeDescription(match_type:Option<GameMatchType>, ) -> impl IntoView 
     let text = match match_type {
         None => "Resumable session at zero speed - play forever",
         Some(GameMatchType::_40lines) => "CLEAR 40 LINES SHORTEST TIME  GOTTA GO FAST",
-        Some(GameMatchType::blitz) => "GET BIG SCORE IN 2 MIN! LEVEL UP!",
+        Some(GameMatchType::Blitz) => "GET BIG SCORE IN 2 MIN! LEVEL UP!",
         _ => "PRPOGRAMMER ERROR: DESCRIPTION NOT FOUND"
     };
     view! { <FlexText text size_cqh=9.0/> }
@@ -131,7 +131,7 @@ pub fn GameModeTitleDisplay(match_type:Option<GameMatchType>, ) -> impl IntoView
     let text={match match_type {
         Some(r) => match r {
             GameMatchType::_40lines => "40lines",
-            GameMatchType::blitz => "blitz",
+            GameMatchType::Blitz => "blitz",
             _ => "???",
         },
         None => {

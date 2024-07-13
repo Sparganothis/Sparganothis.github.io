@@ -40,7 +40,7 @@ pub fn PlayGame1POfType(game_id: GameId, match_type: Option<GameMatchType>) -> i
                 }
             },
             
-            Some(GameMatchType::blitz) => {
+            Some(GameMatchType::Blitz) => {
                 let num_seconds = 120;
                 if (get_timestamp_now_nano() - s.start_time) > num_seconds * 1000000 {
                     s.game_over_reason = Some(GameOverReason::Win);
