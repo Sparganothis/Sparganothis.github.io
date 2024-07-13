@@ -16,13 +16,15 @@ use crate::mobile_check::is_mobile_phone;
 use crate::page::homepage::Homepage;
 use crate::page::page_spectate::SpectateGamePage;
 use crate::page::page_match::MatchPage;
-use crate::page::page_1p::GameSoloLobbyPage;
+use crate::page::page_1p_lobby::GameSoloLobbyPage;
 use crate::page::settings::server_api::provide_user_setting;
 use crate::page::settings::settings_page::MMySettingsPage;
 use crate::page::you_are_phone::you_are_phone_view;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 use crate::websocket::demo_comp::call_api_sync_or_error;
 use crate::comp::game_board_flex::FlexText;
+use crate::page::page_1p_lobby::GameSoloLobby40LinesPage;
+use crate::page::page_1p_lobby::GameSoloLobbyBLITZPage;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -225,7 +227,7 @@ pub fn AppRoot() -> impl IntoView {
 
     provide_user_setting();
 
-    use crate::page::page_1p::Game1PPage;
+    use crate::page::page_1p_play::Game1PPage;
     use crate::page::page_2p_lobby::Game2LobbyPage;
     use crate::page::page_user_profile::{MyAccountPage, UserProfilePage};
     use crate::page::page_vs_cpu::GameCPUPage;
@@ -350,6 +352,9 @@ pub fn AppRoot() -> impl IntoView {
                                 <Route path="" view=RootRedirectPage/>
                                 <Route path="/home" view=Homepage/>
                                 <Route path="/solo" view=GameSoloLobbyPage/>
+                                <Route path="/solo-lobby-40-lines" view=GameSoloLobby40LinesPage/>
+                                <Route path="/solo-lobby-blitz" view=GameSoloLobbyBLITZPage/>
+
                                 <Route path="/play-game-solo/:game_id" view=Game1PPage/>
                                 <Route path="/vs_cpu" view=GameCPUPage/>
                                 <Route path="/vs_net" view=Game2LobbyPage/>

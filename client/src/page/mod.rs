@@ -1,4 +1,4 @@
-pub mod page_1p;
+pub mod page_1p_play;
 pub mod page_2p_lobby;
 pub mod page_replay_browser;
 pub mod page_replay_single;
@@ -10,3 +10,4 @@ pub mod page_match;
 pub mod settings;
 pub mod page_about;
 pub mod you_are_phone;
+pub mod page_1p_lobby;

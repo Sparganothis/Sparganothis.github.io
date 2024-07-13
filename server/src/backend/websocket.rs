@@ -352,11 +352,11 @@ pub async fn websocket_handle_request(
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
         .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
     let msg_type = msg._type.clone();
-    log::info!(
-        "handling request {:?} for userID {:?}",
-        msg_type,
-        session_info.guest_id.user_id
-    );
+    // log::info!(
+    //     "handling request {:?} for userID {:?}",
+    //     msg_type,
+    //     session_info.guest_id.user_id
+    // );
     let r: WebsocketAPIMessageRaw = match msg._type {
         WebsocketAPIMessageType::WhoAmI => {
             let callback = move |_, i: CurrentSessionInfo| Ok(i.guest_id);
@@ -493,11 +493,11 @@ pub async fn websocket_handle_request(
     }
     .context(format!("specific handler {:?}", msg_type))?;
 
-    log::info!(
-        "sending response {:?} for userID {:?}",
-        msg_type,
-        session_info.guest_id.user_id
-    );
+    // log::info!(
+    //     "sending response {:?} for userID {:?}",
+    //     msg_type,
+    //     session_info.guest_id.user_id
+    // );
     Ok(bincode::serialize(&r).context("bincode never fail")?)
 }
 use anyhow::Context;
