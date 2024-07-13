@@ -61,7 +61,7 @@ pub fn Lobby2P() -> impl IntoView {
        >
 
            <div style="width:100%;height:100%; container-type: size;">
-               <p style="font-size:15cqh; text-align: center; color: red;">
+               <p style="font-size:15cqh; text-align: center; color: red; margin:0px;">
                    {error_display.get()}
                </p>
            </div>
@@ -69,7 +69,7 @@ pub fn Lobby2P() -> impl IntoView {
 
        <Show when=move || (waiting_for_game.get())>
            <div style="width:100%;height:100%; container-type: size;">
-               <p style="font-size:15cqh; text-align: center; color: brown;">
+               <p style="font-size:15cqh; text-align: center; color: brown; margin:0px;">
                    Please Wait
                </p>
            </div>

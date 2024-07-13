@@ -9,7 +9,7 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
 
     let UseIntervalReturn {counter:counter_timer,pause:pause_timer,resume:resume_timer, reset, is_active }  = use_interval_with_options( 1000, UseIntervalOptions::default().immediate(true) );
 
-    let timer_str = move || { 
+    let timer_str = (move || { 
         counter_timer.track();
         if let Some(s) = game_state.try_get_untracked() {
             let pre = pre_countdown_text.get();
@@ -25,9 +25,10 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
         } else {
             "".to_string()
         }
-        
-    };
-    timer_str
+    }).into_signal();
+    view!{
+        <FlexText text=timer_str size_cqh=10.0/>
+    }
 }
 
 #[component]
@@ -188,7 +189,7 @@ pub fn GameBoardFlex(
     let profile_view = {  move || view! {
         <div style="height: 20%; width: 10cqh;"></div>
 
-        <p style="font-size: 15cqh; height: 20%;">
+        <p style="font-size: 15cqh; height: 20%; margin:0px;">
             {format!("{:?}", player_id)}
             <a href=format!("/user/{:?}", player_id)>(view)</a>
         </p>
@@ -215,7 +216,7 @@ pub fn GameBoardFlex(
                 id="top-bar"
                 style="width: 0px; height: 0px; margin: 0px; position: relative"
             >
-                <div style="position: absolute; width: calc(var(--h-main-width)); height:  calc(var(--h-main-width)*0.5); container-type:size;">
+                <div style="position: absolute; width: calc(var(--h-main-width)); height:  calc(var(--h-main-width)*0.2); container-type:size;">
                     {top_bar}
                 </div>
             </div>
@@ -247,7 +248,7 @@ pub fn GameBoardFlex(
                         </h3>
                     </div>
                     <div style="width:100%;height:37%;">
-                        {move || { format!("{}", game_state.get().get_debug_info()) }}
+                        {move || view!{ <FlexText size_cqh=10.0 text=format!("{}", game_state.get().get_debug_info())/> }}
                     </div>
                     <div style="width:100%;height:37%;">
                         <GameBoardTimer game_state pre_countdown_text/>

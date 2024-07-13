@@ -4,7 +4,7 @@ use anyhow::Context;
 use game::{api::{game_match::GameMatch, game_replay::GameId, websocket::{GetMatchInfo, GetSegmentCount, WhoAmI}}, bot::get_bot_from_id};
 use leptos::*;
 use leptos_router::use_params_map;
-
+use crate::comp::game_board_flex::FlexText;
 use crate::{comp::{game_board_bot::BotGameBoard, game_board_player::PlayerGameBoardFromId, game_board_spectator::SpectatorGameBoard}, websocket::demo_comp::call_api_sync};
 
 #[component]
@@ -122,8 +122,10 @@ pub fn MatchPage() -> impl IntoView {
         <div class="main_left">{move || left_view.get()}</div>
 
         <div class="main_mid">
-            <h1>vs.</h1>
-            <p>{title_sig}</p>
+            <div style="height:10%;">
+                <FlexText text="vs." />
+            </div>
+            // <p>{title_sig}</p>
         </div>
 
         <div class="main_right">{move || right_view.get()}</div>

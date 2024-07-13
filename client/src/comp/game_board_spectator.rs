@@ -4,6 +4,8 @@ use leptos::*;
 use crate::websocket::demo_comp::WebsocketAPI;
 use game::tet::{GameReplaySegment, GameState};
 
+use crate::comp::game_board_flex::GameBoardFlex;
+use crate::comp::game_board_flex::FlexText;
 
 #[component]
 pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
@@ -51,9 +53,7 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
             on_reset_game=on_reset
             player_id=game_id.user_id
             game_state=state
-            top_bar=view! { <h5>"spectating game"</h5> }.into_view()
+            top_bar=view! { <FlexText size_cqh=30.0 text="spectating game"/> }.into_view()
         />
     }
 }
-
-use crate::comp::game_board_flex::GameBoardFlex;

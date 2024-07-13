@@ -253,15 +253,15 @@ fn is_game_over_because_sommething(
                     });
                 }
 
-                GameMatchType::_40lines => todo!(),
-                GameMatchType::_10v10 => todo!(),
-                GameMatchType::_4v4 => todo!(),
-                GameMatchType::Blitz => todo!(),
+                _  => anyhow::bail!("undefined gamematch type"),
             }
         }
     }
 
-    anyhow::bail!("no matcch found for ID!");
+    Ok(AppendGameSegmentResponse{
+        maybe_reason: None,
+        garbage:0,
+    })
 }
 
 fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<(i64, bool)> {

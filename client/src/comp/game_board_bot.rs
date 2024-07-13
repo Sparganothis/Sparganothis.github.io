@@ -8,7 +8,7 @@ use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalRetu
 use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use rand::Rng;
-use crate::comp::game_board_flex::GameBoardFlex;
+use crate::comp::game_board_flex::{FlexText, GameBoardFlex};
 
 pub const BOT_MOVE_INTERVAL: u64 = 84;
 
@@ -188,7 +188,7 @@ pub fn BotGameBoardSingle(
         BOT_MOVE_INTERVAL,
     );
 
-    let top_bar = view! { "active bot" }.into_view();
+    let top_bar = view! { <FlexText size_cqh=30.0 text="active bot"/> }.into_view();
 
     view! { <GameBoardFlex game_state=state top_bar enable_sound=true player_id=bot_id/> }
 }
