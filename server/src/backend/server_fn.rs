@@ -9,6 +9,7 @@ use game::api::game_replay::GameSegmentId;
 use game::api::table_paginate::TablePaginateDirection;
 use game::api::user::UserProfile;
 use game::api::user_settings::UserSettingType;
+use game::api::websocket::AppendGameSegmentResponse;
 use game::api::websocket::GameSegmentCountReply;
 use game::api::websocket::GetMatchListArg;
 use game::bot::get_bot_from_id;
@@ -59,7 +60,7 @@ pub fn create_new_game_id(
 pub fn append_game_segment(
     (id, segment_json): (GameId, String),
     _current_session: CurrentSessionInfo,
-) -> anyhow::Result<Option<GameOverReason>> {
+) -> anyhow::Result<AppendGameSegmentResponse> {
     _check_is_global_locked(_current_session, id)?;
     let new_segment: GameReplaySegment =
         serde_json::from_str(&segment_json).expect("json never fail");
@@ -74,7 +75,7 @@ pub fn append_game_segment(
 pub fn append_bot_game_segment(
     (id, segment_json): (GameId, String),
     _current_session: CurrentSessionInfo,
-) -> anyhow::Result<Option<GameOverReason>> {
+) -> anyhow::Result<AppendGameSegmentResponse> {
     let new_segment: GameReplaySegment =
         serde_json::from_str(&segment_json).expect("json never fail");
 
@@ -109,13 +110,18 @@ fn do_append_game_segment(
     id: GameId,
     new_segment: GameReplaySegment,
     _current_session: CurrentSessionInfo,
-) -> anyhow::Result<Option<GameOverReason>> {
+) -> anyhow::Result<AppendGameSegmentResponse> {
     let last_segment = GAME_SEGMENT_DB
         .range(GameSegmentId::get_range_for_game(&id))
         .next_back();
     if let Some(Ok((_i, _seg))) = last_segment {
         match _seg {
-            GameReplaySegment::GameOver(_r) => return Ok(Some(_r)),
+            GameReplaySegment::GameOver(_r) => {
+                return Ok(AppendGameSegmentResponse{
+                    maybe_reason:  Some(_r),
+                garbage:0,
+            })
+            },
             _ => (),
         }
     }
@@ -124,7 +130,7 @@ fn do_append_game_segment(
 
     let game_over_because = is_game_over_because_sommething(id, _current_session)?;
 
-    match &game_over_because {
+    match &game_over_because.maybe_reason {
         Some(_reason) => {
             do_append_game_segment_to_db(
                 id,
@@ -230,30 +236,35 @@ fn do_append_game_segment_to_db(
 fn is_game_over_because_sommething(
     game_id: GameId,
     _current_session: CurrentSessionInfo,
-) -> anyhow::Result<Option<GameOverReason>> {
-    {
-        if let Some(match_) = GAME_MATCH_FOR_GAME_ID_DB.get(&game_id)? {
-            if let Some(match_info) = GAME_MATCH_DB.get(&match_)? {
-                match match_info.type_ {
-                    GameMatchType::ManVsCar(_) | GameMatchType::_1v1 => {
-                        if other_game_lost(&game_id, &match_info).unwrap_or(false) {
-                            return Ok(Some(GameOverReason::Win));
-                        }
-                    }
+) -> anyhow::Result<AppendGameSegmentResponse> {
 
-                    GameMatchType::_40lines => todo!(),
-                    GameMatchType::_10v10 => todo!(),
-                    GameMatchType::_4v4 => todo!(),
-                    GameMatchType::Blitz => todo!(),
+    if let Some(match_) = GAME_MATCH_FOR_GAME_ID_DB.get(&game_id)? {
+        if let Some(match_info) = GAME_MATCH_DB.get(&match_)? {
+            match match_info.type_ {
+                GameMatchType::ManVsCar(_) | GameMatchType::_1v1 => {
+                    let (garbage_sent, opponent_lost) = other_game_lost(&game_id, &match_info).unwrap_or((0, false));
+
+                    let over_reason = if opponent_lost {
+                        Some(GameOverReason::Win)
+                    } else {None};
+                    return Ok(AppendGameSegmentResponse{
+                        maybe_reason: over_reason,
+                        garbage:garbage_sent,
+                    });
                 }
+
+                GameMatchType::_40lines => todo!(),
+                GameMatchType::_10v10 => todo!(),
+                GameMatchType::_4v4 => todo!(),
+                GameMatchType::Blitz => todo!(),
             }
         }
-
-        Ok(None)
     }
+
+    anyhow::bail!("no matcch found for ID!");
 }
 
-fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<bool> {
+fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<(i64, bool)> {
     for user in match_info.users.iter() {
         if *user != game_id.user_id {
             let other_game_id = GameId {
@@ -264,7 +275,9 @@ fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<b
             let other_in_progress = GAME_IS_IN_PROGRESS_DB
                 .get(&other_game_id)?
                 .context("other match not found")?;
-            return Ok(!other_in_progress);
+            let other_garbage_sent = GAME_FULL_DB.get(&other_game_id)?.context("other mmmatch not found")?.total_garbage_sent;
+
+            return Ok((other_garbage_sent, !other_in_progress));
         }
     }
     anyhow::bail!("oculd not find other game, am i playuing myself??")

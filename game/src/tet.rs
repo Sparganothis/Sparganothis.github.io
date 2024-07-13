@@ -143,6 +143,25 @@ pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
 }
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
+    pub fn inject_single_garbage_line(&mut self, seed: GameSeed) {
+        let v: u8 = get_determinist_val::<u8>(&seed)  % C as u8 ;
+
+        // move all things up
+        for i in (0..(R-2)).rev() {
+            for j in 0..C {
+                let lower: CellValue = self.get_cell(i as i8, j as i8).unwrap();
+                self.set_cell(i as i8+1, j as i8, lower);
+            }
+        }
+
+        for x in 0..(C as i8) {
+            if x != (v as i8) {
+                self.set_cell(0, x, CellValue::Garbage)
+            } else {
+                self.set_cell(0, x, CellValue::Empty)
+            }
+        }
+    }
     pub fn get_cell(&self, y: i8, x: i8) -> Option<CellValue> {
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             None
@@ -449,6 +468,7 @@ pub struct GameState {
     pub total_lines: i64,
     pub total_garbage_sent: i64, // 15 bit
     pub garbage_recv: i64,       // 15 bit
+    pub garbage_applied: i64,
     pub total_moves: i32,        // 16 bit
 }
 
@@ -525,6 +545,17 @@ pub struct CurrentPcsInfo {
 }
 
 impl GameState {
+    pub fn add_pending_garbage(&mut self) {
+        while self.garbage_applied < self.garbage_recv {
+            self.main_board.inject_single_garbage_line(self.seed);
+            self.garbage_applied += 1;
+        }
+    }
+    pub fn apply_raw_garbage(&mut self, new_garbage: i64) {
+        if new_garbage > self.garbage_recv {
+            self.garbage_recv = new_garbage;
+        }
+    }
     pub fn current_time_string(&self) -> String {
         let dt_s = self.current_time_sec();
         if dt_s < 0 {
@@ -568,6 +599,7 @@ impl GameState {
             total_garbage_sent: 0,
             garbage_recv: 0,
             total_moves: 0,
+            garbage_applied: 0,
         };
         new_state.refill_nextpcs(start_time);
         let _ = new_state.put_next_piece(start_time);
@@ -582,8 +614,8 @@ impl GameState {
     }
     pub fn get_debug_info(&self) -> String {
         format!(
-            "total_lines:{}\n total_garbage_sent:{}",
-            self.total_lines, self.total_garbage_sent
+            "total_lines:{}\n total_garbage_sent:{}\n garbage_apply:{}\n garbage_rcv:{}",
+            self.total_lines, self.total_garbage_sent, self.garbage_applied, self.garbage_recv
         )
     }
 
@@ -717,6 +749,7 @@ impl GameState {
         }
 
         self.clear_line();
+        self.add_pending_garbage();
         let next_tet = self.next_pcs.pop_front().unwrap();
 
         self.current_pcs = Some(CurrentPcsInfo {

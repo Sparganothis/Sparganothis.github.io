@@ -112,18 +112,24 @@ impl APIMethod for CreateNewGameId {
     type Resp = GameId;
 }
 
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppendGameSegmentResponse {
+    pub maybe_reason: Option<GameOverReason>,
+    pub garbage: i64,
+}
+
 pub struct AppendGameSegment {}
 impl APIMethod for AppendGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendGameSegment;
     type Req = (GameId, String);
-    type Resp = Option<GameOverReason>;
+    type Resp = AppendGameSegmentResponse;
 }
 
 pub struct AppendBotGameSegment {}
 impl APIMethod for AppendBotGameSegment {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::AppendBotGameSegment;
     type Req = (GameId, String);
-    type Resp = Option<GameOverReason>;
+    type Resp = AppendGameSegmentResponse;
 }
 
 #[derive(

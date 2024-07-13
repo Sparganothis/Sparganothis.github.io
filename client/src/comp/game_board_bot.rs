@@ -36,11 +36,16 @@ pub fn BotGameBoard(
 
         let segment_json: String = serde_json::to_string(&segment).expect("must serialize zsegmment to json");
         call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {
-            if let Some(gamme_over_reasoon) = _r {
+            if let Some(gamme_over_reasoon) = _r.maybe_reason {
                 state.update(|state| {
                     state.game_over_reason = Some(gamme_over_reasoon);
                     log::info!("game over because {:?}", gamme_over_reasoon)    ;    
                 })
+            }
+            if _r.garbage > 0 {
+                state.update(|state| {
+                    state.apply_raw_garbage(_r.garbage);
+                } )
             }
         });
     });
