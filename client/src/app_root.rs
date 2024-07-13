@@ -351,7 +351,10 @@ pub fn AppRoot() -> impl IntoView {
                                 <Route path="/home" view=Homepage/>
                                 <Route path="/lobby/:game_type" view=GameSoloLobbyPage/>
 
-                                <Route path="/play-game/:game_type/:game_id" view=Game1PPage/>
+                                <Route
+                                    path="/play-game/:game_type/:game_id"
+                                    view=Game1PPage
+                                />
                                 <Route path="/vs_cpu" view=GameCPUPage/>
                                 <Route path="/vs_net" view=Game2LobbyPage/>
                                 <Route

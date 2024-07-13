@@ -142,16 +142,21 @@ pub fn GameBoardFlex(
                                 class="game_over_display"
                                 on:click=move |_| on_reset_game.call(())
                             >
-                                {move || match game_state.get().game_over_reason {
-                                        Some(_r) => match _r {
-                                            tet::GameOverReason::Knockout => "you lose",
-                                            tet::GameOverReason::Disconnect => "disconnect",
-                                            tet::GameOverReason::Abandon => "abandon",
-                                            tet::GameOverReason::Win => "win",
-                                        },
+                                {move || {
+                                    match game_state.get().game_over_reason {
+                                        Some(_r) => {
+                                            match _r {
+                                                tet::GameOverReason::Knockout => "you lose",
+                                                tet::GameOverReason::Disconnect => "disconnect",
+                                                tet::GameOverReason::Abandon => "abandon",
+                                                tet::GameOverReason::Win => "win",
+                                            }
+                                        }
                                         None => "",
-                                    }.to_string()
-                                }
+                                    }
+                                        .to_string()
+                                }}
+
                             </div>
                         </div>
                     </Show>

@@ -12,9 +12,9 @@ pub fn GameSoloLobbyPage() -> impl IntoView {
         let p = params.with(|params| params.get("game_type").cloned()).unwrap_or("".to_string());
         
         if let Ok(match_type) = GameMatchType::from_url(&p) {
-            view!{<LobbyDisplay match_type/>}.into_view()
+            view! { <LobbyDisplay match_type/> }.into_view()
         } else {
-            view!{<h1> Bad match type! </h1>}.into_view()
+            view! { <h1>Bad match type!</h1> }.into_view()
         }
     };
     _view.into_view()
@@ -28,24 +28,18 @@ pub fn LobbyDisplay(match_type:Option<GameMatchType>, ) -> impl IntoView {
     let link_to_lobby = move |_opt:Option<GameMatchType>| {
         let text = GameMatchType::to_url(&_opt);
         view! {
-             <a 
-             href=format!("/lobby/{text}")
-              style="color:black;">
-               <FlexText 
-               text 
-               size_cqh=60.0 />
-                </a> 
-            }.into_view()
+            <a href=format!("/lobby/{text}") style="color:black;">
+                <FlexText text size_cqh=60.0/>
+            </a>
+        }.into_view()
     };
     let views:Vec<_> = {0..20}.into_iter().map(move |x|{
         match x{
-            0 => view!{
-                <GameModeTitleDisplay match_type=match_type_.clone()/>
-            },
-            8 => view!{<BestMiniReplayForGameMode match_type=match_type_.clone()/>}.into_view(),
-            5 => view! {<GameModeDescription match_type=match_type_.clone()/>}.into_view(),
-            13 => view! {<GameModeOptions match_type=match_type_.clone()/>}.into_view(),
-            6 => view! {<GameModeStartButton match_type=match_type_.clone()/>}.into_view(),
+            0 => view! { <GameModeTitleDisplay match_type=match_type_.clone()/> },
+            8 => view! { <BestMiniReplayForGameMode match_type=match_type_.clone()/> }.into_view(),
+            5 => view! { <GameModeDescription match_type=match_type_.clone()/> }.into_view(),
+            13 => view! { <GameModeOptions match_type=match_type_.clone()/> }.into_view(),
+            6 => view! { <GameModeStartButton match_type=match_type_.clone()/> }.into_view(),
             10 => {link_to_lobby(None)},
             11 => {link_to_lobby(Some(GameMatchType::_40lines))},
             12 => {link_to_lobby(Some(GameMatchType::blitz))},
@@ -54,12 +48,12 @@ pub fn LobbyDisplay(match_type:Option<GameMatchType>, ) -> impl IntoView {
      }).collect();
 
     view! {
-         <MenuGridView views/>
-         
+        <MenuGridView views/>
+
         <div class="main_right">
             <GameModeLeaderboard match_type=match_type.clone()/>
         </div>
-     }
+    }
 
 }
 
@@ -93,9 +87,7 @@ pub fn GameModeDescription(match_type:Option<GameMatchType>, ) -> impl IntoView 
         Some(GameMatchType::blitz) => "GET BIG SCORE IN 2 MIN! LEVEL UP!",
         _ => "PRPOGRAMMER ERROR: DESCRIPTION NOT FOUND"
     };
-    view!{
-        <FlexText text size_cqh=9.0/>
-    }
+    view! { <FlexText text size_cqh=9.0/> }
 }
 
 
@@ -117,7 +109,7 @@ pub fn GameModeStartButton(match_type:Option<GameMatchType>, ) -> impl IntoView 
          });        
     });
     
-    view!{
+    view! {
         <div style="width:100%;height:100%; container-type: size;">
             <h3
                 style="font-size:80cqh; text-align: center;  cursor:pointer; "
@@ -146,8 +138,6 @@ pub fn GameModeTitleDisplay(match_type:Option<GameMatchType>, ) -> impl IntoView
             "solo"
         },
     }};
-    view!{
-        <FlexText text size_cqh=60.0/>
-    }
+    view! { <FlexText text size_cqh=60.0/> }
 }
 

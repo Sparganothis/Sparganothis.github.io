@@ -12,19 +12,13 @@ pub fn Game1PPage() -> impl IntoView {
         let game_type_str = params.with(|params| (params.get("game_type").cloned().unwrap_or("".to_string())));
         if let( Ok(gid), Ok(game_type)) = (GameId::from_url(game_id_str), GameMatchType::from_url(&game_type_str)) {
 
-            view!{
-                <PlayGame1POfType match_type=game_type game_id=gid />
-            }.into_view()
+            view! { <PlayGame1POfType match_type=game_type game_id=gid/> }.into_view()
         } else {
-            view!{<FlexText text="bad url???"/>}.into_view()
+            view! { <FlexText text="bad url???"/> }.into_view()
         }
     }.into_view();
 
-    view!{
-        <div class="main_left">
-            {play_comp}
-        </div>
-    }
+    view! { <div class="main_left">{play_comp}</div> }
 }
 
 #[component]
@@ -57,7 +51,5 @@ pub fn PlayGame1POfType(game_id: GameId, match_type: Option<GameMatchType>) -> i
         s
     } );
 
-    view! {
-            <PlayerGameBoardFromId game_id=game_id on_reset control_callback /> 
-    }
+    view! { <PlayerGameBoardFromId game_id=game_id on_reset control_callback/> }
 }

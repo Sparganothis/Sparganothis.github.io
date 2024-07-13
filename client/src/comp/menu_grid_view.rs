@@ -56,18 +56,18 @@ pub fn MenuGridView(views:Vec<View>) -> impl IntoView {
                 <div style="border:solid green 1px;height:35%;flex-direction: row;display: flex;">
 
                     {views.get(13)}
-                    // <div style="border:solid red 1px;width:25%;height:100%;">
-                    //     {views.get(13)}
-                    // </div>
-                    // <div style="border:solid yellow 1px;width:25%;height:100%;">
-                    //     {views.get(14)}
-                    // </div>
-                    // <div style="border:solid green 1px;width:25%;height:100%;">
-                    //     {views.get(15)}
-                    // </div>
-                    // <div style="border:solid blue 1px;width:25%;height:100%;">
-                    //     {views.get(16)}
-                    // </div>
+                // <div style="border:solid red 1px;width:25%;height:100%;">
+                // {views.get(13)}
+                // </div>
+                // <div style="border:solid yellow 1px;width:25%;height:100%;">
+                // {views.get(14)}
+                // </div>
+                // <div style="border:solid green 1px;width:25%;height:100%;">
+                // {views.get(15)}
+                // </div>
+                // <div style="border:solid blue 1px;width:25%;height:100%;">
+                // {views.get(16)}
+                // </div>
 
                 </div>
 
