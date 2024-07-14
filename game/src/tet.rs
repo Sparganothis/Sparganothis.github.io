@@ -125,6 +125,7 @@ impl Tet {
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum CellValue {
     // 4 bit after, before 16-20bit b
     Piece(Tet),
@@ -132,15 +133,115 @@ pub enum CellValue {
     Empty,
     Ghost,
 }
+
+impl CellValue {
+    // This has to be a const fn
+    const fn into_bits(self) -> u8 {
+        match self {
+            CellValue::Empty         => 0,
+            CellValue::Piece(Tet::I) => 1,
+            CellValue::Piece(Tet::L) => 2,
+            CellValue::Piece(Tet::J) => 3,
+            CellValue::Piece(Tet::T) => 4,
+            CellValue::Piece(Tet::S) => 5,
+            CellValue::Piece(Tet::Z) => 6,
+            CellValue::Piece(Tet::O) => 7,
+            CellValue::Garbage       => 8,
+            CellValue::Ghost         => 9,
+        }
+    }
+    const fn from_bits(value: u8) -> Self {
+        match value {     
+            0  =>  CellValue::Empty         ,       
+            1  =>  CellValue::Piece(Tet::I) ,
+            2  =>  CellValue::Piece(Tet::L) ,
+            3  =>  CellValue::Piece(Tet::J) ,
+            4  =>  CellValue::Piece(Tet::T) ,
+            5  =>  CellValue::Piece(Tet::S) ,
+            6  =>  CellValue::Piece(Tet::Z) ,
+            7  =>  CellValue::Piece(Tet::O) ,
+            8  =>  CellValue::Garbage       ,
+            9 =>   CellValue::Ghost         ,
+            _ => CellValue::Empty,
+        }
+    }
+}
+
 use serde_with::serde_as;
 #[serde_as]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
     // 400 * cellValue = 1600bit after / 8000 before -- 200byte after, 1k before
     // with no color -- 400bit = 80bytes
-    #[serde_as(as = "[[_; C]; R]")]
-    vv: [[CellValue; C]; R],
+    #[serde_as(as = "[_; R]")]
+    vv: [CellValueRow10; R],
 }
+
+#[bitfield_struct::bitfield(u8, order = Msb)]
+#[derive(Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CellValuePairByte {
+    #[bits(4)]
+    val0: CellValue,
+    #[bits(4)]
+    val1: CellValue,
+}
+impl CellValuePairByte {
+    fn empty() -> Self {
+        Self::new().with_val0(CellValue::Empty).with_val1(CellValue::Empty)
+    }
+    fn get(&self, idx: i8) -> CellValue {
+        match idx {
+            0 => self.val0(),
+            1 => self.val1(),
+            _ => panic!("invalid index {idx} not in [0,1]")
+        }
+    }
+    fn set(&mut self, idx: i8, new:CellValue) {
+        *self = match idx {
+            0 => self.with_val0(new),
+            1 => self.with_val1(new),
+            _ => panic!("invalid index {idx} not in [0,1]")
+        }
+    }
+}
+
+#[serde_as]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CellValueRow10 {
+    #[serde_as(as = "[_; 5]")]
+    v_r: [CellValuePairByte; 5],
+}
+
+impl CellValueRow10 {
+    fn empty() -> Self {
+        Self {
+            v_r: [CellValuePairByte::empty(); 5]
+        }
+    }
+    fn get(&self, idx: i8) -> CellValue {
+        assert!(idx >= 0 && idx <= 9, "bad idx: {idx} expected: 0..=4");
+        self.v_r[idx as usize/2].get(idx % 2)
+    }
+    fn set(&mut self, idx: i8, new:CellValue) {
+        assert!(idx >= 0 && idx <= 9, "bad idx: {idx} expected: 0..=4");
+        self.v_r[idx as usize/2].set(idx%2, new);
+    }
+    fn to_cells(&self) -> [CellValue;10] {
+        [
+            self.v_r[0].get(0),
+            self.v_r[0].get(1),
+            self.v_r[1].get(0),
+            self.v_r[1].get(1),
+            self.v_r[2].get(0),
+            self.v_r[2].get(1),
+            self.v_r[3].get(0),
+            self.v_r[3].get(1),
+            self.v_r[4].get(0),
+            self.v_r[4].get(1),
+        ]
+    }
+}
+
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     pub fn inject_single_garbage_line(&mut self, seed: GameSeed) {
@@ -166,23 +267,23 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             None
         } else {
-            Some(self.vv[y as usize][x as usize])
+            Some(self.vv[y as usize].get(x as i8))
         }
     }
 
     pub fn set_cell(&mut self, y: i8, x: i8, v: CellValue) {
-        self.vv[y as usize][x as usize] = v;
+        self.vv[y as usize].set(x as i8, v);
     }
 
     pub fn rows(&self) -> Vec<Vec<CellValue>> {
         self.vv
             .iter()
-            .map(|r| r.iter().cloned().collect())
+            .map(|r| r.to_cells().iter().take(C).cloned().collect())
             .collect()
     }
     pub fn empty() -> Self {
         Self {
-            vv: [[CellValue::Empty; C]; R],
+            vv: [CellValueRow10::empty(); R],
         }
     }
 
