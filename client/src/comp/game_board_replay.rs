@@ -195,6 +195,7 @@ pub fn ReplayGameBoardFromSegmments(
         let download_href = move || {
             let seg = all_segments.get();
             let bytes = bincode::serialize(&seg).expect("must serialize");
+            log::info!("download size: {} bytes", bytes.len());
             let b = _bytes_to_blob(&bytes, Some("application/octet-stream"));
             web_sys::Url::create_object_url_with_blob(&b).expect("create url")
         };

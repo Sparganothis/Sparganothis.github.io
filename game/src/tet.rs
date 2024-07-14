@@ -515,12 +515,12 @@ pub enum GameReplaySegment {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplaySlice {
-    pub idx: u16,
-    pub event: GameReplayEvent,
     pub event_timestamp: i64,
     pub new_seed: GameSeed,
     pub new_garbage_recv: u16,
     pub new_garbage_applied: u16,
+    pub idx: u16,
+    pub event: GameReplayEvent,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]

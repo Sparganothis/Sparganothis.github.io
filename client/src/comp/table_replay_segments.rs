@@ -41,8 +41,8 @@ pub fn TableReplaySegments(
                         rows[i - 1].update_slice.clone(),
                         rows[i].update_slice.clone(),
                     ) {
-                        let dt_ns = b.event_timestamp - a.event_timestamp;
-                        let dt_ms = dt_ns as f64 / 1000.0;
+                        let dt_ns = b.event_timestamp  as f64 - a.event_timestamp  as f64;
+                        let dt_ms = dt_ns / 1000.0;
                         rows[i].since_last = format!("{dt_ms:.0}ms")
                     }
                 }
