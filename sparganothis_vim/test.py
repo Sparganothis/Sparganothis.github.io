@@ -1,4 +1,8 @@
 import sparganothis_vim
+import time
+
+t0 = time.time()
+
 print(sparganothis_vim.sum_as_string(5, 20))
 
 seed = sparganothis_vim.generate_random_seed()
@@ -48,11 +52,11 @@ print("html\n", state3.html)
 
 
 
-ep = state3.generate_bot_episode("random", 50)
+ep = state3.generate_bot_episode("random", 666)
 print("RANDOM EPISODE: ", len(ep), ":", ", ".join(r[0] for r in ep[:10]))
 print("RANDOM SCORE: ", ep[-1][-1].score)
 
-ep = state3.generate_bot_episode("wordpress", 50)
+ep = state3.generate_bot_episode("wordpress", 666)
 print("WORDPRESS EPISODE: ", len(ep), ":", ", ".join(r[0] for r in ep[:10]))
 print("WORDPRESS SCORE: ", ep[-1][-1].score)
 
@@ -68,3 +72,8 @@ print("LOAD REPLAY FROM BYTES  ep count: ", len(ep))
 print("LOAD REPLAY FROM BYTES  ep : ", ep[0])
 print("LOAD REPLAY FROM BYTES   SCORE: ", ep[-1][-1].score)
 
+
+print()
+print("STATE SIZE: ", len(state.to_bytes()), "bytes")
+dt = time.time()-t0
+print("TOTAL DURATION : ", int(dt*1000)/1000, "seconds")

@@ -327,6 +327,14 @@ impl GameStatePy {
         }
         Ok(v)
     }
+
+    fn to_bytes(&self) -> PyResult<Vec<u8>> {
+        bincode::serialize(&self.inner).map_err(|e| PyValueError::new_err(format!("{}", e)))
+    }
+    #[staticmethod]
+    fn state_from_bytes(bytes: Vec<u8>) -> PyResult<Self> {
+        Ok(Self { inner: bincode::deserialize::<GameState>(&bytes).map_err(|e| PyValueError::new_err(format!("{}", e)))? })
+    }
 }
 
 /// Formats the sum of two numbers as string.
