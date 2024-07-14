@@ -444,18 +444,18 @@ type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameState {
-    pub score: i64,              // 24 bits
+    pub score: i32,              // 24 bits
     pub is_t_spin: bool,         // 1 bit
     pub is_t_mini_spin: bool,    // 1 bit
     pub is_b2b: bool,            // 1 bit
-    pub combo_counter: i32,      // 7 bit
+    pub combo_counter: i8,      // 7 bit
     pub main_board: BoardMatrix, // ?? bit
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
     pub last_action: TetAction,              // 3 bit
     pub next_pcs: VecDeque<Tet>,             // 42 bit
     pub current_pcs: Option<CurrentPcsInfo>, // 29 bit
-    pub current_id: u32,                     // 13 bit
+    pub current_id: u16,                     // 13 bit
 
     pub hold_pcs: Option<HoldPcsInfo>, // 4 bit
     // pub game_over: bool,
@@ -465,11 +465,11 @@ pub struct GameState {
     pub seed: GameSeed,      // 32 bytes = 256bit
     pub init_seed: GameSeed, // 256bit
     pub start_time: i64,     // n--ai acsf
-    pub total_lines: i64,
-    pub total_garbage_sent: i64, // 15 bit
-    pub garbage_recv: i64,       // 15 bit
-    pub garbage_applied: i64,
-    pub total_moves: i32,        // 16 bit
+    pub total_lines: u16,
+    pub total_garbage_sent: u16, // 15 bit
+    pub garbage_recv: u16,       // 15 bit
+    pub garbage_applied: u16,
+    pub total_moves: u16,        // 16 bit
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -515,10 +515,12 @@ pub enum GameReplaySegment {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplaySlice {
-    pub idx: u32,
+    pub idx: u16,
     pub event: GameReplayEvent,
     pub event_timestamp: i64,
     pub new_seed: GameSeed,
+    pub new_garbage_recv: u16,
+    pub new_garbage_applied: u16,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -541,7 +543,7 @@ pub struct CurrentPcsInfo {
     pub pos: (i8, i8), // max 40 , max 10 --> 6bit + 4bit = 10bit
     pub tet: Tet,      // 3bit
     pub rs: RotState,  // 2bit
-    pub id: u32,       // 14bit
+    pub id: u16,       // 14bit
 }
 
 impl GameState {
@@ -551,7 +553,7 @@ impl GameState {
             self.garbage_applied += 1;
         }
     }
-    pub fn apply_raw_garbage(&mut self, new_garbage: i64) {
+    pub fn apply_raw_garbage(&mut self, new_garbage: u16) {
         if new_garbage > self.garbage_recv {
             self.garbage_recv = new_garbage;
         }
@@ -634,7 +636,7 @@ impl GameState {
         self.total_lines += lines;
     }
 
-    fn add_score_for_clear_line(&mut self, lines: i64) {
+    fn add_score_for_clear_line(&mut self, lines: u16) {
         let mut score = 0;
         let mut score2 = 0;
         let mut score3 = 0;
@@ -672,7 +674,7 @@ impl GameState {
             };
         }
         self.is_b2b = (lines == 4) || (self.is_t_spin);
-        self.score += (score + score2 + score3) as i64;
+        self.score += (score + score2 + score3) as i32;
         self.is_t_spin = false;
         self.is_t_mini_spin = false;
         if lines > 0 {
@@ -681,7 +683,7 @@ impl GameState {
             self.combo_counter = -1;
         }
         if self.combo_counter > 0 {
-            self.score += 50 * self.combo_counter as i64;
+            self.score += 50 * self.combo_counter as i32;
         }
         self.total_garbage_sent += match self.combo_counter {
             1 | 2 => 1,
@@ -714,13 +716,15 @@ impl GameState {
         None
     }
     fn put_replay_event(&mut self, event: &GameReplayEvent, event_time: i64) {
-        let idx = self.replay.replay_slices.len() as u32;
-        let new_seed = accept_event(&self.seed, event, event_time, idx);
+        let idx = self.replay.replay_slices.len() as u16;
+        let new_seed = accept_event(&self.seed, event, event_time, idx as u32);
         let new_slice = GameReplaySlice {
             idx,
             event: event.clone(),
             new_seed,
             event_timestamp: event_time,
+            new_garbage_recv: self.garbage_recv,
+            new_garbage_applied: self.garbage_applied,
         };
         self.seed = new_slice.new_seed;
         // log::info!("put  replay event {new_slice:?}");
@@ -787,6 +791,8 @@ impl GameState {
                 );
             }
         }
+        // TODO FIGURE OUT BEFORE OR AFTER
+        self.garbage_recv = slice.new_garbage_recv;
         *self = self.try_action(slice.event.action, slice.event_timestamp)?;
         let self_slicce = self.replay.replay_slices.last().unwrap();
         if !slice.eq(self_slicce) {
@@ -861,7 +867,7 @@ impl GameState {
             soft_drops += 1;
         }
         self.score += 10;
-        self.score -= (soft_drops * 2) as i64;
+        self.score -= (soft_drops * 2) as i32;
         Ok(())
     }
 

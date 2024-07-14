@@ -64,12 +64,9 @@ impl GameStatePy {
     }
     // pub total_lines: i64,
     #[getter]
-    fn total_lines(&self) ->  PyResult<i64> {
+    fn total_lines(&self) ->  PyResult<u16> {
         Ok(self.inner.total_lines)
     }
-
-
-
 
     #[getter]
     fn is_t_spin(&self) ->  PyResult<bool> {
@@ -86,15 +83,15 @@ impl GameStatePy {
         Ok(self.inner.is_b2b)
     }
     #[getter]
-    fn combo_counter(&self) ->  PyResult<i32> {
+    fn combo_counter(&self) ->  PyResult<i8> {
         Ok(self.inner.combo_counter)
     }
     #[getter]
-    fn total_garbage_sent(&self) ->  PyResult<i64> {
+    fn total_garbage_sent(&self) ->  PyResult<u16> {
         Ok(self.inner.total_garbage_sent)
     }
     #[getter]
-    fn garbage_recv(&self) ->  PyResult<i64> {
+    fn garbage_recv(&self) ->  PyResult<u16> {
         Ok(self.inner.garbage_recv)
     }
     #[getter]
@@ -171,7 +168,7 @@ impl GameStatePy {
     }
 
     #[getter]
-    fn total_move_count(&self) -> PyResult<i32> {
+    fn total_move_count(&self) -> PyResult<u16> {
         Ok(self.inner.total_moves)
     }
 
@@ -186,7 +183,7 @@ impl GameStatePy {
     }
 
     #[getter]
-    fn score(&self) ->  PyResult<i64> {
+    fn score(&self) ->  PyResult<i32> {
         Ok(self.inner.score)
     }
 

@@ -264,7 +264,7 @@ fn is_game_over_because_sommething(
     })
 }
 
-fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<(i64, bool)> {
+fn other_game_lost(game_id: &GameId, match_info: &GameMatch) -> anyhow::Result<(u16, bool)> {
     for user in match_info.users.iter() {
         if *user != game_id.user_id {
             let other_game_id = GameId {

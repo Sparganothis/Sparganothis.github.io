@@ -42,7 +42,7 @@ pub fn BotGameBoard(
                     log::info!("game over because {:?}", gamme_over_reasoon)    ;    
                 })
             }
-            if _r.garbage > 0 {
+            if _r.garbage > 0 && _r.garbage > state.get_untracked().garbage_recv {
                 state.update(|state| {
                     state.apply_raw_garbage(_r.garbage);
                 } )
@@ -142,9 +142,11 @@ pub fn BotGameBoardSingle(
             let _t6 = current_time_in_6.get_untracked();
             current_time_in_6.set_untracked((current_time_in_6.get_untracked() + 1) % 6);
 
-            let r20percent =(&mut rand::thread_rng()).gen_bool(0.12);
-            if (_t6 == 0 || _t6 == 3 || _t6 == 5) ^ r20percent {
-                return;
+            if false { // jazz
+                let r20percent =(&mut rand::thread_rng()).gen_bool(0.12);
+                if (_t6 == 0 || _t6 == 3 || _t6 == 5) ^ r20percent {
+                    return;
+                }
             }
 
             state.update(move |state| {

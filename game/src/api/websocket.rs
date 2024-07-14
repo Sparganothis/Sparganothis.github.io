@@ -115,7 +115,7 @@ impl APIMethod for CreateNewGameId {
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AppendGameSegmentResponse {
     pub maybe_reason: Option<GameOverReason>,
-    pub garbage: i64,
+    pub garbage: u16,
 }
 
 pub struct AppendGameSegment {}
