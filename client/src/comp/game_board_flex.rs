@@ -26,9 +26,7 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
             "".to_string()
         }
     }).into_signal();
-    view!{
-        <FlexText text=timer_str size_cqh=10.0/>
-    }
+    view! { <FlexText text=timer_str size_cqh=10.0/> }
 }
 
 #[component]
@@ -248,7 +246,14 @@ pub fn GameBoardFlex(
                         </h3>
                     </div>
                     <div style="width:100%;height:37%;">
-                        {move || view!{ <FlexText size_cqh=10.0 text=format!("{}", game_state.get().get_debug_info())/> }}
+                        {move || {
+                            view! {
+                                <FlexText
+                                    size_cqh=10.0
+                                    text=format!("{}", game_state.get().get_debug_info())
+                                />
+                            }
+                        }}
                     </div>
                     <div style="width:100%;height:37%;">
                         <GameBoardTimer game_state pre_countdown_text/>

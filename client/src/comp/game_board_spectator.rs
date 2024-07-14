@@ -53,7 +53,8 @@ pub fn SpectatorGameBoard(game_id: GameId) -> impl IntoView {
             on_reset_game=on_reset
             player_id=game_id.user_id
             game_state=state
-            top_bar=view! { <FlexText size_cqh=30.0 text="spectating game"/> }.into_view()
+            top_bar=view! { <FlexText size_cqh=30.0 text="spectating game"/> }
+                .into_view()
         />
     }
 }

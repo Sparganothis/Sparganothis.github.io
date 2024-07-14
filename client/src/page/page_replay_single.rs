@@ -88,7 +88,9 @@ pub fn GameReplayBoardMini(    game_id: GameId) -> impl IntoView{
             game_state
             hide_controller=true
             player_id=game_id.user_id
-            top_bar_override=Some(view! { <FlexText size_cqh=30.0 text="mini replay"/> }.into_view())
+            top_bar_override=Some(
+                view! { <FlexText size_cqh=30.0 text="mini replay"/> }.into_view(),
+            )
         />
     }
 }

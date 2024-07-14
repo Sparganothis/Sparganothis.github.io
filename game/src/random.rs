@@ -14,9 +14,11 @@ pub fn get_random_seed() -> GameSeed {
     (&mut rand::thread_rng()).gen()
 }
 
-pub fn get_determinist_val<T>(seed: &GameSeed) -> T 
-where rand::distributions::Standard: rand::distributions::Distribution<T> {
-    let mut rng =get_rng(seed);
+pub fn get_determinist_val<T>(seed: &GameSeed) -> T
+where
+    rand::distributions::Standard: rand::distributions::Distribution<T>,
+{
+    let mut rng = get_rng(seed);
     rng.gen::<T>()
 }
 

@@ -144,13 +144,13 @@ pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
 
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     pub fn inject_single_garbage_line(&mut self, seed: GameSeed) {
-        let v: u8 = get_determinist_val::<u8>(&seed)  % C as u8 ;
+        let v: u8 = get_determinist_val::<u8>(&seed) % C as u8;
 
         // move all things up
-        for i in (0..(R-2)).rev() {
+        for i in (0..(R - 2)).rev() {
             for j in 0..C {
                 let lower: CellValue = self.get_cell(i as i8, j as i8).unwrap();
-                self.set_cell(i as i8+1, j as i8, lower);
+                self.set_cell(i as i8 + 1, j as i8, lower);
             }
         }
 
@@ -448,7 +448,7 @@ pub struct GameState {
     pub is_t_spin: bool,         // 1 bit
     pub is_t_mini_spin: bool,    // 1 bit
     pub is_b2b: bool,            // 1 bit
-    pub combo_counter: i8,      // 7 bit
+    pub combo_counter: i8,       // 7 bit
     pub main_board: BoardMatrix, // ?? bit
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
@@ -469,7 +469,7 @@ pub struct GameState {
     pub total_garbage_sent: u16, // 15 bit
     pub garbage_recv: u16,       // 15 bit
     pub garbage_applied: u16,
-    pub total_moves: u16,        // 16 bit
+    pub total_moves: u16, // 16 bit
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]

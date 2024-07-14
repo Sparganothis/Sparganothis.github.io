@@ -174,7 +174,11 @@ pub enum GetAllGamesArg {
 pub struct GetAllGames {}
 impl APIMethod for GetAllGames {
     const TYPE: WebsocketAPIMessageType = WebsocketAPIMessageType::GetAllGames;
-    type Req = (Option<GameMatchType>, GetAllGamesArg, TablePaginateDirection<GameId>);
+    type Req = (
+        Option<GameMatchType>,
+        GetAllGamesArg,
+        TablePaginateDirection<GameId>,
+    );
     type Resp = Vec<(GameId, GameSegmentCountReply)>;
 }
 

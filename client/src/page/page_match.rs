@@ -123,9 +123,9 @@ pub fn MatchPage() -> impl IntoView {
 
         <div class="main_mid">
             <div style="height:10%;">
-                <FlexText text="vs." />
+                <FlexText text="vs."/>
             </div>
-            // <p>{title_sig}</p>
+        // <p>{title_sig}</p>
         </div>
 
         <div class="main_right">{move || right_view.get()}</div>
