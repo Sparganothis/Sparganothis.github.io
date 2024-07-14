@@ -254,6 +254,7 @@ pub fn GameBoardFlex(
                                 />
                             }
                         }}
+
                     </div>
                     <div style="width:100%;height:37%;">
                         <GameBoardTimer game_state pre_countdown_text/>
