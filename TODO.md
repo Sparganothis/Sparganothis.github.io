@@ -9,6 +9,15 @@
 - second user when visiting link is auto-matchmake with first user
 - match starts
 
+## private / public rooms
+- create public/private roomm
+- list all publicc/private room
+- share link to public/private roomm; other users when clicking link are joined to room
+- auto-exit room at disconnect
+- auto-ccreate mmatrix room for game room
+- connect matrix chat with game using SSO/OIDC/rust-???
+- create public matrix app for gamme
+
 ## fix public matchmmake
 - timeout 30s - if not found public match, exit and try again
 - button to abort public matchmake - run automatically on_cleanup in leptos + BIG RED BUTTON "give up"
