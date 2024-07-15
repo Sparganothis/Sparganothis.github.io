@@ -31,7 +31,6 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
 
 
 #[component]
-#[allow(unused_variables)]
 pub fn GameBoardFlex(
     #[prop(into)] game_state: RwSignal<tet::GameState>,
 
@@ -56,6 +55,7 @@ pub fn GameBoardFlex(
     // bottom_bar: View,
 
     #[prop(default = false)]
+    #[allow(unused_variables)]
     enable_sound: bool,
 
     player_id: uuid::Uuid,
