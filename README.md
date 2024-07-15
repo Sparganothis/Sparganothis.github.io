@@ -17,6 +17,12 @@ pip install sparganothis_vim
 - install "vscode" including "rust-analyzer" plugin
 - install "git for windows" including "bash"
 - install "sass" using npm: `npm install -g sass`
+- clone this repository: `Sparganothis`
+- add exception to MS WIndows Defender Active Protection:
+  - trust me bro
+  - go "Control Panel" > "Virus thread Protection" > (middle) "Manage Settings" > (bottom) "Exclusions"
+  - add folders: `Sparganothis`, `$USER/.cargo`, `$USER/.rustup`
+  - if you skip this step, compilation and auto-refresh will be very slow.
 - run commands in vscode bash terminal
 
 

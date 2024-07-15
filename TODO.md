@@ -33,6 +33,11 @@
 - lose game (abandon button)
 
 
+## build
+
+- sound effect when build cvompletted
+
+
 
 ## extra feature : replayt
 - show gamme states about #6666 
