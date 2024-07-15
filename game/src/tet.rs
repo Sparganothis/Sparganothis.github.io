@@ -608,7 +608,7 @@ pub struct GameState {
 
     pub last_segment: GameReplaySegment, // OK
     pub last_segment_idx: u16,
-    
+
     // pub next_pcs: VecDeque<Tet>,             // 42 bit
     pub next_pcs_bags: [Tet; 14],
     pub next_pcs_idx: u8,
@@ -718,12 +718,12 @@ impl GameState {
     }
 
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
-        let (bag1, seed1) =  shuffle_tets(&seed, start_time);
+        let (bag1, seed1) = shuffle_tets(&seed, start_time);
         let (bag2, seed2) = shuffle_tets(&seed1, start_time);
-        let mut next_pcs_bags = [Tet::I;14];
+        let mut next_pcs_bags = [Tet::I; 14];
         for i in 0..7 {
             next_pcs_bags[i] = bag1[i];
-            next_pcs_bags[i+7]= bag2[i];
+            next_pcs_bags[i + 7] = bag2[i];
         }
         let mut new_state = Self {
             score: 0,
@@ -883,13 +883,13 @@ impl GameState {
         log::info!("XXXX refill next pcs: {}", self.next_pcs_idx);
         if self.next_pcs_idx >= 7 {
             for i in 0..7 {
-                self.next_pcs_bags[i] = self.next_pcs_bags[i+7];
+                self.next_pcs_bags[i] = self.next_pcs_bags[i + 7];
             }
-            self.next_pcs_idx -=7;
+            self.next_pcs_idx -= 7;
             // log::info!("next refill");
             let (new_pcs2, new_seed) = shuffle_tets(&self.seed, event_time);
             for (i, n) in new_pcs2.iter().enumerate() {
-                self.next_pcs_bags[i+7] = *n;
+                self.next_pcs_bags[i + 7] = *n;
             }
             self.seed = new_seed;
         }
@@ -901,7 +901,11 @@ impl GameState {
         self.next_pcs_idx += 1;
         v
     }
-    fn put_next_piece(&mut self, _event_time: i64, maybe_next_pcs: Option<Tet>) -> anyhow::Result<()> {
+    fn put_next_piece(
+        &mut self,
+        _event_time: i64,
+        maybe_next_pcs: Option<Tet>,
+    ) -> anyhow::Result<()> {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
             anyhow::bail!("already have next pcs");
@@ -979,7 +983,7 @@ impl GameState {
     pub fn get_next_pcs(&self) -> Vec<Tet> {
         let mut v = Vec::<Tet>::new();
         for i in 0..5 {
-            v.push(self.next_pcs_bags[self.next_pcs_idx as usize+i]);
+            v.push(self.next_pcs_bags[self.next_pcs_idx as usize + i]);
         }
         v
     }
@@ -1029,7 +1033,9 @@ impl GameState {
 
         let maybe_old_hold = if let Some(ref old_hold) = old_hold {
             Some(old_hold.tet)
-        } else {None};
+        } else {
+            None
+        };
         self.put_next_piece(event_time, maybe_old_hold)?;
         self.hold_pcs = Some(HoldPcsInfo {
             tet: current_pcs.tet,
