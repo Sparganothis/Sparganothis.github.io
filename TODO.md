@@ -2,6 +2,41 @@
 
 # todo
 
+## friendly match
+- button to generate friendly match
+- generate link unique with secret key
+- first user sends link to second user
+- second user when visiting link is auto-matchmake with first user
+- match starts
+
+## fix public matchmmake
+- timeout 30s - if not found public match, exit and try again
+- button to abort public matchmake - run automatically on_cleanup in leptos + BIG RED BUTTON "give up"
+- display recent mmamtchmake entry - usernaem + seconds ago + successful matches + past match result (like CS kill feed)
+- block cconcurrent matchmake from 2 tabs -- fix error
+
+## user managemment, usage tracking
+- feedback mamtrix bot + global mmatrix bot
+  - start from "matrix commmand bot"
+  - https://github.com/matrix-org/matrix-rust-sdk/blob/main/examples/command_bot/src/main.rs
+  - report feedback in UI
+  - all feedback msg go to me
+  - when I reply to the matrix bot, user gets response in their chet
+- connect with mmatrix for general chat
+  - iframe with #public channel
+  - 
+
+- user account creation
+- login with other device
+   - first device gives you 6 digit code / QR
+   - second device scan / enter code/QR
+   - click OK on both device
+- global dashboard track
+  - games
+  - pageviews/logins
+  - matches
+  - id country counter
+  - show flag in profile
 
 ## mmultiplayer + singleplayer
 - win game (40 lines)
@@ -161,3 +196,10 @@
 ### whatever
 
   winamp music stream play pause music in corner of screen(youtube playlist)
+
+
+### matrix app/integrration to challenge chatmember to game
+- slack marketplace app to add and challenge to game
+- mattermost marketplace
+- ms teams & ms store
+- "DUEL" / "CHALLENGE"

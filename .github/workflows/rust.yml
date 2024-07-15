@@ -46,8 +46,8 @@ jobs:
       with:
         node-version: 20
         
-    - name: npm install wasm-pack
-      run: npm install wasm-pack
+    # - name: npm install wasm-pack
+    #   run: npm install wasm-pack || ( sleep 5 && npm install wasm-pack )
 
     - uses: Swatinem/rust-cache@v2
       with:
