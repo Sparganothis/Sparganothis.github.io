@@ -8,7 +8,6 @@ use super::rot::{RotDirection, RotState, Shape};
 
 use super::random::*;
 
-use std::collections::VecDeque;
 use std::time::Duration;
 #[derive(
     Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord,
@@ -439,7 +438,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
         Ok(())
     }
-    pub fn spawn_nextpcs(&mut self, next_pcs: &VecDeque<Tet>) {
+    pub fn spawn_nextpcs(&mut self, next_pcs: &Vec<Tet>) {
         let col: i8 = 0;
         let mut row: i8 = R as i8 - 4;
         for (i, piece) in next_pcs.iter().enumerate() {
@@ -580,7 +579,7 @@ impl TetAction {
 pub const SIDE_BOARD_WIDTH: usize = 4;
 type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameState {
     pub score: i32,              // 24 bits
     pub is_t_spin: bool,         // 1 bit
@@ -591,7 +590,6 @@ pub struct GameState {
     // pub next_board: BoardMatrixNext,
     // pub hold_board: BoardMatrixHold,
     pub last_action: TetAction,              // 3 bit
-    pub next_pcs: VecDeque<Tet>,             // 42 bit
     pub current_pcs: Option<CurrentPcsInfo>, // 29 bit
     pub current_id: u16,                     // 13 bit
 
@@ -610,9 +608,13 @@ pub struct GameState {
 
     pub last_segment: GameReplaySegment, // OK
     pub last_segment_idx: u16,
+    
+    // pub next_pcs: VecDeque<Tet>,             // 42 bit
+    pub next_pcs_bags: [Tet; 14],
+    pub next_pcs_idx: u8,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplayInit {
     pub init_seed: GameSeed,
     pub start_time: i64,
@@ -635,7 +637,7 @@ pub enum GameOverReason {
     Win,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameReplaySegment {
     Init(GameReplayInit),
     Update(GameReplaySlice),
@@ -651,7 +653,7 @@ pub enum GameReplaySegment {
 //     }
 // }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplaySlice {
     pub event_timestamp: i64,
     pub new_seed: GameSeed,
@@ -661,7 +663,7 @@ pub struct GameReplaySlice {
     pub event: GameReplayEvent,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameReplayEvent {
     pub action: TetAction,
     // pub game_over: bool,
@@ -669,7 +671,7 @@ pub struct GameReplayEvent {
 
 const SPAWN_POS: (i8, i8) = (18, 3);
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HoldPcsInfo {
     pub can_use: bool,
     pub tet: Tet,
@@ -716,6 +718,13 @@ impl GameState {
     }
 
     pub fn new(seed: &GameSeed, start_time: i64) -> Self {
+        let (bag1, seed1) =  shuffle_tets(&seed, start_time);
+        let (bag2, seed2) = shuffle_tets(&seed1, start_time);
+        let mut next_pcs_bags = [Tet::I;14];
+        for i in 0..7 {
+            next_pcs_bags[i] = bag1[i];
+            next_pcs_bags[i+7]= bag2[i];
+        }
         let mut new_state = Self {
             score: 0,
             combo_counter: -1,
@@ -726,12 +735,11 @@ impl GameState {
             // next_board: BoardMatrixNext::empty(),
             // hold_board: BoardMatrixHold::empty(),
             last_action: TetAction::Nothing,
-            next_pcs: VecDeque::new(),
             current_pcs: None,
             game_over_reason: None,
             hold_pcs: None,
             current_id: 0,
-            seed: *seed,
+            seed: seed2,
             init_seed: *seed,
             last_segment: GameReplaySegment::Init(GameReplayInit::empty(
                 seed, start_time,
@@ -743,9 +751,10 @@ impl GameState {
             garbage_recv: 0,
             total_moves: 0,
             garbage_applied: 0,
+            next_pcs_idx: 0,
+            next_pcs_bags,
         };
-        new_state.refill_nextpcs(start_time);
-        let _ = new_state.put_next_piece(start_time);
+        let _ = new_state.put_next_piece(start_time, None);
         new_state.put_ghost();
         new_state
     }
@@ -871,16 +880,28 @@ impl GameState {
     }
 
     fn refill_nextpcs(&mut self, event_time: i64) {
-        while self.next_pcs.len() < 6 {
+        log::info!("XXXX refill next pcs: {}", self.next_pcs_idx);
+        if self.next_pcs_idx >= 7 {
+            for i in 0..7 {
+                self.next_pcs_bags[i] = self.next_pcs_bags[i+7];
+            }
+            self.next_pcs_idx -=7;
             // log::info!("next refill");
             let (new_pcs2, new_seed) = shuffle_tets(&self.seed, event_time);
-            for n in new_pcs2 {
-                self.next_pcs.push_back(n);
+            for (i, n) in new_pcs2.iter().enumerate() {
+                self.next_pcs_bags[i+7] = *n;
             }
             self.seed = new_seed;
         }
     }
-    fn put_next_piece(&mut self, _event_time: i64) -> anyhow::Result<()> {
+    fn pop_next_pcs(&mut self, event_time: i64) -> Tet {
+        self.refill_nextpcs(event_time);
+        let v = self.next_pcs_bags[self.next_pcs_idx as usize];
+        log::info!("XXXX pop next pcs += 1");
+        self.next_pcs_idx += 1;
+        v
+    }
+    fn put_next_piece(&mut self, _event_time: i64, maybe_next_pcs: Option<Tet>) -> anyhow::Result<()> {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
             anyhow::bail!("already have next pcs");
@@ -893,7 +914,11 @@ impl GameState {
 
         self.clear_line();
         self.add_pending_garbage();
-        let next_tet = self.next_pcs.pop_front().unwrap();
+        log::info!("XXXXX  caller next pcs: {:?}", maybe_next_pcs);
+        let next_tet = match maybe_next_pcs {
+            None => self.pop_next_pcs(_event_time),
+            Some(x) => x,
+        };
 
         self.current_pcs = Some(CurrentPcsInfo {
             pos: next_tet.spawn_pos(),
@@ -946,8 +971,24 @@ impl GameState {
     }
     pub fn get_next_board(&self) -> BoardMatrixNext {
         let mut b = BoardMatrixNext::empty();
-        b.spawn_nextpcs(&self.next_pcs);
+        let vnext = self.get_next_pcs();
+        b.spawn_nextpcs(&vnext);
         b
+    }
+
+    pub fn get_next_pcs(&self) -> Vec<Tet> {
+        let mut v = Vec::<Tet>::new();
+        for i in 0..5 {
+            v.push(self.next_pcs_bags[self.next_pcs_idx as usize+i]);
+        }
+        v
+    }
+
+    pub fn set_next_pcs(&mut self, new: Vec<Tet>) {
+        self.next_pcs_idx = 0;
+        for i in 0..(new.len().min(14)) {
+            self.next_pcs_bags[i] = new[i];
+        }
     }
 
     pub fn get_hold_board(&self) -> BoardMatrixHold {
@@ -986,10 +1027,10 @@ impl GameState {
         }
         self.current_pcs = None;
 
-        if let Some(ref old_hold) = old_hold {
-            self.next_pcs.push_front(old_hold.tet);
-        }
-        self.put_next_piece(event_time)?;
+        let maybe_old_hold = if let Some(ref old_hold) = old_hold {
+            Some(old_hold.tet)
+        } else {None};
+        self.put_next_piece(event_time, maybe_old_hold)?;
         self.hold_pcs = Some(HoldPcsInfo {
             tet: current_pcs.tet,
             can_use: false,
@@ -1027,7 +1068,7 @@ impl GameState {
         } else {
             self.main_board.spawn_piece(&current_pcs).unwrap();
             self.current_pcs = None;
-            self.put_next_piece(event_time)?;
+            self.put_next_piece(event_time, None)?;
         }
         Ok(())
     }
@@ -1124,7 +1165,6 @@ impl GameState {
         }
         let mut new = self.clone();
         new.last_action = action;
-        new.refill_nextpcs(event_time);
 
         match action {
             TetAction::HardDrop => {

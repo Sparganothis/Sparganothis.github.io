@@ -154,14 +154,11 @@ pub fn NextPeaceSelector(game_state: RwSignal<GameState>) -> impl IntoView {
     let get_next = move || {
         game_state
             .get()
-            .next_pcs
-            .iter()
-            .cloned()
-            .collect::<Vec<_>>()
+            .get_next_pcs()
     };
     let set_next = Callback::new(move |v: Vec<Tet>| {
         game_state.update(|game_state| {
-            game_state.next_pcs = v.iter().cloned().collect::<VecDeque<_>>();
+            game_state.set_next_pcs(v.clone());
         })
     });
     view! {
