@@ -608,8 +608,7 @@ pub struct GameState {
     pub garbage_applied: u16,
     pub total_moves: u16, // 16 bit
 
-    
-    pub last_segment: GameReplaySegment,  // OK
+    pub last_segment: GameReplaySegment, // OK
     pub last_segment_idx: u16,
 }
 
@@ -734,7 +733,9 @@ impl GameState {
             current_id: 0,
             seed: *seed,
             init_seed: *seed,
-            last_segment: GameReplaySegment::Init(GameReplayInit::empty(seed, start_time)),
+            last_segment: GameReplaySegment::Init(GameReplayInit::empty(
+                seed, start_time,
+            )),
             last_segment_idx: 0,
             start_time,
             total_lines: 0,
@@ -1340,9 +1341,10 @@ pub mod tests {
                 if let Ok(new_active_game) = res {
                     active_game = new_active_game;
                 } else {
-                    continue
+                    continue;
                 }
-                if let GameReplaySegment::Update(ref update) = active_game.last_segment {
+                if let GameReplaySegment::Update(ref update) = active_game.last_segment
+                {
                     _slices.push(update.clone());
                 }
                 if active_game.game_over() {
