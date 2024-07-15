@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::tet::Tet;
 
+#[inline(always)]
 pub fn srs_offsets(before: RotState, after: RotState, tet: Tet) -> Vec<(i8, i8)> {
     match tet {
         Tet::I => match (before, after) {
@@ -75,6 +76,7 @@ pub enum RotState {
 }
 
 impl RotState {
+    #[inline(always)]
     pub fn rotate(&self, rot: RotDirection) -> Self {
         match (self, rot) {
             (&Self::R0, RotDirection::Left) => Self::R3,

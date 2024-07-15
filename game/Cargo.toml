@@ -3,6 +3,13 @@ name = "game"
 version = "0.1.33"
 edition = "2021"
 
+[profile.dev]
+opt-level = 1
+[profile.test]
+opt-level = 1
+[profile.dev.package."*"]
+opt-level = 3
+
 [dependencies]
 serde_with = "3.8"
 log = "0.4"
@@ -26,6 +33,7 @@ timediff = "0.2.3"
 wasm-bindgen-test = "0.3"
 
 bitfield-struct = "0.8.0"
+once_cell = {version="1.18"}
 # endian-num = "0.1.1"
 
 [dev-dependencies]

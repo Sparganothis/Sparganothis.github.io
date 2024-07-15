@@ -172,6 +172,7 @@ dependencies = [
  "getrandom",
  "hex",
  "log",
+ "once_cell",
  "rand",
  "rand_chacha",
  "serde",

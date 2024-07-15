@@ -23,7 +23,23 @@ pub enum Tet {
     O,
 }
 
+
+use once_cell::sync::Lazy;
+
+pub static ALL_SHAPES: Lazy<std::collections::HashMap<(RotState, Tet), Shape>> = Lazy::new(|| {
+    let mut h = std::collections::HashMap::<_,_>::new();
+    for t in Tet::all() {
+        for r in [RotState::R0,RotState::R1,RotState::R2,RotState::R3,] {
+            let key = (r, t);
+            let val = t.make_shape(r);
+            h.insert(key, val);
+        }
+    }
+    h
+});
+
 impl Tet {
+    #[inline(always)]
     pub fn spawn_pos(&self) -> (i8, i8) {
         const O_SPAWN_POS: (i8, i8) = (SPAWN_POS.0 + 1, SPAWN_POS.1 + 1);
         const I_SPAWN_POS: (i8, i8) = (SPAWN_POS.0 - 1, SPAWN_POS.1);
@@ -45,8 +61,13 @@ impl Tet {
         }
     }
 
+    #[inline(always)]
     pub fn shape(&self, rot_state: super::rot::RotState) -> Shape {
-        let mut sh = self.orig_shape();
+        ALL_SHAPES.get(&(rot_state, *self)).expect("rot shape combo not found; lazy not initialized.").to_owned()
+    }
+
+    fn make_shape(&self, rot_state: super::rot::RotState) -> Shape {
+        let mut sh = self.make_orig_shape();
         match rot_state {
             super::rot::RotState::R0 => {}
 
@@ -68,7 +89,7 @@ impl Tet {
         sh
     }
 
-    pub fn orig_shape(&self) -> Shape {
+    fn make_orig_shape(&self) -> Shape {
         match self {
             &Self::I => vec![
                 vec![false, false, false, false],
@@ -111,6 +132,7 @@ impl Tet {
         let mut rng = thread_rng();
         *choices.choose(&mut rng).unwrap()
     }
+    #[inline(always)]
     pub fn all() -> Vec<Self> {
         vec![
             Self::I,
@@ -136,6 +158,7 @@ pub enum CellValue {
 
 impl CellValue {
     // This has to be a const fn
+    #[inline(always)]
     const fn into_bits(self) -> u8 {
         match self {
             CellValue::Empty         => 0,
@@ -150,6 +173,7 @@ impl CellValue {
             CellValue::Ghost         => 9,
         }
     }
+    #[inline(always)]
     const fn from_bits(value: u8) -> Self {
         match value {     
             0  =>  CellValue::Empty         ,       
@@ -186,9 +210,11 @@ pub struct CellValuePairByte {
     val1: CellValue,
 }
 impl CellValuePairByte {
+    #[inline(always)]
     fn empty() -> Self {
         Self::new().with_val0(CellValue::Empty).with_val1(CellValue::Empty)
     }
+    #[inline(always)]
     fn get(&self, idx: i8) -> CellValue {
         match idx {
             0 => self.val0(),
@@ -196,6 +222,7 @@ impl CellValuePairByte {
             _ => panic!("invalid index {idx} not in [0,1]")
         }
     }
+    #[inline(always)]
     fn set(&mut self, idx: i8, new:CellValue) {
         *self = match idx {
             0 => self.with_val0(new),
@@ -213,19 +240,23 @@ pub struct CellValueRow10 {
 }
 
 impl CellValueRow10 {
+    #[inline(always)]
     fn empty() -> Self {
         Self {
             v_r: [CellValuePairByte::empty(); 5]
         }
     }
+    #[inline(always)]
     fn get(&self, idx: i8) -> CellValue {
         assert!(idx >= 0 && idx <= 9, "bad idx: {idx} expected: 0..=4");
         self.v_r[idx as usize/2].get(idx % 2)
     }
+    #[inline(always)]
     fn set(&mut self, idx: i8, new:CellValue) {
         assert!(idx >= 0 && idx <= 9, "bad idx: {idx} expected: 0..=4");
         self.v_r[idx as usize/2].set(idx%2, new);
     }
+    #[inline(always)]
     fn to_cells(&self) -> [CellValue;10] {
         [
             self.v_r[0].get(0),
@@ -249,10 +280,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
 
         // move all things up
         for i in (0..(R - 2)).rev() {
-            for j in 0..C {
-                let lower: CellValue = self.get_cell(i as i8, j as i8).unwrap();
-                self.set_cell(i as i8 + 1, j as i8, lower);
-            }
+                self.vv[i as usize + 1] = self.vv[i as usize];
         }
 
         for x in 0..(C as i8) {
@@ -263,6 +291,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             }
         }
     }
+    #[inline(always)]
     pub fn get_cell(&self, y: i8, x: i8) -> Option<CellValue> {
         if x < 0 || y < 0 || x >= (C as i8) || y >= (R as i8) {
             None
@@ -271,6 +300,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
         }
     }
 
+    #[inline(always)]
     pub fn set_cell(&mut self, y: i8, x: i8, v: CellValue) {
         self.vv[y as usize].set(x as i8, v);
     }
@@ -281,15 +311,18 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
             .map(|r| r.to_cells().iter().take(C).cloned().collect())
             .collect()
     }
+    #[inline(always)]
     pub fn empty() -> Self {
         Self {
             vv: [CellValueRow10::empty(); R],
         }
     }
 
+    #[inline(always)]
     pub fn get_num_rows(&self) -> usize {
         R
     }
+    #[inline(always)]
     pub fn get_num_cols(&self) -> usize {
         C
     }
@@ -726,10 +759,7 @@ impl GameState {
         let mut lines = 0;
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
-                for j in 0..10 {
-                    let upper = self.main_board.get_cell(i + 1, j).unwrap();
-                    self.main_board.set_cell(i, j, upper);
-                }
+                self.main_board.vv[i as usize] = self.main_board.vv[i as usize+1];
             }
             lines += 1;
         }
