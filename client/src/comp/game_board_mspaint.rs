@@ -1,6 +1,5 @@
 use leptonic::prelude::*;
 use leptos_router::{use_navigate, use_params_map, NavigateOptions};
-use std::collections::VecDeque;
 
 use game::{
     api::websocket::{GetCustomGame, GetRandomWord, UpdateCustomGame}, bot::get_bot_id, tet::{CellValue, CurrentPcsInfo, GameState, Tet}

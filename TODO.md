@@ -37,6 +37,8 @@
 
 - sound effect when build cvompletted
 
+## 
+
 
 
 ## extra feature : replayt
@@ -59,6 +61,7 @@
 - API ROUTES IGNORE _PAG PARAM
 
 ## custom game / mspaint
+- -fix mmspaint nextpcps selector & use selected pcs when playing mspainyt (not deterministic random next pcs)
 - save a difgferent strucct "GameBoardCustomM" that only contains editable things in mspaint.exe (avoid dropping old custom game baords)
 
 ## bugs
