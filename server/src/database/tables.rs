@@ -18,7 +18,7 @@ pub static TABLES_DB: Lazy<sled::Db> =
 
 // ============= VERSIONS  ==============
 
-const GAME_STATE_VERSION: usize = 3;
+const GAME_STATE_VERSION: usize = 4;
 const GAME_MATCH_VERSION: usize = 2;
 
 // ============= USER PROFILE ==============
