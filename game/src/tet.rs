@@ -23,20 +23,20 @@ pub enum Tet {
     O,
 }
 
-
 use once_cell::sync::Lazy;
 
-pub static ALL_SHAPES: Lazy<std::collections::HashMap<(RotState, Tet), Shape>> = Lazy::new(|| {
-    let mut h = std::collections::HashMap::<_,_>::new();
-    for t in Tet::all() {
-        for r in [RotState::R0,RotState::R1,RotState::R2,RotState::R3,] {
-            let key = (r, t);
-            let val = t.make_shape(r);
-            h.insert(key, val);
+pub static ALL_SHAPES: Lazy<std::collections::HashMap<(RotState, Tet), Shape>> =
+    Lazy::new(|| {
+        let mut h = std::collections::HashMap::<_, _>::new();
+        for t in Tet::all() {
+            for r in [RotState::R0, RotState::R1, RotState::R2, RotState::R3] {
+                let key = (r, t);
+                let val = t.make_shape(r);
+                h.insert(key, val);
+            }
         }
-    }
-    h
-});
+        h
+    });
 
 impl Tet {
     #[inline(always)]
@@ -63,7 +63,10 @@ impl Tet {
 
     #[inline(always)]
     pub fn shape(&self, rot_state: super::rot::RotState) -> Shape {
-        ALL_SHAPES.get(&(rot_state, *self)).expect("rot shape combo not found; lazy not initialized.").to_owned()
+        ALL_SHAPES
+            .get(&(rot_state, *self))
+            .expect("rot shape combo not found; lazy not initialized.")
+            .to_owned()
     }
 
     fn make_shape(&self, rot_state: super::rot::RotState) -> Shape {
@@ -161,7 +164,7 @@ impl CellValue {
     #[inline(always)]
     const fn into_bits(self) -> u8 {
         match self {
-            CellValue::Empty         => 0,
+            CellValue::Empty => 0,
             CellValue::Piece(Tet::I) => 1,
             CellValue::Piece(Tet::L) => 2,
             CellValue::Piece(Tet::J) => 3,
@@ -169,23 +172,23 @@ impl CellValue {
             CellValue::Piece(Tet::S) => 5,
             CellValue::Piece(Tet::Z) => 6,
             CellValue::Piece(Tet::O) => 7,
-            CellValue::Garbage       => 8,
-            CellValue::Ghost         => 9,
+            CellValue::Garbage => 8,
+            CellValue::Ghost => 9,
         }
     }
     #[inline(always)]
     const fn from_bits(value: u8) -> Self {
-        match value {     
-            0  =>  CellValue::Empty         ,       
-            1  =>  CellValue::Piece(Tet::I) ,
-            2  =>  CellValue::Piece(Tet::L) ,
-            3  =>  CellValue::Piece(Tet::J) ,
-            4  =>  CellValue::Piece(Tet::T) ,
-            5  =>  CellValue::Piece(Tet::S) ,
-            6  =>  CellValue::Piece(Tet::Z) ,
-            7  =>  CellValue::Piece(Tet::O) ,
-            8  =>  CellValue::Garbage       ,
-            9 =>   CellValue::Ghost         ,
+        match value {
+            0 => CellValue::Empty,
+            1 => CellValue::Piece(Tet::I),
+            2 => CellValue::Piece(Tet::L),
+            3 => CellValue::Piece(Tet::J),
+            4 => CellValue::Piece(Tet::T),
+            5 => CellValue::Piece(Tet::S),
+            6 => CellValue::Piece(Tet::Z),
+            7 => CellValue::Piece(Tet::O),
+            8 => CellValue::Garbage,
+            9 => CellValue::Ghost,
             _ => CellValue::Empty,
         }
     }
@@ -212,22 +215,24 @@ pub struct CellValuePairByte {
 impl CellValuePairByte {
     #[inline(always)]
     fn empty() -> Self {
-        Self::new().with_val0(CellValue::Empty).with_val1(CellValue::Empty)
+        Self::new()
+            .with_val0(CellValue::Empty)
+            .with_val1(CellValue::Empty)
     }
     #[inline(always)]
     fn get(&self, idx: i8) -> CellValue {
         match idx {
             0 => self.val0(),
             1 => self.val1(),
-            _ => panic!("invalid index {idx} not in [0,1]")
+            _ => panic!("invalid index {idx} not in [0,1]"),
         }
     }
     #[inline(always)]
-    fn set(&mut self, idx: i8, new:CellValue) {
+    fn set(&mut self, idx: i8, new: CellValue) {
         *self = match idx {
             0 => self.with_val0(new),
             1 => self.with_val1(new),
-            _ => panic!("invalid index {idx} not in [0,1]")
+            _ => panic!("invalid index {idx} not in [0,1]"),
         }
     }
 }
@@ -243,21 +248,21 @@ impl CellValueRow10 {
     #[inline(always)]
     fn empty() -> Self {
         Self {
-            v_r: [CellValuePairByte::empty(); 5]
+            v_r: [CellValuePairByte::empty(); 5],
         }
     }
     #[inline(always)]
     fn get(&self, idx: i8) -> CellValue {
         assert!(idx >= 0 && idx <= 9, "bad idx: {idx} expected: 0..=4");
-        self.v_r[idx as usize/2].get(idx % 2)
+        self.v_r[idx as usize / 2].get(idx % 2)
     }
     #[inline(always)]
-    fn set(&mut self, idx: i8, new:CellValue) {
+    fn set(&mut self, idx: i8, new: CellValue) {
         assert!(idx >= 0 && idx <= 9, "bad idx: {idx} expected: 0..=4");
-        self.v_r[idx as usize/2].set(idx%2, new);
+        self.v_r[idx as usize / 2].set(idx % 2, new);
     }
     #[inline(always)]
-    fn to_cells(&self) -> [CellValue;10] {
+    fn to_cells(&self) -> [CellValue; 10] {
         [
             self.v_r[0].get(0),
             self.v_r[0].get(1),
@@ -273,14 +278,13 @@ impl CellValueRow10 {
     }
 }
 
-
 impl<const R: usize, const C: usize> BoardMatrix<R, C> {
     pub fn inject_single_garbage_line(&mut self, seed: GameSeed) {
         let v: u8 = get_determinist_val::<u8>(&seed) % C as u8;
 
         // move all things up
         for i in (0..(R - 2)).rev() {
-                self.vv[i as usize + 1] = self.vv[i as usize];
+            self.vv[i as usize + 1] = self.vv[i as usize];
         }
 
         for x in 0..(C as i8) {
@@ -759,7 +763,7 @@ impl GameState {
         let mut lines = 0;
         while let Some(line) = self.can_clear_line() {
             for i in line..39 {
-                self.main_board.vv[i as usize] = self.main_board.vv[i as usize+1];
+                self.main_board.vv[i as usize] = self.main_board.vv[i as usize + 1];
             }
             lines += 1;
         }

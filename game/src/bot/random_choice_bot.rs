@@ -6,12 +6,11 @@ use super::TetBot;
 
 pub struct RandomChoiceBot;
 
-
 use once_cell::sync::Lazy;
 
 pub static ALL_MOVE_CHAINS: Lazy<Vec<Vec<TetAction>>> =
     Lazy::new(|| make_all_move_chains());
-pub fn get_all_move_chains() ->  Vec<Vec<TetAction>> {
+pub fn get_all_move_chains() -> Vec<Vec<TetAction>> {
     ALL_MOVE_CHAINS.clone()
 }
 fn make_all_move_chains() -> Vec<Vec<TetAction>> {
@@ -55,7 +54,7 @@ pub fn get_action_chain_score<F>(
     game_state: &GameState,
     action_chain: &Vec<TetAction>,
     f: F,
-    cache: &mut collections::HashMap::<Vec<TetAction>, anyhow::Result<GameState>>,
+    cache: &mut collections::HashMap<Vec<TetAction>, anyhow::Result<GameState>>,
 ) -> anyhow::Result<f64>
 where
     F: Fn(&GameState, &GameState) -> anyhow::Result<f64>,
@@ -79,18 +78,21 @@ where
                 } else {
                     r.map(|_x| state)
                 }
-            },
-            Err(e) => anyhow::Result::Err(anyhow::anyhow!("{e}"))
+            }
+            Err(e) => anyhow::Result::Err(anyhow::anyhow!("{e}")),
         };
 
         cache.insert(_current_chain.clone(), new_result);
     }
 
-    let state = cache.get(action_chain).expect("result not found in cache after iterating");
+    let state = cache
+        .get(action_chain)
+        .expect("result not found in cache after iterating");
     let mut state = match state {
         Err(e) => anyhow::bail!("{e}"),
-        Ok(state) => state
-    }.clone();
+        Ok(state) => state,
+    }
+    .clone();
 
     if state.game_over() {
         anyhow::bail!("action leads to game over");
@@ -129,10 +131,13 @@ where
 
     let mut best_action_chain = vec![TetAction::SoftDrop];
     let mut best_acction_score = f64::MIN;
-    let mut action_result_cache = collections::HashMap::<Vec<TetAction>, anyhow::Result<GameState>>::new();
+    let mut action_result_cache =
+        collections::HashMap::<Vec<TetAction>, anyhow::Result<GameState>>::new();
     action_result_cache.insert(vec![], Ok(game_state.clone()));
     for act in all_action_chains {
-        if let Ok(sccore) = get_action_chain_score(&game_state, &act, &f, &mut action_result_cache) {
+        if let Ok(sccore) =
+            get_action_chain_score(&game_state, &act, &f, &mut action_result_cache)
+        {
             if sccore > best_acction_score {
                 best_acction_score = sccore;
                 best_action_chain = act.clone();
