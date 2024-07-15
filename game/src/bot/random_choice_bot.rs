@@ -113,14 +113,9 @@ pub fn get_best_move_for_score_fn<F>(
 where
     F: Fn(&GameState, &GameState) -> anyhow::Result<f64>,
 {
-    let game_state = {
-        if game_state.game_over() {
-            return Ok(vec![]);
-        }
-        let mut game_state = game_state.clone();
-        game_state.replay.replay_slices.clear();
-        game_state
-    };
+    if game_state.game_over() {
+        return Ok(vec![]);
+    }
     let mut all_action_chains = get_all_move_chains();
 
     use rand::seq::SliceRandom;

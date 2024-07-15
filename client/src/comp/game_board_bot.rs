@@ -5,7 +5,7 @@ use crate::websocket::demo_comp::call_api_sync;
 use game::api::{game_replay::GameId, websocket::*};
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
-use game::tet::{self, GameReplaySegment, GameState};
+use game::tet::{self, GameState};
 use leptos::*;
 use rand::Rng;
 use crate::comp::game_board_flex::{FlexText, GameBoardFlex};
@@ -22,17 +22,18 @@ pub fn BotGameBoard(
         tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
      let on_state_change = Callback::<GameState>::new(move |s| {
-        let segment: GameReplaySegment = {
-            if s.replay.replay_slices.is_empty() {
-                GameReplaySegment::Init(s.replay)
-            } else if s.game_over() {
-                GameReplaySegment::GameOver(s.game_over_reason.unwrap())
-            } else {
-                GameReplaySegment::Update(
-                    s.replay.replay_slices.last().expect("else branch of is empty must have last").clone(),
-                )
-            }
-        };
+        // let segment: GameReplaySegment = {
+        //     if s.replay.replay_slices.is_empty() {
+        //         GameReplaySegment::Init(s.replay)
+        //     } else if s.game_over() {
+        //         GameReplaySegment::GameOver(s.game_over_reason.unwrap())
+        //     } else {
+        //         GameReplaySegment::Update(
+        //             s.replay.replay_slices.last().expect("else branch of is empty must have last").clone(),
+        //         )
+        //     }
+        // };
+        let segment = s.last_segment;
 
         let segment_json: String = serde_json::to_string(&segment).expect("must serialize zsegmment to json");
         call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {

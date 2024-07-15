@@ -3,7 +3,7 @@ use game::{api::{user::UserProfile, websocket::GetProfile}, bot::get_bot_from_id
 use leptos::*;
 use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 
-use crate::{audio3::play_sound_effect, comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync, };
+use crate::{comp::game_board::BoardTable, style::{flex_gameboard_style, GameBoardTetStyle}, websocket::demo_comp::call_api_sync, };
 #[component]
 pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text: ReadSignal<String>,)->impl IntoView{
 
@@ -29,7 +29,9 @@ pub fn GameBoardTimer( game_state: RwSignal<tet::GameState>, pre_countdown_text:
     view! { <FlexText text=timer_str size_cqh=10.0/> }
 }
 
+
 #[component]
+#[allow(unused_variables)]
 pub fn GameBoardFlex(
     #[prop(into)] game_state: RwSignal<tet::GameState>,
 
@@ -60,61 +62,59 @@ pub fn GameBoardFlex(
 
 ) -> impl IntoView {
     let tet_style = GameBoardTetStyle::new();
-    if enable_sound{
-        let _stop_sounds = leptos::watch(
-            move|| game_state.get(),
-            move |current, _prev, _| {
-                if let Some(_prev) = _prev {
-                    if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() && current.replay.replay_slices.len()>=1 {
-                        let last_slice = current.replay.replay_slices.last().expect("last of vec longer than 1");
-                        let sound = match last_slice.event.action {
-                            tet::TetAction::HardDrop    => "hard_drop",
-                            tet::TetAction::MoveLeft    => "move_left", 
-                            tet::TetAction::MoveRight   => "move_right", 
-                            tet::TetAction::SoftDrop    => "soft_drop",
-                            tet::TetAction::Hold        =>"hold",
-                            tet::TetAction::RotateLeft  => "rotate_left",
-                            tet::TetAction::RotateRight => "rotate_right",
-                            tet::TetAction::Nothing       => "",
-                        };
-                        crate::audio3::play_sound_effect(sound);                        
-                        if current.game_over(){
-                            crate::audio3::play_sound_effect("game_over");
-                        }
-                        if current.total_lines != _prev.total_lines {
-                            let clr_line_effect = match current.total_lines - _prev.total_lines {
-                                1 => "clear_line_1",
-                                2 => "clear_line_2",
-                                3 => "clear_line_3",
-                                4 => "clear_line_4",
-                                _ => ""
-                            };
-                            crate::audio3::play_sound_effect(clr_line_effect);
-                        }
-                    }
-                }
-            },
-            false
-        );
-
-        let _stop_sounds = watch ( 
-            move || pre_countdown_text.get(),
-            move |ccurrent, _prev, _| {
-                if ccurrent.len() > 0 {
-                    let pre_effect = match ccurrent.as_str() {
-                        "3" => "pre_123_1",
-                        "2" => "pre_123_2",
-                        "1" => "pre_123_3",
-                        "Go" => "pre_123_4",
-                        _=> ""
-                    };
-                    play_sound_effect(pre_effect)
-                }
-            },
-            false
-        );
-    
-    }
+    // if enable_sound{
+    //     let _stop_sounds = leptos::watch(
+    //         move|| game_state.get(),
+    //         move |current, _prev, _| {
+    //             if let Some(_prev) = _prev {
+    //                 if current.replay.replay_slices.len() != _prev.replay.replay_slices.len() && current.replay.replay_slices.len()>=1 {
+    //                     let last_slice = current.replay.replay_slices.last().expect("last of vec longer than 1");
+    //                     let sound = match last_slice.event.action {
+    //                         tet::TetAction::HardDrop    => "hard_drop",
+    //                         tet::TetAction::MoveLeft    => "move_left", 
+    //                         tet::TetAction::MoveRight   => "move_right", 
+    //                         tet::TetAction::SoftDrop    => "soft_drop",
+    //                         tet::TetAction::Hold        =>"hold",
+    //                         tet::TetAction::RotateLeft  => "rotate_left",
+    //                         tet::TetAction::RotateRight => "rotate_right",
+    //                         tet::TetAction::Nothing       => "",
+    //                     };
+    //                     crate::audio3::play_sound_effect(sound);                        
+    //                     if current.game_over(){
+    //                         crate::audio3::play_sound_effect("game_over");
+    //                     }
+    //                     if current.total_lines != _prev.total_lines {
+    //                         let clr_line_effect = match current.total_lines - _prev.total_lines {
+    //                             1 => "clear_line_1",
+    //                             2 => "clear_line_2",
+    //                             3 => "clear_line_3",
+    //                             4 => "clear_line_4",
+    //                             _ => ""
+    //                         };
+    //                         crate::audio3::play_sound_effect(clr_line_effect);
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         false
+    //     );
+    //     let _stop_sounds = watch ( 
+    //         move || pre_countdown_text.get(),
+    //         move |ccurrent, _prev, _| {
+    //             if ccurrent.len() > 0 {
+    //                 let pre_effect = match ccurrent.as_str() {
+    //                     "3" => "pre_123_1",
+    //                     "2" => "pre_123_2",
+    //                     "1" => "pre_123_3",
+    //                     "Go" => "pre_123_4",
+    //                     _=> ""
+    //                 };
+    //                 play_sound_effect(pre_effect)
+    //             }
+    //         },
+    //         false
+    //     );
+    // }
     
     let _style_name = flex_gameboard_style(tet_style, )
         .get_class_name()

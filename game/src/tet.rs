@@ -599,7 +599,6 @@ pub struct GameState {
     // pub game_over: bool,
     pub game_over_reason: Option<GameOverReason>, // 3 bit
 
-    pub replay: GameReplay,  // OK
     pub seed: GameSeed,      // 32 bytes = 256bit
     pub init_seed: GameSeed, // 256bit
     pub start_time: i64,     // n--ai acsf
@@ -608,21 +607,23 @@ pub struct GameState {
     pub garbage_recv: u16,       // 15 bit
     pub garbage_applied: u16,
     pub total_moves: u16, // 16 bit
+
+    
+    pub last_segment: GameReplaySegment,  // OK
+    pub last_segment_idx: u16,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GameReplay {
+pub struct GameReplayInit {
     pub init_seed: GameSeed,
     pub start_time: i64,
-    pub replay_slices: Vec<GameReplaySlice>,
 }
 
-impl GameReplay {
+impl GameReplayInit {
     pub fn empty(seed: &GameSeed, start_time: i64) -> Self {
         Self {
             init_seed: *seed,
             start_time,
-            replay_slices: vec![],
         }
     }
 }
@@ -637,7 +638,7 @@ pub enum GameOverReason {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GameReplaySegment {
-    Init(GameReplay),
+    Init(GameReplayInit),
     Update(GameReplaySlice),
     GameOver(GameOverReason),
 }
@@ -733,7 +734,8 @@ impl GameState {
             current_id: 0,
             seed: *seed,
             init_seed: *seed,
-            replay: GameReplay::empty(seed, start_time),
+            last_segment: GameReplaySegment::Init(GameReplayInit::empty(seed, start_time)),
+            last_segment_idx: 0,
             start_time,
             total_lines: 0,
             total_garbage_sent: 0,
@@ -851,7 +853,7 @@ impl GameState {
         None
     }
     fn put_replay_event(&mut self, event: &GameReplayEvent, event_time: i64) {
-        let idx = self.replay.replay_slices.len() as u16;
+        let idx = self.last_segment_idx;
         let new_seed = accept_event(&self.seed, event, event_time, idx as u32);
         let new_slice = GameReplaySlice {
             idx,
@@ -863,7 +865,8 @@ impl GameState {
         };
         self.seed = new_slice.new_seed;
         // log::info!("put  replay event {new_slice:?}");
-        self.replay.replay_slices.push(new_slice);
+        self.last_segment = GameReplaySegment::Update(new_slice);
+        self.last_segment_idx += 1;
     }
 
     fn refill_nextpcs(&mut self, event_time: i64) {
@@ -913,7 +916,7 @@ impl GameState {
         slice: &GameReplaySlice,
     ) -> anyhow::Result<()> {
         // log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
-        if let Some(prev_slice) = self.replay.replay_slices.last() {
+        if let GameReplaySegment::Update(prev_slice) = &self.last_segment {
             if slice.idx != prev_slice.idx + 1 {
                 anyhow::bail!("duplicate slice mismatch");
             }
@@ -929,13 +932,14 @@ impl GameState {
         // TODO FIGURE OUT BEFORE OR AFTER
         self.garbage_recv = slice.new_garbage_recv;
         *self = self.try_action(slice.event.action, slice.event_timestamp)?;
-        let self_slicce = self.replay.replay_slices.last().unwrap();
-        if !slice.eq(self_slicce) {
-            log::warn!(
-                "no  match in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
-                slice,
-                self_slicce
-            )
+        if let GameReplaySegment::Update(self_slice) = &self.last_segment {
+            if slice != self_slice {
+                log::warn!(
+                    "no  match in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
+                    slice,
+                    self_slice
+                )
+            }
         }
         Ok(())
     }
@@ -1335,14 +1339,19 @@ pub mod tests {
                 let res = active_game.try_action(action, get_timestamp_now_nano());
                 if let Ok(new_active_game) = res {
                     active_game = new_active_game;
+                } else {
+                    continue
+                }
+                if let GameReplaySegment::Update(ref update) = active_game.last_segment {
+                    _slices.push(update.clone());
                 }
                 if active_game.game_over() {
-                    _slices = active_game.replay.replay_slices;
                     break;
                 }
             }
 
             for slice in _slices {
+                log::info!("accept replay slice: {slice:?}");
                 passive_game.accept_replay_slice(&slice).unwrap();
             }
 

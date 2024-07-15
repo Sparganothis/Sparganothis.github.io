@@ -220,8 +220,7 @@ impl GameStatePy {
         let mut v = vec![];
 
         for action in TetAction::all() {
-            if let Ok(mut result) = self.inner.try_action(action, 0) {
-                result.replay.replay_slices.clear();
+            if let Ok(result) = self.inner.try_action(action, 0) {
                 v.push((action.name(), GameStatePy{inner:result}));
             }
         }
@@ -242,7 +241,6 @@ impl GameStatePy {
         let mut state = self.inner.clone();
         let mut _i = 0;
         while _i < max_episode_len {
-            state.replay.replay_slices.clear();
             if state.game_over() {
                 break
             }
@@ -256,7 +254,6 @@ impl GameStatePy {
                         if state.apply_action_if_works(act, 0).is_err() {
                             break
                         }
-                        state.replay.replay_slices.clear();
                         v.push((act.name(), GameStatePy{inner: state.clone()}));
                         _i += 1;
                         if _i >= max_episode_len {
@@ -291,8 +288,7 @@ impl GameStatePy {
 
         for i in 0..(segments.len().min(states.len())) {
             let st = &segments[i];
-            let mut gt = (&states[i]).clone();
-            gt.replay.replay_slices.clear();
+            let gt = (&states[i]).clone();
             match st {
                 GameReplaySegment::Update(_x) => {
                     let ev = _x.event.action.name();
@@ -321,7 +317,6 @@ impl GameStatePy {
             }
             if s_ok {
                 let r: Vec<String> = t.into_iter().map(|x| x.name()).collect();
-                s_current.replay.replay_slices.clear();
                 v.push((r, GameStatePy{inner:s_current}));
             }
         }

@@ -5,7 +5,7 @@ use game::api::{game_replay::GameId, websocket::*};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
-use game::tet::{self, GameReplaySegment, GameState};
+use game::tet::{self, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
 
@@ -32,20 +32,20 @@ pub fn PlayerGameBoardFromId(
     let state: RwSignal<GameState> = create_rw_signal(
         tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
-
     let send_to_server = Callback::<GameState>::new(move |s| {
-        let segment: GameReplaySegment = {
-            if s.replay.replay_slices.is_empty() {
-                GameReplaySegment::Init(s.replay)
-            } else if s.game_over() {
-                log::info!("got segment for game over");
-                GameReplaySegment::GameOver(s.game_over_reason.unwrap())
-            } else {
-                GameReplaySegment::Update(
-                    s.replay.replay_slices.last().expect("last after not is empty").clone(),
-                )
-            }
-        };
+        // let segment: GameReplaySegment = {
+        //     if s.replay.replay_slices.is_empty() {
+        //         GameReplaySegment::Init(s.replay)
+        //     } else if s.game_over() {
+        //         log::info!("got segment for game over");
+        //         GameReplaySegment::GameOver(s.game_over_reason.unwrap())
+        //     } else {
+        //         GameReplaySegment::Update(
+        //             s.replay.replay_slices.last().expect("last after not is empty").clone(),
+        //         )
+        //     }
+        // };
+        let segment = s.last_segment;
 
         let segment_json: String = serde_json::to_string(&segment).expect("serialize segmment ot json");
         call_api_sync::<AppendGameSegment>((game_id, segment_json), move |_r| {
