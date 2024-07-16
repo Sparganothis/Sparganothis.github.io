@@ -1,5 +1,9 @@
-use matrix_sdk::{ruma::events::room::message::{MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent}, Room};
-
+use matrix_sdk::{
+    ruma::events::room::message::{
+        MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent,
+    },
+    Room,
+};
 
 pub async fn on_feedback_room_message(event: OriginalSyncRoomMessageEvent, room: Room) {
     // if room.state() != RoomState::Joined {
@@ -9,7 +13,8 @@ pub async fn on_feedback_room_message(event: OriginalSyncRoomMessageEvent, room:
         return;
     };
     if text_content.body.contains("!party") {
-        let content = RoomMessageEventContent::text_plain("🎉🎊🥳 let's PARTY!! 🥳🎊🎉");
+        let content =
+            RoomMessageEventContent::text_plain("🎉🎊🥳 let's PARTY!! 🥳🎊🎉");
         room.send(content).await.unwrap();
     }
 }

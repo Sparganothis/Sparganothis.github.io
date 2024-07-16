@@ -1329,12 +1329,18 @@ pub mod tests {
 
         state.apply_action_if_works(TetAction::SoftDrop, 0).unwrap();
 
-        let expected_seed =  [112, 108, 244, 165, 170, 133, 13, 105, 29, 155, 63, 142, 88, 10, 124, 69, 11, 204, 19, 247, 111, 162, 42, 131, 23, 33, 17, 116, 136, 66, 83, 241];
-        assert_eq!( state.seed, expected_seed,);
+        let expected_seed = [
+            112, 108, 244, 165, 170, 133, 13, 105, 29, 155, 63, 142, 88, 10, 124, 69,
+            11, 204, 19, 247, 111, 162, 42, 131, 23, 33, 17, 116, 136, 66, 83, 241,
+        ];
+        assert_eq!(state.seed, expected_seed,);
 
         state.apply_action_if_works(TetAction::HardDrop, 1).unwrap();
 
-        let expected_seed =  [232, 114, 216, 90, 137, 42, 115, 14, 77, 126, 249, 220, 176, 41, 220, 245, 8, 135, 202, 145, 162, 178, 110, 179, 247, 50, 34, 76, 254, 161, 54, 31];
+        let expected_seed = [
+            232, 114, 216, 90, 137, 42, 115, 14, 77, 126, 249, 220, 176, 41, 220, 245,
+            8, 135, 202, 145, 162, 178, 110, 179, 247, 50, 34, 76, 254, 161, 54, 31,
+        ];
         assert_eq!(expected_seed, state.seed);
     }
 

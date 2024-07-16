@@ -250,7 +250,7 @@ pub fn AppRoot() -> impl IntoView {
             // BACKGROUND IMAGE
             <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;  opacity: 0.5; z-index:-999;"></div>
             // FEEDBACK BUTTON
-            <FeedbackButtonExpander />
+            <FeedbackButtonExpander/>
 
             <div style="width:100%;height:100%; align-items:center;">
 
