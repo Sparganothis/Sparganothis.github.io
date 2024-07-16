@@ -780,8 +780,52 @@ impl GameState {
             lines += 1;
         }
         self.add_score_for_clear_line(lines);
+        self.add_garbage_for_clear_line(lines);
         self.total_lines += lines;
     }
+
+    fn add_garbage_for_clear_line(&mut self, lines: u16) {
+        self.total_garbage_sent += match self.combo_counter {
+            1 | 2 => 1,
+            3 | 4 => 2,
+            5 | 6 => 3,
+            _i if _i >= 7 => 4,
+            _ => 0,
+        };
+
+        self.total_garbage_sent += match lines {
+            4 => 4,
+            3 => 2,
+            2 => 1,
+            _ => 0,
+        };
+
+        if self.is_gameboard_empty() {
+            self.total_garbage_sent += match lines {
+
+                0 => 0,
+                _ => 10,
+            };
+        }
+
+        if self.is_t_spin {
+            self.total_garbage_sent += match lines {
+                1 => 2,
+                2 => 4,
+                3 => 6,
+                _ => 0,
+            };
+        }
+        if self.is_t_mini_spin {
+            self.total_garbage_sent += match lines {
+                1 => 1,
+                2 => 3,
+                3 => 5,
+                _ => 0,
+            };
+        }
+    }
+
 
     fn add_score_for_clear_line(&mut self, lines: u16) {
         let mut score = 0;
@@ -804,6 +848,8 @@ impl GameState {
                 _ => 0,
             };
         }
+
+        
         if self.is_t_spin {
             score3 += match lines {
                 1 => 1000,
@@ -832,13 +878,7 @@ impl GameState {
         if self.combo_counter > 0 {
             self.score += 50 * self.combo_counter as i32;
         }
-        self.total_garbage_sent += match self.combo_counter {
-            1 | 2 => 1,
-            3 | 4 => 2,
-            5 | 6 => 3,
-            _i if _i >= 7 => 4,
-            _ => 0,
-        };
+
     }
 
     fn can_clear_line(&self) -> Option<i8> {
