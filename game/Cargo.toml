@@ -3,12 +3,12 @@ name = "game"
 version = "0.1.35"
 edition = "2021"
 
-[profile.dev]
-opt-level = 1
-[profile.test]
-opt-level = 1
-[profile.dev.package."*"]
-opt-level = 3
+# [profile.dev]
+# opt-level = 1
+# [profile.test]
+# opt-level = 1
+# [profile.dev.package."*"]
+# opt-level = 3
 
 [dependencies]
 serde_with = "3.8"
@@ -27,7 +27,7 @@ getrandom = { version = "0.2", features = ["js"] }
 anyhow = "1.0.86"
 rand  = {version="0.8.5"}
 rand_chacha = "0.3.1"
-uuid = { version = "1.8.0", features = ["v4", "serde"] }
+uuid = { version = "1.5.0", features = ["v4", "serde"] }
 timediff = "0.2.3"
 
 wasm-bindgen-test = "0.3"

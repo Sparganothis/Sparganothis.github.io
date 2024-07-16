@@ -15,3 +15,4 @@ pub mod game_board_bot;
 pub mod websocket_error_display;
 pub mod markdown;
 pub mod table_generic;
+pub mod feedback_overlay;

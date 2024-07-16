@@ -10,19 +10,10 @@ pub use axum::{
 // pub use leptos_axum::{generate_route_list, LeptosRoutes};
 use std::net::SocketAddr;
 use tower_http::trace::{DefaultMakeSpan, TraceLayer};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 pub async fn server_main() {
-    // simple_logger::init_with_level(log::Level::Debug).expect("couldn't initialize logging");
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "server=debug,tower_http=info".into()),
-        )
-        .with(tracing_subscriber::fmt::layer())
-        .init();
+    log::info!("server init...");
     let addr = "0.0.0.0:3000".to_string();
-    log::info!("listening on http://{}", &addr);
 
     // let _conn = db().await.expect("couldn't connect to DB");
 
@@ -52,6 +43,7 @@ pub async fn server_main() {
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .expect("couldn't bind to address");
+    log::info!("===>> server listening on http://{}", &addr);
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),

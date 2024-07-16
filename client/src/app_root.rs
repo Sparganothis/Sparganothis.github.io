@@ -23,6 +23,7 @@ use crate::page::you_are_phone::you_are_phone_view;
 use crate::comp::websocket_error_display::WebsocketErrorDisplay;
 use crate::websocket::demo_comp::call_api_sync_or_error;
 use crate::comp::game_board_flex::FlexText;
+use crate::comp::feedback_overlay::FeedbackButtonExpander;
 
 #[component]
 pub fn AppRoot() -> impl IntoView {
@@ -248,6 +249,8 @@ pub fn AppRoot() -> impl IntoView {
         <Root default_theme=LeptonicTheme::default()>
             // BACKGROUND IMAGE
             <div style="position:absolute; left: 0px; top: -5vh; width: 100vw; height: 100vh;   background-image: url('/public/favicon.png');   background-repeat: no-repeat;  background-size: cover;  opacity: 0.5; z-index:-999;"></div>
+            // FEEDBACK BUTTON
+            <FeedbackButtonExpander />
 
             <div style="width:100%;height:100%; align-items:center;">
 

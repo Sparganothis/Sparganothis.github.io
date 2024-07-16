@@ -3,10 +3,10 @@ name = "server"
 version = "0.1.35"
 edition = "2021"
 
-[profile.dev]
-opt-level = 1
-[profile.dev.package."*"]
-opt-level = 3
+# [profile.dev]
+# opt-level = 1
+# [profile.dev.package."*"]
+# opt-level = 3
 
 
 [dependencies]
@@ -24,9 +24,10 @@ time = {version="0.3.36", features=["serde"]}
 # thiserror = "1.0"
 anyhow = "1.0.86"
 rand  = "0.8.5" 
-uuid = { version = "1.8.0", features = ["v4", "serde"] }
+uuid = { version = "1.5.0", features = ["v4", "serde"] }
 http = { version = "1.0" }
-
+matrix-sdk = "0.7.1 "
+rusqlite={version="0.30.0", features=["bundled"]}  # foro matrix sdk
 # leptos client + server
 # leptos = { version = "0.6", features=[ ]}
 
@@ -51,7 +52,6 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"]}
 once_cell = {version="1.18"}
 async-trait = {version="0.1.80" }
 futures = {version="0.3" }
-
 
 
 [dev-dependencies]
