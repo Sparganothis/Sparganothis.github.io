@@ -19,7 +19,7 @@ pub async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let (tx, rx) =  tokio::sync::mpsc::channel::<ChatbotMessage>(16);
+    let (tx, rx) = tokio::sync::mpsc::channel::<ChatbotMessage>(16);
 
     // CHAT BOT MAIN
     use crate::chatbot::chatbot::bot_main;

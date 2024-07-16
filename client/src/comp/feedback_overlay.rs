@@ -24,6 +24,7 @@ pub fn CheckboxRadioGroup(options: Vec<String>, value: RwSignal<String>) -> impl
                             move |_c: bool| value.set(n2.clone())
                         }
                     />
+
                 </div>
                 <div
                     style="width:80%; height:100%"
@@ -88,6 +89,7 @@ pub fn FeedbackOverlayForm()->impl IntoView {
                     "Bug Report".to_string(),
                     "Shitpost".to_string(),
                 ]
+
                 value=feedback_type
             />
         </div>

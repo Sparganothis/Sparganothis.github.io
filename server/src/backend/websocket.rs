@@ -1,5 +1,8 @@
 use axum::{
-    extract::{ws::{Message, WebSocket, WebSocketUpgrade}, State},
+    extract::{
+        ws::{Message, WebSocket, WebSocketUpgrade},
+        State,
+    },
     response::IntoResponse,
     // routing::get,
     // Router,
@@ -27,10 +30,12 @@ use axum::extract::connect_info::ConnectInfo;
 use axum::extract::ws::CloseFrame;
 use axum_extra::headers;
 
-use crate::{
-    backend::server_fn::_unlock_global_lock_id, chatbot::messages::{ChatbotMessage, UserActivityEventType, UserActivityMessage}, database::tables::get_or_create_user_profile
-};
 use crate::backend::server_main::ChatbotTx;
+use crate::{
+    backend::server_fn::_unlock_global_lock_id,
+    chatbot::messages::{ChatbotMessage, UserActivityEventType, UserActivityMessage},
+    database::tables::get_or_create_user_profile,
+};
 
 use super::session::Guest;
 //allows to split the websocket stream into separate TX and RX branches
@@ -75,7 +80,12 @@ pub async fn ws_handler(
 }
 
 /// Actual websocket statemachine (one will be spawned per connection)
-async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest, server_state: State<ChatbotTx>,) {
+async fn handle_socket(
+    socket: WebSocket,
+    who: SocketAddr,
+    guest: Guest,
+    server_state: State<ChatbotTx>,
+) {
     let websocket_id = uuid::Uuid::new_v4();
     let user_info = (&guest).guest_data.clone();
     let current_session = CurrentSessionInfo {
@@ -350,12 +360,15 @@ pub async fn websocket_handle_request(
     tokio::time::sleep(tokio::time::Duration::from_millis(4)).await;
     // TODO: WARNING REMOVE ME
 
-    let (created, _profile) = get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();
+    let (created, _profile) =
+        get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();
     if created {
-        session_info.chatbot_tx.chatbot_send_msg(ChatbotMessage::UserActivity(UserActivityMessage{
-            user_uuid: session_info.guest_id.user_id,
-            user_activity_type: UserActivityEventType::UserAccountCreated(_profile),
-        }));
+        session_info
+            .chatbot_tx
+            .chatbot_send_msg(ChatbotMessage::UserActivity(UserActivityMessage {
+                user_uuid: session_info.guest_id.user_id,
+                user_activity_type: UserActivityEventType::UserAccountCreated(_profile),
+            }));
     }
 
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)

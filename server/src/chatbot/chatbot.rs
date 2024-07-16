@@ -34,9 +34,19 @@ async fn do_login(cfg: &ChatbotLoginConfig) -> anyhow::Result<Client> {
 use std::{sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
-async fn send_messages_to_chat(client: Client, mut rx: tokio::sync::mpsc::Receiver<ChatbotMessage>, srv_hostname: String ) {
+async fn send_messages_to_chat(
+    client: Client,
+    mut rx: tokio::sync::mpsc::Receiver<ChatbotMessage>,
+    srv_hostname: String,
+) {
     while let Some(r) = rx.recv().await {
-        if let Err(e) = bot_send_message(&client, BotRoomType::ServerLog, format!("[{}]: {:#?}", srv_hostname, r)).await {
+        if let Err(e) = bot_send_message(
+            &client,
+            BotRoomType::ServerLog,
+            format!("[{}]: {:#?}", srv_hostname, r),
+        )
+        .await
+        {
             log::warn!("failed to send message to matrix: {:?}", e);
         }
     }
@@ -74,7 +84,10 @@ async fn sync_forever(client: Client, first_batch: String) {
         tokio::time::sleep(tokio::time::Duration::from_secs_f32(43.3)).await;
     }
 }
-async fn login_and_sync_forever(cfg: &ChatbotConfig,rx: tokio::sync::mpsc::Receiver<ChatbotMessage>) -> anyhow::Result<()> {
+async fn login_and_sync_forever(
+    cfg: &ChatbotConfig,
+    rx: tokio::sync::mpsc::Receiver<ChatbotMessage>,
+) -> anyhow::Result<()> {
     let client = do_login(&cfg.login_config).await?;
     log::info!("matrix bot sync #1 start...");
     let response = client.sync_once(SyncSettings::default()).await?;
@@ -107,7 +120,11 @@ async fn login_and_sync_forever(cfg: &ChatbotConfig,rx: tokio::sync::mpsc::Recei
         on_public_room_message,
     );
 
-    let _task_send_msg = tokio::spawn(send_messages_to_chat(client.clone(), rx, cfg.hostname.clone()));
+    let _task_send_msg = tokio::spawn(send_messages_to_chat(
+        client.clone(),
+        rx,
+        cfg.hostname.clone(),
+    ));
     let _task_sync = tokio::spawn(sync_forever(client.clone(), first_batch));
     // since we called `sync_once` before we entered our sync loop we must pass
     // that sync token to `sync`
@@ -119,7 +136,9 @@ async fn login_and_sync_forever(cfg: &ChatbotConfig,rx: tokio::sync::mpsc::Recei
     Ok(())
 }
 
-pub async fn bot_main(rx: tokio::sync::mpsc::Receiver<ChatbotMessage>) -> anyhow::Result<()> {
+pub async fn bot_main(
+    rx: tokio::sync::mpsc::Receiver<ChatbotMessage>,
+) -> anyhow::Result<()> {
     if let Some(cfg) = get_bot_config() {
         log::info!("matrix bot init...");
         login_and_sync_forever(&cfg, rx).await?;
@@ -127,7 +146,7 @@ pub async fn bot_main(rx: tokio::sync::mpsc::Receiver<ChatbotMessage>) -> anyhow
     } else {
         log::info!("matrix bot not configured, skipping.");
         let mut rx = rx;
-        loop{
+        loop {
             while let Some(_x) = rx.recv().await {
                 // drop msg.
             }

@@ -34,7 +34,9 @@ pub fn random_word() -> String {
     random_word::gen(random_word::Lang::De).to_string()
 }
 
-pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<(bool, UserProfile)> {
+pub fn get_or_create_user_profile(
+    uuid: &uuid::Uuid,
+) -> anyhow::Result<(bool, UserProfile)> {
     if let Ok(u) = get_user_profile(uuid) {
         return Ok((false, u));
     }

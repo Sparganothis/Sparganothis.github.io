@@ -132,7 +132,7 @@ fn do_append_game_segment(
         return Ok(AppendGameSegmentResponse {
             maybe_reason: Some(_r),
             garbage: 0,
-        })
+        });
     }
 
     let game_over_because = is_game_over_because_sommething(id, &_current_session)?;
@@ -158,28 +158,44 @@ fn do_append_game_segment_to_db(
 ) -> anyhow::Result<()> {
     match new_segment {
         GameReplaySegment::Init(_) => {
-            _current_session.chatbot_tx.chatbot_send_msg(crate::chatbot::messages::ChatbotMessage::GameUpdate(GameUpdateMessage{
-                game_id: id,
-                event_type: crate::chatbot::messages::GameUpdateEventType::GameStarted,
-            }));
-        },
-        GameReplaySegment::Update(_) => {},
+            _current_session.chatbot_tx.chatbot_send_msg(
+                crate::chatbot::messages::ChatbotMessage::GameUpdate(
+                    GameUpdateMessage {
+                        game_id: id,
+                        event_type:
+                            crate::chatbot::messages::GameUpdateEventType::GameStarted,
+                    },
+                ),
+            );
+        }
+        GameReplaySegment::Update(_) => {}
         GameReplaySegment::GameOver(_reason) => {
-            _current_session.chatbot_tx.chatbot_send_msg(crate::chatbot::messages::ChatbotMessage::GameUpdate(GameUpdateMessage{
-                game_id: id,
-                event_type: crate::chatbot::messages::GameUpdateEventType::GameFinished(_reason),
-            }));
-        },
+            _current_session.chatbot_tx.chatbot_send_msg(
+                crate::chatbot::messages::ChatbotMessage::GameUpdate(
+                    GameUpdateMessage {
+                        game_id: id,
+                        event_type:
+                            crate::chatbot::messages::GameUpdateEventType::GameFinished(
+                                _reason,
+                            ),
+                    },
+                ),
+            );
+        }
     }
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
         .context("game segment count not found!")?;
     let last_segment = GAME_SEGMENT_DB
-    .range(GameSegmentId::get_range_for_game(&id))
-    .next_back().map(|k| k.ok().map(|x| x.1)).flatten();
+        .range(GameSegmentId::get_range_for_game(&id))
+        .next_back()
+        .map(|k| k.ok().map(|x| x.1))
+        .flatten();
     let last_segment_id = GAME_SEGMENT_DB
-    .range(GameSegmentId::get_range_for_game(&id))
-    .next_back().map(|k| k.ok().map(|x| x.0)).flatten();
+        .range(GameSegmentId::get_range_for_game(&id))
+        .next_back()
+        .map(|k| k.ok().map(|x| x.0))
+        .flatten();
     let last_state: Option<GameState> = if existing_segment_count > 0 {
         let maybe_gamestate = GAME_FULL_DB.get(&id)?.context("not found")?;
         Some(maybe_gamestate)
@@ -189,7 +205,10 @@ fn do_append_game_segment_to_db(
 
     let new_segment_id = GameSegmentId {
         game_id: id,
-        segment_id: match last_segment_id {None => 0, Some(_s) => 1 + _s.segment_id},
+        segment_id: match last_segment_id {
+            None => 0,
+            Some(_s) => 1 + _s.segment_id,
+        },
     };
 
     match &new_segment {

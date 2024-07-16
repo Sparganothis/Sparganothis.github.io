@@ -37,7 +37,7 @@ pub async fn server_main(tx: Sender<ChatbotMessage>) {
     // let conf = get_configuration(None).await.unwrap();
     // let leptos_options = conf.leptos_options;
     // let addr = leptos_options.site_addr;
-    let state = ChatbotTx{chatbot_tx:tx};
+    let state = ChatbotTx { chatbot_tx: tx };
 
     // build our application with a route
     let app = Router::new()
@@ -53,7 +53,8 @@ pub async fn server_main(tx: Sender<ChatbotMessage>) {
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::default().include_headers(true)),
         )
-        .layer(super::session::make_session_layer()).with_state(state);
+        .layer(super::session::make_session_layer())
+        .with_state(state);
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
