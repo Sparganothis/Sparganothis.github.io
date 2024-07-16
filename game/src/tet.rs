@@ -935,6 +935,7 @@ impl GameState {
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             log::info!("tet game over");
             self.game_over_reason = Some(GameOverReason::Knockout);
+            self.last_segment = GameReplaySegment::GameOver(GameOverReason::Knockout);
         } else if let Some(ref mut h) = self.hold_pcs {
             h.can_use = true;
         }

@@ -5,7 +5,7 @@ use crate::websocket::demo_comp::call_api_sync;
 use game::api::{game_replay::GameId, websocket::*};
 use game::timestamp::get_timestamp_now_nano;
 use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
-use game::tet::{self, GameState};
+use game::tet::{self, GameReplaySegment, GameState};
 use leptos::*;
 use rand::Rng;
 use crate::comp::game_board_flex::{FlexText, GameBoardFlex};
@@ -39,8 +39,9 @@ pub fn BotGameBoard(
         call_api_sync::<AppendBotGameSegment>((game_id, segment_json), move |_r| {
             if let Some(gamme_over_reasoon) = _r.maybe_reason {
                 state.update(|state| {
+                    log::info!("bot game over because {:?}", gamme_over_reasoon)    ;  
                     state.game_over_reason = Some(gamme_over_reasoon);
-                    log::info!("game over because {:?}", gamme_over_reasoon)    ;    
+                    state.last_segment = GameReplaySegment::GameOver(gamme_over_reasoon.clone());  
                 })
             }
             if _r.garbage > 0 && _r.garbage > state.get_untracked().garbage_recv {

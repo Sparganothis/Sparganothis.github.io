@@ -1,4 +1,5 @@
 use crate::backend::server_info::GIT_VERSION;
+use crate::chatbot::messages::GameUpdateMessage;
 use crate::database::tables::*;
 
 use anyhow::Context;
@@ -61,15 +62,15 @@ pub fn append_game_segment(
     (id, segment_json): (GameId, String),
     _current_session: CurrentSessionInfo,
 ) -> anyhow::Result<AppendGameSegmentResponse> {
-    _check_is_global_locked(_current_session, id)?;
+    _check_is_global_locked(&_current_session, id)?;
     let new_segment: GameReplaySegment =
         serde_json::from_str(&segment_json).expect("json never fail");
 
-    let who = _current_session.guest_id.user_id;
+    let who = (&_current_session).guest_id.user_id;
     if !who.eq(&id.user_id) {
         anyhow::bail!("no impersonate plz");
     }
-    do_append_game_segment(id, new_segment, _current_session)
+    do_append_game_segment(id, new_segment, &_current_session)
 }
 
 pub fn append_bot_game_segment(
@@ -103,13 +104,13 @@ pub fn append_bot_game_segment(
         _ => anyhow::bail!("wrong match type for this game!"),
     }
 
-    do_append_game_segment(id, new_segment, _current_session)
+    do_append_game_segment(id, new_segment, &_current_session)
 }
 
 fn do_append_game_segment(
     id: GameId,
     new_segment: GameReplaySegment,
-    _current_session: CurrentSessionInfo,
+    _current_session: &CurrentSessionInfo,
 ) -> anyhow::Result<AppendGameSegmentResponse> {
     let last_segment = GAME_SEGMENT_DB
         .range(GameSegmentId::get_range_for_game(&id))
@@ -126,16 +127,22 @@ fn do_append_game_segment(
         }
     }
 
-    do_append_game_segment_to_db(id, new_segment, _current_session)?;
+    do_append_game_segment_to_db(id, new_segment, &_current_session)?;
+    if let GameReplaySegment::GameOver(_r) = new_segment {
+        return Ok(AppendGameSegmentResponse {
+            maybe_reason: Some(_r),
+            garbage: 0,
+        })
+    }
 
-    let game_over_because = is_game_over_because_sommething(id, _current_session)?;
+    let game_over_because = is_game_over_because_sommething(id, &_current_session)?;
 
     match &game_over_because.maybe_reason {
         Some(_reason) => {
             do_append_game_segment_to_db(
                 id,
                 GameReplaySegment::GameOver(_reason.clone()),
-                _current_session,
+                &_current_session,
             )?;
         }
         None => (),
@@ -147,22 +154,32 @@ fn do_append_game_segment(
 fn do_append_game_segment_to_db(
     id: GameId,
     new_segment: GameReplaySegment,
-    _current_session: CurrentSessionInfo,
+    _current_session: &CurrentSessionInfo,
 ) -> anyhow::Result<()> {
+    match new_segment {
+        GameReplaySegment::Init(_) => {
+            _current_session.chatbot_tx.chatbot_send_msg(crate::chatbot::messages::ChatbotMessage::GameUpdate(GameUpdateMessage{
+                game_id: id,
+                event_type: crate::chatbot::messages::GameUpdateEventType::GameStarted,
+            }));
+        },
+        GameReplaySegment::Update(_) => {},
+        GameReplaySegment::GameOver(_reason) => {
+            _current_session.chatbot_tx.chatbot_send_msg(crate::chatbot::messages::ChatbotMessage::GameUpdate(GameUpdateMessage{
+                game_id: id,
+                event_type: crate::chatbot::messages::GameUpdateEventType::GameFinished(_reason),
+            }));
+        },
+    }
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
         .context("game segment count not found!")?;
-    let last_segment: Option<GameReplaySegment> = if existing_segment_count > 0 {
-        let old_segment_id = GameSegmentId {
-            game_id: id,
-            segment_id: existing_segment_count - 1,
-        };
-        let maybe_segment =
-            GAME_SEGMENT_DB.get(&old_segment_id)?.context("not found")?;
-        Some(maybe_segment)
-    } else {
-        None
-    };
+    let last_segment = GAME_SEGMENT_DB
+    .range(GameSegmentId::get_range_for_game(&id))
+    .next_back().map(|k| k.ok().map(|x| x.1)).flatten();
+    let last_segment_id = GAME_SEGMENT_DB
+    .range(GameSegmentId::get_range_for_game(&id))
+    .next_back().map(|k| k.ok().map(|x| x.0)).flatten();
     let last_state: Option<GameState> = if existing_segment_count > 0 {
         let maybe_gamestate = GAME_FULL_DB.get(&id)?.context("not found")?;
         Some(maybe_gamestate)
@@ -172,7 +189,7 @@ fn do_append_game_segment_to_db(
 
     let new_segment_id = GameSegmentId {
         game_id: id,
-        segment_id: existing_segment_count,
+        segment_id: match last_segment_id {None => 0, Some(_s) => 1 + _s.segment_id},
     };
 
     match &new_segment {
@@ -235,7 +252,7 @@ fn do_append_game_segment_to_db(
 
 fn is_game_over_because_sommething(
     game_id: GameId,
-    _current_session: CurrentSessionInfo,
+    _current_session: &CurrentSessionInfo,
 ) -> anyhow::Result<AppendGameSegmentResponse> {
     if let Some(match_) = GAME_MATCH_FOR_GAME_ID_DB.get(&game_id)? {
         if let Some(match_info) = GAME_MATCH_DB.get(&match_)? {
@@ -346,7 +363,7 @@ pub fn get_all_games(
         let mut v = vec![];
         for game_id in GAME_IS_IN_PROGRESS_DB.iter().keys() {
             let game_id = game_id?;
-            let r = get_segment_count(game_id, _current_session)?;
+            let r = get_segment_count(game_id, _current_session.clone())?;
             v.push((game_id, r));
         }
         Ok(v)
@@ -358,7 +375,7 @@ pub fn get_all_games(
             .keys()
         {
             let game_id = game_id?;
-            let r = get_segment_count(game_id, _current_session)?;
+            let r = get_segment_count(game_id, _current_session.clone())?;
             v.push((game_id, r));
         }
         Ok(v)
@@ -704,7 +721,7 @@ pub fn _unlock_global_lock_id(
 }
 
 fn _check_is_global_locked(
-    _current_session: CurrentSessionInfo,
+    _current_session: &CurrentSessionInfo,
     _current_game_id: GameId,
 ) -> anyhow::Result<()> {
     {

@@ -28,8 +28,8 @@ pip install sparganothis_vim
 
 
 ```
-rustup default nightly
-rustup update nightly
+rustup default stable
+rustup update stable
 rustup target add wasm32-unknown-unknown
 
 cargo install cargo-binstall

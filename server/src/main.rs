@@ -1,4 +1,5 @@
 #![deny(unused_crate_dependencies)]
+use chatbot::messages::ChatbotMessage;
 use rusqlite as _;
 use tower as _;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt}; // for matrix sdk
@@ -18,13 +19,15 @@ pub async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let (tx, rx) =  tokio::sync::mpsc::channel::<ChatbotMessage>(16);
+
     // CHAT BOT MAIN
     use crate::chatbot::chatbot::bot_main;
-    let bot_task = tokio::spawn(bot_main());
+    let bot_task = tokio::spawn(bot_main(rx));
 
     // WEBSOCK SERVER MAIN
     use crate::backend::server_main::server_main;
-    let server_task = tokio::spawn(server_main());
+    let server_task = tokio::spawn(server_main(tx));
 
     if let Err(e) = bot_task.await.unwrap() {
         log::warn!("matrix bot died: {:?}", e);

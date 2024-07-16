@@ -6,12 +6,28 @@ pub use axum::{
     routing::{get, post},
     Router,
 };
+use tokio::sync::mpsc::Sender;
 // pub use leptos::*;
 // pub use leptos_axum::{generate_route_list, LeptosRoutes};
 use std::net::SocketAddr;
 use tower_http::trace::{DefaultMakeSpan, TraceLayer};
 
-pub async fn server_main() {
+use crate::chatbot::messages::ChatbotMessage;
+
+#[derive(Clone)]
+pub struct ChatbotTx {
+    pub chatbot_tx: Sender<ChatbotMessage>,
+}
+
+impl ChatbotTx {
+    pub fn chatbot_send_msg(&self, msg: ChatbotMessage) {
+        if let Err(e) = self.chatbot_tx.try_send(msg) {
+            log::warn!("failed to register chatbox message for sending: {:?}", e);
+        }
+    }
+}
+
+pub async fn server_main(tx: Sender<ChatbotMessage>) {
     log::info!("server init...");
     let addr = "0.0.0.0:3000".to_string();
 
@@ -21,6 +37,7 @@ pub async fn server_main() {
     // let conf = get_configuration(None).await.unwrap();
     // let leptos_options = conf.leptos_options;
     // let addr = leptos_options.site_addr;
+    let state = ChatbotTx{chatbot_tx:tx};
 
     // build our application with a route
     let app = Router::new()
@@ -36,7 +53,7 @@ pub async fn server_main() {
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::default().include_headers(true)),
         )
-        .layer(super::session::make_session_layer());
+        .layer(super::session::make_session_layer()).with_state(state);
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`

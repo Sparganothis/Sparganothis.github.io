@@ -1,5 +1,5 @@
 use axum::{
-    extract::ws::{Message, WebSocket, WebSocketUpgrade},
+    extract::{ws::{Message, WebSocket, WebSocketUpgrade}, State},
     response::IntoResponse,
     // routing::get,
     // Router,
@@ -16,9 +16,10 @@ use game::{
     },
     tet::GameReplaySegment,
 };
+use serde_json::ser;
 // use serde::Deserialize;
 
-use std::{borrow::Cow, collections::HashMap};
+use std::{borrow::Cow, collections::HashMap, thread::current};
 // use std::ops::ControlFlow;
 use std::net::SocketAddr;
 // use tower_http::services::ServeDir;
@@ -29,9 +30,9 @@ use axum::extract::ws::CloseFrame;
 use axum_extra::headers;
 
 use crate::{
-    backend::server_fn::_unlock_global_lock_id,
-    database::tables::get_or_create_user_profile,
+    backend::server_fn::_unlock_global_lock_id, chatbot::messages::{ChatbotMessage, UserActivityEventType, UserActivityMessage}, database::tables::get_or_create_user_profile
 };
+use crate::backend::server_main::ChatbotTx;
 
 use super::session::Guest;
 //allows to split the websocket stream into separate TX and RX branches
@@ -63,6 +64,7 @@ pub async fn ws_handler(
     user_agent: Option<TypedHeader<headers::UserAgent>>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     guest: Guest,
+    server_state: State<ChatbotTx>,
 ) -> impl IntoResponse {
     let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
         user_agent.to_string()
@@ -71,16 +73,17 @@ pub async fn ws_handler(
     };
     log::info!("Websocket: `{user_agent}` at {addr} connected.");
 
-    ws.on_upgrade(move |socket| handle_socket(socket, addr, guest))
+    ws.on_upgrade(move |socket| handle_socket(socket, addr, guest, server_state))
 }
 
 /// Actual websocket statemachine (one will be spawned per connection)
-async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
+async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest, server_state: State<ChatbotTx>,) {
     let websocket_id = uuid::Uuid::new_v4();
     let user_info = (&guest).guest_data.clone();
     let current_session = CurrentSessionInfo {
         guest_id: user_info,
         websocket_id,
+        chatbot_tx: server_state.0.clone(),
     };
     use futures::{sink::SinkExt, stream::StreamExt};
     let (mut sender, mut receiver) = socket.split();
@@ -158,6 +161,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
         cnt
     });
 
+    let session2 = current_session.clone();
     let mut process_task = tokio::spawn(async move {
         let mut cnt: usize = 0;
         while let Some(b) = request_rx.recv().await {
@@ -165,7 +169,7 @@ async fn handle_socket(socket: WebSocket, who: SocketAddr, guest: Guest) {
 
             let b = match websocket_handle_request(
                 b,
-                current_session,
+                session2.clone(),
                 &mut subscribed_games,
             )
             .await
@@ -327,10 +331,11 @@ impl SubscribedGamesState {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone)]
 pub struct CurrentSessionInfo {
     pub guest_id: GuestInfo,
     pub websocket_id: uuid::Uuid,
+    pub chatbot_tx: ChatbotTx,
 }
 
 use game::api::user::GuestInfo;
@@ -347,7 +352,13 @@ pub async fn websocket_handle_request(
     tokio::time::sleep(tokio::time::Duration::from_millis(4)).await;
     // TODO: WARNING REMOVE ME
 
-    get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();
+    let (created, _profile) = get_or_create_user_profile(&session_info.guest_id.user_id).unwrap();
+    if created {
+        session_info.chatbot_tx.chatbot_send_msg(ChatbotMessage::UserActivity(UserActivityMessage{
+            user_uuid: session_info.guest_id.user_id,
+            user_activity_type: UserActivityEventType::UserAccountCreated(_profile),
+        }));
+    }
 
     let msg: WebsocketAPIMessageRaw = bincode::deserialize(&b)
         .context("bincode deserialize fail for WebsocketAPIMessageRaw")?;
@@ -368,7 +379,6 @@ pub async fn websocket_handle_request(
         WebsocketAPIMessageType::GitVersion => {
             specific_sync_request::<GitVersion>(msg, session_info, git_version).await
         }
-
         WebsocketAPIMessageType::CreateNewGameId => {
             specific_sync_request::<CreateNewGameId>(
                 msg,

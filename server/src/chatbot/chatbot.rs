@@ -1,6 +1,7 @@
 use matrix_sdk::{config::SyncSettings, Client, LoopCtrl};
 
 use super::config::{ChatbotConfig, ChatbotLoginConfig};
+use super::messages::ChatbotMessage;
 use crate::chatbot::config::BotRoomType;
 use crate::{
     backend::server_info::GIT_VERSION,
@@ -32,43 +33,17 @@ async fn do_login(cfg: &ChatbotLoginConfig) -> anyhow::Result<Client> {
 }
 use std::{sync::Arc, time::Duration};
 use tokio::sync::Mutex;
-async fn login_and_sync_forever(cfg: &ChatbotConfig) -> anyhow::Result<()> {
-    let client = do_login(&cfg.login_config).await?;
-    log::info!("matrix bot sync #1 start...");
-    let response = client.sync_once(SyncSettings::default()).await?;
-    let first_batch: String = response.next_batch;
-    let next_batch = Arc::new(Mutex::new(first_batch));
-    log::info!("matrix bot sync #1 done.");
 
-    if !cfg.hostname.is_empty() {
-        log::info!("matrix bot send init message...");
-        let startup_msg = format!(
-            "server start, hostname={} version={}",
-            cfg.hostname,
-            GIT_VERSION.trim()
-        );
-        bot_send_message(&client, BotRoomType::ServerLog, startup_msg).await?;
+async fn send_messages_to_chat(client: Client, mut rx: tokio::sync::mpsc::Receiver<ChatbotMessage>, srv_hostname: String ) {
+    while let Some(r) = rx.recv().await {
+        if let Err(e) = bot_send_message(&client, BotRoomType::ServerLog, format!("[{}]: {:#?}", srv_hostname, r)).await {
+            log::warn!("failed to send message to matrix: {:?}", e);
+        }
     }
+}
 
-    log::info!("matrix bot starting handler...");
-    // add our CommandBot to be notified of incoming messages, we do this after the
-    // initial sync to avoid responding to messages before the bot was running.
-    client.add_room_event_handler(
-        get_bot_room(&client, BotRoomType::ServerLog)?.room_id(),
-        on_server_log_room_message,
-    );
-    client.add_room_event_handler(
-        get_bot_room(&client, BotRoomType::FeedbackForm)?.room_id(),
-        on_feedback_room_message,
-    );
-    client.add_room_event_handler(
-        get_bot_room(&client, BotRoomType::Public)?.room_id(),
-        on_public_room_message,
-    );
-    // since we called `sync_once` before we entered our sync loop we must pass
-    // that sync token to `sync`
-    // this keeps state from the server streaming in to CommandBot via the
-    // EventHandler trait
+async fn sync_forever(client: Client, first_batch: String) {
+    let next_batch = Arc::new(Mutex::new(first_batch));
     loop {
         log::info!("matrix bot sync #2 (forever).");
         let nb2 = next_batch.clone();
@@ -99,14 +74,64 @@ async fn login_and_sync_forever(cfg: &ChatbotConfig) -> anyhow::Result<()> {
         tokio::time::sleep(tokio::time::Duration::from_secs_f32(43.3)).await;
     }
 }
+async fn login_and_sync_forever(cfg: &ChatbotConfig,rx: tokio::sync::mpsc::Receiver<ChatbotMessage>) -> anyhow::Result<()> {
+    let client = do_login(&cfg.login_config).await?;
+    log::info!("matrix bot sync #1 start...");
+    let response = client.sync_once(SyncSettings::default()).await?;
+    let first_batch: String = response.next_batch;
+    log::info!("matrix bot sync #1 done.");
 
-pub async fn bot_main() -> anyhow::Result<()> {
+    if !cfg.hostname.is_empty() {
+        log::info!("matrix bot send init message...");
+        let startup_msg = format!(
+            "server start, hostname={} version={}",
+            cfg.hostname,
+            GIT_VERSION.trim()
+        );
+        bot_send_message(&client, BotRoomType::ServerLog, startup_msg).await?;
+    }
+
+    log::info!("matrix bot starting handler...");
+    // add our CommandBot to be notified of incoming messages, we do this after the
+    // initial sync to avoid responding to messages before the bot was running.
+    client.add_room_event_handler(
+        get_bot_room(&client, BotRoomType::ServerLog)?.room_id(),
+        on_server_log_room_message,
+    );
+    client.add_room_event_handler(
+        get_bot_room(&client, BotRoomType::FeedbackForm)?.room_id(),
+        on_feedback_room_message,
+    );
+    client.add_room_event_handler(
+        get_bot_room(&client, BotRoomType::Public)?.room_id(),
+        on_public_room_message,
+    );
+
+    let _task_send_msg = tokio::spawn(send_messages_to_chat(client.clone(), rx, cfg.hostname.clone()));
+    let _task_sync = tokio::spawn(sync_forever(client.clone(), first_batch));
+    // since we called `sync_once` before we entered our sync loop we must pass
+    // that sync token to `sync`
+    // this keeps state from the server streaming in to CommandBot via the
+    // EventHandler trait
+
+    _task_send_msg.await?;
+    _task_sync.await?;
+    Ok(())
+}
+
+pub async fn bot_main(rx: tokio::sync::mpsc::Receiver<ChatbotMessage>) -> anyhow::Result<()> {
     if let Some(cfg) = get_bot_config() {
         log::info!("matrix bot init...");
-        login_and_sync_forever(&cfg).await?;
+        login_and_sync_forever(&cfg, rx).await?;
         log::info!("matrix bot init OK.");
     } else {
-        log::info!("matrix bot not configured, skipping.")
+        log::info!("matrix bot not configured, skipping.");
+        let mut rx = rx;
+        loop{
+            while let Some(_x) = rx.recv().await {
+                // drop msg.
+            }
+        }
     }
 
     Ok(())

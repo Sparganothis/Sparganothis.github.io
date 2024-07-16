@@ -34,15 +34,15 @@ pub fn random_word() -> String {
     random_word::gen(random_word::Lang::De).to_string()
 }
 
-pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<UserProfile> {
+pub fn get_or_create_user_profile(uuid: &uuid::Uuid) -> anyhow::Result<(bool, UserProfile)> {
     if let Ok(u) = get_user_profile(uuid) {
-        return Ok(u);
+        return Ok((false, u));
     }
     let new: UserProfile = UserProfile {
         display_name: random_word(),
     };
     USER_PROFILE_DB.insert(uuid, &new).context("cannot write")?;
-    Ok(new)
+    Ok((true, new))
 }
 
 pub static USER_PROFILE_DB: Lazy<typed_sled::Tree<uuid::Uuid, UserProfile>> =

@@ -8,7 +8,7 @@ use leptos_use::{ use_interval_with_options, UseIntervalOptions, UseIntervalRetu
 use game::tet::{self, GameState};
 use leptos::*;
 use crate::comp::game_board_flex::GameBoardFlex;
-
+use game::tet::GameReplaySegment;
 pub const PRE_123_INTERVAL: u64 = 400;
 pub const AUTO_SOFTDROP_INTERVAL: u64 = 1000;
 
@@ -32,28 +32,15 @@ pub fn PlayerGameBoardFromId(
     let state: RwSignal<GameState> = create_rw_signal(
         tet::GameState::new(&game_id.init_seed, game_id.start_time));
 
-    let send_to_server = Callback::<GameState>::new(move |s| {
-        // let segment: GameReplaySegment = {
-        //     if s.replay.replay_slices.is_empty() {
-        //         GameReplaySegment::Init(s.replay)
-        //     } else if s.game_over() {
-        //         log::info!("got segment for game over");
-        //         GameReplaySegment::GameOver(s.game_over_reason.unwrap())
-        //     } else {
-        //         GameReplaySegment::Update(
-        //             s.replay.replay_slices.last().expect("last after not is empty").clone(),
-        //         )
-        //     }
-        // };
-        let segment = s.last_segment;
-
+    let send_to_server = Callback::<GameReplaySegment>::new(move |segment| {
+        log::info!("player sending to server: {:?}", segment);
         let segment_json: String = serde_json::to_string(&segment).expect("serialize segmment ot json");
         call_api_sync::<AppendGameSegment>((game_id, segment_json), move |_r| {
-            // log::info!("append OK: {:?}", _r);
             if let Some(gamme_over_reasoon) = _r.maybe_reason {
                 state.update(|state| {
+                    log::info!("player game over because {:?}", gamme_over_reasoon)    ;    
                     state.game_over_reason = Some(gamme_over_reasoon.clone());
-                    log::info!("game over because {:?}", gamme_over_reasoon)    ;    
+                    state.last_segment = GameReplaySegment::GameOver(gamme_over_reasoon.clone());
                 })
             }
             
@@ -66,10 +53,10 @@ pub fn PlayerGameBoardFromId(
     });
     
     let on_state_change = Callback::<GameState>::new(move |s| {
-        send_to_server.call(s.clone());
+        send_to_server.call(s.last_segment.clone());
         let s2 = control_callback.call(s.clone());
-        if s2 != s {
-            send_to_server.call(s2);
+        if s2.last_segment != s.last_segment {
+            send_to_server.call(s2.last_segment);
         }
     });
 
@@ -79,7 +66,6 @@ pub fn PlayerGameBoardFromId(
         resume: resume_pre_123,
         ..
     }  = use_interval_with_options( PRE_123_INTERVAL, UseIntervalOptions::default().immediate(false) );
-
         
     let (pre_countdown_text, set_countdown_text) = create_signal("".to_string());
     create_effect(move |_| {

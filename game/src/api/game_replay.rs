@@ -4,15 +4,15 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GameSegmentId {
     pub game_id: GameId,
-    pub segment_id: u32,
+    pub segment_id: u16,
 }
 
 impl GameSegmentId {
     pub fn get_range_for_game(
         game: &GameId,
     ) -> std::ops::RangeInclusive<GameSegmentId> {
-        let seg0 = u32::MIN;
-        let seg1 = u32::MAX;
+        let seg0 = u16::MIN;
+        let seg1 = u16::MAX;
 
         let v0 = GameSegmentId {
             game_id: game.clone(),

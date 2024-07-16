@@ -21,7 +21,7 @@ pub fn CheckboxRadioGroup(options: Vec<String>, value: RwSignal<String>) -> impl
                         checked={ move || n1 == value.get() }.into_signal()
                         set_checked={
                             let n2 = n2.clone();
-                            move |c: bool| value.set(n2.clone())
+                            move |_c: bool| value.set(n2.clone())
                         }
                     />
                 </div>
