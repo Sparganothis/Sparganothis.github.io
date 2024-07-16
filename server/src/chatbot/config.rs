@@ -20,6 +20,7 @@ pub struct ChatbotRoomConfig {
 
 #[derive(Clone)]
 pub struct ChatbotConfig {
+    pub hostname: String,
     pub login_config: ChatbotLoginConfig,
     pub room_config: ChatbotRoomConfig,
 }
@@ -84,15 +85,17 @@ pub fn get_bot_config() -> Option<ChatbotConfig> {
     ) {
         Some(ChatbotConfig {
             login_config: ChatbotLoginConfig {
-            matrix_homeserver: hs,
-            matrix_username: un,
-            matrix_password: pw,
-        },
-        room_config: ChatbotRoomConfig {
-            matrix_room_id_feedback: room_feedback,
-            matrix_room_id_server_log: room_server_log,
-            matrix_room_id_public: room_public,
-        }})
+                matrix_homeserver: hs,
+                matrix_username: un,
+                matrix_password: pw,
+            },
+            room_config: ChatbotRoomConfig {
+                matrix_room_id_feedback: room_feedback,
+                matrix_room_id_server_log: room_server_log,
+                matrix_room_id_public: room_public,
+            },
+            hostname: env::var("SERVER_HOSTNAME").unwrap_or("".to_string())
+        })
     } else {
         None
     }

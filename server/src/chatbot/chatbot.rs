@@ -32,9 +32,11 @@ async fn login_and_sync_forever(cfg: &ChatbotConfig) -> anyhow::Result<()> {
     let next_batch = Arc::new(Mutex::new(first_batch));
     log::info!("matrix bot sync #1 done.");
 
-    log::info!("matrix bot send init message...");
-    let startup_msg = format!("server start, version={}", GIT_VERSION.trim());
-    bot_send_message(&client, BotRoomType::ServerLog, startup_msg).await?;
+    if !cfg.hostname.is_empty() {
+        log::info!("matrix bot send init message...");
+        let startup_msg = format!("server start, hostname={} version={}", cfg.hostname, GIT_VERSION.trim());
+        bot_send_message(&client, BotRoomType::ServerLog, startup_msg).await?;
+    }
 
     log::info!("matrix bot starting handler...");
     // add our CommandBot to be notified of incoming messages, we do this after the
@@ -62,9 +64,9 @@ async fn login_and_sync_forever(cfg: &ChatbotConfig) -> anyhow::Result<()> {
         }}).await {
             log::warn!("matrix bot sync error: {:?}", _e);
         } else {
-            log::warn!("matrix bot sync exit.");
+            log::warn!("matrix bot sync exit. ?!?!");
         }
-        tokio::time::sleep(tokio::time::Duration::from_secs(33)).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs_f32(43.3)).await;
     }
 }
 
