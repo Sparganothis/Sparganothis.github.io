@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use super::random::{accept_event, shuffle_tets, GameSeed};
+use super::{random::{accept_event, shuffle_tets, GameSeed}, GameReplaySegment};
 use crate::timestamp::get_timestamp_now_nano;
 
 use super::{
@@ -10,6 +10,16 @@ use super::{
 };
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
+
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
+pub enum GameOverReason {
+    Knockout,
+    Disconnect,
+    Abandon,
+    Win,
+}
+
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameState {
@@ -38,7 +48,6 @@ pub struct GameState {
     pub garbage_applied: u16,
     pub total_moves: u16, // 16 bit
 
-    pub last_segment: GameReplaySegment, // OK
     pub last_segment_idx: u16,
 
     // pub next_pcs: VecDeque<Tet>,             // 42 bit
@@ -46,60 +55,7 @@ pub struct GameState {
     pub next_pcs_idx: u8,
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GameReplayInit {
-    pub init_seed: GameSeed,
-    pub start_time: i64,
-}
 
-impl GameReplayInit {
-    pub fn empty(seed: &GameSeed, start_time: i64) -> Self {
-        Self {
-            init_seed: *seed,
-            start_time,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub enum GameOverReason {
-    Knockout,
-    Disconnect,
-    Abandon,
-    Win,
-}
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub enum GameReplaySegment {
-    Init(GameReplayInit),
-    Update(GameReplaySlice),
-    GameOver(GameOverReason),
-}
-
-// impl GameReplaySegment {
-//     pub fn is_game_over(&self) -> bool {
-//         match self {
-//             Self::Update(slice) => slice.event.game_over,
-//             _ => false,
-//         }
-//     }
-// }
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GameReplaySlice {
-    pub event_timestamp: i64,
-    pub new_seed: GameSeed,
-    pub new_garbage_recv: u16,
-    pub new_garbage_applied: u16,
-    pub idx: u16,
-    pub event: GameReplayEvent,
-}
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct GameReplayEvent {
-    pub action: TetAction,
-    // pub game_over: bool,
-}
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HoldPcsInfo {
@@ -407,36 +363,45 @@ impl GameState {
         Ok(())
     }
 
-    pub fn accept_replay_slice(
+    pub fn accept_replay_segment(
         &mut self,
-        slice: &GameReplaySlice,
+        segment: &GameReplaySegment,
     ) -> anyhow::Result<()> {
-        // log::info!("over={} acccept replay slice: {:?}", self.game_over, slice);
-        if let GameReplaySegment::Update(prev_slice) = &self.last_segment {
-            if slice.idx != prev_slice.idx + 1 {
-                anyhow::bail!("duplicate slice mismatch");
-            }
-        } else {
-            if slice.idx != 0 {
-                anyhow::bail!(
-                    "first slice mismatch: got slice {} expected slice {}",
-                    slice.idx,
-                    0
-                );
-            }
+        if self.last_segment_idx +1 != segment.idx {
+            anyhow::bail!("bad segment idx; expected {}, got {}", self.last_segment_idx+1, segment.idx);
+        }
+
+        match segment.data {
+            super::replay_segment::GameReplaySegmentData::Init(_init) => {
+                if _init.init_seed != self.init_seed || _init.start_time != self.start_time {
+                    anyhow::bail!(
+                        "init param mismatch: time expected {} got {}; seed expected {:?} got {:?}",
+                        self.start_time,
+                         _init.start_time,
+                         self.init_seed,
+                         _init.init_seed,
+                    )
+                }
+            },
+            super::replay_segment::GameReplaySegmentData::Update(_update) => {
+                self.garbage_recv = _update.new_garbage_recv;
+                let update = self.try_action(_update.event.action, segment.timestamp)?;
+                *self = update_resp.0;
+
+                if let GameReplaySegment::Update(self_slice) = &self.last_segment {
+                    if segment != self_slice {
+                        log::warn!(
+                            "no  match in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
+                            segment,
+                            self_slice
+                        )
+                    }
+                }
+            },
+            super::replay_segment::GameReplaySegmentData::GameOver(_) => todo!(),
         }
         // TODO FIGURE OUT BEFORE OR AFTER
-        self.garbage_recv = slice.new_garbage_recv;
-        *self = self.try_action(slice.event.action, slice.event_timestamp)?;
-        if let GameReplaySegment::Update(self_slice) = &self.last_segment {
-            if slice != self_slice {
-                log::warn!(
-                    "no  match in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
-                    slice,
-                    self_slice
-                )
-            }
-        }
+
         Ok(())
     }
     pub fn get_next_board(&self) -> BoardMatrixNext {
@@ -630,7 +595,7 @@ impl GameState {
         &self,
         action: TetAction,
         event_time: i64,
-    ) -> anyhow::Result<Self> {
+    ) -> anyhow::Result<(Self, Vec<GameReplaySegment>)> {
         if self.game_over() {
             // log::warn!("gamem over cannot try_action");
             anyhow::bail!("game over");
@@ -742,37 +707,4 @@ impl GameState {
             Err(e)
         }
     }
-}
-
-pub fn segments_to_states(all_segments: &Vec<GameReplaySegment>) -> Vec<GameState> {
-    let mut current_state = match all_segments.get(0) {
-        Some(GameReplaySegment::Init(_replay)) => {
-            GameState::new(&_replay.init_seed, _replay.start_time)
-        }
-        _ => {
-            log::info!("got no init segment");
-            return vec![];
-        }
-    };
-    let mut all_states = vec![];
-    all_states.push(current_state.clone());
-    for segment in &all_segments[1..] {
-        match segment {
-            GameReplaySegment::Init(_) => {
-                log::error!("got two init segments");
-                return vec![];
-            }
-            GameReplaySegment::Update(_slice) => {
-                if let Err(e) = current_state.accept_replay_slice(_slice) {
-                    log::error!("failed to accept replay slice: {:#?}", e);
-                    return vec![];
-                }
-            }
-            GameReplaySegment::GameOver(reason) => {
-                current_state.game_over_reason = Some(reason.clone());
-            }
-        }
-        all_states.push(current_state.clone());
-    }
-    all_states
 }

@@ -3,21 +3,24 @@ mod matrix;
 mod random;
 mod rot;
 mod tet;
+mod replay_segment;
 
 pub use game_state::{
-    segments_to_states, CurrentPcsInfo, GameOverReason, GameReplaySegment,
-    GameReplaySlice, GameState, HoldPcsInfo,
+    CurrentPcsInfo, GameOverReason,
+    GameState, HoldPcsInfo,
 };
+
 pub use matrix::{BoardMatrix, BoardMatrixHold, BoardMatrixNext, CellValue};
 pub use random::{get_random_seed, GameSeed};
 pub use rot::RotState;
 pub use tet::{Tet, TetAction};
+pub use replay_segment::{GameReplaySegment,segments_to_states};
+
 
 #[cfg(test)]
 pub mod tests {
     use super::super::timestamp::get_timestamp_now_nano;
     use super::*;
-    use game_state::{GameReplaySegment, GameState};
     use tet::TetAction;
     // use pretty_assertions::assert_eq;
     use wasm_bindgen_test::*;
