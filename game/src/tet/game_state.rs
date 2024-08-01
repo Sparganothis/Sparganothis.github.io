@@ -3,10 +3,13 @@ use std::time::Duration;
 use super::random::{accept_event, shuffle_tets, GameSeed};
 use crate::timestamp::get_timestamp_now_nano;
 
-use super::{matrix::{BoardMatrix, BoardMatrixHold, BoardMatrixNext, CellValue}, rot::{RotDirection, RotState}, tet::{Tet, TetAction}};
+use super::{
+    matrix::{BoardMatrix, BoardMatrixHold, BoardMatrixNext, CellValue},
+    rot::{RotDirection, RotState},
+    tet::{Tet, TetAction},
+};
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
-
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct GameState {
@@ -97,7 +100,6 @@ pub struct GameReplayEvent {
     pub action: TetAction,
     // pub game_over: bool,
 }
-
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HoldPcsInfo {
@@ -229,7 +231,6 @@ impl GameState {
 
         if self.is_gameboard_empty() {
             self.total_garbage_sent += match lines {
-
                 0 => 0,
                 _ => 10,
             };
@@ -253,7 +254,6 @@ impl GameState {
         }
     }
 
-
     fn add_score_for_clear_line(&mut self, lines: u16) {
         let mut score = 0;
         let mut score2 = 0;
@@ -276,7 +276,6 @@ impl GameState {
             };
         }
 
-        
         if self.is_t_spin {
             score3 += match lines {
                 1 => 1000,
@@ -305,7 +304,6 @@ impl GameState {
         if self.combo_counter > 0 {
             self.score += 50 * self.combo_counter as i32;
         }
-
     }
 
     fn can_clear_line(&self) -> Option<i8> {
@@ -778,4 +776,3 @@ pub fn segments_to_states(all_segments: &Vec<GameReplaySegment>) -> Vec<GameStat
     }
     all_states
 }
-

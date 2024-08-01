@@ -74,17 +74,17 @@ pub fn accept_event(
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tet::{game_state::GameReplayEvent, random::accept_event, tet::TetAction};
+    use crate::tet::{
+        game_state::GameReplayEvent, random::accept_event, tet::TetAction,
+    };
     // use pretty_assertions::assert_eq;
     use wasm_bindgen_test::*;
 
     #[test]
     #[wasm_bindgen_test]
     pub fn random_have_pinned_results() {
-        let encoded_str1 =
-            bincode::serialize(&TetAction::SoftDrop).unwrap();
-        let encoded_str2 =
-            bincode::serialize(&TetAction::MoveLeft).unwrap();
+        let encoded_str1 = bincode::serialize(&TetAction::SoftDrop).unwrap();
+        let encoded_str2 = bincode::serialize(&TetAction::MoveLeft).unwrap();
         let expected_str1: Vec<u8> = vec![1, 0, 0, 0];
         let expected_str2: Vec<u8> = vec![2, 0, 0, 0];
         assert_eq!(encoded_str1, expected_str1);

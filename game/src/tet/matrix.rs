@@ -1,12 +1,9 @@
-
 use serde::{Deserialize, Serialize};
 
 use super::random::{get_determinist_val, GameSeed};
 
 use super::{game_state::CurrentPcsInfo, rot::RotState, tet::Tet};
 use serde_with::serde_as;
-
-
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
@@ -62,11 +59,9 @@ pub struct BoardMatrix<const R: usize = 40, const C: usize = 10> {
     vv: [CellValueRow10; R],
 }
 
-
 pub const SIDE_BOARD_WIDTH: usize = 4;
 pub type BoardMatrixHold = BoardMatrix<3, SIDE_BOARD_WIDTH>;
 pub type BoardMatrixNext = BoardMatrix<16, SIDE_BOARD_WIDTH>;
-
 
 #[bitfield_struct::bitfield(u8, order = Msb)]
 #[derive(Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -364,7 +359,7 @@ impl<const R: usize, const C: usize> BoardMatrix<R, C> {
 
             for y in 0..height {
                 match self.get_cell(y as i8, x as i8).unwrap() {
-                    CellValue::Empty |CellValue::Ghost => {
+                    CellValue::Empty | CellValue::Ghost => {
                         holes += 1;
                     }
                     _ => {}

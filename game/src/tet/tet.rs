@@ -1,9 +1,7 @@
-
+use super::rot::{RotState, Shape};
+use once_cell::sync::Lazy;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use once_cell::sync::Lazy;
-use super::rot::{RotState, Shape};
-
 
 #[derive(
     Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord,
@@ -18,7 +16,6 @@ pub enum Tet {
     O,
 }
 
-
 pub static ALL_SHAPES: Lazy<std::collections::HashMap<(RotState, Tet), Shape>> =
     Lazy::new(|| {
         let mut h = std::collections::HashMap::<_, _>::new();
@@ -31,8 +28,6 @@ pub static ALL_SHAPES: Lazy<std::collections::HashMap<(RotState, Tet), Shape>> =
         }
         h
     });
-
-
 
 pub const SPAWN_POS: (i8, i8) = (18, 3);
 
@@ -146,8 +141,6 @@ impl Tet {
         ]
     }
 }
-
-
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TetAction {

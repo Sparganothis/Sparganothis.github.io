@@ -1,15 +1,17 @@
-mod tet;
-mod rot;
-mod matrix;
 mod game_state;
+mod matrix;
 mod random;
+mod rot;
+mod tet;
 
-pub use tet::{Tet,TetAction};
+pub use game_state::{
+    segments_to_states, CurrentPcsInfo, GameOverReason, GameReplaySegment,
+    GameReplaySlice, GameState, HoldPcsInfo,
+};
+pub use matrix::{BoardMatrix, BoardMatrixHold, BoardMatrixNext, CellValue};
+pub use random::{get_random_seed, GameSeed};
 pub use rot::RotState;
-pub use matrix::{CellValue, BoardMatrix, BoardMatrixHold, BoardMatrixNext};
-pub use game_state::{GameState, GameOverReason, GameReplaySegment, GameReplaySlice, CurrentPcsInfo, segments_to_states, HoldPcsInfo};
-pub use random::{GameSeed, get_random_seed};
-
+pub use tet::{Tet, TetAction};
 
 #[cfg(test)]
 pub mod tests {
