@@ -1,5 +1,1 @@
 [build]
-rustflags = [
-    "-Zthreads=6",
-    "-Zshare-generics=y", 
-]

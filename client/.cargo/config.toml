@@ -3,8 +3,3 @@ runner = 'wasm-bindgen-test-runner'
 
 [build]
 target = "wasm32-unknown-unknown"
-# rustflags = [
-    # "-Zthreads=6",
-    # "-Zshare-generics=y", 
-# ]
-# 
