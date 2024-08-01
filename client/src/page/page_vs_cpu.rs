@@ -1,4 +1,4 @@
-use game::{api::{game_match::GameMatchType, websocket::StartMatch}, random::GameSeed};
+use game::{api::{game_match::GameMatchType, websocket::StartMatch}, tet::GameSeed};
 use leptos_router::{use_navigate, NavigateOptions};
 
 use crate::{comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView}, mobile_check::is_mobile_phone, websocket::demo_comp:: call_api_sync_or_error};

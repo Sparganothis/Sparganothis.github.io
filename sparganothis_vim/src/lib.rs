@@ -1,5 +1,5 @@
 use pyo3::{exceptions::PyValueError, prelude::*};
-use game::{bot::random_choice_bot::get_all_move_chains, random::{get_random_seed, GameSeed}, tet::{segments_to_states, GameReplaySegment, GameState, TetAction}, timestamp::get_timestamp_now_nano};
+use game::{bot::random_choice_bot::get_all_move_chains, tet::{get_random_seed, GameSeed, segments_to_states, GameReplaySegment, GameState, TetAction}, timestamp::get_timestamp_now_nano};
 
 #[pyclass]
 struct GameStatePy {
@@ -192,10 +192,10 @@ impl GameStatePy {
 
         if let Some(c) = self.inner.current_pcs {
             let rot = match c.rs {
-                game::rot::RotState::R0 => 0,
-                game::rot::RotState::R1 => 1,
-                game::rot::RotState::R2 =>2,
-                game::rot::RotState::R3 => 3,
+                game::tet::RotState::R0 => 0,
+                game::tet::RotState::R1 => 1,
+                game::tet::RotState::R2 =>2,
+                game::tet::RotState::R3 => 3,
             };
             let name = c.tet.name().to_string();
             let pos = c.pos;

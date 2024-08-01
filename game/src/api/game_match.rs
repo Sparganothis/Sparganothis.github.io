@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::random::GameSeed;
+use crate::tet::GameSeed;
 
 #[derive(
     Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash,

@@ -1,4 +1,4 @@
-use game::random::GameSeed;
+use game::tet::GameSeed;
 
 use crate::comp::{
     game_board::RandomOpponentGameBoard, table_replay_games::AllGamesTable,

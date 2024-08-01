@@ -1,4 +1,4 @@
-use crate::random::GameSeed;
+use crate::tet::GameSeed;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]

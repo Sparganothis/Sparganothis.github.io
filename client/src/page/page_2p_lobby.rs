@@ -1,5 +1,5 @@
 use crate::{comp::{game_board::RandomOpponentGameBoard, game_board_flex::FlexText, menu_grid_view::MenuGridView, table_match::AllMatchTable}, mobile_check::is_mobile_phone, websocket::demo_comp::call_api_sync_or_error};
-use game::{api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}}, random::GameSeed};
+use game::{api::{game_match::GameMatchType, websocket::{GetMatchListArg, StartMatch}}, tet::GameSeed};
 use leptos::*;
 use leptos_router::{use_navigate, NavigateOptions};
 #[component]

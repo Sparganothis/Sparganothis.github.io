@@ -6,8 +6,6 @@ use wasm_bindgen_test as _;
 pub mod api;
 pub mod bot;
 pub mod git_version;
-pub mod random;
-pub mod rot;
 pub mod tet;
 pub mod timestamp;
 

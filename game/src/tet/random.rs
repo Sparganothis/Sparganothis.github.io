@@ -1,4 +1,4 @@
-use super::tet::GameReplayEvent;
+use super::game_state::GameReplayEvent;
 use super::tet::Tet;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha20Rng;
@@ -74,7 +74,7 @@ pub fn accept_event(
 
 #[cfg(test)]
 pub mod tests {
-    use super::*;
+    use crate::tet::{game_state::GameReplayEvent, random::accept_event, tet::TetAction};
     // use pretty_assertions::assert_eq;
     use wasm_bindgen_test::*;
 
@@ -82,16 +82,16 @@ pub mod tests {
     #[wasm_bindgen_test]
     pub fn random_have_pinned_results() {
         let encoded_str1 =
-            bincode::serialize(&crate::tet::TetAction::SoftDrop).unwrap();
+            bincode::serialize(&TetAction::SoftDrop).unwrap();
         let encoded_str2 =
-            bincode::serialize(&crate::tet::TetAction::MoveLeft).unwrap();
+            bincode::serialize(&TetAction::MoveLeft).unwrap();
         let expected_str1: Vec<u8> = vec![1, 0, 0, 0];
         let expected_str2: Vec<u8> = vec![2, 0, 0, 0];
         assert_eq!(encoded_str1, expected_str1);
         assert_eq!(encoded_str2, expected_str2);
 
         let evt1 = GameReplayEvent {
-            action: crate::tet::TetAction::SoftDrop,
+            action: TetAction::SoftDrop,
             // game_over: false,
         };
 
@@ -101,7 +101,7 @@ pub mod tests {
 
         let seed = [0; 32];
         let event = GameReplayEvent {
-            action: crate::tet::TetAction::MoveLeft,
+            action: TetAction::MoveLeft,
             // game_over: true,
         };
         let result = accept_event(&seed, &event, 0, 0);

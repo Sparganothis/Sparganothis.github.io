@@ -1,4 +1,4 @@
-use game::{bot::get_bot_id, random::GameSeed};
+use game::{bot::get_bot_id, tet::GameSeed};
 use game::tet::TetAction;
 use game::timestamp::get_timestamp_now_nano;
 use crate::comp::game_board_bot::BotGameBoardSingle;
