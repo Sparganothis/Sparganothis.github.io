@@ -1,4 +1,4 @@
-use super::game_state::GameReplayEvent;
+use super::replay_segment::GameReplayEvent;
 use super::tet::Tet;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha20Rng;
@@ -75,8 +75,9 @@ pub fn accept_event(
 #[cfg(test)]
 pub mod tests {
     use crate::tet::{
-        game_state::GameReplayEvent, random::accept_event, tet::TetAction,
+        random::accept_event, tet::TetAction,
     };
+    use super::GameReplayEvent;
     // use pretty_assertions::assert_eq;
     use wasm_bindgen_test::*;
 

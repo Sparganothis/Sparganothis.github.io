@@ -697,6 +697,7 @@ impl GameState {
             }
         }
     }
+    
     pub fn apply_action_if_works(
         &mut self,
         action: TetAction,

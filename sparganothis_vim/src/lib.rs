@@ -1,5 +1,5 @@
 use pyo3::{exceptions::PyValueError, prelude::*};
-use game::{bot::random_choice_bot::get_all_move_chains, tet::{get_random_seed, GameSeed, segments_to_states, GameReplaySegment, GameState, TetAction}, timestamp::get_timestamp_now_nano};
+use game::{bot::random_choice_bot::get_all_move_chains, tet::{get_random_seed, segments_to_states, GameReplaySegment, GameReplaySegmentData, GameSeed, GameState, TetAction}, timestamp::get_timestamp_now_nano};
 
 #[pyclass]
 struct GameStatePy {
@@ -216,7 +216,7 @@ impl GameStatePy {
 
         for action in TetAction::all() {
             if let Ok(result) = self.inner.try_action(action, 0) {
-                v.push((action.name(), GameStatePy{inner:result}));
+                v.push((action.name(), GameStatePy{inner:result.0}));
             }
         }
         Ok(v)
@@ -284,8 +284,8 @@ impl GameStatePy {
         for i in 0..(segments.len().min(states.len())) {
             let st = &segments[i];
             let gt = (&states[i]).clone();
-            match st {
-                GameReplaySegment::Update(_x) => {
+            match st.data {
+                GameReplaySegmentData::Update(_x) => {
                     let ev = _x.event.action.name();
                     let pgt = GameStatePy{inner: gt.clone()};
                     v.push((ev, pgt));
