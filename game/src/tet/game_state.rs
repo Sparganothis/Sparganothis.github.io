@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use super::{random::{accept_event, shuffle_tets, GameSeed}, GameReplaySegment};
-use crate::timestamp::get_timestamp_now_nano;
+use super::{random::{accept_event, shuffle_tets, GameSeed}, replay_segment::{GameReplayEvent, GameReplayUpdate}, GameReplaySegment};
+use crate::{tet::replay_segment::GameReplaySegmentData, timestamp::get_timestamp_now_nano};
 
 use super::{
     matrix::{BoardMatrix, BoardMatrixHold, BoardMatrixNext, CellValue},
@@ -127,9 +127,9 @@ impl GameState {
             current_id: 0,
             seed: seed2,
             init_seed: *seed,
-            last_segment: GameReplaySegment::Init(GameReplayInit::empty(
-                seed, start_time,
-            )),
+            // last_segment: GameReplaySegment::Init(GameReplayInit::empty(
+                // seed, start_time,
+            // )),
             last_segment_idx: 0,
             start_time,
             total_lines: 0,
@@ -283,11 +283,14 @@ impl GameState {
 
         None
     }
-    fn put_replay_event(&mut self, event: &GameReplayEvent, event_time: i64) {
-        let idx = self.last_segment_idx;
+
+    #[must_use]
+    fn put_replay_event(&mut self, event: &GameReplayEvent, event_time: i64) -> Vec<GameReplaySegment> {
+        let idx = self.last_segment_idx + 1;
+        self.last_segment_idx = idx;
+
         let new_seed = accept_event(&self.seed, event, event_time, idx as u32);
-        let new_slice = GameReplaySlice {
-            idx,
+        let new_slice = GameReplayUpdate {
             event: event.clone(),
             new_seed,
             event_timestamp: event_time,
@@ -295,9 +298,12 @@ impl GameState {
             new_garbage_applied: self.garbage_applied,
         };
         self.seed = new_slice.new_seed;
-        // log::info!("put  replay event {new_slice:?}");
-        self.last_segment = GameReplaySegment::Update(new_slice);
-        self.last_segment_idx += 1;
+        let new_segment = GameReplaySegment {
+            data: super::replay_segment::GameReplaySegmentData::Update(new_slice),
+            idx,
+            timestamp: event_time,
+        };
+        vec![new_segment]
     }
 
     fn refill_nextpcs(&mut self, event_time: i64) {
@@ -322,11 +328,13 @@ impl GameState {
         self.next_pcs_idx += 1;
         v
     }
+    
+    #[must_use]
     fn put_next_piece(
         &mut self,
         _event_time: i64,
         maybe_next_pcs: Option<Tet>,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<Vec<GameReplaySegment>> {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
             anyhow::bail!("already have next pcs");
@@ -353,16 +361,24 @@ impl GameState {
         });
         self.current_id += 1;
 
+        let mut new_segm = vec![];
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             log::info!("tet game over");
             self.game_over_reason = Some(GameOverReason::Knockout);
-            self.last_segment = GameReplaySegment::GameOver(GameOverReason::Knockout);
+            let idx = self.last_segment_idx + 1;
+            self.last_segment_idx = idx;
+            new_segm.push(GameReplaySegment {
+                idx,
+                data: GameReplaySegmentData::GameOver(GameOverReason::Knockout),
+                timestamp: _event_time,
+            });
         } else if let Some(ref mut h) = self.hold_pcs {
             h.can_use = true;
         }
-        Ok(())
+        Ok(new_segm)
     }
 
+    #[must_use]
     pub fn accept_replay_segment(
         &mut self,
         segment: &GameReplaySegment,
@@ -385,22 +401,16 @@ impl GameState {
             },
             super::replay_segment::GameReplaySegmentData::Update(_update) => {
                 self.garbage_recv = _update.new_garbage_recv;
-                let update = self.try_action(_update.event.action, segment.timestamp)?;
-                *self = update_resp.0;
+                let (new_state, _new_segments) = self.try_action(_update.event.action, segment.timestamp)?;
+                // TODO check segments are the same
+                *self = new_state;
 
-                if let GameReplaySegment::Update(self_slice) = &self.last_segment {
-                    if segment != self_slice {
-                        log::warn!(
-                            "no  match in last slicec:  recieved == {:?},  rebuildt locally == ={:?}",
-                            segment,
-                            self_slice
-                        )
-                    }
-                }
             },
-            super::replay_segment::GameReplaySegmentData::GameOver(_) => todo!(),
+            super::replay_segment::GameReplaySegmentData::GameOver(_game_over_reason) => {
+                self.game_over_reason = Some(_game_over_reason);
+            },
         }
-        // TODO FIGURE OUT BEFORE OR AFTER
+        self.last_segment_idx = segment.idx;
 
         Ok(())
     }
@@ -591,6 +601,7 @@ impl GameState {
         anyhow::bail!("all ooffset are blocked")
     }
 
+    #[must_use]
     pub fn try_action(
         &self,
         action: TetAction,
@@ -602,6 +613,7 @@ impl GameState {
         }
         let mut new = self.clone();
         new.last_action = action;
+        let new_segm = new.put_replay_event(&GameReplayEvent {action},event_time);
 
         match action {
             TetAction::HardDrop => {
@@ -627,17 +639,12 @@ impl GameState {
             }
             TetAction::Nothing => {}
         }
-        let ev = GameReplayEvent {
-            action,
-            // game_over: self.game_over,
-        };
-        new.put_replay_event(&ev, event_time);
         new.clear_ghost();
         if !new.game_over() {
             new.put_ghost();
         }
         new.total_moves += 1;
-        Ok(new)
+        Ok((new, new_segm))
     }
 
     fn put_ghost(&mut self) {
@@ -696,11 +703,11 @@ impl GameState {
         &mut self,
         action: TetAction,
         event_time: i64,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<Vec<GameReplaySegment>> {
         let r = self.try_action(action, event_time);
-        if let Ok(new_state) = r {
+        if let Ok((new_state, new_segm)) = r {
             *self = new_state;
-            Ok(())
+            Ok(new_segm)
         } else {
             let e = r.unwrap_err();
             // log::warn!("user action {:?} failed: {:?}", action, e);
