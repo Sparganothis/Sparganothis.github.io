@@ -284,8 +284,7 @@ impl GameState {
         None
     }
 
-    #[must_use]
-    fn put_replay_event(&mut self, event: &GameReplayEvent, event_time: i64) -> Vec<GameReplaySegment> {
+    fn get_update_segment_for_event(&mut self, event: &GameReplayEvent, event_time: i64) -> Vec<GameReplaySegment> {
         let idx = self.last_segment_idx + 1;
         self.last_segment_idx = idx;
 
@@ -328,13 +327,12 @@ impl GameState {
         self.next_pcs_idx += 1;
         v
     }
-    
-    #[must_use]
+
     fn put_next_piece(
         &mut self,
         _event_time: i64,
         maybe_next_pcs: Option<Tet>,
-    ) -> anyhow::Result<Vec<GameReplaySegment>> {
+    ) -> anyhow::Result<()> {
         if self.current_pcs.is_some() {
             log::warn!("cannont put next pcs because we already have one");
             anyhow::bail!("already have next pcs");
@@ -361,21 +359,13 @@ impl GameState {
         });
         self.current_id += 1;
 
-        let mut new_segm = vec![];
         if let Err(_) = self.main_board.spawn_piece(&self.current_pcs.unwrap()) {
             log::info!("tet game over");
             self.game_over_reason = Some(GameOverReason::Knockout);
-            let idx = self.last_segment_idx + 1;
-            self.last_segment_idx = idx;
-            new_segm.push(GameReplaySegment {
-                idx,
-                data: GameReplaySegmentData::GameOver(GameOverReason::Knockout),
-                timestamp: _event_time,
-            });
         } else if let Some(ref mut h) = self.hold_pcs {
             h.can_use = true;
         }
-        Ok(new_segm)
+        Ok(())
     }
 
     #[must_use]
@@ -601,7 +591,6 @@ impl GameState {
         anyhow::bail!("all ooffset are blocked")
     }
 
-    #[must_use]
     pub fn try_action(
         &self,
         action: TetAction,
@@ -613,7 +602,7 @@ impl GameState {
         }
         let mut new = self.clone();
         new.last_action = action;
-        let new_segm = new.put_replay_event(&GameReplayEvent {action},event_time);
+        let mut new_segm = new.get_update_segment_for_event(&GameReplayEvent {action},event_time);
 
         match action {
             TetAction::HardDrop => {
@@ -644,6 +633,15 @@ impl GameState {
             new.put_ghost();
         }
         new.total_moves += 1;
+        if new.game_over() {
+            let idx = new.last_segment_idx + 1;
+            new.last_segment_idx = idx;
+            new_segm.push(GameReplaySegment {
+                idx,
+                data: GameReplaySegmentData::GameOver(new.game_over_reason.expect("game_over() but no reason?")),
+                timestamp: event_time,
+            });
+        }
         Ok((new, new_segm))
     }
 
