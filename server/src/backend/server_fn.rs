@@ -17,6 +17,7 @@ use game::bot::get_bot_from_id;
 use game::bot::get_bot_id;
 use game::tet::GameOverReason;
 use game::tet::GameReplaySegment;
+use game::tet::GameReplaySegmentData;
 use game::tet::GameState;
 use game::timestamp::get_timestamp_now_nano;
 use rand::Rng;
@@ -116,8 +117,8 @@ fn do_append_game_segment(
         .range(GameSegmentId::get_range_for_game(&id))
         .next_back();
     if let Some(Ok((_i, _seg))) = last_segment {
-        match _seg {
-            GameReplaySegment::GameOver(_r) => {
+        match _seg.data {
+            GameReplaySegmentData::GameOver(_r) => {
                 return Ok(AppendGameSegmentResponse {
                     maybe_reason: Some(_r),
                     garbage: 0,
@@ -128,7 +129,7 @@ fn do_append_game_segment(
     }
 
     do_append_game_segment_to_db(id, new_segment, &_current_session)?;
-    if let GameReplaySegment::GameOver(_r) = new_segment {
+    if let GameReplaySegmentData::GameOver(_r) = new_segment.data {
         return Ok(AppendGameSegmentResponse {
             maybe_reason: Some(_r),
             garbage: 0,
@@ -141,7 +142,11 @@ fn do_append_game_segment(
         Some(_reason) => {
             do_append_game_segment_to_db(
                 id,
-                GameReplaySegment::GameOver(_reason.clone()),
+                GameReplaySegment {
+                    data: GameReplaySegmentData::GameOver(_reason.clone()),
+                    idx: new_segment.idx + 1,
+                    timestamp: new_segment.timestamp,
+                },
                 &_current_session,
             )?;
         }
@@ -156,33 +161,7 @@ fn do_append_game_segment_to_db(
     new_segment: GameReplaySegment,
     _current_session: &CurrentSessionInfo,
 ) -> anyhow::Result<()> {
-    match new_segment {
-        GameReplaySegment::Init(_) => {
-            _current_session.chatbot_tx.chatbot_send_msg(
-                crate::chatbot::messages::ChatbotMessage::GameUpdate(
-                    GameUpdateMessage {
-                        game_id: id,
-                        event_type:
-                            crate::chatbot::messages::GameUpdateEventType::GameStarted,
-                    },
-                ),
-            );
-        }
-        GameReplaySegment::Update(_) => {}
-        GameReplaySegment::GameOver(_reason) => {
-            _current_session.chatbot_tx.chatbot_send_msg(
-                crate::chatbot::messages::ChatbotMessage::GameUpdate(
-                    GameUpdateMessage {
-                        game_id: id,
-                        event_type:
-                            crate::chatbot::messages::GameUpdateEventType::GameFinished(
-                                _reason,
-                            ),
-                    },
-                ),
-            );
-        }
-    }
+
     let existing_segment_count = GAME_SEGMENT_COUNT_DB
         .get(&id)?
         .context("game segment count not found!")?;
@@ -196,6 +175,8 @@ fn do_append_game_segment_to_db(
         .next_back()
         .map(|k| k.ok().map(|x| x.0))
         .flatten();
+    let last_segment_idx = last_segment_id.map(|x| x.segment_id).unwrap_or(0);
+
     let last_state: Option<GameState> = if existing_segment_count > 0 {
         let maybe_gamestate = GAME_FULL_DB.get(&id)?.context("not found")?;
         Some(maybe_gamestate)
@@ -203,69 +184,78 @@ fn do_append_game_segment_to_db(
         None
     };
 
+    if new_segment.idx != last_segment_idx + 1 {
+        anyhow::bail!("bad segmnet idx: expected {}, got {}", last_segment_idx + 1, new_segment.idx)
+    }
+    if let Some(GameReplaySegmentData::GameOver(_reason)) = last_segment.map(|x| x.data) {
+        anyhow::bail!("cannot add another segment after game over: {:?}", last_segment);
+    }
+
     let new_segment_id = GameSegmentId {
         game_id: id,
-        segment_id: match last_segment_id {
-            None => 0,
-            Some(_s) => 1 + _s.segment_id,
-        },
+        segment_id: new_segment.idx,
     };
 
-    match &new_segment {
-        GameReplaySegment::Init(_) => {
-            if existing_segment_count != 0 {
+    match &new_segment.data {
+        GameReplaySegmentData::Init(_init) => {
+            if existing_segment_count != 0 || last_segment.is_some() || last_segment_idx != 0 {
                 anyhow::bail!("only 1st segment should be init");
             }
-        }
-        GameReplaySegment::Update(update_seg) => {
-            let last_segment = last_segment.context("last segment not found")?;
-            match last_segment {
-                GameReplaySegment::Init(_) => {
-                    if update_seg.idx != 0 {
-                        anyhow::bail!("1st update segmnet needs idx=0");
-                    }
-                }
-                GameReplaySegment::Update(old_update) => {
-                    if old_update.idx + 1 != update_seg.idx {
-                        anyhow::bail!(
-                            "segment idx do not match up - missing/duplicate"
-                        );
-                    }
-                }
-                GameReplaySegment::GameOver(_) => {
-                    anyhow::bail!("already have old segmnet for game over");
-                }
+            if _init.start_time != id.start_time || _init.init_seed != id.init_seed {
+                anyhow::bail!("wrong params for init");
             }
         }
-        GameReplaySegment::GameOver(_) => {
-            log::info!("append segment game over");
-        }
+        _ => {},
     };
-    let game_in_progress = match &new_segment {
-        GameReplaySegment::Init(_) => true,
-        GameReplaySegment::Update(_) => true,
-        GameReplaySegment::GameOver(_) => false,
+    let game_in_progress = match &new_segment.data {
+        GameReplaySegmentData::Init(_) => true,
+        GameReplaySegmentData::Update(_) => true,
+        GameReplaySegmentData::GameOver(_) => false,
     };
     GAME_IS_IN_PROGRESS_DB.insert(&id, &game_in_progress)?;
     GAME_SEGMENT_DB.insert(&new_segment_id, &new_segment)?;
     GAME_SEGMENT_COUNT_DB.insert(&id, &(existing_segment_count + 1))?;
 
-    let new_game_state = match new_segment {
-        GameReplaySegment::Init(replay) => {
+    let new_game_state = match new_segment.data {
+        GameReplaySegmentData::Init(replay) => {
             GameState::new(&replay.init_seed, replay.start_time)
         }
-        GameReplaySegment::Update(slice) => {
+        GameReplaySegmentData::Update(_) | GameReplaySegmentData::GameOver(_) => {
             let mut last_state = last_state.context("no last state found")?;
-            last_state.accept_replay_slice(&slice)?;
-            last_state
-        }
-        GameReplaySegment::GameOver(_reason) => {
-            let mut last_state = last_state.context("no last state found")?;
-            last_state.game_over_reason = Some(_reason.clone());
+            last_state.accept_replay_segment(&new_segment).context("accept replay slice")?;
             last_state
         }
     };
     GAME_FULL_DB.insert(&id, &new_game_state)?;
+
+    match new_segment.data {
+        GameReplaySegmentData::Init(_) => {
+            _current_session.chatbot_tx.chatbot_send_msg(
+                crate::chatbot::messages::ChatbotMessage::GameUpdate(
+                    GameUpdateMessage {
+                        game_id: id,
+                        event_type:
+                            crate::chatbot::messages::GameUpdateEventType::GameStarted,
+                    },
+                ),
+            );
+        }
+        GameReplaySegmentData::Update(_) => {}
+        GameReplaySegmentData::GameOver(_reason) => {
+            _current_session.chatbot_tx.chatbot_send_msg(
+                crate::chatbot::messages::ChatbotMessage::GameUpdate(
+                    GameUpdateMessage {
+                        game_id: id,
+                        event_type:
+                            crate::chatbot::messages::GameUpdateEventType::GameFinished(
+                                _reason,
+                            ),
+                    },
+                ),
+            );
+        }
+    }
+
     Ok(())
 }
 
@@ -346,11 +336,7 @@ pub fn get_all_segments_for_game(
         let (_segment_id, replay_segment) = item?;
         r.push(replay_segment);
     }
-    r.sort_by_key(|s| match s {
-        GameReplaySegment::Init(_) => -1,
-        GameReplaySegment::Update(_s) => _s.idx as i32,
-        GameReplaySegment::GameOver(_) => i32::MAX,
-    });
+    r.sort_by_key(|s| s.idx);
     Ok(r)
 }
 
