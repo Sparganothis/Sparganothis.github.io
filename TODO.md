@@ -2,8 +2,28 @@
 
 # todo
 
+
+## finish refacctor
+- game DONE
+- server DONE
+- vim DONE
+- client NOT DONE / 5 files
+
+## benchamrk shpeed
+- integration test webpage using  firefox + chrome
+- measure keypress --> webpage update lag (firefox + chromme)
+- benchmamrk full game for crates:
+  - game
+  - server
+  - client
+  - VIM python binding
+- github action integration (what product?)
+
+
+
 ## friendly match
-- button to generate friendly match
+- button to generate friendly match (give private room mlink)
+- set mamtch options, gaem type, etc
 - generate link unique with secret key
 - first user sends link to second user
 - second user when visiting link is auto-matchmake with first user
@@ -135,9 +155,35 @@
 
 
 
+
 ### 1V1 ONLINE
 
 - Combo GARBAGE - bara + send lines between bots
+- ccorrespondentz?? primvate mmessage?
+  - NO, MMAXTRIX ROOM INTEGRATION
+
+
+## LEARN
+  - finesse trainer + interactive tutorial / score
+    - ciordit experienta duloingo
+  - strategy guide + interactive tutorial / score
+      - double tspin factory
+      - triple tspin factory
+      - full clear
+      - ???
+  - basicc tutorial ???
+
+## SOCIAL
+  - follow user
+  - add friend
+  - sxtreamm audio / mmatrix
+  - cocmmmmunity forumm discourse like https://devcommunity.x.com/
+
+## TOOLS
+  - mspaint.exe
+  - replay explorer / analyzer (like lichess) - show bad moves and the best alternative
+  
+
 
 
 ## grafic
