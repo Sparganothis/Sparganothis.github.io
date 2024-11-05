@@ -3,3 +3,5 @@ runner = 'wasm-bindgen-test-runner'
 
 [build]
 target = "wasm32-unknown-unknown"
+[toolchain]
+channel = "stable"

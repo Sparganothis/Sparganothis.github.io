@@ -1,12 +1,9 @@
-#![deny(unused_crate_dependencies)]
-use chatbot::messages::ChatbotMessage;
+// #![deny(unused_crate_dependencies)]
+use server::chatbot::messages::ChatbotMessage;
 use rusqlite as _;
 use tower as _;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt}; // for matrix sdk
 
-pub mod backend;
-pub mod chatbot;
-pub mod database;
 
 #[tokio::main]
 pub async fn main() {
@@ -22,11 +19,11 @@ pub async fn main() {
     let (tx, rx) = tokio::sync::mpsc::channel::<ChatbotMessage>(16);
 
     // CHAT BOT MAIN
-    use crate::chatbot::chatbot::bot_main;
+    use server::chatbot::chatbot::bot_main;
     let bot_task = tokio::spawn(bot_main(rx));
 
     // WEBSOCK SERVER MAIN
-    use crate::backend::server_main::server_main;
+    use server::backend::server_main::server_main;
     let server_task = tokio::spawn(server_main(tx));
 
     if let Err(e) = bot_task.await.unwrap() {
