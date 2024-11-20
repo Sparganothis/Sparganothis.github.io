@@ -2,9 +2,9 @@
 
 set -ex
 # TODO RUN WITH SUDO
-apt-get update -y && apt-get install -y vim wget curl tmux  nodejs npm git  mold clang lld --fix-missing
-npm install -g wasm-pack
-npm install -g sass
+sudo apt-get update -y && sudo apt-get install -y vim wget curl tmux  nodejs npm git  mold clang lld --fix-missing
+sudo npm install -g wasm-pack
+sudo npm install -g sass
 ( cd client; rustup update && rustup target add wasm32-unknown-unknown )
 
 # TOD INSTAL L RUSTUP AND RUST BEFORE RUNNING THIS
